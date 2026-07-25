@@ -352,10 +352,17 @@ and Journal splits into Journey and Passport.
 
 ## 13. Implementation order
 
-Each step must leave the app working.
+The transition follows the **strangler fig pattern**: the new domain model is grown alongside
+the existing implementation and takes over incrementally. The old implementation is never
+edited in the same step that introduces its replacement, and the app works at every step.
 
 ```
-0. Domain layer      catalogues + policies + projections; no UI change
+0. Domain layer      additive only — new model coexists with existing code
+   0A Catalogs       Collection / Theme / Narrative / Experience records
+   0B Policy stubs   Completion · Visibility · Navigation · Curation · Recommendation
+   0C Projections    JourneyProgress · NarrativePath · CollectionFeed · MapView · …
+   0D Legacy bridge  adapt existing restaurants/markets/companions state into the new model
+
 1. Map de-shelling   remove map-region from the shell → Map overlay   ← riskiest, done alone
 2. Navigation        five tabs; Journal split
 3. Explore           Collection Feed
@@ -363,6 +370,19 @@ Each step must leave the app working.
 5. Restaurant demote migrate cultural sections; attach ancestor context
 6. Community         Theme-oriented reorganisation
 ```
+
+**Phase 0 constraints (binding):**
+
+- **Nothing existing is modified.** No edits to `computeJourney`, `journey.js`, components or
+  existing data files. Phase 0 only adds files.
+- `computeJourney` remains the live progress engine throughout Phase 0. The new projections
+  run beside it, not instead of it.
+- The **legacy bridge (0D)** is the seam: it reads the existing persisted state
+  (`kfm-bookmarks`, `kfm-markets`, `kfm-companions`) and presents it to the new model as a
+  `Journey`. Nothing about the existing storage shape changes.
+- Removal of `computeJourney` happens **after Phase 2**, once the new projections drive real
+  screens. Until then both engines coexist, and any disagreement between them is a defect in
+  the new model to be fixed before cutover.
 
 Map de-shelling is isolated in its own step because it rewrites the shell; mixed with other
 changes, a regression would be untraceable.
