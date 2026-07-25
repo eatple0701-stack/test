@@ -258,14 +258,25 @@ themes that becomes an unsolvable synchronisation problem. The only tree is
 `NavigationPolicy` governs entry, and recommendation, search and journey-resumption enter at
 intermediate levels directly. Hierarchy is a content-organisation concern, not a forced path.
 
+To be precise about the two rules, which are easily read as contradictory: **Collection,
+Theme, Narrative and Experience may all be entered directly** from search, recommendation or a
+resumed journey. **Restaurant may not** — it is the single exception, and any route reaching it
+must carry an Experience ancestor. The rule constrains one entity, not the hierarchy at large.
+
 ## 10. Status lifecycle
 
 ```
 Collection.status  planned → preview → published   (+ retired)
 Theme.status       planned → preview → published   (+ retired)
+Narrative.status   planned → preview → published   (+ retired)
 Experience.status  planned → preview → published   (+ retired)
 Place.lifecycle    active | quarantine | archived | deleted    ← existing, reused
 ```
+
+`Narrative.status` is editorial readiness and is distinct from playability: a `published`
+narrative may still be unplayable today (out of season, venue quarantined), and a `preview`
+narrative may be perfectly runnable. `VisibilityPolicy` reads status; `Playable` reads world
+conditions. Both must be satisfied for a narrative to be offered.
 
 `preview` means *cultural content complete, verified venues not yet secured* — Busan, Royal
 Cuisine and Traditional Tea sit here. It is an expression of roadmap, not a deficiency.
@@ -355,6 +366,11 @@ Each step must leave the app working.
 
 Map de-shelling is isolated in its own step because it rewrites the shell; mixed with other
 changes, a regression would be untraceable.
+
+**This spec is larger than one implementation plan.** Steps 0–6 span a domain layer, a shell
+rewrite, a navigation change and four detail screens. Each step gets its own plan and its own
+implementation cycle; step 0 is planned first. Attempting the whole sequence as a single plan
+would produce a plan too coarse to execute against.
 
 ## 14. Non-goals
 
