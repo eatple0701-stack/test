@@ -42,7 +42,7 @@
 - Produces:
   - `STATUS` = `{ PLANNED:'planned', PREVIEW:'preview', PUBLISHED:'published', RETIRED:'retired' }`
   - `EXPERIENCE_KIND` = `{ DISH:'dish', PLACE:'place', RITUAL:'ritual', SETTING:'setting' }`
-  - `COMPLETION_SOURCE` = `{ PLACE_VISIT:'place-visit', EVENT_ATTENDANCE:'event-attendance', MISSION_CHECK:'mission-check', SELF_ATTEST:'self-attest' }`
+  - `COMPLETION_SOURCE` = `{ PLACE_VISIT:'place-visit', EVENT_ATTENDANCE:'event-attendance', SELF_ATTEST:'self-attest' }`
   - `BLOCKER` = `{ MISSING_VENUE:'missing-venue', OUT_OF_SEASON:'out-of-season', NO_EVENT_OCCURRENCE:'no-event-occurrence', REGION_UNAVAILABLE:'region-unavailable' }`
   - `isSurfaceable(status) -> boolean`
   - `emptyJourney() -> Journey`
@@ -92,10 +92,10 @@ test('experience kinds cover the four authoring shapes', () => {
   assert.deepEqual(Object.values(EXPERIENCE_KIND).sort(), ['dish', 'place', 'ritual', 'setting']);
 });
 
-test('completion sources are the four seeded strategies', () => {
+test('completion sources are the three seeded strategies', () => {
   assert.deepEqual(
     Object.values(COMPLETION_SOURCE).sort(),
-    ['event-attendance', 'mission-check', 'place-visit', 'self-attest'],
+    ['event-attendance', 'place-visit', 'self-attest'],
   );
 });
 
@@ -154,7 +154,6 @@ export const EXPERIENCE_KIND = {
 export const COMPLETION_SOURCE = {
   PLACE_VISIT: 'place-visit',
   EVENT_ATTENDANCE: 'event-attendance',
-  MISSION_CHECK: 'mission-check',
   SELF_ATTEST: 'self-attest',
 };
 
@@ -1243,10 +1242,10 @@ test('preview and published entities surface; planned does not', () => {
   assert.equal(isSurfaceableEntity({ status: STATUS.PLANNED }), false);
 });
 
-test('the registry seeds four sources', () => {
+test('the registry seeds three sources', () => {
   assert.deepEqual(
     completionSources.map(s => s.id).sort(),
-    ['event-attendance', 'mission-check', 'place-visit', 'self-attest'],
+    ['event-attendance', 'place-visit', 'self-attest'],
   );
 });
 
@@ -1409,17 +1408,11 @@ export const completionSources = [
     },
   },
   {
-    id: COMPLETION_SOURCE.MISSION_CHECK,
-    label: 'Completed the mission',
-    // Missions are checked off through the same attestation record as
-    // self-attestation; kept separate so the two can diverge later without
-    // reshaping anything that consumes the registry.
-    appliesTo: (e) => e.acceptsSelfAttest,
-    isSatisfied: (e, j) => j.attestedExperienceIds.has(e.id),
-    evidenceOf: (e, j) => (j.attestedExperienceIds.has(e.id) ? { kind: 'mission', id: e.id } : null),
-  },
-  {
     id: COMPLETION_SOURCE.SELF_ATTEST,
+    // Covers both 'I completed the mission' and 'I did this': both resolve to
+    // the same attestation record, so they are one strategy rather than two
+    // identical ones. A distinct mission source earns its place once missions
+    // gain their own storage, and adding it then is a single registry entry.
     label: 'Marked as done',
     appliesTo: (e) => e.acceptsSelfAttest,
     isSatisfied: (e, j) => j.attestedExperienceIds.has(e.id),
