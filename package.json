@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "check-data": "node scripts/check-data.mjs",
+    "test": "node --test \"src/**/*.test.mjs\"",
     "preview": "vite preview"
   },
   "dependencies": {
