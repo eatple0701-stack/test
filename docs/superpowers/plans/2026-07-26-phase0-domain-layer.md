@@ -1280,6 +1280,31 @@ test('self-attestation does not complete an experience that has anchors', () => 
   );
 });
 
+test('attestation is refused for an anchored experience even if it opts in', () => {
+  // The guarantee must come from the policy, not from catalog-authoring
+  // convention: a record that both carries an anchor and sets the flag must
+  // still refuse attestation. The seed has no such record, so the test
+  // contrives one rather than passing for the wrong reason.
+  const contrived = {
+    id: 'contrived-anchored',
+    restaurantIds: ['balwoo'],
+    marketIds: [],
+    acceptsSelfAttest: true,
+  };
+  const j = emptyJourney();
+  j.attestedExperienceIds.add('contrived-anchored');
+  assert.equal(
+    experienceDone(contrived, j), false,
+    'having an anchor must veto the attestation route',
+  );
+
+  j.visitedRestaurantIds.add('balwoo');
+  assert.equal(
+    experienceDone(contrived, j), true,
+    'the same record completes normally through its anchor',
+  );
+});
+
 test('a narrative completes when its required steps are done, ignoring optional ones', () => {
   const j = emptyJourney();
   j.visitedRestaurantIds.add('balwoo');
@@ -1409,7 +1434,8 @@ export const completionSources = [
       return e.restaurantIds.some(id => admissible.has(id) && j.visitedRestaurantIds.has(id));
     },
     evidenceOf: (e, j) => {
-      const id = e.restaurantIds.find(x => j.visitedRestaurantIds.has(x));
+      const admissible = admissiblePlaceIds();
+      const id = e.restaurantIds.find(x => admissible.has(x) && j.visitedRestaurantIds.has(x));
       return id ? { kind: 'restaurant', id } : null;
     },
   },
@@ -1430,7 +1456,12 @@ export const completionSources = [
     // identical ones. A distinct mission source earns its place once missions
     // gain their own storage, and adding it then is a single registry entry.
     label: 'Marked as done',
-    appliesTo: (e) => e.acceptsSelfAttest,
+    // Requiring the absence of anchors here — rather than trusting the
+    // record's flag alone — keeps attestation from becoming a universal skip
+    // button for anchored experiences. The guarantee must come from the
+    // policy, not from catalog-authoring convention.
+    appliesTo: (e) =>
+      e.acceptsSelfAttest && e.restaurantIds.length === 0 && e.marketIds.length === 0,
     isSatisfied: (e, j) => j.attestedExperienceIds.has(e.id),
     evidenceOf: (e, j) => (j.attestedExperienceIds.has(e.id) ? { kind: 'attestation', id: e.id } : null),
   },
@@ -1504,7 +1535,7 @@ export function ancestryOfRestaurant(restaurantId) {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 54 tests total
+Expected: PASS, 55 tests total
 
 - [ ] **Step 7: Verify the dependency direction was not violated**
 
@@ -1779,7 +1810,7 @@ export function markersOfCollection(collectionId) {
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 66 tests total
+Expected: PASS, 67 tests total
 
 - [ ] **Step 6: Verify the capability layer stayed pure**
 
@@ -2103,7 +2134,7 @@ export function collectionFeed(journey, { at = new Date(), availableEvents } = {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 75 tests total
+Expected: PASS, 76 tests total
 
 - [ ] **Step 7: Commit**
 
@@ -2309,7 +2340,7 @@ export function readLegacyJourney(storage) {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 83 tests total
+Expected: PASS, 84 tests total
 
 - [ ] **Step 5: Verify the bridge did not couple to the old engine**
 
@@ -2445,7 +2476,7 @@ test('an experience shared by two themes is counted in both', () => {
 - [ ] **Step 2: Run the test**
 
 Run: `npm test`
-Expected: PASS, 91 tests total
+Expected: PASS, 92 tests total
 
 If any parity assertion fails, the defect is in the new model or the bridge — **never** in `src/data/journey.js`, which must not be edited.
 
@@ -2486,7 +2517,7 @@ experience shared by two themes is counted in both."
 
 ## Definition of Done for Phase 0
 
-- [ ] `npm test` passes with 91 tests
+- [ ] `npm test` passes with 92 tests
 - [ ] `npm run lint` shows no new warnings
 - [ ] `npm run check-data` exits 0
 - [ ] `git diff --stat HEAD -- src/data src/components src/App.jsx` is empty
