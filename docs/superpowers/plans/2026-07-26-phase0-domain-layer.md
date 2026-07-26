@@ -443,8 +443,12 @@ export const experiences = [
       title: 'Walk It First',
       detail: 'Walk the full alley before you buy. Deciding after seeing everything is how locals shop.',
     },
+    // Anchored to namdaemun alone, deliberately disjoint from the gwangjang
+    // anchors of street-first-timer's required steps. That disjointness is
+    // what lets an optional step be unreachable while the narrative stays
+    // playable — the only way the `degraded` verdict can ever be exercised.
     restaurantIds: [],
-    marketIds: ['gwangjang', 'namdaemun'],
+    marketIds: ['namdaemun'],
     zones: ['Jongno, Seoul', 'Hoehyeon, Seoul'],
     acceptsSelfAttest: false,
   },
@@ -1338,16 +1342,26 @@ test('a theme is explored as soon as any of its experiences is done', () => {
   assert.equal(themeDone('street-food', j), false, 'exploring is not completing');
 });
 
-test('one market visit completes every experience anchored to that market', () => {
+test('a market visit completes exactly the experiences anchored to that market', () => {
   const j = emptyJourney();
   j.visitedMarketIds.add('gwangjang');
-  for (const id of ['gwangjang-market', 'bindaetteok', 'market-alley']) {
+  for (const id of ['gwangjang-market', 'bindaetteok']) {
     assert.equal(
       experienceDone(experienceById(id), j), true,
       `${id} is anchored to gwangjang and must complete on that visit`,
     );
   }
+  assert.equal(
+    experienceDone(experienceById('market-alley'), j), false,
+    'market-alley is anchored to namdaemun, so a gwangjang visit must not complete it',
+  );
   assert.equal(themeDone('street-food', j), true, 'both required steps are satisfied');
+
+  j.visitedMarketIds.add('namdaemun');
+  assert.equal(
+    experienceDone(experienceById('market-alley'), j), true,
+    'visiting its own market completes it',
+  );
 });
 
 test('restaurant is the single entity that cannot be entered directly', () => {
@@ -1831,7 +1845,7 @@ export function markersOfCollection(collectionId) {
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 73 tests total
+Expected: PASS, 75 tests total
 
 > **Amended during execution.** Review found `degraded` structurally unreachable:
 > the seed's only optional steps were venue-less and self-attestable, so no
@@ -2165,7 +2179,7 @@ export function collectionFeed(journey, { at = new Date(), availableEvents } = {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 82 tests total
+Expected: PASS, 84 tests total
 
 - [ ] **Step 7: Commit**
 
@@ -2371,7 +2385,7 @@ export function readLegacyJourney(storage) {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 90 tests total
+Expected: PASS, 92 tests total
 
 - [ ] **Step 5: Verify the bridge did not couple to the old engine**
 
@@ -2507,7 +2521,7 @@ test('an experience shared by two themes is counted in both', () => {
 - [ ] **Step 2: Run the test**
 
 Run: `npm test`
-Expected: PASS, 98 tests total
+Expected: PASS, 100 tests total
 
 If any parity assertion fails, the defect is in the new model or the bridge — **never** in `src/data/journey.js`, which must not be edited.
 
@@ -2548,7 +2562,7 @@ experience shared by two themes is counted in both."
 
 ## Definition of Done for Phase 0
 
-- [ ] `npm test` passes with 98 tests
+- [ ] `npm test` passes with 100 tests
 - [ ] `npm run lint` shows no new warnings
 - [ ] `npm run check-data` exits 0
 - [ ] `git diff --stat HEAD -- src/data src/components src/App.jsx` is empty
