@@ -44,6 +44,17 @@ export const narratives = [
     pacing: 'half-day',
     status: STATUS.PUBLISHED,
   },
+  {
+    id: 'street-quick-bite',
+    themeId: 'street-food',
+    title: 'Thirty Minutes at the Market',
+    intro:
+      'The short version. One stall, one thing, eaten standing up, and back out — this is how the market is used on an ordinary weekday.',
+    outro:
+      'You did not see the whole market, and that is the point. It is a place to drop into, not an itinerary.',
+    pacing: 'evening',
+    status: STATUS.PREVIEW,
+  },
 ];
 
 export const narrativeSteps = [
@@ -95,6 +106,15 @@ export const narrativeSteps = [
     required: false,
     transition:
       'Before you leave, walk the alley end to end. Seeing the whole trade in one line is the part people remember.',
+  },
+
+  {
+    narrativeId: 'street-quick-bite',
+    experienceId: 'gwangjang-market',
+    order: 1,
+    required: true,
+    transition:
+      'Go straight in and order at the first stall that looks busy. Busy means the turnover is fast and the food is fresh.',
   },
 
   {

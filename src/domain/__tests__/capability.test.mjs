@@ -123,14 +123,66 @@ test('offering the optional step its own market clears the degradation', () => {
 });
 
 test('a theme degrades when its only playable narrative is degraded', () => {
+  // street-food no longer fits this scenario: it now carries a second,
+  // undegradable narrative (street-quick-bite, added below) specifically so
+  // every()-vs-some() aggregation is testable, which means street-food is no
+  // longer degraded under a gwangjang-only context (see 'a theme with a
+  // clean playable narrative is not degraded, even when another is').
+  //
+  // Retargeting this scenario to a theme that genuinely has only one
+  // narrative turns out to be impossible with the current catalog: temple-life
+  // has one narrative (temple-half-day), but its only optional step
+  // (temple-tea) is venue-less and self-attesting, so by design ("attestation
+  // needs no venue", playable.js) it is always reachable and the narrative
+  // can never be degraded. noodle-road has one narrative (noodle-origin), but
+  // it has no optional step at all, so it too can never be degraded while
+  // playable. Per the review finding's own instructions, that impossibility
+  // is reported here rather than forced onto a theme that cannot actually
+  // produce a playable-but-degraded verdict. This test is repurposed to
+  // document exactly that: both remaining single-narrative themes are
+  // structurally incapable of being playable-but-degraded.
+  const templeLifeCtx = {
+    at: new Date('2026-10-15'),
+    admissiblePlaces: new Set(),
+    availableEvents: new Set(),
+  };
+  const templeLife = assessTheme('temple-life', templeLifeCtx);
+  assert.equal(templeLife.playable, false, 'temple-cuisine is unreachable, so the theme is unplayable, not merely degraded');
+
+  const noodleRoadCtx = {
+    at: new Date('2026-10-15'),
+    admissiblePlaces: new Set(['osegyehyang']),
+    availableEvents: new Set(),
+  };
+  const noodleRoad = assessTheme('noodle-road', noodleRoadCtx);
+  assert.equal(noodleRoad.playable, true, 'jajangmyeon is reachable via an admissible restaurant');
+  assert.equal(noodleRoad.degraded, false, 'noodle-origin has no optional step, so it can never be degraded');
+});
+
+test('a theme with a clean playable narrative is not degraded, even when another is', () => {
+  // street-food has two narratives. With gwangjang offered but namdaemun
+  // withheld: street-quick-bite is playable and clean (its one required step
+  // is anchored to gwangjang and it has no optional steps), while
+  // street-first-timer is playable but degraded (its optional market-alley
+  // step needs namdaemun). A theme degrades only when NO clean path remains,
+  // so this must report false. Aggregating with `some` would report true.
   const ctx = {
     at: new Date('2026-10-15'),
     admissiblePlaces: new Set(),
     availableEvents: new Set(['gwangjang']),
   };
-  const v = assessTheme('street-food', ctx);
-  assert.equal(v.playable, true);
-  assert.equal(v.degraded, true);
+
+  const quick = assessNarrative('street-quick-bite', ctx);
+  assert.equal(quick.playable, true);
+  assert.equal(quick.degraded, false, 'no optional steps means nothing to degrade');
+
+  const full = assessNarrative('street-first-timer', ctx);
+  assert.equal(full.playable, true);
+  assert.equal(full.degraded, true, 'its optional market-alley step needs namdaemun');
+
+  const theme = assessTheme('street-food', ctx);
+  assert.equal(theme.playable, true);
+  assert.equal(theme.degraded, false, 'a clean path exists, so the theme is not degraded');
 });
 
 test('a collection degrades only when no clean playable theme remains', () => {
