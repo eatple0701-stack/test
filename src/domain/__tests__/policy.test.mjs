@@ -74,9 +74,23 @@ test('a theme completes when any one of its narratives completes', () => {
 
 test('a theme is explored as soon as any of its experiences is done', () => {
   const j = emptyJourney();
-  j.visitedMarketIds.add('gwangjang');
+  // makgeolli belongs to street-food but is only an optional step of its
+  // narrative, so attesting it explores the theme without completing it.
+  j.attestedExperienceIds.add('makgeolli');
   assert.equal(themeExplored('street-food', j), true);
   assert.equal(themeDone('street-food', j), false, 'exploring is not completing');
+});
+
+test('one market visit completes every experience anchored to that market', () => {
+  const j = emptyJourney();
+  j.visitedMarketIds.add('gwangjang');
+  for (const id of ['gwangjang-market', 'bindaetteok', 'market-alley']) {
+    assert.equal(
+      experienceDone(experienceById(id), j), true,
+      `${id} is anchored to gwangjang and must complete on that visit`,
+    );
+  }
+  assert.equal(themeDone('street-food', j), true, 'both required steps are satisfied');
 });
 
 test('restaurant is the single entity that cannot be entered directly', () => {
