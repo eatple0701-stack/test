@@ -5,7 +5,8 @@
 // It runs in the test suite, so a broken reference fails CI rather than
 // surfacing as an empty screen later.
 
-import { experiences, experienceById } from './experiences.js';
+import { STATUS } from '../types.js';
+import { experiences, experienceById, hasAnchor } from './experiences.js';
 import {
   themes, themeExperiences, themeById, experienceIdsOfTheme, themeIdsOfExperience,
 } from './themes.js';
@@ -17,7 +18,7 @@ import {
 } from './collections.js';
 
 export {
-  experiences, experienceById,
+  experiences, experienceById, hasAnchor,
   themes, themeExperiences, themeById, experienceIdsOfTheme, themeIdsOfExperience,
   narratives, narrativeSteps, narrativeById, narrativesOfTheme, stepsOfNarrative,
   collections, collectionThemes, collectionById, themeRefsOfCollection, collectionIdsOfTheme,
@@ -71,7 +72,7 @@ export function catalogIntegrity() {
   // An experience with no anchor and no self-attestation route is
   // uncompletable by any registered source.
   for (const e of experiences) {
-    if (e.restaurantIds.length === 0 && e.marketIds.length === 0 && !e.acceptsSelfAttest) {
+    if (!hasAnchor(e) && !e.acceptsSelfAttest) {
       note(`experiences: ${e.id} has no completion route`);
     }
   }
@@ -79,7 +80,7 @@ export function catalogIntegrity() {
   // A theme with no narrative cannot be completed. That is legitimate only
   // while the theme is still being authored.
   for (const t of themes) {
-    if (narrativesOfTheme(t.id).length === 0 && t.status === 'published') {
+    if (narrativesOfTheme(t.id).length === 0 && t.status === STATUS.PUBLISHED) {
       note(`themes: published theme ${t.id} has no narrative`);
     }
   }

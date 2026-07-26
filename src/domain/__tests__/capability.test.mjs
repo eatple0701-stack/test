@@ -122,7 +122,7 @@ test('offering the optional step its own market clears the degradation', () => {
   assert.equal(v.degraded, false, 'every step is reachable now');
 });
 
-test('a theme degrades when its only playable narrative is degraded', () => {
+test('no seeded theme can be degraded, and the reason is structural', () => {
   // street-food no longer fits this scenario: it now carries a second,
   // undegradable narrative (street-quick-bite, added below) specifically so
   // every()-vs-some() aggregation is testable, which means street-food is no
@@ -217,7 +217,7 @@ test('theme is not degraded when a clean playable narrative exists', () => {
   assert.equal(v.degraded, false);
 });
 
-test('collection propagates degradation rather than hardcoding false', () => {
+test('a collection reports no degradation when its themes have clean paths', () => {
   const v = assessCollection('first-timers-seoul', fullContext());
   assert.equal(v.playable, true);
   assert.equal(v.degraded, false, 'both themes have clean playable narratives');

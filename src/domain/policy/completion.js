@@ -9,7 +9,7 @@
 
 import { COMPLETION_SOURCE } from '../types.js';
 import {
-  experienceById, experienceIdsOfTheme, narrativesOfTheme, stepsOfNarrative,
+  experienceById, experienceIdsOfTheme, narrativesOfTheme, stepsOfNarrative, hasAnchor,
 } from '../catalog/index.js';
 import { admissiblePlaceIds } from './visibility.js';
 
@@ -59,8 +59,7 @@ export const completionSources = [
     // anchor to visit. Requiring the absence of anchors here — rather than
     // trusting the record's flag alone — keeps attestation from becoming a
     // universal skip button for anchored experiences.
-    appliesTo: (e) =>
-      e.acceptsSelfAttest && e.restaurantIds.length === 0 && e.marketIds.length === 0,
+    appliesTo: (e) => e.acceptsSelfAttest && !hasAnchor(e),
     isSatisfied: (e, j) => j.attestedExperienceIds.has(e.id),
     evidenceOf: (e, j) => (j.attestedExperienceIds.has(e.id) ? { kind: 'attestation', id: e.id } : null),
   },

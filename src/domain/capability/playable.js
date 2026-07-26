@@ -9,7 +9,7 @@
 
 import { BLOCKER } from '../types.js';
 import {
-  experienceById, narrativesOfTheme, stepsOfNarrative, themeRefsOfCollection,
+  experienceById, narrativesOfTheme, stepsOfNarrative, themeRefsOfCollection, hasAnchor,
 } from '../catalog/index.js';
 
 const verdict = (playable, degraded, blockers) => ({ playable, degraded, blockers });
@@ -20,7 +20,7 @@ function stepReachable(experience, context) {
   if (experience.restaurantIds.some(id => context.admissiblePlaces.has(id))) return true;
   if (experience.marketIds.some(id => context.availableEvents.has(id))) return true;
   // A venue-less experience is always reachable: attestation needs no venue.
-  if (experience.restaurantIds.length === 0 && experience.marketIds.length === 0) {
+  if (!hasAnchor(experience)) {
     return experience.acceptsSelfAttest;
   }
   return false;

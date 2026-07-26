@@ -164,3 +164,13 @@ export const experiences = [
 const byId = new Map(experiences.map(e => [e.id, e]));
 
 export const experienceById = (id) => byId.get(id);
+
+/**
+ * Does this experience have a real-world anchor to visit?
+ *
+ * The single definition of "anchored". Completion, playability and the
+ * integrity gate all ask this rather than each spelling out the field
+ * checks, so adding an anchor kind later is one edit here instead of three
+ * that must stay in lockstep.
+ */
+export const hasAnchor = (e) => e.restaurantIds.length > 0 || e.marketIds.length > 0;

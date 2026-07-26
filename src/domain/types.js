@@ -1,8 +1,9 @@
 // Domain vocabulary — the value objects every other domain module shares.
 //
-// This module imports nothing. It is the base of the one-way dependency
-// chain (policy → projection → capability → catalog → types), so anything
-// added here must stay free of behaviour that belongs further up.
+// This module imports nothing, and is the base of a one-way dependency
+// chain: projection/ composes policy/, capability/ and catalog/; policy/ may
+// import capability/, catalog/, types.js and other policies; catalog/,
+// capability/ and types.js never import from policy/ or projection/.
 
 /** Editorial readiness of a content entity. Distinct from playability. */
 export const STATUS = {
