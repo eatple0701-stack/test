@@ -33,7 +33,8 @@ export const completionSources = [
       return e.restaurantIds.some(id => admissible.has(id) && j.visitedRestaurantIds.has(id));
     },
     evidenceOf: (e, j) => {
-      const id = e.restaurantIds.find(x => j.visitedRestaurantIds.has(x));
+      const admissible = admissiblePlaceIds();
+      const id = e.restaurantIds.find(x => admissible.has(x) && j.visitedRestaurantIds.has(x));
       return id ? { kind: 'restaurant', id } : null;
     },
   },
@@ -54,7 +55,12 @@ export const completionSources = [
     // identical ones. A distinct mission source earns its place once missions
     // gain their own storage, and adding it then is a single registry entry.
     label: 'Marked as done',
-    appliesTo: (e) => e.acceptsSelfAttest,
+    // Self-attestation is the completion route for experiences that have no
+    // anchor to visit. Requiring the absence of anchors here — rather than
+    // trusting the record's flag alone — keeps attestation from becoming a
+    // universal skip button for anchored experiences.
+    appliesTo: (e) =>
+      e.acceptsSelfAttest && e.restaurantIds.length === 0 && e.marketIds.length === 0,
     isSatisfied: (e, j) => j.attestedExperienceIds.has(e.id),
     evidenceOf: (e, j) => (j.attestedExperienceIds.has(e.id) ? { kind: 'attestation', id: e.id } : null),
   },

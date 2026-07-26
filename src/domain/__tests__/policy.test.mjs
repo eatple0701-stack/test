@@ -59,6 +59,30 @@ test('self-attestation does not complete an experience that has anchors', () => 
   );
 });
 
+test('attestation is refused for an anchored experience even if it opts in', () => {
+  // The guarantee must come from the policy, not from catalog-authoring
+  // convention: a record that both carries an anchor and sets the flag must
+  // still refuse attestation.
+  const contrived = {
+    id: 'contrived-anchored',
+    restaurantIds: ['balwoo'],
+    marketIds: [],
+    acceptsSelfAttest: true,
+  };
+  const j = emptyJourney();
+  j.attestedExperienceIds.add('contrived-anchored');
+  assert.equal(
+    experienceDone(contrived, j), false,
+    'having an anchor must veto the attestation route',
+  );
+
+  j.visitedRestaurantIds.add('balwoo');
+  assert.equal(
+    experienceDone(contrived, j), true,
+    'the same record completes normally through its anchor',
+  );
+});
+
 test('a narrative completes when its required steps are done, ignoring optional ones', () => {
   const j = emptyJourney();
   j.visitedRestaurantIds.add('balwoo');
