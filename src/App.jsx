@@ -7,10 +7,15 @@ import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
 import TabPanel from './components/TabPanel';
 import JournalPanel from './components/JournalPanel';
+import HomeTab from './components/HomeTab';
+import MatchTab from './components/MatchTab';
 import Prologue from './components/Prologue';
+import TravelSummary from './components/TravelSummary';
 import { MAP_CENTER } from './utils';
 import { matchesDietary, isQuarantined } from './data/verification';
+import { computeJourney } from './data/journey';
 import './index.css';
+import './custom.css';
 
 // Dietary chips are answered by the structured dietary record (never a tag
 // string); the rest are descriptive traits.
@@ -57,12 +62,43 @@ function loadBookmarks() {
   }
 }
 
+const MARKETS_KEY = 'kfm-markets';
+
+// Markets aren't restaurant records (no hours, menu or dietary facts to
+// verify), so a market visit is tracked as its own list of ids rather than
+// forced into the bookmark shape. Stored as [marketId].
+function loadMarkets() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MARKETS_KEY));
+    return Array.isArray(saved) ? saved.filter(id => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+const COMPANIONS_KEY = 'kfm-companions';
+
+// Stored as [{ travelerId, matchedAt }] — logged whenever "Eat together" is
+// confirmed in Match. Journal reads this alongside bookmarks to show who was
+// met, separate from where was visited.
+function loadCompanions() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COMPANIONS_KEY));
+    if (!Array.isArray(saved)) return [];
+    return saved.filter(entry => entry && typeof entry.travelerId === 'string');
+  } catch {
+    return [];
+  }
+}
+
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [bookmarks, setBookmarks] = useState(loadBookmarks);
-  const [activeTab, setActiveTab] = useState('map');
+  const [companions, setCompanions] = useState(loadCompanions);
+  const [visitedMarkets, setVisitedMarkets] = useState(loadMarkets);
+  const [activeTab, setActiveTab] = useState('home');
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
   const [focusStory, setFocusStory] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -70,6 +106,7 @@ export default function App() {
   const [prologueCompleted, setPrologueCompleted] = useState(
     () => localStorage.getItem('kfm-prologue') === 'true'
   );
+  const [showSummary, setShowSummary] = useState(false);
 
   // Touch states for mobile bottom sheet swipe
   const [touchStartY, setTouchStartY] = useState(null);
@@ -103,15 +140,54 @@ export default function App() {
     localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
   }, [bookmarks]);
 
+  useEffect(() => {
+    localStorage.setItem(COMPANIONS_KEY, JSON.stringify(companions));
+  }, [companions]);
+
+  useEffect(() => {
+    localStorage.setItem(MARKETS_KEY, JSON.stringify(visitedMarkets));
+  }, [visitedMarkets]);
+
   const bookmarkedIds = useMemo(() => bookmarks.map(b => b.id), [bookmarks]);
   const visitedIds = useMemo(
     () => bookmarks.filter(b => b.visitedAt !== null).map(b => b.id),
     [bookmarks],
   );
+
+  // The one place trip progress is derived. Home, Journal and the summary
+  // card all read this, so they can never disagree about how far along the
+  // trip is.
+  const journey = useMemo(() => computeJourney({
+    visitedPlaces: visitedIds.map(id => activeRestaurants.find(r => r.id === id)).filter(Boolean),
+    markets: visitedMarkets,
+    companions,
+  }), [visitedIds, visitedMarkets, companions]);
+
+  const handleToggleMarket = (marketId) => {
+    setVisitedMarkets(prev =>
+      prev.includes(marketId) ? prev.filter(id => id !== marketId) : [...prev, marketId]
+    );
+  };
   const sustainabilityLens = useMemo(
     () => selectedFilters.some(f => SUSTAINABILITY_AXIS.includes(f)),
     [selectedFilters],
   );
+
+  // Logged from Match's "Eat together" — re-matching the same traveler moves
+  // their entry to the top rather than duplicating it in Journal.
+  const handleAddCompanion = (traveler) => {
+    setCompanions(prev => [
+      { travelerId: traveler.id, matchedAt: Date.now() },
+      ...prev.filter(c => c.travelerId !== traveler.id),
+    ]);
+  };
+
+  // Home's zone/course cards jump into Explore pre-filtered by a search term
+  // (zone name or restaurant name) rather than duplicating the map/list here.
+  const goExplore = (query) => {
+    setSearchQuery(query);
+    setActiveTab('explore');
+  };
 
   const handleToggleFilter = (filter) => {
     setSelectedFilters(prev => 
@@ -184,12 +260,12 @@ export default function App() {
         />
       </div>
 
-      <div className={`sidebar-region ${activeTab === 'map' ? `sheet-state-${sheetState}` : 'non-map-tab'}`}>
-        {/* Render Map Items ONLY when activeTab is 'map' */}
-        {activeTab === 'map' && (
+      <div className={`sidebar-region ${activeTab === 'explore' ? `sheet-state-${sheetState}` : 'non-map-tab'}`}>
+        {/* Render map list/search UI ONLY when activeTab is 'explore' */}
+        {activeTab === 'explore' && (
           <>
             {/* Mobile handle and header wrapped for touch events */}
-            <div 
+            <div
               className="sheet-header-drag-area"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -198,6 +274,8 @@ export default function App() {
               <div className="sheet-handle-area" onClick={() => setSheetState(s => (s + 1) % 3)}>
                 <div className="sheet-handle-bar" />
               </div>
+
+              <h1 className="explore-header">Choose a place to visit together</h1>
 
               {/* Search + dietary filters */}
               <FilterBar
@@ -223,11 +301,37 @@ export default function App() {
           </>
         )}
 
-        {/* Tab panels rendered inside the sidebar */}
-        {activeTab === 'journal' && (
-          <JournalPanel bookmarks={bookmarks} mapCenter={mapCenter} onRestaurantClick={openDetail} />
+        {/* Full-screen tabs rendered inside the sidebar region (it becomes a
+            transparent, full-viewport wrapper for these via .non-map-tab) */}
+        {activeTab === 'home' && (
+          <HomeTab
+            onNavigate={setActiveTab}
+            onOpenRestaurant={openDetail}
+            onOpenStory={openStory}
+            onExploreZone={goExplore}
+            bookmarkedIds={bookmarkedIds}
+            onToggleBookmark={handleToggleBookmark}
+            journey={journey}
+            visitedMarkets={visitedMarkets}
+            onToggleMarket={handleToggleMarket}
+            onOpenSummary={() => setShowSummary(true)}
+          />
         )}
-        {activeTab !== 'map' && activeTab !== 'journal' && (
+        {activeTab === 'match' && (
+          <MatchTab onMatch={handleAddCompanion} onNavigate={setActiveTab} />
+        )}
+        {activeTab === 'journal' && (
+          <JournalPanel
+            bookmarks={bookmarks}
+            companions={companions}
+            mapCenter={mapCenter}
+            onRestaurantClick={openDetail}
+            onNavigate={setActiveTab}
+            journey={journey}
+            onOpenSummary={() => setShowSummary(true)}
+          />
+        )}
+        {activeTab === 'profile' && (
           <TabPanel tab={activeTab} onNavigate={setActiveTab} />
         )}
 
@@ -262,7 +366,15 @@ export default function App() {
         onToggleVisited={handleToggleVisited}
         mapCenter={mapCenter}
         focusStory={focusStory}
+        onOpenRestaurant={openDetail}
+        onExploreZone={goExplore}
+        bookmarkedIds={bookmarkedIds}
+        onNavigate={setActiveTab}
       />
+
+      {showSummary && (
+        <TravelSummary journey={journey} onClose={() => setShowSummary(false)} />
+      )}
 
     </div>
   );

@@ -1,13 +1,19 @@
 import React from 'react';
 
 const icons = {
-  map: (
+  home: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" />
-      <circle cx="12" cy="10" r="2.6" />
+      <path d="m4 10.5 8-6.5 8 6.5" />
+      <path d="M6 9.5V20h12V9.5" />
+      <path d="M10 20v-6h4v6" />
     </svg>
   ),
-  discover: (
+  match: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  ),
+  explore: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="9" />
       <path d="m15.5 8.5-2.1 5-5 2.1 2.1-5z" />
@@ -29,8 +35,9 @@ const icons = {
 };
 
 const tabs = [
-  { id: 'map', label: 'Map' },
-  { id: 'discover', label: 'Discover' },
+  { id: 'home', label: 'Home' },
+  { id: 'match', label: 'Match' },
+  { id: 'explore', label: 'Explore' },
   { id: 'journal', label: 'Journal' },
   { id: 'profile', label: 'Profile' },
 ];

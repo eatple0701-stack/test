@@ -95,6 +95,13 @@ button {
   position: relative;
 }
 
+.explore-header {
+  padding: 12px 20px 4px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
 .home-header {
   background: var(--surface);
   padding: 12px 16px;
@@ -481,11 +488,6 @@ button {
   object-fit: cover;
   display: block;
 }
-.place-image .place-image__illustration {
-  width: 62%;
-  height: 62%;
-  object-fit: contain;
-}
 .place-image--thumb {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -548,10 +550,6 @@ button {
   aspect-ratio: 4 / 3;
   border-radius: 0;
   cursor: pointer;
-}
-.place-image--hero .place-image__illustration {
-  width: 30%;
-  height: 56%;
 }
 
 .detail-content {
@@ -779,18 +777,46 @@ button {
 .btn-primary:active {
   transform: scale(0.98);
 }
+.btn-secondary {
+  height: 52px;
+  padding: 0 20px;
+  border: 1.5px solid var(--green-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--green-strong);
+  font-size: 15px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+.btn-secondary:hover {
+  background: var(--green-tint);
+}
+.btn-secondary:active {
+  transform: scale(0.98);
+}
 .icon-btn--lg {
   width: 52px;
   height: 52px;
   background: var(--surface);
 }
 
-/* Story sections */
+/* Story sections — each one reads as its own card (Meetup-event-page style)
+   rather than a continuous article, so a traveler can scan section by
+   section instead of reading top to bottom. */
 .detail-section {
   display: flex;
   flex-direction: column;
   gap: 12px;
   scroll-margin-top: 12px;
+  padding: 18px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
 }
 .section-head {
   display: flex;
@@ -989,6 +1015,91 @@ button {
   margin-bottom: 4px;
 }
 
+/* Useful Korean phrase rows */
+.phrase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.phrase-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.phrase-row:last-child {
+  border-bottom: none;
+}
+.phrase-row__kr {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.phrase-ko {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.phrase-ro {
+  font-size: 12px;
+  color: var(--muted);
+}
+.phrase-en {
+  font-size: 13px;
+  color: var(--ink-body);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Food Story mini-cards: Origin / Cultural Meaning / When Koreans Eat This /
+   Fun Fact — each a small labeled block instead of one long paragraph. */
+.story-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.story-mini-card {
+  padding: 12px 14px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+.story-mini-card__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  margin-bottom: 6px;
+}
+.story-mini-card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+
+/* Passport Mission status pill */
+.mission-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mission-status--done {
+  background: var(--green-tint);
+  color: var(--green-strong);
+}
+
 .menu-rows {
   display: flex;
   flex-direction: column;
@@ -1101,10 +1212,22 @@ button {
 
 /* Teardrop map pins */
 .k-pin {
+  position: relative;
   background: none;
   border: none;
   filter: drop-shadow(0 2px 4px rgba(16, 24, 40, 0.3));
   transition: transform 0.15s ease;
+}
+/* The teardrop is narrower than a thumb. Widen the hit area to 44px without
+   changing the pin's drawn size or its anchor point on the map. */
+.k-pin::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 .k-pin:hover {
   transform: scale(1.08);
@@ -1262,6 +1385,24 @@ button {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  animation: fadeIn 0.25s ease;
+}
+
+/* Home and Match are full-viewport panels like Journal/Profile, not
+   centered placeholders like the plain .tab-panel */
+.home-tab,
+.match-tab {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--tab-h);
+  z-index: 12;
+  background: var(--bg);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
   animation: fadeIn 0.25s ease;
 }
 
@@ -1554,11 +1695,13 @@ button {
     height: 100%;
   }
 
-  /* Only one of these three renders at a time (driven by activeTab), all
+  /* Only one of these renders at a time (driven by activeTab), all
      sharing the same left-column cell */
   .list-region,
   .journal-panel,
-  .tab-panel {
+  .tab-panel,
+  .home-tab,
+  .match-tab {
     grid-area: list;
     position: static;
     inset: auto;
@@ -1653,7 +1796,7 @@ button {
     flex-shrink: 0;
   }
   
-  .list-region, .journal-panel, .tab-panel {
+  .list-region, .journal-panel, .tab-panel, .home-tab, .match-tab {
     grid-area: auto;
     height: auto;
     flex-grow: 1;
@@ -1661,22 +1804,24 @@ button {
   }
 
   /* To prevent content squishing while transitioning width to 64px */
-  .sheet-header-drag-area, .list-region, .journal-panel, .tab-panel {
-    width: 420px; 
+  .sheet-header-drag-area, .list-region, .journal-panel, .tab-panel, .home-tab, .match-tab {
+    width: 420px;
     transition: opacity 0.15s ease;
   }
-  
+
   .app-shell.is-collapsed .sheet-header-drag-area,
   .app-shell.is-collapsed .list-region,
   .app-shell.is-collapsed .journal-panel,
-  .app-shell.is-collapsed .tab-panel {
+  .app-shell.is-collapsed .tab-panel,
+  .app-shell.is-collapsed .home-tab,
+  .app-shell.is-collapsed .match-tab {
     opacity: 0;
     pointer-events: none;
   }
 
 
   /* Non-map tabs */
-  .journal-panel, .tab-panel {
+  .journal-panel, .tab-panel, .home-tab, .match-tab {
     position: fixed;
     top: 0;
     left: 0;
@@ -1687,7 +1832,7 @@ button {
     overflow-y: auto;
   }
 
-  .journal-panel, .tab-panel {
+  .journal-panel, .tab-panel, .home-tab, .match-tab {
     position: static;
     flex-grow: 1;
     z-index: auto;
@@ -2079,6 +2224,42 @@ button {
   letter-spacing: 0.05em;
 }
 
+/* Passport summary: overall badge progress + distance to the next one,
+   computed from real state — never a fabricated "trip score". */
+.passport-progress {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--green-tint);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.passport-progress__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+.passport-progress__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(8, 127, 91, 0.15);
+  overflow: hidden;
+}
+.passport-progress__fill {
+  height: 100%;
+  background: var(--green-strong);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.passport-progress__next {
+  font-size: 12.5px;
+  color: #14532D;
+}
+
 .journal-section {
   padding: 24px 20px 0;
 }
@@ -2145,36 +2326,1593 @@ button {
   color: var(--muted);
 }
 
-/* ---------- PlaceImage Premium Fallback ---------- */
-.place-image__fallback {
+/* ---------- PlaceImage: illustration as the primary visual ----------
+   Every `photo` in the dataset is null until permission is on file, so this
+   is what users actually see. The 400×300 artwork fills the frame, and a
+   per-category wash gives each cuisine its own colour so a scroll row reads
+   as a set. The initial sits in the corner as a quiet watermark. */
+.place-image__art {
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  background: #F8F6F0; /* matches the illustrations' own canvas */
+}
+/* The reveal is a self-running animation with `both` fill, not a transition
+   gated on a JS `loaded` flag. A cached image can fire its load event before
+   React attaches onLoad, and anything that leaves the element at opacity 0
+   in that case renders the illustration permanently invisible. An animation
+   always reaches its end state on its own. */
+@keyframes illoIn {
+  from { opacity: 0; transform: scale(1.04); }
+  to { opacity: 1; transform: scale(1); }
+}
+.place-image__illo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: illoIn 0.5s ease both;
+}
+/* Scoped to real photography only. Left unscoped, this animation also matched
+   the illustration <img> and fought its opacity transition — the illustration
+   is animated by .place-image__illo below, not here. */
+.place-image__photo.is-loaded {
+  animation: imageFadeIn 0.4s ease both;
+}
+@keyframes imageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* The wash: a category-coloured gradient over the artwork. Kept light so the
+   line art stays legible; the colour is the identity, not a filter. */
+.place-image__wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(150deg, rgba(8, 127, 91, 0.16) 0%, rgba(8, 127, 91, 0) 55%);
+  mix-blend-mode: multiply;
+}
+.place-image[data-category="temple"] .place-image__wash {
+  background: linear-gradient(150deg, rgba(122, 145, 124, 0.3) 0%, rgba(122, 145, 124, 0) 60%);
+}
+.place-image[data-category="korean-chinese"] .place-image__wash {
+  background: linear-gradient(150deg, rgba(194, 65, 12, 0.22) 0%, rgba(194, 65, 12, 0) 60%);
+}
+.place-image[data-category="vegan-dining"] .place-image__wash,
+.place-image[data-category="zero-waste"] .place-image__wash {
+  background: linear-gradient(150deg, rgba(8, 127, 91, 0.24) 0%, rgba(8, 127, 91, 0) 60%);
+}
+.place-image[data-category="halal-korean"] .place-image__wash,
+.place-image[data-category="world-halal"] .place-image__wash {
+  background: linear-gradient(150deg, rgba(30, 64, 124, 0.22) 0%, rgba(30, 64, 124, 0) 60%);
+}
+.place-image[data-category="brunch-bakery"] .place-image__wash {
+  background: linear-gradient(150deg, rgba(194, 158, 101, 0.3) 0%, rgba(194, 158, 101, 0) 60%);
+}
+.place-image[data-category="local-seasonal"] .place-image__wash {
+  background: linear-gradient(150deg, rgba(120, 113, 40, 0.22) 0%, rgba(120, 113, 40, 0) 60%);
+}
+
+.place-image__initial {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(42, 47, 50, 0.13);
+  user-select: none;
+  pointer-events: none;
+}
+.place-image--hero .place-image__initial {
+  right: 14px;
+  bottom: 8px;
+  font-size: 56px;
+}
+.place-image--thumb .place-image__initial {
+  font-size: 22px;
+  right: 5px;
+  bottom: 2px;
+}
+
+/* ---------- Home ---------- */
+
+.home-hero {
+  padding: 28px 20px 24px;
+  background: linear-gradient(160deg, #10402F 0%, var(--green-strong) 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.home-hero__eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.7);
+}
+.home-hero__title {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.home-hero__body {
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+  max-width: 420px;
+}
+.home-hero__cta {
+  align-self: flex-start;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.home-section {
+  padding: 24px 0 0;
+}
+.home-section:last-child {
+  padding-bottom: 32px;
+}
+.home-footer-cta {
+  padding: 8px 20px 36px;
+  display: flex;
+  justify-content: center;
+}
+.home-footer-cta .btn-secondary {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* Marks the shift from "discover culture" to "eat together" — a label, not
+   a full section header, so it reads as a transition rather than new content. */
+.home-divider {
+  margin: 8px 20px 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.home-divider__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.home-divider__subtitle {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* Bottom-of-feed map teaser, styled like the other cards rather than a
+   plain button. */
+.map-cta {
+  width: 100%;
+  max-width: 480px;
+  padding: 20px;
+  background: linear-gradient(160deg, #10402F 0%, var(--green-strong) 100%);
+  border: none;
+  border-radius: var(--radius-xl);
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.map-cta:hover {
+  transform: translateY(-2px);
+}
+.map-cta__title {
+  font-size: 17px;
+  font-weight: 700;
+}
+.map-cta__body {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 6px;
+}
+.map-cta__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.home-section__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  margin-bottom: 14px;
+}
+.home-section__header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.home-scroll-row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 2px 20px 8px;
+  scrollbar-width: none;
+}
+.home-scroll-row::-webkit-scrollbar { display: none; }
+
+.gather-card {
+  flex: 0 0 240px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+}
+.gather-card:hover {
+  border-color: var(--line-hover);
+  box-shadow: var(--shadow-1);
+}
+.gather-card__tag {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-strong);
+  background: var(--green-tint);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.gather-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.gather-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-body);
+}
+.gather-card__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.gather-card__host {
+  font-size: 12px;
+  color: var(--muted);
+}
+.gather-card__spots {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--orange-strong);
+}
+
+.course-card {
+  flex: 0 0 200px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.course-card:hover {
+  border-color: var(--line-hover);
+  box-shadow: var(--shadow-1);
+}
+.course-card__stack {
+  display: flex;
+}
+.course-card__thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  overflow: hidden;
+  margin-right: -16px;
+  box-shadow: var(--shadow-1);
+}
+.course-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.course-card__meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.food-card {
+  flex: 0 0 160px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.food-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-1);
+}
+.food-card__img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  background: var(--fill);
+}
+.food-card__body {
+  padding: 10px 12px 12px;
+}
+.food-card__body h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.food-card__body p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.zone-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 0 20px;
+}
+.zone-card {
+  text-align: left;
+  padding: 16px;
+  background: var(--green-tint);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.zone-card:hover {
+  transform: translateY(-2px);
+}
+.zone-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+.zone-card p {
+  font-size: 12px;
+  color: var(--ink-body);
+  margin-top: 4px;
+}
+
+.gather-card__desc {
+  font-size: 13px;
+  color: var(--ink-body);
+  line-height: 1.4;
+}
+.gather-card__kr {
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--muted);
+}
+.gather-card--static {
+  cursor: default;
+}
+/* Same watermark idea as the market cards: the Korean name gives these
+   text-only cards a visual anchor. */
+.gather-card--kr {
+  position: relative;
+  overflow: hidden;
+}
+.gather-card--kr::before {
+  content: attr(data-kr);
+  position: absolute;
+  right: -4px;
+  bottom: -12px;
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+  opacity: 0.05;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.gather-card--kr.is-highlighted {
+  border-color: #C6F1DA;
+  background: var(--green-tint);
+}
+.gather-card--kr.is-highlighted::before {
+  color: var(--green-strong);
+  opacity: 0.09;
+}
+.gather-card--kr > * {
+  position: relative;
+}
+
+/* "Today's Korean Experience" — a single, larger featured card rather than
+   a scroll row, so the daily pick reads as the headline of the feed. */
+.spotlight-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin: 0 20px;
+  width: calc(100% - 40px);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.spotlight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+.spotlight-card__img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background: var(--fill);
+}
+.spotlight-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+}
+.spotlight-card__body h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.spotlight-card__quote {
+  font-size: 14px;
+  color: var(--ink-body);
+  line-height: 1.5;
+}
+.spotlight-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+
+/* PlaceCard — shared card for Popular / Hidden Gems / Weekend Picks /
+   Related Foods. Two sibling buttons (hit area + save), never nested,
+   so it stays valid, keyboard-reachable markup. */
+.place-card {
+  position: relative;
+  flex: 0 0 160px;
+}
+.place-card__hit {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.place-card__hit:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-1);
+}
+.place-card__media {
+  position: relative;
+  width: 100%;
+  height: 110px;
+  flex-shrink: 0;
+}
+.place-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--fill);
+}
+.place-card__tag {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(16, 24, 40, 0.65);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.place-card__body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.place-card__body h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.place-card__zone {
+  font-size: 12px;
+  color: var(--muted);
+}
+.place-card__blurb {
+  font-size: 12px;
+  color: var(--ink-body);
+  line-height: 1.4;
+  margin-top: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.place-card__save {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--muted-strong);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--green-tint) 0%, #f0f7f4 100%);
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: transform 0.12s ease, color 0.12s ease;
+}
+.place-card__save:active {
+  transform: scale(0.9);
+}
+.place-card__save.is-saved {
+  color: var(--orange);
+}
+
+/* ---------- Journey loop ---------- */
+
+.home-section--tight {
+  padding-top: 16px;
+}
+.home-section__count {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+
+/* The always-visible trip header on Home. */
+.journey-card {
+  margin: 0 20px;
+  padding: 18px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(160deg, #10402F 0%, var(--green-strong) 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.journey-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.journey-card__head h2 {
+  font-size: 16px;
+  font-weight: 800;
+}
+.journey-card__summary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.journey-card__summary-btn:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+.journey-stats {
+  display: flex;
+  gap: 8px;
+}
+.journey-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 10px 4px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.12);
+}
+.journey-stat__num {
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.journey-stat__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+.journey-card__bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
   overflow: hidden;
 }
-.fallback-initial {
+.journey-card__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #fff;
+  transition: width 0.35s ease;
+}
+.journey-card__next {
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.journey-card__next-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Story-first entry points. */
+.theme-card {
+  flex: 0 0 172px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.theme-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-hover);
+  box-shadow: var(--shadow-1);
+}
+.theme-card__emoji {
+  font-size: 26px;
+  line-height: 1.2;
+}
+.theme-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.theme-card p {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-body);
+}
+
+/* Challenges. Read-only: they complete when the records do. */
+.challenge-card {
+  flex: 0 0 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.challenge-card.is-done {
+  background: var(--green-tint);
+  border-color: #C6F1DA;
+}
+.challenge-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.challenge-card__emoji {
+  font-size: 22px;
+}
+.challenge-card__count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted-strong);
+  font-variant-numeric: tabular-nums;
+}
+.challenge-card__done {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+.challenge-card h3 {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.challenge-card__hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* Markets get their own card because they carry a check-off. */
+.market-card {
+  flex: 0 0 240px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.market-card.is-visited {
+  border-color: #C6F1DA;
+}
+.market-card__hit {
+  position: relative;
+  flex: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+/* The Korean name, oversized and faint, gives these text-only cards a visual
+   anchor without inventing photography we don't have rights to. */
+.market-card__hit::before {
+  content: attr(data-kr);
   position: absolute;
-  font-size: 64px;
+  right: -6px;
+  top: -10px;
+  font-size: 46px;
   font-weight: 800;
-  color: rgba(0, 168, 107, 0.08); /* faint watermark */
+  line-height: 1;
+  color: var(--green-strong);
+  opacity: 0.07;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.market-card__check {
+  padding: 10px;
+  border: none;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--muted-strong);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.market-card__check:hover {
+  background: var(--fill);
+}
+.market-card__check.is-visited {
+  background: var(--green-tint);
+  color: var(--green-strong);
+  border-top-color: #C6F1DA;
+}
+
+/* Cultural route ("Continue Your Journey"). */
+.detail-section--route {
+  background: var(--bg);
+}
+.route-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.route-step {
+  position: relative;
+  padding: 0 0 14px 20px;
+  border-left: 2px solid var(--line);
+  margin-left: 5px;
+}
+.route-step:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+.route-step__dot {
+  position: absolute;
+  left: -6px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--line-hover);
+}
+.route-step--current .route-step__dot {
+  background: var(--green-strong);
+}
+.route-step__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.route-step__body--tappable {
+  cursor: pointer;
+}
+.route-step__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.route-step__body--tappable:hover .route-step__label {
+  color: var(--green-strong);
+}
+.route-step--current .route-step__label {
+  color: var(--green-strong);
+}
+.route-step__note {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Local tips: short tag + one line, scannable at a glance. */
+.tip-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tip-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--orange-tint);
+  border: 1px solid var(--orange-line);
+  border-radius: var(--radius);
+}
+.tip-card__tag {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--orange-strong);
+}
+.tip-card__detail {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-body);
+}
+
+/* Detail CTA cluster: one primary action, two secondary. */
+.cta-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cta-stack .btn-primary {
+  width: 100%;
+}
+.cta-stack__row {
+  display: flex;
+  gap: 8px;
+}
+.cta-stack__row .btn-secondary {
+  flex: 1;
+  font-size: 13.5px;
+  padding: 0 12px;
+}
+.btn-secondary.is-active {
+  background: var(--green-tint);
+}
+
+/* Passport share + summary card. */
+.passport-cover__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.passport-share-btn {
+  padding: 8px 14px;
+  border: 1.5px solid var(--green-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--green-strong);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.passport-share-btn:hover {
+  background: var(--green-tint);
+}
+
+.summary-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  max-height: 88dvh;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.summary-sheet__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.summary-sheet__hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.summary-card {
+  padding: 24px 20px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, #10402F 0%, var(--green-strong) 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.summary-card__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+.summary-card__title {
+  font-size: 24px;
+  font-weight: 800;
+}
+.summary-card__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.summary-card__grid > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 10px 4px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.12);
+}
+.summary-card__num {
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.summary-card__label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+.summary-card__stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.summary-card__stamp {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.summary-card__stamp--empty {
+  background: none;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  line-height: 1.5;
+}
+.summary-card__footer {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Interaction polish ----------
+   One consistent press response across every card surface, so the whole feed
+   feels like one object rather than a dozen separately-built ones. */
+.place-card__hit:active,
+.theme-card:active,
+.gather-card:not(.gather-card--static):active,
+.course-card:active,
+.zone-card:active,
+.spotlight-card:active,
+.market-card__hit:active,
+.map-cta:active,
+.stamp:active,
+.journey-card__summary-btn:active,
+.passport-share-btn:active,
+.market-card__check:active {
+  transform: scale(0.978);
+}
+.place-card__hit,
+.theme-card,
+.gather-card,
+.course-card,
+.zone-card,
+.spotlight-card,
+.market-card__hit,
+.map-cta,
+.stamp,
+.journey-card__summary-btn,
+.passport-share-btn,
+.market-card__check {
+  transition: transform 0.13s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Sections fade up as the feed is scrolled into place. Purely decorative —
+   the content is in the DOM either way. */
+@keyframes sectionIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.home-section,
+.home-divider {
+  animation: sectionIn 0.35s ease both;
+}
+
+/* Skeleton shimmer, shown only while an image slot is still resolving.
+   Rendered and removed by React (see PlaceImage) rather than toggled with a
+   pseudo-element, so there is no state in which it can outlive the load. */
+@keyframes skeletonSweep {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.place-image__skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(90deg, var(--fill) 25%, #EEF0F2 50%, var(--fill) 75%);
+  background-size: 200% 100%;
+  animation: skeletonSweep 1.1s linear infinite;
+  pointer-events: none;
+}
+
+/* Respect the system setting. Everything above is decoration; none of it
+   carries meaning that is lost by switching it off. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Touch targets ----------
+   Anything tappable clears 44×44 (WCAG 2.5.5 / Apple HIG). Where the visual
+   control is deliberately smaller, the hit area is grown with a pseudo
+   element so the look is unchanged but the thumb target is not. */
+.place-card__save {
+  width: 34px;
+  height: 34px;
+}
+.place-card__save::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+.journey-card__summary-btn,
+.passport-share-btn,
+.market-card__check {
+  min-height: 44px;
+}
+.detail-close,
+.summary-sheet__close {
+  width: 44px;
+  height: 44px;
+}
+.practical-copy {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.route-step__body--tappable {
+  min-height: 44px;
+  justify-content: center;
+}
+
+/* ---------- Match ---------- */
+
+.match-tab {
+  align-items: stretch;
+}
+.match-tab__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 12px;
+  flex-shrink: 0;
+}
+.match-tab__header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.match-deck {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 4px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.match-card {
+  position: absolute;
+  inset: 4px 20px auto;
+  width: calc(100% - 40px);
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
   user-select: none;
 }
-.place-image--thumb .fallback-initial {
-  font-size: 40px;
+.match-card:active {
+  cursor: grabbing;
 }
-.fallback-illustration {
+
+.match-card__photo {
   position: relative;
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  opacity: 0.9;
-  z-index: 1;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.place-image--hero .fallback-illustration {
-  width: 80px;
-  height: 80px;
+.match-card__initial {
+  font-size: 72px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+}
+.match-card__available {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-strong);
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-1);
+}
+.match-card__stamp {
+  position: absolute;
+  top: 20px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 3px solid currentColor;
+  transform: rotate(-12deg);
+}
+.match-card__stamp--like {
+  right: 16px;
+  color: var(--green-strong);
+}
+.match-card__stamp--pass {
+  left: 16px;
+  color: var(--danger);
+  transform: rotate(12deg);
+}
+
+.match-card__body {
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.match-card__headline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.match-card__headline h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.match-card__flag {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.match-card__trip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--green-strong);
+  font-weight: 600;
+}
+.match-card__bio {
+  font-size: 14px;
+  color: var(--ink-body);
+  line-height: 1.5;
+}
+.match-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.match-card__row {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+}
+.match-card__label {
+  color: var(--muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.match-card__value {
+  color: var(--ink-body);
+}
+
+.match-empty {
+  padding: 60px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.match-drag-surface {
+  flex-shrink: 0;
+  padding: 12px 20px calc(20px + var(--tab-h));
+}
+.match-actions {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 12px;
+}
+.match-action-btn--view {
+  flex: 1;
+}
+.match-action-btn--eat {
+  flex: 1.4;
+}
+
+.match-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(16,24,40,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+.match-modal {
+  width: 100%;
+  max-width: 340px;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+.match-modal__photo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.match-modal h2 {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.match-modal p {
+  font-size: 14px;
+  color: var(--ink-body);
+  line-height: 1.5;
+}
+.match-modal .btn-primary {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* ---------- Match profile detail (reuses .detail-backdrop/.detail-sheet) ---------- */
+
+.profile-detail-hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-detail-hero__initial {
+  font-size: 96px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+}
+.profile-detail-footer {
+  flex-shrink: 0;
+  padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.profile-detail-footer .btn-primary {
+  width: 100%;
+}
+
+/* ---------- Journal: companions & memories ---------- */
+
+.companion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 20px;
+}
+.companion-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.companion-card__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+}
+.companion-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.companion-card__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.companion-card__meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.memory-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 20px;
+}
+.memory-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-left: 2px solid var(--line);
+  padding-left: 16px;
+  margin-left: 6px;
+  position: relative;
+}
+.memory-item:last-child {
+  border-left-color: transparent;
+}
+.memory-item__dot {
+  position: absolute;
+  left: -6px;
+  top: 14px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--line-hover);
+}
+.memory-item--visit .memory-item__dot { background: var(--green-strong); }
+.memory-item--save .memory-item__dot { background: var(--orange); }
+.memory-item--match .memory-item__dot { background: var(--muted-strong); }
+.memory-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.memory-item__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.memory-item__subtitle {
+  font-size: 12px;
+  color: var(--muted);
+}
+.memory-item__mission {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-strong);
+}
+
+/* ---------- Profile: expandable settings ---------- */
+
+.settings-item-wrap + .settings-item-wrap .settings-item {
+  border-top: none;
+}
+.settings-item--clickable {
+  cursor: pointer;
+}
+.settings-expand {
+  padding: 0 0 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.settings-expand__hint {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--ink-body);
+  cursor: pointer;
+}
+.toggle-switch {
+  width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--line);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+.toggle-switch.on {
+  background: var(--green-strong);
+}
+.toggle-switch__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.15s ease;
+}
+.toggle-switch.on .toggle-switch__knob {
+  transform: translateX(16px);
+}
+
+@media (min-width: 768px) {
+  .zone-grid {
+    grid-template-columns: 1fr;
+  }
+  .match-card {
+    position: static;
+    margin: 0 auto;
+  }
+  .match-deck {
+    align-items: center;
+  }
 }
