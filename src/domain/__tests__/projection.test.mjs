@@ -68,12 +68,19 @@ test('journeyProgress suggests the most-progressed incomplete theme as current',
 });
 
 test('journeyProgress returns a null current theme once every theme is complete', () => {
+  // One satisfied required step per theme. Venue-less themes complete by
+  // attestation, which is the whole reason that completion source exists.
   const j = emptyJourney();
-  j.visitedRestaurantIds.add('balwoo');       // completes temple-half-day
-  j.visitedMarketIds.add('gwangjang');        // completes street-first-timer
-  j.visitedRestaurantIds.add('osegyehyang');  // completes noodle-origin
+  j.visitedRestaurantIds.add('balwoo');       // temple-half-day
+  j.visitedMarketIds.add('gwangjang');        // street-first-timer
+  j.visitedRestaurantIds.add('osegyehyang');  // noodle-origin
+  j.visitedRestaurantIds.add('iryonghal');    // cafe-slow-morning
+  j.visitedRestaurantIds.add('camouflage');   // after-dark-first-round
+  j.attestedExperienceIds.add('jagalchi-morning');   // busan-market-day
+  j.attestedExperienceIds.add('spring-picnic-set');  // blossom-afternoon
+
   const p = journeyProgress(j);
-  assert.equal(p.themesCompleted, p.themes.length, 'all seeded themes must be complete');
+  assert.equal(p.themesCompleted, p.themes.length, 'every seeded theme must be complete');
   assert.equal(p.currentTheme, null);
   assert.equal(p.nextExperienceId, null);
 });

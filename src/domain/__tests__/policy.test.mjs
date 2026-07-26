@@ -142,5 +142,8 @@ test('every reachable restaurant resolves to an experience and theme ancestor', 
 });
 
 test('a restaurant in no experience has no ancestry', () => {
-  assert.equal(ancestryOfRestaurant('camouflage'), null);
+  // plant-cafe is a real, active restaurant that no experience anchors to.
+  // camouflage used to serve this role until the late-night-table experience
+  // claimed it.
+  assert.equal(ancestryOfRestaurant('plant-cafe'), null);
 });

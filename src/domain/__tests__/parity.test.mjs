@@ -68,6 +68,13 @@ test('per-theme progress matches the figures the seed must produce', () => {
     'temple-life': { done: 1, total: 2, pct: 50 },
     'street-food': { done: 2, total: 4, pct: 50 },
     'noodle-road': { done: 1, total: 2, pct: 50 },
+    // Themes the scenario does not touch. Listing them rather than filtering
+    // them out keeps this test failing if a theme is added without anyone
+    // deciding what it should report.
+    'cafe-hopping': { done: 0, total: 2, pct: 0 },
+    'seoul-after-dark': { done: 0, total: 2, pct: 0 },
+    'busan-seafood': { done: 0, total: 2, pct: 0 },
+    'spring-picnic': { done: 0, total: 1, pct: 0 },
   };
 
   const p = journeyProgress(journeyFromLegacy(scenario));
@@ -109,13 +116,13 @@ test('experiencesCompleted counts each theme membership, including shared ones',
   const p = journeyProgress(journeyFromLegacy(scenario));
   assert.equal(p.experiencesCompleted, 4);
 
-  // Attesting makgeolli adds it under BOTH themes it belongs to, so the
-  // figure rises by two rather than one. That is the documented behaviour of
-  // a sum over theme memberships, and pinning it stops a silent switch to
-  // distinct-counting.
+  // Attesting makgeolli adds it under EVERY theme it belongs to — street-food,
+  // noodle-road and seoul-after-dark — so the figure rises by three rather
+  // than one. That is the documented behaviour of a sum over theme
+  // memberships, and pinning it stops a silent switch to distinct-counting.
   const shared = journeyFromLegacy(scenario);
   shared.attestedExperienceIds.add('makgeolli');
-  assert.equal(journeyProgress(shared).experiencesCompleted, 6);
+  assert.equal(journeyProgress(shared).experiencesCompleted, 7);
 });
 
 test('an experience shared by two themes is counted in both', () => {

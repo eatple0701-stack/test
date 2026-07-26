@@ -159,6 +159,132 @@ export const experiences = [
     zones: ['Insadong, Seoul', 'Chinatown, Jemulpo-gu, Incheon'],
     acceptsSelfAttest: false,
   },
+  {
+    id: 'weekend-brunch',
+    kind: EXPERIENCE_KIND.DISH,
+    title: 'The Weekend Brunch',
+    titleKo: '주말 브런치',
+    status: STATUS.PUBLISHED,
+    whyItMatters:
+      'Seoul treats the weekend late morning as a destination rather than a meal, and will cross the city for a bakery that sold out by noon last week.',
+    culturalMeaning:
+      'The Korean cafe is a social institution in its own right — a place to be seen, to work, to linger — built on baking traditions borrowed and then remade.',
+    whenToExperience:
+      'Saturday or Sunday before eleven, if you want the thing that sells out.',
+    mission: {
+      title: 'Baked This Morning',
+      detail: 'Ask what came out of the oven today and order that instead of what you planned. The lineup changes daily and rarely makes the menu.',
+    },
+    restaurantIds: ['iryonghal', 'meat-morning'],
+    marketIds: [],
+    zones: ['Guwol-dong, Incheon'],
+    acceptsSelfAttest: false,
+  },
+  {
+    id: 'zero-waste-counter',
+    kind: EXPERIENCE_KIND.PLACE,
+    title: 'The Zero-Waste Counter',
+    titleKo: '제로웨이스트',
+    status: STATUS.PUBLISHED,
+    whyItMatters:
+      'Nothing disposable crosses the counter. Regulars bring their own containers without being asked, which makes it a habit rather than a marketing angle.',
+    culturalMeaning:
+      'Korea recycles most of its food waste by law, and every household separates it. These counters take the next step and refuse to create the waste at all.',
+    whenToExperience:
+      'Any afternoon you can carry a cup. Bring one and most shops take a little off the price.',
+    mission: {
+      title: 'Leave Nothing Behind',
+      detail: 'Refuse one disposable item — cup, bag, straw. Ask what happens to the food scraps while you are at it.',
+    },
+    restaurantIds: ['nono-shop', 'ggot-epida'],
+    marketIds: [],
+    zones: ['Hoehyeon, Seoul', 'Bukchon, Seoul'],
+    acceptsSelfAttest: false,
+  },
+  {
+    id: 'late-night-table',
+    kind: EXPERIENCE_KIND.SETTING,
+    title: 'The Late Table',
+    titleKo: '심야식당',
+    status: STATUS.PREVIEW,
+    whyItMatters:
+      'Seoul does not really close. The table you sit at near midnight has a different crowd and a slower conversation than the same table at seven.',
+    culturalMeaning:
+      'Late eating is tied to Korea\'s long working hours: dinner is often the second half of the workday, and the meal after it is the first honest one.',
+    whenToExperience:
+      'After ten, when the dinner rush has cleared and nobody is waiting for your seat.',
+    mission: {
+      title: 'Stay for the Second Round',
+      detail: 'Korean nights move in rounds — 1차, 2차. Do not leave after the first one.',
+    },
+    restaurantIds: ['camouflage'],
+    marketIds: [],
+    zones: ['Itaewon, Seoul'],
+    acceptsSelfAttest: false,
+  },
+  {
+    id: 'hoe-sashimi',
+    kind: EXPERIENCE_KIND.DISH,
+    title: 'Hoe',
+    titleKo: '회',
+    status: STATUS.PREVIEW,
+    whyItMatters:
+      'Korean raw fish is served firm rather than melting, cut thick, and eaten wrapped in leaves with ssamjang instead of dipped in soy.',
+    culturalMeaning:
+      'Busan built its identity on the sea, and hoe is where that shows most plainly: the fish is chosen live, and freshness is the entire argument.',
+    whenToExperience:
+      'On the coast, in the evening, with company — it is ordered by the plate for a table, not by the portion.',
+    mission: {
+      title: 'Wrap It, Do Not Dip It',
+      detail: 'Take a perilla leaf, add the fish and a little ssamjang, and eat it in one bite. Dipping it in soy sauce is the foreign habit.',
+    },
+    restaurantIds: [],
+    marketIds: [],
+    zones: [],
+    acceptsSelfAttest: true,
+  },
+  {
+    id: 'jagalchi-morning',
+    kind: EXPERIENCE_KIND.PLACE,
+    title: 'A Morning at Jagalchi',
+    titleKo: '자갈치시장',
+    status: STATUS.PREVIEW,
+    whyItMatters:
+      "Korea's largest seafood market, run largely by women whose trade passed mother to daughter — the jagalchi ajumma are the market's actual institution.",
+    culturalMeaning:
+      'Busan absorbed waves of refugees during the Korean War, and the market fed them. Its scale is a direct inheritance of that history.',
+    whenToExperience:
+      'Early, while the auction is still running and the day\'s catch is being argued over.',
+    mission: {
+      title: 'Buy Upstairs',
+      detail: 'Choose your fish at a stall downstairs and take it up to be prepared. That two-step is how the market is meant to be used.',
+    },
+    restaurantIds: [],
+    marketIds: [],
+    zones: [],
+    acceptsSelfAttest: true,
+  },
+  {
+    id: 'spring-picnic-set',
+    kind: EXPERIENCE_KIND.SETTING,
+    title: 'Cherry Blossom Picnic',
+    titleKo: '봄 소풍',
+    status: STATUS.PREVIEW,
+    whyItMatters:
+      'For two weeks a year the whole country eats outdoors. Parks fill with mats, convenience-store chicken and shared bottles, and nobody treats it as remarkable.',
+    culturalMeaning:
+      'Blossom season is Korea\'s clearest seasonal ritual — brief on purpose, and valued because it cannot be extended.',
+    whenToExperience:
+      'Early April, whichever week the blossom actually opens. It moves by a fortnight year to year.',
+    mission: {
+      title: 'Bring the Mat',
+      detail: 'A picnic mat is the one non-negotiable item. Get one from any convenience store and claim a patch under the trees.',
+    },
+    restaurantIds: [],
+    marketIds: [],
+    zones: [],
+    acceptsSelfAttest: true,
+  },
 ];
 
 const byId = new Map(experiences.map(e => [e.id, e]));

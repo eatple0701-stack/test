@@ -34,6 +34,50 @@ export const narratives = [
     status: STATUS.PREVIEW,
   },
   {
+    id: 'cafe-slow-morning',
+    themeId: 'cafe-hopping',
+    title: 'A Slow Morning',
+    intro:
+      'Go before eleven and bring nothing you need to finish. The whole point is that the seat is yours for as long as you want it.',
+    outro:
+      'You spent a morning the way this city spends its weekends. Nobody once asked whether you were done.',
+    pacing: 'half-day',
+    status: STATUS.PUBLISHED,
+  },
+  {
+    id: 'after-dark-first-round',
+    themeId: 'seoul-after-dark',
+    title: 'First Round, Second Round',
+    intro:
+      'Start late and do not plan the end. A Korean night is measured in rounds, and the second one is where the conversation changes.',
+    outro:
+      'The table after ten is not the table at seven. You have now sat at both.',
+    pacing: 'evening',
+    status: STATUS.PREVIEW,
+  },
+  {
+    id: 'busan-market-day',
+    themeId: 'busan-seafood',
+    title: 'Market First, Table After',
+    intro:
+      'A coastal day in the order Busan does it: see the fish argued over before you eat any of it.',
+    outro:
+      'Freshness stopped being a menu adjective and became something you watched happen.',
+    pacing: 'full-day',
+    status: STATUS.PREVIEW,
+  },
+  {
+    id: 'blossom-afternoon',
+    themeId: 'spring-picnic',
+    title: 'An Afternoon Under the Trees',
+    intro:
+      'Two weeks a year this is the best thing to do in Korea, and it costs almost nothing.',
+    outro:
+      'It will be over within a fortnight. That is why everyone went.',
+    pacing: 'half-day',
+    status: STATUS.PREVIEW,
+  },
+  {
     id: 'noodle-origin',
     themeId: 'noodle-road',
     title: 'Where the Bowl Came From',
@@ -115,6 +159,66 @@ export const narrativeSteps = [
     required: true,
     transition:
       'Go straight in and order at the first stall that looks busy. Busy means the turnover is fast and the food is fresh.',
+  },
+
+  {
+    narrativeId: 'cafe-slow-morning',
+    experienceId: 'weekend-brunch',
+    order: 1,
+    required: true,
+    transition:
+      'Start with whatever came out of the oven this morning. Ask rather than read — the best item is rarely on the board.',
+  },
+  {
+    narrativeId: 'cafe-slow-morning',
+    experienceId: 'zero-waste-counter',
+    order: 2,
+    required: false,
+    transition:
+      'If you are still carrying a cup, spend the second half of the morning somewhere that rewards it.',
+  },
+
+  {
+    narrativeId: 'after-dark-first-round',
+    experienceId: 'late-night-table',
+    order: 1,
+    required: true,
+    transition:
+      'Arrive after the dinner rush has cleared. The room you want is the quieter one that follows it.',
+  },
+  {
+    narrativeId: 'after-dark-first-round',
+    experienceId: 'makgeolli',
+    order: 2,
+    required: false,
+    transition:
+      'Second round. Order a bowl for the table and pour for someone else before yourself.',
+  },
+
+  {
+    narrativeId: 'busan-market-day',
+    experienceId: 'jagalchi-morning',
+    order: 1,
+    required: true,
+    transition:
+      'Go early, while the auction is still running. The market is a working floor before it is anything else.',
+  },
+  {
+    narrativeId: 'busan-market-day',
+    experienceId: 'hoe-sashimi',
+    order: 2,
+    required: false,
+    transition:
+      'Take what you chose upstairs to be prepared. That two-step is the whole ritual.',
+  },
+
+  {
+    narrativeId: 'blossom-afternoon',
+    experienceId: 'spring-picnic-set',
+    order: 1,
+    required: true,
+    transition:
+      'Claim a patch under the trees before noon. After that you are choosing between the leftovers.',
   },
 
   {
