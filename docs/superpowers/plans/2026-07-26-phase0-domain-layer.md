@@ -1295,9 +1295,25 @@ test('a theme completes when any one of its narratives completes', () => {
 
 test('a theme is explored as soon as any of its experiences is done', () => {
   const j = emptyJourney();
-  j.visitedMarketIds.add('gwangjang');
+  // makgeolli belongs to street-food but is only an optional step of its
+  // narrative, so attesting it explores the theme without completing it.
+  // A gwangjang visit would NOT work here: both required steps of
+  // street-first-timer are anchored to that market, so it completes the theme.
+  j.attestedExperienceIds.add('makgeolli');
   assert.equal(themeExplored('street-food', j), true);
   assert.equal(themeDone('street-food', j), false, 'exploring is not completing');
+});
+
+test('one market visit completes every experience anchored to that market', () => {
+  const j = emptyJourney();
+  j.visitedMarketIds.add('gwangjang');
+  for (const id of ['gwangjang-market', 'bindaetteok', 'market-alley']) {
+    assert.equal(
+      experienceDone(experienceById(id), j), true,
+      ,
+    );
+  }
+  assert.equal(themeDone('street-food', j), true, 'both required steps are satisfied');
 });
 
 test('restaurant is the single entity that cannot be entered directly', () => {
@@ -1488,7 +1504,7 @@ export function ancestryOfRestaurant(restaurantId) {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 53 tests total
+Expected: PASS, 54 tests total
 
 - [ ] **Step 7: Verify the dependency direction was not violated**
 
@@ -1763,7 +1779,7 @@ export function markersOfCollection(collectionId) {
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 65 tests total
+Expected: PASS, 66 tests total
 
 - [ ] **Step 6: Verify the capability layer stayed pure**
 
@@ -2087,7 +2103,7 @@ export function collectionFeed(journey, { at = new Date(), availableEvents } = {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 74 tests total
+Expected: PASS, 75 tests total
 
 - [ ] **Step 7: Commit**
 
@@ -2293,7 +2309,7 @@ export function readLegacyJourney(storage) {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 82 tests total
+Expected: PASS, 83 tests total
 
 - [ ] **Step 5: Verify the bridge did not couple to the old engine**
 
@@ -2429,7 +2445,7 @@ test('an experience shared by two themes is counted in both', () => {
 - [ ] **Step 2: Run the test**
 
 Run: `npm test`
-Expected: PASS, 90 tests total
+Expected: PASS, 91 tests total
 
 If any parity assertion fails, the defect is in the new model or the bridge — **never** in `src/data/journey.js`, which must not be edited.
 
@@ -2470,7 +2486,7 @@ experience shared by two themes is counted in both."
 
 ## Definition of Done for Phase 0
 
-- [ ] `npm test` passes with 90 tests
+- [ ] `npm test` passes with 91 tests
 - [ ] `npm run lint` shows no new warnings
 - [ ] `npm run check-data` exits 0
 - [ ] `git diff --stat HEAD -- src/data src/components src/App.jsx` is empty
