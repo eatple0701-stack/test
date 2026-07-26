@@ -105,16 +105,26 @@ test('a theme is explored as soon as any of its experiences is done', () => {
   assert.equal(themeDone('street-food', j), false, 'exploring is not completing');
 });
 
-test('one market visit completes every experience anchored to that market', () => {
+test('a market visit completes exactly the experiences anchored to that market', () => {
   const j = emptyJourney();
   j.visitedMarketIds.add('gwangjang');
-  for (const id of ['gwangjang-market', 'bindaetteok', 'market-alley']) {
+  for (const id of ['gwangjang-market', 'bindaetteok']) {
     assert.equal(
       experienceDone(experienceById(id), j), true,
       `${id} is anchored to gwangjang and must complete on that visit`,
     );
   }
+  assert.equal(
+    experienceDone(experienceById('market-alley'), j), false,
+    'market-alley is anchored to namdaemun, so a gwangjang visit must not complete it',
+  );
   assert.equal(themeDone('street-food', j), true, 'both required steps are satisfied');
+
+  j.visitedMarketIds.add('namdaemun');
+  assert.equal(
+    experienceDone(experienceById('market-alley'), j), true,
+    'visiting its own market completes it',
+  );
 });
 
 test('restaurant is the single entity that cannot be entered directly', () => {
