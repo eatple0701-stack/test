@@ -67,7 +67,7 @@ export default function JourneyLead({
 // A second, lighter card: one theme picked for today, so the traveller who
 // does not want to resume still gets a single answer rather than a grid.
 // Deterministic by date, so it does not shuffle on every render.
-export function TodaysPick({ theme, onOpenTheme }) {
+export function TodaysPick({ theme, reason, onOpenTheme }) {
   if (!theme) return null;
   return (
     <button className="todays-pick" onClick={() => onOpenTheme(theme.id)}>
@@ -75,7 +75,10 @@ export function TodaysPick({ theme, onOpenTheme }) {
         <SparkleIcon size={14} /> Today&rsquo;s recommendation
       </span>
       <span className="todays-pick__title">{theme.emoji} {theme.title}</span>
-      <span className="todays-pick__tagline">{theme.tagline}</span>
+      {/* The reason is the point: a pick without one is just a card. It is
+          derived from the date, the clock or the traveller's own record —
+          never from anything the app cannot actually check. */}
+      {reason && <span className="todays-pick__reason">{reason}</span>}
       <span className="todays-pick__cta">See the path <ChevronRightIcon size={14} /></span>
     </button>
   );

@@ -3014,6 +3014,13 @@ button {
   line-height: 1.45;
   color: var(--ink-body);
 }
+.todays-pick__reason {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-body);
+  padding-left: 10px;
+  border-left: 3px solid var(--green-tint);
+}
 .todays-pick__cta {
   display: inline-flex;
   align-items: center;
@@ -3119,6 +3126,298 @@ button {
   color: var(--muted);
   text-transform: capitalize;
 }
+/* ---------- Theme page: the journey timeline ----------
+   The next step is the page's centre of gravity; done and remaining are
+   filed around it rather than presented as a flat list to scan. */
+.theme-page__progress {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.theme-page__bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+.theme-page__bar > div {
+  height: 100%;
+  border-radius: 999px;
+  background: #fff;
+  transition: width 0.35s ease;
+}
+
+.next-step {
+  padding: 20px;
+  border: 2px solid var(--green-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-1);
+}
+.next-step__label {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--green-strong);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.next-step__title {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.next-step__kr {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.next-step__transition {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+.next-step__why {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.next-step__mission {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--green-tint);
+  color: #14532D;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.next-step__mission-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--green-strong);
+}
+.next-step__mission p {
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.next-step__venues {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.next-step__hint {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-style: italic;
+}
+.next-step__done {
+  min-height: 48px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--green-strong);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+.next-step__done:hover { filter: brightness(1.07); }
+.next-step__done:active { transform: scale(0.985); }
+
+.theme-complete {
+  padding: 24px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--green-tint);
+  border: 1px solid #C6F1DA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+.theme-complete__mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--green-strong);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-complete h3 {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--green-strong);
+}
+.theme-complete p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #14532D;
+}
+
+.theme-page__pathname {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.theme-page__pathname strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.theme-page__toggle {
+  margin-left: auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--muted-strong);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.step-rows {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.step-row:last-child { border-bottom: none; }
+.step-row__mark {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fill);
+  color: var(--muted);
+}
+.step-row.is-done .step-row__mark {
+  background: var(--green-strong);
+  color: #fff;
+}
+.step-row__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line-hover);
+}
+.step-row__body {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.step-row__title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.step-row.is-done .step-row__title {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--line-hover);
+}
+.step-row__optional {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--muted-strong);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.step-row__check {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.step-row__check:hover {
+  border-color: var(--green-strong);
+  color: var(--green-strong);
+  background: var(--green-tint);
+}
+.step-row__undo {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.step-row__undo:hover { background: var(--fill); }
+
+.alt-path {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.alt-path h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.alt-path p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.alt-path__meta {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-strong);
+  text-transform: capitalize;
+}
+
 .theme-page__intro,
 .theme-page__outro {
   font-size: 14px;

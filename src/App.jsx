@@ -14,9 +14,9 @@ import { matchesDietary, isQuarantined } from './data/verification';
 import { computeJourney } from './data/journey';
 import { journeyFromLegacy } from './domain/bridge/legacyJourney.js';
 import { journeyProgress } from './domain/projection/journeyProgress.js';
-import { themeById, themes as domainThemes, experienceById, experienceIdsOfTheme } from './domain/catalog/index.js';
+import { themeById, experienceById, experienceIdsOfTheme } from './domain/catalog/index.js';
 import { experienceDone } from './domain/policy/completion.js';
-import { STATUS } from './domain/types.js';
+import { reasonFor, themeOfTheDay } from './domain/policy/recommendation.js';
 import ThemePage from './components/ThemePage';
 import './index.css';
 import './custom.css';
@@ -80,6 +80,21 @@ function loadMarkets() {
   }
 }
 
+const EXPERIENCES_KEY = 'kfm-experiences';
+
+// Experiences a traveller has declared done themselves. The domain has
+// accepted this route since Phase 0 — it is the only way an experience with
+// no verified venue can ever complete — but nothing wrote the key until now,
+// which left every preview theme permanently stuck. Stored as [experienceId].
+function loadAttestations() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(EXPERIENCES_KEY));
+    return Array.isArray(saved) ? saved.filter(id => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
 const COMPANIONS_KEY = 'kfm-companions';
 
 // Stored as [{ travelerId, matchedAt }] — logged whenever "Eat together" is
@@ -102,6 +117,7 @@ export default function App() {
   const [bookmarks, setBookmarks] = useState(loadBookmarks);
   const [companions, setCompanions] = useState(loadCompanions);
   const [visitedMarkets, setVisitedMarkets] = useState(loadMarkets);
+  const [attestations, setAttestations] = useState(loadAttestations);
   const [activeTab, setActiveTab] = useState('home');
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
   const [focusStory, setFocusStory] = useState(false);
@@ -146,6 +162,18 @@ export default function App() {
     localStorage.setItem(MARKETS_KEY, JSON.stringify(visitedMarkets));
   }, [visitedMarkets]);
 
+  useEffect(() => {
+    localStorage.setItem(EXPERIENCES_KEY, JSON.stringify(attestations));
+  }, [attestations]);
+
+  const handleToggleAttestation = (experienceId) => {
+    setAttestations(prev =>
+      prev.includes(experienceId)
+        ? prev.filter(id => id !== experienceId)
+        : [...prev, experienceId]
+    );
+  };
+
   const bookmarkedIds = useMemo(() => bookmarks.map(b => b.id), [bookmarks]);
   const visitedIds = useMemo(
     () => bookmarks.filter(b => b.visitedAt !== null).map(b => b.id),
@@ -173,15 +201,16 @@ export default function App() {
       bookmarks,
       markets: visitedMarkets,
       companions,
+      attestations,
     })),
-    [bookmarks, visitedMarkets, companions],
+    [bookmarks, visitedMarkets, companions, attestations],
   );
 
   // The Journey the domain policies consume, kept beside the projection so
   // ThemePage can ask whether each step is done.
   const domainJourney = useMemo(
-    () => journeyFromLegacy({ bookmarks, markets: visitedMarkets, companions }),
-    [bookmarks, visitedMarkets, companions],
+    () => journeyFromLegacy({ bookmarks, markets: visitedMarkets, companions, attestations }),
+    [bookmarks, visitedMarkets, companions, attestations],
   );
 
   // "Continue" must mean a theme genuinely underway. journeyProgress's
@@ -212,12 +241,35 @@ export default function App() {
 
   // The start state and today's pick both need a theme that actually has
   // verified places behind it, so a traveller's first tap is never a dead end.
-  const suggestedTheme = useMemo(() => {
-    const ready = domainThemes.filter(t => t.status === STATUS.PUBLISHED);
-    if (ready.length === 0) return null;
-    const day = Math.floor(Date.now() / 86400000);
-    return ready[day % ready.length];
-  }, []);
+  // Zones the traveller has actually eaten in — the only honest basis for a
+  // proximity-flavoured recommendation reason.
+  const visitedZones = useMemo(
+    () => [...new Set(visitedIds
+      .map(id => activeRestaurants.find(r => r.id === id)?.zone)
+      .filter(Boolean))],
+    [visitedIds],
+  );
+
+  const suggestedTheme = useMemo(
+    () => themeOfTheDay({
+      exclude: [
+        continueTheme?.themeId,
+        // A theme with nothing left in it is not a suggestion.
+        ...themeProgress.themes.filter(t => t.done >= t.total).map(t => t.themeId),
+      ].filter(Boolean),
+    }),
+    [continueTheme, themeProgress],
+  );
+
+  const suggestedReason = useMemo(
+    () => (suggestedTheme
+      ? reasonFor(suggestedTheme, {
+          visitedZones,
+          hasStarted: Boolean(continueTheme),
+        })
+      : null),
+    [suggestedTheme, visitedZones, continueTheme],
+  );
 
   const handleToggleMarket = (marketId) => {
     setVisitedMarkets(prev =>
@@ -319,6 +371,7 @@ export default function App() {
             journey={domainJourney}
             onBack={() => setOpenThemeId(null)}
             onOpenRestaurant={openDetail}
+            onToggleAttestation={handleToggleAttestation}
           />
         )}
 
@@ -339,6 +392,7 @@ export default function App() {
             continueTheme={continueTheme}
             nextExperience={nextExperience}
             suggestedTheme={suggestedTheme}
+            suggestedReason={suggestedReason}
           />
         )}
         {!openThemeId && activeTab === 'match' && (

@@ -37,7 +37,7 @@ function dayOfYear(date) {
 export default function HomeTab({
   onNavigate, onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
   journey, visitedMarkets = [], onToggleMarket, onOpenSummary, onOpenMap,
-  onOpenTheme, continueTheme, nextExperience, suggestedTheme,
+  onOpenTheme, continueTheme, nextExperience, suggestedTheme, suggestedReason,
 }) {
   const byId = useMemo(() => Object.fromEntries(restaurants.map(r => [r.id, r])), []);
   const [showRoulette, setShowRoulette] = useState(false);
@@ -94,7 +94,7 @@ export default function HomeTab({
              printing it twice would answer the same question twice. */}
       {continueTheme && suggestedTheme && suggestedTheme.id !== continueTheme.themeId && (
         <div className="home-section home-section--tight">
-          <TodaysPick theme={suggestedTheme} onOpenTheme={onOpenTheme} />
+          <TodaysPick theme={suggestedTheme} reason={suggestedReason} onOpenTheme={onOpenTheme} />
         </div>
       )}
 
