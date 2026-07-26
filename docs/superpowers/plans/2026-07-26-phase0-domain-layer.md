@@ -862,6 +862,15 @@ export const narrativeSteps = [
   },
 
   {
+    narrativeId: 'street-first-timer',
+    experienceId: 'market-alley',
+    order: 4,
+    required: false,
+    transition:
+      'Before you leave, walk the alley end to end. Seeing the whole trade in one line is the part people remember.',
+  },
+
+  {
     narrativeId: 'noodle-origin',
     experienceId: 'jajangmyeon',
     order: 1,
@@ -1742,10 +1751,13 @@ export function assessNarrative(narrativeId, context) {
 export function assessTheme(themeId, context) {
   const verdicts = narrativesOfTheme(themeId).map(n => assessNarrative(n.id, context));
   if (verdicts.length === 0) return verdict(false, false, [{ kind: BLOCKER.MISSING_VENUE, ref: themeId }]);
-  const playable = verdicts.some(v => v.playable);
+  const playableVerdicts = verdicts.filter(v => v.playable);
+  const playable = playableVerdicts.length > 0;
   return verdict(
     playable,
-    !playable ? false : verdicts.some(v => v.playable && v.degraded),
+    // Degraded only when there is no clean path: if any playable narrative
+    // runs without gaps, the theme is not degraded.
+    playable && playableVerdicts.every(v => v.degraded),
     playable ? [] : verdicts.flatMap(v => v.blockers),
   );
 }
@@ -1754,8 +1766,13 @@ export function assessTheme(themeId, context) {
 export function assessCollection(collectionId, context) {
   const verdicts = themeRefsOfCollection(collectionId).map(r => assessTheme(r.themeId, context));
   if (verdicts.length === 0) return verdict(false, false, [{ kind: BLOCKER.MISSING_VENUE, ref: collectionId }]);
-  const playable = verdicts.some(v => v.playable);
-  return verdict(playable, false, playable ? [] : verdicts.flatMap(v => v.blockers));
+  const playableVerdicts = verdicts.filter(v => v.playable);
+  const playable = playableVerdicts.length > 0;
+  return verdict(
+    playable,
+    playable && playableVerdicts.every(v => v.degraded),
+    playable ? [] : verdicts.flatMap(v => v.blockers),
+  );
 }
 ```
 
@@ -1787,11 +1804,15 @@ const dedupe = (markers) => {
   });
 };
 
-export function markersOfExperience(experienceId) {
+export function markersOfExperience(experienceId, themeId = null) {
   const e = experienceById(experienceId);
   if (!e) return [];
-  const [themeId] = themeIdsOfExperience(e.id);
-  const parentContext = { experienceId: e.id, themeId: themeId ?? null };
+  // Prefer the theme the caller reached this experience through; fall back to
+  // its first membership only when called without a scope. An experience can
+  // belong to several themes, and a marker must ascend to the one it was
+  // actually reached from.
+  const resolvedThemeId = themeId ?? themeIdsOfExperience(e.id)[0] ?? null;
+  const parentContext = { experienceId: e.id, themeId: resolvedThemeId };
   return [
     ...e.restaurantIds.map(id => ({ kind: 'restaurant', id, parentContext })),
     ...e.marketIds.map(id => ({ kind: 'market', id, parentContext })),
@@ -1799,7 +1820,7 @@ export function markersOfExperience(experienceId) {
 }
 
 export function markersOfTheme(themeId) {
-  return dedupe(experienceIdsOfTheme(themeId).flatMap(markersOfExperience));
+  return dedupe(experienceIdsOfTheme(themeId).flatMap(id => markersOfExperience(id, themeId)));
 }
 
 export function markersOfCollection(collectionId) {
@@ -1810,12 +1831,22 @@ export function markersOfCollection(collectionId) {
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 67 tests total
+Expected: PASS, 73 tests total
+
+> **Amended during execution.** Review found `degraded` structurally unreachable:
+> the seed's only optional steps were venue-less and self-attestable, so no
+> context could make them unreachable. `market-alley` — anchored, in the
+> `street-food` theme, but in no narrative — became `street-first-timer`'s
+> optional fourth step, giving the seed its missing optional-anchored case.
+> `assessTheme`/`assessCollection` were also corrected to degrade only when no
+> clean path remains, and `markersOfExperience` now takes the calling scope.
+> Six further tests cover the degradation path and the real `gwangjang`
+> collision across three `street-food` experiences; see commit `4719e8f`.
 
 - [ ] **Step 6: Verify the capability layer stayed pure**
 
 Run: `grep -rn "policy/" src/domain/capability/`
-Expected: no output.
+Expected: only comment lines, no import statements.
 
 - [ ] **Step 7: Commit**
 
@@ -1879,7 +1910,7 @@ test('narrativePath reports required count and completion', () => {
 
 test('narrativePath preserves step order and carries transitions', () => {
   const path = narrativePath('street-first-timer', emptyJourney());
-  assert.deepEqual(path.steps.map(s => s.order), [1, 2, 3]);
+  assert.deepEqual(path.steps.map(s => s.order), [1, 2, 3, 4]);
   for (const s of path.steps) assert.ok(s.transition.length > 0);
   assert.ok(path.steps[0].title.length > 0, 'steps must carry the experience title');
 });
@@ -2134,7 +2165,7 @@ export function collectionFeed(journey, { at = new Date(), availableEvents } = {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 76 tests total
+Expected: PASS, 82 tests total
 
 - [ ] **Step 7: Commit**
 
@@ -2340,7 +2371,7 @@ export function readLegacyJourney(storage) {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 84 tests total
+Expected: PASS, 90 tests total
 
 - [ ] **Step 5: Verify the bridge did not couple to the old engine**
 
@@ -2476,7 +2507,7 @@ test('an experience shared by two themes is counted in both', () => {
 - [ ] **Step 2: Run the test**
 
 Run: `npm test`
-Expected: PASS, 92 tests total
+Expected: PASS, 98 tests total
 
 If any parity assertion fails, the defect is in the new model or the bridge — **never** in `src/data/journey.js`, which must not be edited.
 
@@ -2517,7 +2548,7 @@ experience shared by two themes is counted in both."
 
 ## Definition of Done for Phase 0
 
-- [ ] `npm test` passes with 92 tests
+- [ ] `npm test` passes with 98 tests
 - [ ] `npm run lint` shows no new warnings
 - [ ] `npm run check-data` exits 0
 - [ ] `git diff --stat HEAD -- src/data src/components src/App.jsx` is empty
