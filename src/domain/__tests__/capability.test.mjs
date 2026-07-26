@@ -97,30 +97,65 @@ test('theme and collection markers aggregate their children without duplicates',
 });
 
 test('an unreachable optional step degrades a narrative without blocking it', () => {
-  const ctx = fullContext();
-  // market-alley is optional and market-anchored; removing its markets makes
-  // it unreachable while both required steps stay satisfiable.
-  ctx.availableEvents = new Set();
-  ctx.admissiblePlaces = new Set(['balwoo', 'sanchon', 'maji', 'osegyehyang', 'gonghwachun']);
-  const v = assessNarrative('temple-half-day', ctx);
-  assert.equal(v.playable, true, 'temple-half-day has no market dependency');
-  assert.equal(v.degraded, false, 'its optional step is venue-less and always reachable');
-});
-
-test('degradation is reachable and propagates from narrative to theme', () => {
-  // gwangjang available so both required steps pass; namdaemun withheld does
-  // not matter because market-alley also lists gwangjang. Withhold every
-  // market instead and the required steps block, so instead we keep the
-  // required ones satisfiable via gwangjang and confirm the clean case.
+  // Both required steps are anchored to gwangjang; market-alley is optional
+  // and anchored only to namdaemun. Offering gwangjang alone therefore keeps
+  // the narrative playable while leaving its optional step out of reach.
   const ctx = {
     at: new Date('2026-10-15'),
     admissiblePlaces: new Set(),
     availableEvents: new Set(['gwangjang']),
   };
   const v = assessNarrative('street-first-timer', ctx);
-  assert.equal(v.playable, true, 'both required steps are anchored to gwangjang');
-  assert.equal(v.degraded, false, 'market-alley is also reachable via gwangjang');
-  assert.equal(assessTheme('street-food', ctx).playable, true);
+  assert.equal(v.playable, true, 'both required steps are reachable via gwangjang');
+  assert.equal(v.degraded, true, 'market-alley needs namdaemun, which was withheld');
+  assert.deepEqual(v.blockers, [], 'an optional step must never produce a blocker');
+});
+
+test('offering the optional step its own market clears the degradation', () => {
+  const ctx = {
+    at: new Date('2026-10-15'),
+    admissiblePlaces: new Set(),
+    availableEvents: new Set(['gwangjang', 'namdaemun']),
+  };
+  const v = assessNarrative('street-first-timer', ctx);
+  assert.equal(v.playable, true);
+  assert.equal(v.degraded, false, 'every step is reachable now');
+});
+
+test('a theme degrades when its only playable narrative is degraded', () => {
+  const ctx = {
+    at: new Date('2026-10-15'),
+    admissiblePlaces: new Set(),
+    availableEvents: new Set(['gwangjang']),
+  };
+  const v = assessTheme('street-food', ctx);
+  assert.equal(v.playable, true);
+  assert.equal(v.degraded, true);
+});
+
+test('a collection degrades only when no clean playable theme remains', () => {
+  // street-food is playable-but-degraded; temple-life is unplayable because
+  // no restaurants are admissible. The only playable theme is degraded, so
+  // the collection is too -- this is the case a hardcoded false would miss.
+  const degradedCtx = {
+    at: new Date('2026-10-15'),
+    admissiblePlaces: new Set(),
+    availableEvents: new Set(['gwangjang']),
+  };
+  const degraded = assessCollection('autumn-in-seoul', degradedCtx);
+  assert.equal(degraded.playable, true);
+  assert.equal(degraded.degraded, true, 'collection must propagate, not hardcode false');
+
+  // Readmitting the temple restaurants gives the collection a clean theme
+  // again, so it is no longer degraded even though street-food still is.
+  const cleanCtx = {
+    at: new Date('2026-10-15'),
+    admissiblePlaces: new Set(['balwoo', 'sanchon', 'maji']),
+    availableEvents: new Set(['gwangjang']),
+  };
+  const clean = assessCollection('autumn-in-seoul', cleanCtx);
+  assert.equal(clean.playable, true);
+  assert.equal(clean.degraded, false, 'one clean playable theme is enough');
 });
 
 test('theme is not degraded when a clean playable narrative exists', () => {
@@ -136,7 +171,7 @@ test('collection propagates degradation rather than hardcoding false', () => {
 });
 
 test('theme markers de-duplicate a market shared by several experiences', () => {
-  // gwangjang-market, bindaetteok and market-alley all anchor to gwangjang.
+  // gwangjang-market and bindaetteok both anchor to gwangjang.
   const markers = markersOfTheme('street-food');
   const gwangjang = markers.filter(m => m.kind === 'market' && m.id === 'gwangjang');
   assert.equal(gwangjang.length, 1, 'the shared market must appear exactly once');

@@ -134,7 +134,7 @@ export const experiences = [
       detail: 'Walk the full alley before you buy. Deciding after seeing everything is how locals shop.',
     },
     restaurantIds: [],
-    marketIds: ['gwangjang', 'namdaemun'],
+    marketIds: ['namdaemun'],
     zones: ['Jongno, Seoul', 'Hoehyeon, Seoul'],
     acceptsSelfAttest: false,
   },
