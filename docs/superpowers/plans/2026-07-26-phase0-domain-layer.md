@@ -1310,7 +1310,7 @@ test('one market visit completes every experience anchored to that market', () =
   for (const id of ['gwangjang-market', 'bindaetteok', 'market-alley']) {
     assert.equal(
       experienceDone(experienceById(id), j), true,
-      ,
+      `${id} is anchored to gwangjang and must complete on that visit`,
     );
   }
   assert.equal(themeDone('street-food', j), true, 'both required steps are satisfied');
