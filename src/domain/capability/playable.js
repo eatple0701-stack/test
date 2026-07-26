@@ -58,6 +58,15 @@ export function assessTheme(themeId, context) {
   );
 }
 
+// NOTE ON COVERAGE: the `degraded` branch of this aggregation is correct by
+// construction but is not currently exercised by a test that could tell it
+// apart from a hardcoded `false`. No theme in the seed can be degraded:
+// street-food's two narratives share their required anchor, and one of them
+// has no optional steps, so it is clean whenever it is playable. The same
+// expression IS discriminated one level down in assessTheme, which has a test
+// that fails if `every` becomes `some`. Restoring collection-level coverage
+// needs seed content with a third distinct anchor, which belongs with real
+// content rather than a fixture built to light up a branch.
 /** Transitive: a collection is playable when any of its themes is. */
 export function assessCollection(collectionId, context) {
   const verdicts = themeRefsOfCollection(collectionId).map(r => assessTheme(r.themeId, context));

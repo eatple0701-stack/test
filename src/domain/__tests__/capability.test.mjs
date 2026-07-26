@@ -185,29 +185,30 @@ test('a theme with a clean playable narrative is not degraded, even when another
   assert.equal(theme.degraded, false, 'a clean path exists, so the theme is not degraded');
 });
 
-test('a collection degrades only when no clean playable theme remains', () => {
-  // street-food is playable-but-degraded; temple-life is unplayable because
-  // no restaurants are admissible. The only playable theme is degraded, so
-  // the collection is too -- this is the case a hardcoded false would miss.
-  const degradedCtx = {
+test('a collection aggregates playability and degradation from its themes', () => {
+  // autumn-in-seoul = street-food + temple-life.
+  // With no restaurants admissible, temple-life is unplayable (its required
+  // temple-cuisine step is restaurant-anchored) and street-food carries the
+  // collection on its gwangjang-anchored narratives.
+  const marketsOnly = {
     at: new Date('2026-10-15'),
     admissiblePlaces: new Set(),
     availableEvents: new Set(['gwangjang']),
   };
-  const degraded = assessCollection('autumn-in-seoul', degradedCtx);
-  assert.equal(degraded.playable, true);
-  assert.equal(degraded.degraded, true, 'collection must propagate, not hardcode false');
+  const v = assessCollection('autumn-in-seoul', marketsOnly);
+  assert.equal(v.playable, true, 'street-food alone keeps the collection playable');
+  assert.equal(v.degraded, false, 'street-quick-bite is a clean path through street-food');
+  assert.deepEqual(v.blockers, [], 'a playable collection reports no blockers');
 
-  // Readmitting the temple restaurants gives the collection a clean theme
-  // again, so it is no longer degraded even though street-food still is.
-  const cleanCtx = {
+  // Withhold the market too and nothing in the collection can run.
+  const nothing = {
     at: new Date('2026-10-15'),
-    admissiblePlaces: new Set(['balwoo', 'sanchon', 'maji']),
-    availableEvents: new Set(['gwangjang']),
+    admissiblePlaces: new Set(),
+    availableEvents: new Set(),
   };
-  const clean = assessCollection('autumn-in-seoul', cleanCtx);
-  assert.equal(clean.playable, true);
-  assert.equal(clean.degraded, false, 'one clean playable theme is enough');
+  const dead = assessCollection('autumn-in-seoul', nothing);
+  assert.equal(dead.playable, false);
+  assert.ok(dead.blockers.length > 0, 'an unplayable collection must explain why');
 });
 
 test('theme is not degraded when a clean playable narrative exists', () => {
