@@ -88,6 +88,14 @@ export const narrativeSteps = [
     transition:
       'Fried food asks for makgeolli. Order a bowl for the table rather than a glass for yourself.',
   },
+  {
+    narrativeId: 'street-first-timer',
+    experienceId: 'market-alley',
+    order: 4,
+    required: false,
+    transition:
+      'Before you leave, walk the alley end to end. Seeing the whole trade in one line is the part people remember.',
+  },
 
   {
     narrativeId: 'noodle-origin',

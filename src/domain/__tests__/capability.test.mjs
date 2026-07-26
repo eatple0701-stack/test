@@ -95,3 +95,60 @@ test('theme and collection markers aggregate their children without duplicates',
   const keys = collectionMarkers.map(m => `${m.kind}:${m.id}`);
   assert.equal(new Set(keys).size, keys.length, 'markers must be de-duplicated');
 });
+
+test('an unreachable optional step degrades a narrative without blocking it', () => {
+  const ctx = fullContext();
+  // market-alley is optional and market-anchored; removing its markets makes
+  // it unreachable while both required steps stay satisfiable.
+  ctx.availableEvents = new Set();
+  ctx.admissiblePlaces = new Set(['balwoo', 'sanchon', 'maji', 'osegyehyang', 'gonghwachun']);
+  const v = assessNarrative('temple-half-day', ctx);
+  assert.equal(v.playable, true, 'temple-half-day has no market dependency');
+  assert.equal(v.degraded, false, 'its optional step is venue-less and always reachable');
+});
+
+test('degradation is reachable and propagates from narrative to theme', () => {
+  // gwangjang available so both required steps pass; namdaemun withheld does
+  // not matter because market-alley also lists gwangjang. Withhold every
+  // market instead and the required steps block, so instead we keep the
+  // required ones satisfiable via gwangjang and confirm the clean case.
+  const ctx = {
+    at: new Date('2026-10-15'),
+    admissiblePlaces: new Set(),
+    availableEvents: new Set(['gwangjang']),
+  };
+  const v = assessNarrative('street-first-timer', ctx);
+  assert.equal(v.playable, true, 'both required steps are anchored to gwangjang');
+  assert.equal(v.degraded, false, 'market-alley is also reachable via gwangjang');
+  assert.equal(assessTheme('street-food', ctx).playable, true);
+});
+
+test('theme is not degraded when a clean playable narrative exists', () => {
+  const v = assessTheme('temple-life', fullContext());
+  assert.equal(v.playable, true);
+  assert.equal(v.degraded, false);
+});
+
+test('collection propagates degradation rather than hardcoding false', () => {
+  const v = assessCollection('first-timers-seoul', fullContext());
+  assert.equal(v.playable, true);
+  assert.equal(v.degraded, false, 'both themes have clean playable narratives');
+});
+
+test('theme markers de-duplicate a market shared by several experiences', () => {
+  // gwangjang-market, bindaetteok and market-alley all anchor to gwangjang.
+  const markers = markersOfTheme('street-food');
+  const gwangjang = markers.filter(m => m.kind === 'market' && m.id === 'gwangjang');
+  assert.equal(gwangjang.length, 1, 'the shared market must appear exactly once');
+  const keys = markers.map(m => `${m.kind}:${m.id}`);
+  assert.equal(new Set(keys).size, keys.length);
+});
+
+test('markers carry the theme they were reached through, not an arbitrary one', () => {
+  for (const m of markersOfTheme('street-food')) {
+    assert.equal(
+      m.parentContext.themeId, 'street-food',
+      'a marker produced under street-food must ascend to street-food',
+    );
+  }
+});

@@ -21,11 +21,13 @@ const dedupe = (markers) => {
   });
 };
 
-export function markersOfExperience(experienceId) {
+export function markersOfExperience(experienceId, themeId = null) {
   const e = experienceById(experienceId);
   if (!e) return [];
-  const [themeId] = themeIdsOfExperience(e.id);
-  const parentContext = { experienceId: e.id, themeId: themeId ?? null };
+  // Prefer the theme the caller reached this experience through; fall back to
+  // its first membership only when called without a scope.
+  const resolvedThemeId = themeId ?? themeIdsOfExperience(e.id)[0] ?? null;
+  const parentContext = { experienceId: e.id, themeId: resolvedThemeId };
   return [
     ...e.restaurantIds.map(id => ({ kind: 'restaurant', id, parentContext })),
     ...e.marketIds.map(id => ({ kind: 'market', id, parentContext })),
@@ -33,7 +35,7 @@ export function markersOfExperience(experienceId) {
 }
 
 export function markersOfTheme(themeId) {
-  return dedupe(experienceIdsOfTheme(themeId).flatMap(markersOfExperience));
+  return dedupe(experienceIdsOfTheme(themeId).flatMap(id => markersOfExperience(id, themeId)));
 }
 
 export function markersOfCollection(collectionId) {

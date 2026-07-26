@@ -47,10 +47,13 @@ export function assessNarrative(narrativeId, context) {
 export function assessTheme(themeId, context) {
   const verdicts = narrativesOfTheme(themeId).map(n => assessNarrative(n.id, context));
   if (verdicts.length === 0) return verdict(false, false, [{ kind: BLOCKER.MISSING_VENUE, ref: themeId }]);
-  const playable = verdicts.some(v => v.playable);
+  const playableVerdicts = verdicts.filter(v => v.playable);
+  const playable = playableVerdicts.length > 0;
   return verdict(
     playable,
-    !playable ? false : verdicts.some(v => v.playable && v.degraded),
+    // Degraded only when there is no clean path: if any playable narrative
+    // runs without gaps, the theme is not degraded.
+    playable && playableVerdicts.every(v => v.degraded),
     playable ? [] : verdicts.flatMap(v => v.blockers),
   );
 }
@@ -59,6 +62,11 @@ export function assessTheme(themeId, context) {
 export function assessCollection(collectionId, context) {
   const verdicts = themeRefsOfCollection(collectionId).map(r => assessTheme(r.themeId, context));
   if (verdicts.length === 0) return verdict(false, false, [{ kind: BLOCKER.MISSING_VENUE, ref: collectionId }]);
-  const playable = verdicts.some(v => v.playable);
-  return verdict(playable, false, playable ? [] : verdicts.flatMap(v => v.blockers));
+  const playableVerdicts = verdicts.filter(v => v.playable);
+  const playable = playableVerdicts.length > 0;
+  return verdict(
+    playable,
+    playable && playableVerdicts.every(v => v.degraded),
+    playable ? [] : verdicts.flatMap(v => v.blockers),
+  );
 }
