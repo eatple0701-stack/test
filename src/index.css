@@ -1376,22 +1376,21 @@ button {
   height: 22px;
 }
 
-/* ---------- Full-screen panels for the non-map tabs ---------- */
+/* ---------- Tab panels ----------
+   These were pinned to the viewport back when the map was the shell and each
+   tab floated over it. Now they are ordinary children of .content-region,
+   which owns the scrolling — pinning them made them sit under the top tab
+   bar and reserve room for a bottom bar that is no longer there. */
 
 .tab-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: var(--tab-h);
-  z-index: 12;
+  min-height: 100%;
   background: var(--surface);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0 24px;
+  padding: 24px;
   gap: 20px;
   animation: fadeIn 0.25s ease;
 }
@@ -1457,15 +1456,7 @@ button {
 /* ---------- Journal: premium travel passport ---------- */
 
 .journal-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: var(--tab-h);
-  z-index: 12;
   background: var(--bg);
-  overflow-y: auto;
-  overscroll-behavior: contain;
   padding: 20px 16px 32px;
   display: flex;
   flex-direction: column;
@@ -1473,22 +1464,22 @@ button {
   animation: fadeIn 0.25s ease;
 }
 
-/* Home and Match are full-viewport panels like Journal/Profile, not
-   centered placeholders like the plain .tab-panel */
+/* Home and Match flow in .content-region like Journal and Profile. They must
+   not scroll themselves: a nested scroller inside the shell's scroller is
+   what clipped their headings under the tab bar. */
 .home-tab,
 .match-tab {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: var(--tab-h);
-  z-index: 12;
   background: var(--bg);
-  overflow-y: auto;
-  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   animation: fadeIn 0.25s ease;
+}
+
+/* Match is a swipe deck, not a feed: its inner `flex: 1` deck needs a parent
+   with a real height or it collapses to nothing. The feed tabs size to their
+   content; this one fills the shell. */
+.match-tab {
+  min-height: 100%;
 }
 
 .passport-cover {
