@@ -2893,7 +2893,250 @@ button {
   color: var(--muted);
 }
 
-/* ---------- Theme sheet ---------- */
+/* ---------- Journey lead ----------
+   The app's answer to "what do I do today?", so it is the loudest thing on
+   the screen and sits above the theme grid rather than beside it. */
+.journey-lead {
+  margin: 0 20px;
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(160deg, #10402F 0%, var(--green-strong) 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.journey-lead__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.journey-lead__eyebrow {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.82);
+}
+.journey-lead__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.journey-lead__title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.journey-lead__line {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.88);
+}
+.journey-lead__line strong {
+  font-weight: 700;
+  color: #fff;
+}
+.journey-lead__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+.journey-lead__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #fff;
+  transition: width 0.35s ease;
+}
+.journey-lead__cta {
+  margin-top: 4px;
+  min-height: 48px;
+  border: none;
+  border-radius: var(--radius);
+  background: #fff;
+  color: #10402F;
+  font-size: 15px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.15s ease;
+}
+.journey-lead__cta:hover {
+  filter: brightness(0.96);
+}
+.journey-lead__cta:active {
+  transform: scale(0.985);
+}
+
+/* Today's recommendation — one answer, not a grid. */
+.todays-pick {
+  margin: 0 20px;
+  width: calc(100% - 40px);
+  padding: 16px 18px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: transform 0.13s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.todays-pick:hover {
+  border-color: var(--line-hover);
+  box-shadow: var(--shadow-1);
+}
+.todays-pick:active {
+  transform: scale(0.985);
+}
+.todays-pick__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--green-strong);
+}
+.todays-pick__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.todays-pick__tagline {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-body);
+}
+.todays-pick__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+
+/* ---------- Theme page ----------
+   A screen rather than a sheet: Theme is the app's primary content object,
+   so it gets somewhere to stand and something to go back to. */
+.theme-page {
+  display: flex;
+  flex-direction: column;
+}
+.theme-page__nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.theme-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 12px 0 6px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.theme-page__back:hover {
+  background: var(--fill);
+}
+.theme-page__hero {
+  padding: 28px 24px 24px;
+  background: linear-gradient(160deg, #10402F 0%, var(--green-strong) 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.theme-page__emoji {
+  font-size: 40px;
+  line-height: 1;
+}
+.theme-page__hero h1 {
+  font-size: 27px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.theme-page__tagline {
+  font-size: 14.5px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.theme-page__badge {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.theme-page__body {
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.theme-page__narrative {
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--ink-body);
+}
+.theme-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.theme-page__section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.theme-page__section-head h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.theme-page__pacing {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+.theme-page__intro,
+.theme-page__outro {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.theme-page__outro {
+  font-style: italic;
+}
 
 .theme-sheet__hero {
   padding: 32px 24px 20px;
@@ -2961,6 +3204,30 @@ button {
   height: 10px;
   border-radius: 50%;
   background: var(--green-strong);
+}
+/* A completed step is the whole reason this is a Journey surface and not an
+   article: you can see where you are in the path. */
+.theme-step.is-done > .theme-step__dot {
+  left: -9px;
+  top: 2px;
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.theme-step__doneTag {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--green-tint);
+  color: var(--green-strong);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.theme-step.is-done .theme-step__head h4 {
+  color: var(--green-strong);
 }
 .theme-step__body {
   display: flex;

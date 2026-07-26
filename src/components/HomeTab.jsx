@@ -8,7 +8,7 @@ import PlaceImage from './PlaceImage';
 import PlaceCard from './PlaceCard';
 import JourneyCard from './JourneyCard';
 import ChallengeRow from './ChallengeRow';
-import ThemeSheet from './ThemeSheet';
+import JourneyLead, { TodaysPick } from './JourneyLead';
 import { ChevronRightIcon, ClockIcon, MapPinIcon, SparkleIcon, CheckIcon } from './Icons';
 import { travelers } from '../data/travelers';
 import FoodRoulette from './FoodRoulette';
@@ -37,12 +37,12 @@ function dayOfYear(date) {
 export default function HomeTab({
   onNavigate, onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
   journey, visitedMarkets = [], onToggleMarket, onOpenSummary, onOpenMap,
+  onOpenTheme, continueTheme, nextExperience, suggestedTheme,
 }) {
   const byId = useMemo(() => Object.fromEntries(restaurants.map(r => [r.id, r])), []);
   const [showRoulette, setShowRoulette] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
   const [cultureStart, setCultureStart] = useState(0);
-  const [openThemeRecord, setOpenThemeRecord] = useState(null);
 
   // The Phase 0 catalog, filtered through the same visibility policy the
   // projections use — so a `planned` theme never leaks onto the feed.
@@ -55,10 +55,6 @@ export default function HomeTab({
   const openStory = onOpenStory ?? onOpenRestaurant;
   const isSaved = (id) => bookmarkedIds.includes(id);
 
-  // Story first: a theme opens its own sheet — narrative, path and the places
-  // that realise it — rather than jumping straight to a restaurant, which
-  // would put the venue back above the culture it belongs to.
-  const openTheme = (theme) => setOpenThemeRecord(theme);
 
   return (
     <section className="home-tab" aria-label="Home">
@@ -79,19 +75,41 @@ export default function HomeTab({
         </div>
       </div>
 
-      {/* 2. Themes — the first thing after the promise. A traveller chooses a
-             culture here, not a restaurant, which is the whole inversion. */}
+      {/* 2. The answer, before the menu. A theme grid asks the traveller to
+             browse a taxonomy; this hands them one thing to do — the step
+             they are mid-way through, or a place to begin. */}
+      <div className="home-section home-section--tight">
+        <JourneyLead
+          continueTheme={continueTheme}
+          nextExperience={nextExperience}
+          suggestedTheme={suggestedTheme}
+          onOpenTheme={onOpenTheme}
+          onOpenSummary={onOpenSummary}
+        />
+      </div>
+
+      {/* 3. Today's recommendation — for the traveller who would rather start
+             something new than resume. Only shown alongside a resume card:
+             with no journey underway the lead card IS the recommendation, and
+             printing it twice would answer the same question twice. */}
+      {continueTheme && suggestedTheme && suggestedTheme.id !== continueTheme.themeId && (
+        <div className="home-section home-section--tight">
+          <TodaysPick theme={suggestedTheme} onOpenTheme={onOpenTheme} />
+        </div>
+      )}
+
+      {/* 4. Themes — the full menu, once the direct answers are out of the way */}
       <div className="home-section">
         <div className="home-section__header">
           <h2>오늘 한국에서 무엇을 경험해볼까요?</h2>
         </div>
-        <p className="home-section__sub">What will you experience in Korea today?</p>
+        <p className="home-section__sub">Or choose a culture to explore</p>
         <div className="home-scroll-row">
           {surfacedThemes.map(theme => (
             <button
               key={theme.id}
               className={`theme-card${theme.status === 'preview' ? ' is-preview' : ''}`}
-              onClick={() => openTheme(theme)}
+              onClick={() => onOpenTheme(theme.id)}
             >
               <span className="theme-card__emoji">{theme.emoji}</span>
               <h3>{theme.title}</h3>
@@ -102,14 +120,14 @@ export default function HomeTab({
         </div>
       </div>
 
-      {/* 3. Journey — always visible, always real */}
+      {/* 5. Progress detail — the dashboard, below the call to action */}
       {journey && (
         <div className="home-section home-section--tight">
           <JourneyCard journey={journey} onOpenSummary={onOpenSummary} />
         </div>
       )}
 
-      {/* 4. Big card — today's single pick */}
+      {/* 6. Big card — today's single pick */}
       <div className="home-section">
         <div className="home-section__header">
           <span className="panel-icon" aria-hidden="true"><SparkleIcon size={18} /></span>
@@ -405,13 +423,6 @@ export default function HomeTab({
 
       {showRoulette && <FoodRoulette onClose={() => setShowRoulette(false)} />}
       {showCulture && <CultureCards onClose={() => setShowCulture(false)} startIndex={cultureStart} />}
-      {openThemeRecord && (
-        <ThemeSheet
-          theme={openThemeRecord}
-          onClose={() => setOpenThemeRecord(null)}
-          onOpenRestaurant={(r) => { setOpenThemeRecord(null); onOpenRestaurant(r); }}
-        />
-      )}
     </section>
   );
 }

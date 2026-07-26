@@ -12,6 +12,12 @@ import TravelSummary from './components/TravelSummary';
 import { MAP_CENTER } from './utils';
 import { matchesDietary, isQuarantined } from './data/verification';
 import { computeJourney } from './data/journey';
+import { journeyFromLegacy } from './domain/bridge/legacyJourney.js';
+import { journeyProgress } from './domain/projection/journeyProgress.js';
+import { themeById, themes as domainThemes, experienceById, experienceIdsOfTheme } from './domain/catalog/index.js';
+import { experienceDone } from './domain/policy/completion.js';
+import { STATUS } from './domain/types.js';
+import ThemePage from './components/ThemePage';
 import './index.css';
 import './custom.css';
 
@@ -110,6 +116,10 @@ export default function App() {
   const [mapOpen, setMapOpen] = useState(false);
   const [mapScope, setMapScope] = useState({ title: 'Explore on the map', subtitle: null });
 
+  // Theme is a screen, not a sheet: it replaces the tab's content and has a
+  // back affordance, rather than stacking another overlay on the pile.
+  const [openThemeId, setOpenThemeId] = useState(null);
+
   const openMap = (scope = {}) => {
     setMapScope({
       title: scope.title ?? 'Explore on the map',
@@ -150,6 +160,64 @@ export default function App() {
     markets: visitedMarkets,
     companions,
   }), [visitedIds, visitedMarkets, companions]);
+
+  // Progress on the Theme axis, from the Phase 0 model. It runs beside
+  // computeJourney rather than replacing it — the parity harness asserts the
+  // two agree on the facts they share — and it answers the one question the
+  // legacy engine cannot: which theme is this traveller in the middle of.
+  //
+  // Built from React state rather than by re-reading localStorage, so it
+  // recomputes when a place is marked visited instead of going stale.
+  const themeProgress = useMemo(
+    () => journeyProgress(journeyFromLegacy({
+      bookmarks,
+      markets: visitedMarkets,
+      companions,
+    })),
+    [bookmarks, visitedMarkets, companions],
+  );
+
+  // The Journey the domain policies consume, kept beside the projection so
+  // ThemePage can ask whether each step is done.
+  const domainJourney = useMemo(
+    () => journeyFromLegacy({ bookmarks, markets: visitedMarkets, companions }),
+    [bookmarks, visitedMarkets, companions],
+  );
+
+  // "Continue" must mean a theme genuinely underway. journeyProgress's
+  // currentTheme falls back to the least-progressed theme when nothing has
+  // been started, which for a first-run traveller would point at whichever
+  // theme sorts first — a preview one with no venues. Requiring `explored`
+  // keeps the resume state honest and lets the start state take over.
+  //
+  // "More to do" is `done < total`, not `!complete`. A theme completes when
+  // any one of its narratives does, so finishing a short path can mark the
+  // theme complete while experiences in it remain untouched — and telling a
+  // traveller who just visited somewhere to "start your journey" would be
+  // plainly wrong.
+  const continueTheme = useMemo(() => {
+    const started = themeProgress.themes.filter(t => t.explored && t.done < t.total);
+    return started.sort((a, b) => b.pct - a.pct || a.themeId.localeCompare(b.themeId))[0] ?? null;
+  }, [themeProgress]);
+
+  // Derived from the continue theme rather than themeProgress.currentTheme,
+  // which skips complete themes — the same mismatch that would leave a
+  // resumable theme without a next step to name.
+  const nextExperience = useMemo(() => {
+    if (!continueTheme) return null;
+    const id = experienceIdsOfTheme(continueTheme.themeId)
+      .find(x => !experienceDone(experienceById(x), domainJourney));
+    return id ? { id, title: experienceById(id)?.title ?? id } : null;
+  }, [continueTheme, domainJourney]);
+
+  // The start state and today's pick both need a theme that actually has
+  // verified places behind it, so a traveller's first tap is never a dead end.
+  const suggestedTheme = useMemo(() => {
+    const ready = domainThemes.filter(t => t.status === STATUS.PUBLISHED);
+    if (ready.length === 0) return null;
+    const day = Math.floor(Date.now() / 86400000);
+    return ready[day % ready.length];
+  }, []);
 
   const handleToggleMarket = (marketId) => {
     setVisitedMarkets(prev =>
@@ -243,8 +311,18 @@ export default function App() {
           — at `inset: 0` on mobile, holding most of the viewport on desktop —
           which made a culture platform read as a maps product. It is summoned
           from here instead, by whichever surface wants it. */}
-      <div className="content-region">
-        {activeTab === 'home' && (
+      <div className="content-region" key={openThemeId ?? activeTab}>
+        {/* A theme takes over the content area rather than opening over it. */}
+        {openThemeId && (
+          <ThemePage
+            theme={themeById(openThemeId)}
+            journey={domainJourney}
+            onBack={() => setOpenThemeId(null)}
+            onOpenRestaurant={openDetail}
+          />
+        )}
+
+        {!openThemeId && activeTab === 'home' && (
           <HomeTab
             onNavigate={setActiveTab}
             onOpenRestaurant={openDetail}
@@ -257,12 +335,16 @@ export default function App() {
             onToggleMarket={handleToggleMarket}
             onOpenSummary={() => setShowSummary(true)}
             onOpenMap={openMap}
+            onOpenTheme={setOpenThemeId}
+            continueTheme={continueTheme}
+            nextExperience={nextExperience}
+            suggestedTheme={suggestedTheme}
           />
         )}
-        {activeTab === 'match' && (
+        {!openThemeId && activeTab === 'match' && (
           <MatchTab onMatch={handleAddCompanion} onNavigate={setActiveTab} />
         )}
-        {activeTab === 'journal' && (
+        {!openThemeId && activeTab === 'journal' && (
           <JournalPanel
             bookmarks={bookmarks}
             companions={companions}
@@ -273,13 +355,19 @@ export default function App() {
             onOpenSummary={() => setShowSummary(true)}
           />
         )}
-        {activeTab === 'profile' && (
+        {!openThemeId && activeTab === 'profile' && (
           <TabPanel tab={activeTab} onNavigate={setActiveTab} />
         )}
 
       </div>
 
-      <TabBar activeTab={activeTab} onSelect={setActiveTab} />
+      {/* Selecting a tab leaves the theme screen. Without this the tab bar
+          looks dead while a theme is open, since the theme route guards
+          every tab's content. */}
+      <TabBar
+        activeTab={activeTab}
+        onSelect={(tab) => { setOpenThemeId(null); setActiveTab(tab); }}
+      />
 
       <MapOverlay
         open={mapOpen}
