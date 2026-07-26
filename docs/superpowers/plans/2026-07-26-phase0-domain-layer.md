@@ -2042,7 +2042,7 @@ Create `src/domain/projection/narrativePath.js`:
 // leaving a stale figure behind.
 
 import { experienceById, narrativeById, stepsOfNarrative } from '../catalog/index.js';
-import { experienceDone } from '../policy/completion.js';
+import { experienceDone, narrativeDone } from '../policy/completion.js';
 
 export function narrativePath(narrativeId, journey) {
   const narrative = narrativeById(narrativeId);
@@ -2064,9 +2064,12 @@ export function narrativePath(narrativeId, journey) {
     narrativeId,
     title: narrative?.title ?? narrativeId,
     steps,
+    // requiredCount and doneCount are presentation counts. `complete` is a
+    // policy decision and is delegated: a second copy of the rule here would
+    // let this view disagree with journeyProgress about the same narrative.
     requiredCount: required.length,
     doneCount: required.filter(s => s.done).length,
-    complete: required.length > 0 && required.every(s => s.done),
+    complete: narrativeDone(narrativeId, journey),
   };
 }
 ```
