@@ -5,7 +5,7 @@
 // leaving a stale figure behind.
 
 import { experienceById, narrativeById, stepsOfNarrative } from '../catalog/index.js';
-import { experienceDone } from '../policy/completion.js';
+import { experienceDone, narrativeDone } from '../policy/completion.js';
 
 export function narrativePath(narrativeId, journey) {
   const narrative = narrativeById(narrativeId);
@@ -29,6 +29,9 @@ export function narrativePath(narrativeId, journey) {
     steps,
     requiredCount: required.length,
     doneCount: required.filter(s => s.done).length,
-    complete: required.length > 0 && required.every(s => s.done),
+    // Delegated rather than recomputed: completion is a policy decision, and a
+    // second copy of the rule here would let this view disagree with
+    // journeyProgress about the same narrative.
+    complete: narrativeDone(narrativeId, journey),
   };
 }
