@@ -2862,10 +2862,187 @@ button {
   font-weight: 700;
   color: var(--ink);
 }
+.theme-card {
+  position: relative;
+}
 .theme-card p {
   font-size: 12.5px;
   line-height: 1.45;
   color: var(--ink-body);
+}
+/* Preview is a roadmap statement, not a defect: the cultural content is
+   complete and only the verified venues are outstanding. It reads quietly
+   rather than as a warning. */
+.theme-card__badge {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--muted-strong);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.home-section__sub {
+  padding: 0 20px;
+  margin: -8px 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---------- Theme sheet ---------- */
+
+.theme-sheet__hero {
+  padding: 32px 24px 20px;
+  background: linear-gradient(160deg, #10402F 0%, var(--green-strong) 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.theme-sheet__emoji {
+  font-size: 40px;
+  line-height: 1;
+}
+.theme-sheet__hero h2 {
+  font-size: 26px;
+  font-weight: 800;
+}
+.theme-sheet__tagline {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.theme-sheet__badge {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.theme-sheet__pacing {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+.theme-sheet__outro {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.theme-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.theme-step {
+  position: relative;
+  padding: 0 0 20px 20px;
+  border-left: 2px solid var(--line);
+  margin-left: 5px;
+}
+.theme-step:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+.theme-step__dot {
+  position: absolute;
+  left: -6px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green-strong);
+}
+.theme-step__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.theme-step__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.theme-step__head h4 {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.theme-step__kr {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.theme-step__optional {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--muted-strong);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.theme-step__transition {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+.theme-step__why {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.theme-step__venues {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+.theme-venue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  min-height: 44px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.theme-venue:hover {
+  border-color: var(--line-hover);
+  background: var(--surface-hover);
+}
+.theme-venue span {
+  flex: 1;
+}
+.theme-step__pending {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-style: italic;
+}
+.theme-step__mission {
+  margin-top: 2px;
+  padding: 10px 12px;
+  background: var(--green-tint);
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.55;
+  color: #14532D;
 }
 
 /* Challenges. Read-only: they complete when the records do. */

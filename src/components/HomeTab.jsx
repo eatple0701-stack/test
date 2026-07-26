@@ -2,11 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
 import { gatherings, courses, featuredZones, hiddenGemIds, weekendPickIds, traditionalMarkets, seasonalFoods, festivals } from '../data/experiences';
-import { CULTURAL_THEMES, placesForTheme } from '../data/journey';
+import { themes as domainThemes } from '../domain/catalog/index.js';
+import { isSurfaceableEntity } from '../domain/policy/visibility.js';
 import PlaceImage from './PlaceImage';
 import PlaceCard from './PlaceCard';
 import JourneyCard from './JourneyCard';
 import ChallengeRow from './ChallengeRow';
+import ThemeSheet from './ThemeSheet';
 import { ChevronRightIcon, ClockIcon, MapPinIcon, SparkleIcon, CheckIcon } from './Icons';
 import { travelers } from '../data/travelers';
 import FoodRoulette from './FoodRoulette';
@@ -40,6 +42,11 @@ export default function HomeTab({
   const [showRoulette, setShowRoulette] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
   const [cultureStart, setCultureStart] = useState(0);
+  const [openThemeRecord, setOpenThemeRecord] = useState(null);
+
+  // The Phase 0 catalog, filtered through the same visibility policy the
+  // projections use — so a `planned` theme never leaks onto the feed.
+  const surfacedThemes = useMemo(() => domainThemes.filter(isSurfaceableEntity), []);
 
   const todaysPick = activePlaces[dayOfYear(new Date()) % activePlaces.length];
   const hiddenGemPicks = hiddenGemIds.map(id => byId[id]).filter(Boolean);
@@ -48,12 +55,10 @@ export default function HomeTab({
   const openStory = onOpenStory ?? onOpenRestaurant;
   const isSaved = (id) => bookmarkedIds.includes(id);
 
-  // Story first: picking a cultural thread drops the traveler into Explore
-  // filtered to that thread's kitchens, rather than opening one restaurant.
-  const openTheme = (theme) => {
-    const first = placesForTheme(theme).find(p => !isQuarantined(p));
-    if (first) openStory(first);
-  };
+  // Story first: a theme opens its own sheet — narrative, path and the places
+  // that realise it — rather than jumping straight to a restaurant, which
+  // would put the venue back above the culture it belongs to.
+  const openTheme = (theme) => setOpenThemeRecord(theme);
 
   return (
     <section className="home-tab" aria-label="Home">
@@ -74,28 +79,35 @@ export default function HomeTab({
         </div>
       </div>
 
-      {/* 2. Journey — always visible, always real */}
+      {/* 2. Themes — the first thing after the promise. A traveller chooses a
+             culture here, not a restaurant, which is the whole inversion. */}
+      <div className="home-section">
+        <div className="home-section__header">
+          <h2>오늘 한국에서 무엇을 경험해볼까요?</h2>
+        </div>
+        <p className="home-section__sub">What will you experience in Korea today?</p>
+        <div className="home-scroll-row">
+          {surfacedThemes.map(theme => (
+            <button
+              key={theme.id}
+              className={`theme-card${theme.status === 'preview' ? ' is-preview' : ''}`}
+              onClick={() => openTheme(theme)}
+            >
+              <span className="theme-card__emoji">{theme.emoji}</span>
+              <h3>{theme.title}</h3>
+              <p>{theme.tagline}</p>
+              {theme.status === 'preview' && <span className="theme-card__badge">Preview</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Journey — always visible, always real */}
       {journey && (
         <div className="home-section home-section--tight">
           <JourneyCard journey={journey} onOpenSummary={onOpenSummary} />
         </div>
       )}
-
-      {/* 3. Story first — choose a culture, not a restaurant */}
-      <div className="home-section">
-        <div className="home-section__header">
-          <h2>What will you experience today?</h2>
-        </div>
-        <div className="home-scroll-row">
-          {CULTURAL_THEMES.map(theme => (
-            <button key={theme.id} className="theme-card" onClick={() => openTheme(theme)}>
-              <span className="theme-card__emoji">{theme.emoji}</span>
-              <h3>{theme.title}</h3>
-              <p>{theme.blurb}</p>
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* 4. Big card — today's single pick */}
       <div className="home-section">
@@ -179,18 +191,6 @@ export default function HomeTab({
             );
           })}
         </div>
-      </div>
-
-      {/* 8. Banner — the map, as a break in the rhythm */}
-      <div className="home-section home-section--tight">
-        <button
-          className="map-cta"
-          onClick={() => onOpenMap?.({ title: 'Every place, plotted', subtitle: 'Filter by zone, diet or vibe' })}
-        >
-          <span className="map-cta__title">See it all on the map</span>
-          <span className="map-cta__body">Every place above, plotted — filter by zone, diet or vibe.</span>
-          <span className="map-cta__link">Open the map <ChevronRightIcon size={16} /></span>
-        </button>
       </div>
 
       <div className="home-section">
@@ -390,8 +390,28 @@ export default function HomeTab({
         </button>
       </div>
 
+      {/* The map comes last, deliberately. It is a way to act on everything
+          above, not the thing the feed is about. */}
+      <div className="home-section home-section--tight">
+        <button
+          className="map-cta"
+          onClick={() => onOpenMap?.({ title: 'Every place, plotted', subtitle: 'Filter by zone, diet or vibe' })}
+        >
+          <span className="map-cta__title">See it all on the map</span>
+          <span className="map-cta__body">Every place above, plotted — filter by zone, diet or vibe.</span>
+          <span className="map-cta__link">Open the map <ChevronRightIcon size={16} /></span>
+        </button>
+      </div>
+
       {showRoulette && <FoodRoulette onClose={() => setShowRoulette(false)} />}
       {showCulture && <CultureCards onClose={() => setShowCulture(false)} startIndex={cultureStart} />}
+      {openThemeRecord && (
+        <ThemeSheet
+          theme={openThemeRecord}
+          onClose={() => setOpenThemeRecord(null)}
+          onOpenRestaurant={(r) => { setOpenThemeRecord(null); onOpenRestaurant(r); }}
+        />
+      )}
     </section>
   );
 }
