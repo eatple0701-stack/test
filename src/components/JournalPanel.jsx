@@ -286,7 +286,7 @@ export default function JournalPanel({ bookmarks, companions = [], mapCenter, on
           {onNavigate && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button className="btn-primary" onClick={() => onNavigate('match')} style={{ width: '100%' }}>Find Travel Mates</button>
-              <button className="btn-secondary" onClick={() => onNavigate('explore')} style={{ width: '100%' }}>Explore Places</button>
+              <button className="btn-secondary" onClick={() => onNavigate('home')} style={{ width: '100%' }}>Explore Places</button>
             </div>
           )}
         </div>

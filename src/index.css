@@ -93,6 +93,17 @@ button {
   height: 100dvh;
   background: var(--bg);
   position: relative;
+  overflow: hidden;
+}
+
+/* The one scrolling surface. Content is the substrate: the map is no longer
+   part of the shell at any breakpoint, it is summoned as an overlay. */
+.content-region {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding-bottom: var(--tab-h);
 }
 
 .explore-header {
@@ -190,26 +201,100 @@ button {
   color: #fff;
 }
 
-.map-region {
-  position: relative;
-  z-index: 0;
-  flex: 0 0 clamp(280px, 46vh, 520px);
-  min-height: 0;
+/* ---------- Map overlay ----------
+   The map is summoned, not resident. It opens over the content, brings the
+   search, filters and list that used to live in the shell, and closes again. */
+.map-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  animation: mapIn 0.22s ease-out;
 }
-
-/* List reads as a layered sheet over the map (Google Maps-style) */
-.list-region {
+@keyframes mapIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.map-overlay__bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.map-overlay__heading {
+  flex: 1;
+  min-width: 0;
+}
+.map-overlay__heading h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.map-overlay__heading p {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.map-overlay__close {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.map-overlay__close:hover {
+  background: var(--line);
+}
+.map-overlay__map {
+  flex: 0 0 clamp(240px, 40vh, 440px);
+  min-height: 0;
   position: relative;
-  z-index: 1;
+}
+.map-overlay__panel {
   flex: 1;
   min-height: 0;
-  margin-top: -14px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin-top: -14px;
+  box-shadow: var(--shadow-sheet);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+.map-overlay__list {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: var(--bg);
-  box-shadow: var(--shadow-sheet);
-  padding-bottom: var(--tab-h);
+}
+
+@media (min-width: 1024px) {
+  .map-overlay__map {
+    flex: 1;
+  }
+  .map-overlay__panel {
+    flex: 0 0 380px;
+    margin-top: 0;
+    border-radius: 0;
+    border-top: 1px solid var(--line);
+  }
 }
 
 /* ---------- Place list & cards ---------- */
@@ -1674,61 +1759,12 @@ button {
    file, and in plain CSS the later rule wins a same-specificity tie. */
 
 @media (min-width: 768px) {
-  .app-shell {
-    --left-w: 380px;
-    display: grid;
-    grid-template-columns: minmax(0, var(--left-w)) minmax(0, 1fr);
-    grid-template-rows: auto 1fr;
-    grid-template-areas:
-      'header map'
-      'list   map';
-  }
-
-  .home-header {
-    grid-area: header;
-    padding: 16px 20px;
-    border-right: 1px solid var(--line);
-  }
-
-  .map-region {
-    grid-area: map;
-    height: 100%;
-  }
-
-  /* Only one of these renders at a time (driven by activeTab), all
-     sharing the same left-column cell */
-  .list-region,
-  .journal-panel,
-  .tab-panel,
-  .home-tab,
-  .match-tab {
-    grid-area: list;
-    position: static;
-    inset: auto;
-    min-height: 0;
-    height: calc(100% - var(--tab-h)); /* leaves room for the still-fixed bottom tab bar */
-    width: auto;
-    margin-top: 0;
-    padding-bottom: 0;
-    border-radius: 0;
-    box-shadow: none;
-    border-right: 1px solid var(--line);
-  }
-
-  /* The group rule above zeroes padding-bottom (mobile needed it only to
-     clear the fixed tab bar); scrolling panels still need breathing room */
-  .place-list,
-  .journal-panel {
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 24px;
-  }
-
-  /* The tab bar belongs to the left panel, not the map: without this it
-     spans the viewport and covers the map's bottom edge */
-  .tab-bar {
-    width: var(--left-w);
-    border-right: 1px solid var(--line);
+  /* Content gets the whole viewport and is centred. Previously this
+     breakpoint gave the map a permanent column and squeezed every screen
+     into 380px beside it. */
+  .content-region > * {
+    max-width: 720px;
+    margin-inline: auto;
   }
 
   .place-list__empty {
@@ -1745,134 +1781,34 @@ button {
 }
 
 @media (min-width: 1024px) {
-  .app-shell {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
+  /* A permanent split view was the map-first layout's clearest symptom: a
+     420px sidebar beside a map holding most of the screen. Content now owns
+     the viewport at every width, and the tab bar becomes a top rail so the
+     reading column is not interrupted from below. */
+  .content-region {
+    padding-bottom: 0;
+    padding-top: 0;
   }
 
-  .sidebar-region {
-    width: 420px;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-    position: relative;
-    border-right: 1px solid var(--line);
-    background: var(--surface);
-    z-index: 20;
-    order: 1;
-  }
-  
-  .border-region {
-    width: 0px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    z-index: 30;
-    order: 2;
-  }
-  
-  .map-region {
-    flex-grow: 1;
-    position: relative;
-    z-index: 10;
-    min-width: 0;
-    order: 3;
-  }
-
-  /* When collapsed */
-  .app-shell.is-collapsed .sidebar-region {
-    width: 64px;
-  }
-
-  /* Reset grid properties since we are in flex column */
-  .home-header {
-    grid-area: auto;
-    border-right: none;
-    flex-shrink: 0;
-  }
-  
-  .list-region, .journal-panel, .tab-panel, .home-tab, .match-tab {
-    grid-area: auto;
-    height: auto;
-    flex-grow: 1;
-    overflow-y: auto;
-  }
-
-  /* To prevent content squishing while transitioning width to 64px */
-  .sheet-header-drag-area, .list-region, .journal-panel, .tab-panel, .home-tab, .match-tab {
-    width: 420px;
-    transition: opacity 0.15s ease;
-  }
-
-  .app-shell.is-collapsed .sheet-header-drag-area,
-  .app-shell.is-collapsed .list-region,
-  .app-shell.is-collapsed .journal-panel,
-  .app-shell.is-collapsed .tab-panel,
-  .app-shell.is-collapsed .home-tab,
-  .app-shell.is-collapsed .match-tab {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-
-  /* Non-map tabs */
-  .journal-panel, .tab-panel, .home-tab, .match-tab {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: var(--tab-h);
-    z-index: 100;
-    background: var(--surface);
-    overflow-y: auto;
-  }
-
-  .journal-panel, .tab-panel, .home-tab, .match-tab {
-    position: static;
-    flex-grow: 1;
-    z-index: auto;
-    background: transparent;
-  }
-
-  /* The tab bar leaves the bottom edge and becomes the left panel's own
-     top navigation — a permanent split shouldn't also need a floating bar */
   .tab-bar {
-    grid-area: auto;
-    width: 420px;
     position: static;
+    order: -1;
     height: auto;
-    padding: 10px 12px;
-    display: flex;
-    justify-content: flex-start;
-    gap: 4px;
+    padding: 10px 16px;
+    justify-content: center;
+    gap: 6px;
     border-top: none;
     border-bottom: 1px solid var(--line);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .app-shell.is-collapsed .tab-bar {
-    width: 64px;
-    flex-direction: column;
-    padding: 16px 0;
-    gap: 12px;
-    align-items: center;
-    border-bottom: none;
   }
 
   .tab-item {
     flex: 0 0 auto;
-    display: flex;
     flex-direction: row;
     gap: 6px;
-    min-height: 40px; /* pointer-sized, still comfortable on touch laptops */
-    padding: 0 14px;
+    min-height: 44px;
+    padding: 0 16px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 13.5px;
   }
   .tab-item.active {
     background: var(--green-tint);
@@ -1882,44 +1818,7 @@ button {
     height: 18px;
   }
 
-  .app-shell.is-collapsed .tab-item {
-    width: 44px;
-    height: 44px;
-    min-height: 44px;
-    padding: 0;
-    justify-content: center;
-    border-radius: 50%;
-  }
-
-  .app-shell.is-collapsed .tab-label {
-    display: none;
-  }
-
-  /* Google Maps style collapse button, vertically centered on the border */
-  .sidebar-toggle {
-    position: absolute;
-    left: -12px; /* Center on the 0px border */
-    /* top is removed so it aligns center due to flex align-items: center */
-    width: 24px;
-    height: 48px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    color: var(--ink-body);
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-  .sidebar-toggle:hover {
-    background: var(--surface-hover);
-    color: var(--ink-title);
-  }
-
-  /* Detail becomes a centered dialog rather than a full-height sheet —
-     the map and list stay visible and reachable behind the dim backdrop */
+  /* Detail becomes a centred dialog rather than a full-height sheet. */
   .detail-sheet {
     left: 50%;
     right: auto;
@@ -1939,80 +1838,13 @@ button {
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  .sidebar-region { display: contents; }
-  .border-region { display: none; }
-  .sidebar-toggle { display: none !important; }
-}
-
 @media (max-width: 767px) {
   .mobile-hidden {
     display: none !important;
   }
 
-  .sidebar-region.non-map-tab {
-    background: transparent;
-    box-shadow: none;
-    pointer-events: none;
-    height: auto !important;
-  }
-  .sidebar-region.non-map-tab > * {
-    pointer-events: auto;
-  }
-
-  .app-shell { display: block; }
-  
-  .map-region {
-    position: absolute;
-    inset: 0;
-    flex: none;
-    height: 100%;
-  }
-
-  .sidebar-region {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    background: var(--bg);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    transition: height 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  .sidebar-region.sheet-state-0 { height: 25%; }
-  .sidebar-region.sheet-state-1 { height: 60%; }
-  .sidebar-region.sheet-state-2 { height: 95%; }
-
-  .sheet-handle-area {
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .sheet-handle-bar {
-    width: 40px;
-    height: 5px;
-    border-radius: 4px;
-    background: var(--line-hover);
-  }
-
-  .list-region {
-    margin-top: 0;
-    border-radius: 0;
-    box-shadow: none;
-    flex: 1;
-    min-height: 0;
-    padding-bottom: var(--tab-h);
-  }
-
-  /* Fixed bottom navigation for mobile */
+  /* Fixed bottom navigation. The map used to sit behind this at inset: 0 —
+     it is an overlay now, so nothing renders underneath the content. */
   .tab-bar {
     position: fixed;
     bottom: 0;
@@ -2024,9 +1856,6 @@ button {
     padding-bottom: env(safe-area-inset-bottom);
     box-shadow: 0 -1px 8px rgba(0,0,0,0.05);
   }
-
-  .border-region { display: none; }
-  .sidebar-toggle { display: none !important; }
 }
 
 /* ---------- Directions Menu ---------- */

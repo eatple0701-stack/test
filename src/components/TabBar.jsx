@@ -34,11 +34,13 @@ const icons = {
   ),
 };
 
+// The map is no longer a destination. It was a top-level tab while it was
+// also the app's backdrop; now it is a tool opened from wherever the user
+// already is, so it has no place in primary navigation.
 const tabs = [
-  { id: 'home', label: 'Home' },
-  { id: 'match', label: 'Match' },
-  { id: 'explore', label: 'Explore' },
-  { id: 'journal', label: 'Journal' },
+  { id: 'home', label: 'Explore' },
+  { id: 'match', label: 'Community' },
+  { id: 'journal', label: 'Passport' },
   { id: 'profile', label: 'Profile' },
 ];
 

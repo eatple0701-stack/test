@@ -34,7 +34,7 @@ function dayOfYear(date) {
 
 export default function HomeTab({
   onNavigate, onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
-  journey, visitedMarkets = [], onToggleMarket, onOpenSummary,
+  journey, visitedMarkets = [], onToggleMarket, onOpenSummary, onOpenMap,
 }) {
   const byId = useMemo(() => Object.fromEntries(restaurants.map(r => [r.id, r])), []);
   const [showRoulette, setShowRoulette] = useState(false);
@@ -183,7 +183,10 @@ export default function HomeTab({
 
       {/* 8. Banner — the map, as a break in the rhythm */}
       <div className="home-section home-section--tight">
-        <button className="map-cta" onClick={() => onNavigate('explore')}>
+        <button
+          className="map-cta"
+          onClick={() => onOpenMap?.({ title: 'Every place, plotted', subtitle: 'Filter by zone, diet or vibe' })}
+        >
           <span className="map-cta__title">See it all on the map</span>
           <span className="map-cta__body">Every place above, plotted — filter by zone, diet or vibe.</span>
           <span className="map-cta__link">Open the map <ChevronRightIcon size={16} /></span>

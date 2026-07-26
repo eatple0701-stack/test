@@ -1,8 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { restaurants } from './data/restaurants';
-import MapComponent from './components/MapComponent';
-import FilterBar from './components/FilterBar';
-import BottomSheetList from './components/BottomSheetList';
+import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
 import TabPanel from './components/TabPanel';
@@ -101,33 +99,23 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
   const [focusStory, setFocusStory] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [sheetState, setSheetState] = useState(1); // 0: Collapsed, 1: Half, 2: Expanded
   const [prologueCompleted, setPrologueCompleted] = useState(
     () => localStorage.getItem('kfm-prologue') === 'true'
   );
   const [showSummary, setShowSummary] = useState(false);
 
-  // Touch states for mobile bottom sheet swipe
-  const [touchStartY, setTouchStartY] = useState(null);
-  const [touchEndY, setTouchEndY] = useState(null);
+  // The map is a tool now, not the backdrop. `mapScope` records what the user
+  // was looking at when they opened it, so the overlay can say which question
+  // it is answering rather than presenting itself as the destination.
+  const [mapOpen, setMapOpen] = useState(false);
+  const [mapScope, setMapScope] = useState({ title: 'Explore on the map', subtitle: null });
 
-  const handleTouchStart = (e) => setTouchStartY(e.targetTouches[0].clientY);
-  const handleTouchMove = (e) => setTouchEndY(e.targetTouches[0].clientY);
-  const handleTouchEnd = () => {
-    if (!touchStartY || !touchEndY) return;
-    const distance = touchStartY - touchEndY;
-    const swipeThreshold = 50;
-
-    if (distance > swipeThreshold) {
-      // Swiped up -> expand
-      setSheetState(s => Math.min(s + 1, 2));
-    } else if (distance < -swipeThreshold) {
-      // Swiped down -> collapse
-      setSheetState(s => Math.max(s - 1, 0));
-    }
-    setTouchStartY(null);
-    setTouchEndY(null);
+  const openMap = (scope = {}) => {
+    setMapScope({
+      title: scope.title ?? 'Explore on the map',
+      subtitle: scope.subtitle ?? null,
+    });
+    setMapOpen(true);
   };
 
   // Single choke point for every path that opens detail (map pin, card,
@@ -182,11 +170,12 @@ export default function App() {
     ]);
   };
 
-  // Home's zone/course cards jump into Explore pre-filtered by a search term
-  // (zone name or restaurant name) rather than duplicating the map/list here.
+  // "Explore nearby" used to switch to a map tab. There is no map tab now:
+  // the same intent opens the map as a tool, pre-filtered to what was asked
+  // for, and closing it returns to whatever the user was reading.
   const goExplore = (query) => {
     setSearchQuery(query);
-    setActiveTab('explore');
+    openMap({ title: query, subtitle: 'Places matching this search' });
   };
 
   const handleToggleFilter = (filter) => {
@@ -249,60 +238,12 @@ export default function App() {
   }
 
   return (
-    <div className={`app-shell ${isSidebarCollapsed ? 'is-collapsed' : ''}`}>
-      {/* Map is now at the base level */}
-      <div className="map-region">
-        <MapComponent
-          restaurants={filteredRestaurants}
-          onMarkerClick={openDetail}
-          selectedId={selectedRestaurant?.id}
-          onCenterChange={setMapCenter}
-        />
-      </div>
-
-      <div className={`sidebar-region ${activeTab === 'explore' ? `sheet-state-${sheetState}` : 'non-map-tab'}`}>
-        {/* Render map list/search UI ONLY when activeTab is 'explore' */}
-        {activeTab === 'explore' && (
-          <>
-            {/* Mobile handle and header wrapped for touch events */}
-            <div
-              className="sheet-header-drag-area"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              <div className="sheet-handle-area" onClick={() => setSheetState(s => (s + 1) % 3)}>
-                <div className="sheet-handle-bar" />
-              </div>
-
-              <h1 className="explore-header">Choose a place to visit together</h1>
-
-              {/* Search + dietary filters */}
-              <FilterBar
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                selectedFilters={selectedFilters}
-                onToggleFilter={handleToggleFilter}
-              />
-            </div>
-
-            {/* Restaurant list */}
-            <section className="list-region" aria-label="Restaurant list">
-              <BottomSheetList
-                restaurants={filteredRestaurants}
-                mapCenter={mapCenter}
-                bookmarkedIds={bookmarkedIds}
-                onRestaurantClick={openDetail}
-                onReadStory={openStory}
-                onToggleBookmark={handleToggleBookmark}
-                sustainabilityLens={sustainabilityLens}
-              />
-            </section>
-          </>
-        )}
-
-        {/* Full-screen tabs rendered inside the sidebar region (it becomes a
-            transparent, full-viewport wrapper for these via .non-map-tab) */}
+    <div className="app-shell">
+      {/* Content is the substrate now. The map used to sit behind every screen
+          — at `inset: 0` on mobile, holding most of the viewport on desktop —
+          which made a culture platform read as a maps product. It is summoned
+          from here instead, by whichever surface wants it. */}
+      <div className="content-region">
         {activeTab === 'home' && (
           <HomeTab
             onNavigate={setActiveTab}
@@ -315,6 +256,7 @@ export default function App() {
             visitedMarkets={visitedMarkets}
             onToggleMarket={handleToggleMarket}
             onOpenSummary={() => setShowSummary(true)}
+            onOpenMap={openMap}
           />
         )}
         {activeTab === 'match' && (
@@ -335,26 +277,29 @@ export default function App() {
           <TabPanel tab={activeTab} onNavigate={setActiveTab} />
         )}
 
-        <TabBar 
-          activeTab={activeTab} 
-          onSelect={setActiveTab} 
-          isCollapsed={isSidebarCollapsed} 
-        />
       </div>
 
-      <div className="border-region">
-        <button 
-          className="sidebar-toggle"
-          aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          onClick={() => setIsSidebarCollapsed(prev => !prev)}
-        >
-          {isSidebarCollapsed ? (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          ) : (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          )}
-        </button>
-      </div>
+      <TabBar activeTab={activeTab} onSelect={setActiveTab} />
+
+      <MapOverlay
+        open={mapOpen}
+        onClose={() => setMapOpen(false)}
+        title={mapScope.title}
+        subtitle={mapScope.subtitle}
+        restaurants={filteredRestaurants}
+        mapCenter={mapCenter}
+        onCenterChange={setMapCenter}
+        selectedId={selectedRestaurant?.id}
+        onRestaurantClick={openDetail}
+        onReadStory={openStory}
+        bookmarkedIds={bookmarkedIds}
+        onToggleBookmark={handleToggleBookmark}
+        sustainabilityLens={sustainabilityLens}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedFilters={selectedFilters}
+        onToggleFilter={handleToggleFilter}
+      />
 
       {/* Layer 2: Full-Screen Detail Modal */}
       <RestaurantDetail

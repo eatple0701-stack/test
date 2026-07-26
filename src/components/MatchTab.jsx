@@ -138,7 +138,7 @@ export default function MatchTab({ onMatch, onNavigate }) {
     setMatchedTraveler(null);
     setRequestStatus(null);
     advance();
-    onNavigate('explore');
+    onNavigate('home');
   };
 
   return (
@@ -162,7 +162,7 @@ export default function MatchTab({ onMatch, onNavigate }) {
               You've seen everyone available for today. Check back later for new travelers, or widen your search.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
-              <button className="btn-primary" onClick={() => onNavigate('explore')} style={{ width: '100%' }}>Explore Restaurants</button>
+              <button className="btn-primary" onClick={() => onNavigate('home')} style={{ width: '100%' }}>Explore Restaurants</button>
               <button className="btn-secondary" onClick={() => setOnlyAvailable(false)} style={{ width: '100%' }}>View Offline Travelers</button>
             </div>
           </div>
