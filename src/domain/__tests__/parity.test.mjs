@@ -48,7 +48,7 @@ test('both engines agree on companions met', () => {
   assert.equal(legacy.companionCount, journey.companionIds.size);
 });
 
-test('a visit recorded by the legacy engine completes the matching experience', () => {
+test('a visit carried across by the bridge completes the matching experience', () => {
   const journey = journeyFromLegacy(scenario);
   assert.equal(
     experienceDone(experienceById('temple-cuisine'), journey), true,
@@ -57,11 +57,44 @@ test('a visit recorded by the legacy engine completes the matching experience', 
   assert.equal(experienceDone(experienceById('jajangmyeon'), journey), true);
 });
 
-test('the new projection never reports more done than the theme contains', () => {
+test('per-theme progress matches the figures the seed must produce', () => {
+  // Fixed expectations rather than values read back off the projection.
+  // scenario visits balwoo and osegyehyang, and the gwangjang market:
+  //   temple-life  - temple-cuisine done via balwoo;      temple-tea not      -> 1/2
+  //   street-food  - gwangjang-market and bindaetteok done via gwangjang;
+  //                  makgeolli not attested, market-alley needs namdaemun     -> 2/4
+  //   noodle-road  - jajangmyeon done via osegyehyang;    makgeolli not       -> 1/2
+  const expected = {
+    'temple-life': { done: 1, total: 2, pct: 50 },
+    'street-food': { done: 2, total: 4, pct: 50 },
+    'noodle-road': { done: 1, total: 2, pct: 50 },
+  };
+
   const p = journeyProgress(journeyFromLegacy(scenario));
-  for (const t of p.themes) {
-    assert.ok(t.done <= t.total, `${t.themeId} reports ${t.done}/${t.total}`);
-    assert.ok(t.pct >= 0 && t.pct <= 100, `${t.themeId} pct out of range`);
+  assert.equal(p.themes.length, Object.keys(expected).length);
+
+  for (const theme of p.themes) {
+    const want = expected[theme.themeId];
+    assert.ok(want, `unexpected theme ${theme.themeId}`);
+    assert.equal(theme.done, want.done, `${theme.themeId} done`);
+    assert.equal(theme.total, want.total, `${theme.themeId} total`);
+    assert.equal(theme.pct, want.pct, `${theme.themeId} pct`);
+  }
+});
+
+test('per-theme done counts agree with recomputing them from the catalog', () => {
+  // Independent of the projection's own arithmetic: walk the catalog and the
+  // completion policy directly, then compare. This catches a projection that
+  // reads the wrong theme's experiences or drops one, which comparing the
+  // projection against itself cannot.
+  const journey = journeyFromLegacy(scenario);
+  const p = journeyProgress(journey);
+
+  for (const theme of p.themes) {
+    const ids = experienceIdsOfTheme(theme.themeId);
+    const done = ids.filter(id => experienceDone(experienceById(id), journey)).length;
+    assert.equal(theme.total, ids.length, `${theme.themeId} total vs catalog`);
+    assert.equal(theme.done, done, `${theme.themeId} done vs policy`);
   }
 });
 
@@ -70,11 +103,19 @@ test('every catalogued theme appears in the projection', () => {
   assert.equal(p.themes.length, themes.length);
 });
 
-test('experiencesCompleted equals the sum of per-theme done counts', () => {
-  const journey = journeyFromLegacy(scenario);
-  const p = journeyProgress(journey);
-  const summed = p.themes.reduce((n, t) => n + t.done, 0);
-  assert.equal(p.experiencesCompleted, summed);
+test('experiencesCompleted counts each theme membership, including shared ones', () => {
+  // 4 for this scenario: temple-cuisine, gwangjang-market, bindaetteok,
+  // jajangmyeon. makgeolli is not done here, so nothing is double counted.
+  const p = journeyProgress(journeyFromLegacy(scenario));
+  assert.equal(p.experiencesCompleted, 4);
+
+  // Attesting makgeolli adds it under BOTH themes it belongs to, so the
+  // figure rises by two rather than one. That is the documented behaviour of
+  // a sum over theme memberships, and pinning it stops a silent switch to
+  // distinct-counting.
+  const shared = journeyFromLegacy(scenario);
+  shared.attestedExperienceIds.add('makgeolli');
+  assert.equal(journeyProgress(shared).experiencesCompleted, 6);
 });
 
 test('an experience shared by two themes is counted in both', () => {
