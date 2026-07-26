@@ -1845,7 +1845,18 @@ export function markersOfCollection(collectionId) {
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 75 tests total
+Expected: PASS, 76 tests total
+
+> **Also amended:** `street-food` gained a second narrative, `street-quick-bite`
+> (one required step, no optional steps). The seed previously had no theme with
+> more than one narrative, so it never exercised the relationship Narrative
+> exists for — and `assessTheme`'s `every` could not be told apart from the
+> `some` bug it replaced. A test now fails if that operator is reverted.
+> Side effect, accepted: `street-food` is now undegradable (both narratives
+> share the `gwangjang` anchor and one is always clean), so collection-level
+> degradation has no discriminating test. Recorded on `assessCollection`
+> itself; closing it needs real content with a third anchor, not a bigger
+> fixture. See commits `1656e9b`, `4ef78e7`.
 
 > **Amended during execution.** Review found `degraded` structurally unreachable:
 > the seed's only optional steps were venue-less and self-attestable, so no
@@ -2179,7 +2190,7 @@ export function collectionFeed(journey, { at = new Date(), availableEvents } = {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 84 tests total
+Expected: PASS, 85 tests total
 
 - [ ] **Step 7: Commit**
 
@@ -2385,7 +2396,7 @@ export function readLegacyJourney(storage) {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 92 tests total
+Expected: PASS, 93 tests total
 
 - [ ] **Step 5: Verify the bridge did not couple to the old engine**
 
@@ -2521,7 +2532,7 @@ test('an experience shared by two themes is counted in both', () => {
 - [ ] **Step 2: Run the test**
 
 Run: `npm test`
-Expected: PASS, 100 tests total
+Expected: PASS, 101 tests total
 
 If any parity assertion fails, the defect is in the new model or the bridge — **never** in `src/data/journey.js`, which must not be edited.
 
@@ -2562,7 +2573,7 @@ experience shared by two themes is counted in both."
 
 ## Definition of Done for Phase 0
 
-- [ ] `npm test` passes with 100 tests
+- [ ] `npm test` passes with 101 tests
 - [ ] `npm run lint` shows no new warnings
 - [ ] `npm run check-data` exits 0
 - [ ] `git diff --stat HEAD -- src/data src/components src/App.jsx` is empty
