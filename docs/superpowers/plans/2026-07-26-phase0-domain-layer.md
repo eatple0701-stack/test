@@ -2500,11 +2500,41 @@ test('a visit recorded by the legacy engine completes the matching experience', 
   assert.equal(experienceDone(experienceById('jajangmyeon'), journey), true);
 });
 
-test('the new projection never reports more done than the theme contains', () => {
+test('per-theme progress matches the figures the seed must produce', () => {
+  // Fixed expectations rather than values read back off the projection.
+  // An earlier version asserted `done <= total`, which Array.filter
+  // guarantees for any predicate however broken — it could not fail.
+  const expected = {
+    'temple-life': { done: 1, total: 2, pct: 50 },
+    'street-food': { done: 2, total: 4, pct: 50 },
+    'noodle-road': { done: 1, total: 2, pct: 50 },
+  };
+
   const p = journeyProgress(journeyFromLegacy(scenario));
-  for (const t of p.themes) {
-    assert.ok(t.done <= t.total, `${t.themeId} reports ${t.done}/${t.total}`);
-    assert.ok(t.pct >= 0 && t.pct <= 100, `${t.themeId} pct out of range`);
+  assert.equal(p.themes.length, Object.keys(expected).length);
+
+  for (const theme of p.themes) {
+    const want = expected[theme.themeId];
+    assert.ok(want, `unexpected theme ${theme.themeId}`);
+    assert.equal(theme.done, want.done, `${theme.themeId} done`);
+    assert.equal(theme.total, want.total, `${theme.themeId} total`);
+    assert.equal(theme.pct, want.pct, `${theme.themeId} pct`);
+  }
+});
+
+test('per-theme done counts agree with recomputing them from the catalog', () => {
+  // Independent of the projection's own arithmetic: walk the catalog and the
+  // completion policy directly. Catches a projection that reads the wrong
+  // theme's experiences or drops one — which comparing it against itself
+  // cannot.
+  const journey = journeyFromLegacy(scenario);
+  const p = journeyProgress(journey);
+
+  for (const theme of p.themes) {
+    const ids = experienceIdsOfTheme(theme.themeId);
+    const done = ids.filter(id => experienceDone(experienceById(id), journey)).length;
+    assert.equal(theme.total, ids.length, `${theme.themeId} total vs catalog`);
+    assert.equal(theme.done, done, `${theme.themeId} done vs policy`);
   }
 });
 
@@ -2513,11 +2543,21 @@ test('every catalogued theme appears in the projection', () => {
   assert.equal(p.themes.length, themes.length);
 });
 
-test('experiencesCompleted equals the sum of per-theme done counts', () => {
-  const journey = journeyFromLegacy(scenario);
-  const p = journeyProgress(journey);
-  const summed = p.themes.reduce((n, t) => n + t.done, 0);
-  assert.equal(p.experiencesCompleted, summed);
+test('experiencesCompleted counts each theme membership, including shared ones', () => {
+  // An earlier version reran the same reduce over the same array the
+  // projection had already used, so corrupt counts corrupted both sides
+  // identically. These are fixed figures instead.
+  //
+  // 4 here: temple-cuisine, gwangjang-market, bindaetteok, jajangmyeon.
+  const p = journeyProgress(journeyFromLegacy(scenario));
+  assert.equal(p.experiencesCompleted, 4);
+
+  // Attesting makgeolli adds it under BOTH themes it belongs to, so the
+  // figure rises by two rather than one. Pinning it stops a silent switch to
+  // distinct-counting.
+  const shared = journeyFromLegacy(scenario);
+  shared.attestedExperienceIds.add('makgeolli');
+  assert.equal(journeyProgress(shared).experiencesCompleted, 6);
 });
 
 test('an experience shared by two themes is counted in both', () => {
@@ -2535,7 +2575,7 @@ test('an experience shared by two themes is counted in both', () => {
 - [ ] **Step 2: Run the test**
 
 Run: `npm test`
-Expected: PASS, 101 tests total
+Expected: PASS, 102 tests total
 
 If any parity assertion fails, the defect is in the new model or the bridge — **never** in `src/data/journey.js`, which must not be edited.
 
@@ -2576,10 +2616,13 @@ experience shared by two themes is counted in both."
 
 ## Definition of Done for Phase 0
 
-- [ ] `npm test` passes with 101 tests
+- [ ] `npm test` passes with 102 tests
 - [ ] `npm run lint` shows no new warnings
 - [ ] `npm run check-data` exits 0
-- [ ] `git diff --stat HEAD -- src/data src/components src/App.jsx` is empty
+- [ ] `git diff --stat 432094a..HEAD -- src/data src/components src/App.jsx` is empty
+      (against the **branch base**, not `HEAD`. The working tree already
+      carried uncommitted feature work when Phase 0 began, so a `HEAD`
+      comparison could never be empty and would not have measured this phase.)
 - [ ] The only modified pre-existing file in the whole phase is `package.json` (one added script key)
 - [ ] `grep -rn "policy/" src/domain/catalog/ src/domain/capability/ src/domain/types.js` returns nothing
 - [ ] `grep -rn "data/journey" src/domain/` returns nothing
