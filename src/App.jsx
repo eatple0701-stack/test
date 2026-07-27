@@ -11,9 +11,9 @@ import Prologue from './components/Prologue';
 import TravelSummary from './components/TravelSummary';
 import { MAP_CENTER } from './utils';
 import { matchesDietary, isQuarantined } from './data/verification';
-import { computeJourney } from './data/journey';
 import { journeyFromLegacy } from './domain/bridge/legacyJourney.js';
 import { journeyProgress } from './domain/projection/journeyProgress.js';
+import { passportRecord } from './domain/projection/passportRecord.js';
 import { themeById, experienceById, experienceIdsOfTheme } from './domain/catalog/index.js';
 import { experienceDone } from './domain/policy/completion.js';
 import { reasonFor, themeOfTheDay } from './domain/policy/recommendation.js';
@@ -180,38 +180,24 @@ export default function App() {
     [bookmarks],
   );
 
-  // The one place trip progress is derived. Home, Journal and the summary
-  // card all read this, so they can never disagree about how far along the
-  // trip is.
-  const journey = useMemo(() => computeJourney({
-    visitedPlaces: visitedIds.map(id => activeRestaurants.find(r => r.id === id)).filter(Boolean),
-    markets: visitedMarkets,
-    companions,
-  }), [visitedIds, visitedMarkets, companions]);
-
-  // Progress on the Theme axis, from the Phase 0 model. It runs beside
-  // computeJourney rather than replacing it — the parity harness asserts the
-  // two agree on the facts they share — and it answers the one question the
-  // legacy engine cannot: which theme is this traveller in the middle of.
+  // The single source of truth for what this traveller has done. Everything
+  // below is derived from it, so no two surfaces can disagree.
   //
   // Built from React state rather than by re-reading localStorage, so it
-  // recomputes when a place is marked visited instead of going stale.
-  const themeProgress = useMemo(
-    () => journeyProgress(journeyFromLegacy({
-      bookmarks,
-      markets: visitedMarkets,
-      companions,
-      attestations,
-    })),
-    [bookmarks, visitedMarkets, companions, attestations],
-  );
-
-  // The Journey the domain policies consume, kept beside the projection so
-  // ThemePage can ask whether each step is done.
+  // recomputes the moment a place is marked visited or a step is checked off.
   const domainJourney = useMemo(
     () => journeyFromLegacy({ bookmarks, markets: visitedMarkets, companions, attestations }),
     [bookmarks, visitedMarkets, companions, attestations],
   );
+
+  // Counts and challenges — what Passport, Explore's challenge row and the
+  // shareable summary read. Formerly computeJourney, which could only see
+  // restaurant visits; this sees the whole Journey, so a step completed by
+  // attestation reaches the Passport too.
+  const journey = useMemo(() => passportRecord(domainJourney), [domainJourney]);
+
+  // Progress on the Theme axis: which theme is underway and what comes next.
+  const themeProgress = useMemo(() => journeyProgress(domainJourney), [domainJourney]);
 
   // "Continue" must mean a theme genuinely underway. journeyProgress's
   // currentTheme falls back to the least-progressed theme when nothing has

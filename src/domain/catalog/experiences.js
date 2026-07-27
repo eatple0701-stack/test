@@ -240,7 +240,7 @@ export const experiences = [
     },
     restaurantIds: [],
     marketIds: [],
-    zones: [],
+    zones: ['Busan'],
     acceptsSelfAttest: true,
   },
   {
@@ -261,7 +261,7 @@ export const experiences = [
     },
     restaurantIds: [],
     marketIds: [],
-    zones: [],
+    zones: ['Busan'],
     acceptsSelfAttest: true,
   },
   {

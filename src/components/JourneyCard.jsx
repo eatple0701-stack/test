@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronRightIcon } from './Icons';
 
 // The always-visible header of the trip: what has actually happened so far,
-// and the one thing to do next. Every number comes from computeJourney, so
+// and the one thing to do next. Every number comes from passportRecord, so
 // an empty trip honestly reads as zeros rather than a fake head start.
 export default function JourneyCard({ journey, onOpenSummary }) {
   const { foodCount, districtCount, marketCount, cuisineCount, nextGoal, challenges, doneCount } = journey;

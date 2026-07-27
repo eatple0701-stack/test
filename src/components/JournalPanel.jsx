@@ -29,11 +29,6 @@ export default function JournalPanel({ bookmarks, companions = [], mapCenter, on
   const visitedList = stamped.filter(s => s.visitedAt != null);
   const savedList = stamped.filter(s => s.visitedAt == null);
 
-  const neighborhoods = useMemo(() => {
-    const zones = new Set(visitedList.map(s => s.place.zone));
-    return Array.from(zones);
-  }, [visitedList]);
-
   // Logged whenever "Eat together" is confirmed in Match (see App.jsx).
   const metPeople = useMemo(() =>
     companions
@@ -70,22 +65,27 @@ export default function JournalPanel({ bookmarks, companions = [], mapCenter, on
     return items.sort((a, b) => (b.ts ?? 0) - (a.ts ?? 0)).slice(0, 12);
   }, [visitedList, savedList, metPeople]);
 
-  // Earned from real state, not a fixed list — a traveler's Passport should
-  // reflect what they have actually done in the app so far.
-  const distinctCategories = useMemo(() => new Set(visitedList.map(v => v.place.category)).size, [visitedList]);
+  // Badge counts come from the journey engine, not from a second tally kept
+  // here. They used to be measured off this panel's own visited list, which
+  // is why a theme finished by attestation left the Passport reading zero:
+  // the engine knew, and the Passport was counting something else.
+  //
+  // Nationalities stay local — the engine models companions but not where
+  // they are from, and inventing a count it does not hold would put the two
+  // back out of step for the sake of one badge.
   const distinctNationalities = useMemo(() => new Set(metPeople.map(c => c.traveler.nationality)).size, [metPeople]);
   const badges = useMemo(() => [
-    { id: 'first-meetup', icon: '🤝', name: 'First Meetup', current: companions.length, target: 1 },
-    { id: 'foods', icon: '🍜', name: 'Tried 5 Korean foods', current: visitedList.length, target: 5 },
-    { id: 'districts', icon: '🗺️', name: 'Visited 3 districts', current: neighborhoods.length, target: 3 },
-    { id: 'cuisines', icon: '🍱', name: 'Explored 3 cuisines', current: distinctCategories, target: 3 },
+    { id: 'first-meetup', icon: '🤝', name: 'First Meetup', current: journey.companionCount, target: 1 },
+    { id: 'foods', icon: '🍜', name: 'Tried 5 Korean foods', current: journey.experienceCount, target: 5 },
+    { id: 'districts', icon: '🗺️', name: 'Visited 3 districts', current: journey.districtCount, target: 3 },
+    { id: 'cuisines', icon: '🍱', name: 'Explored 3 cuisines', current: journey.cuisineCount, target: 3 },
     { id: 'world-table', icon: '🌍', name: 'Met people from 3 countries', current: distinctNationalities, target: 3 },
   ].map(b => ({
     ...b,
     earned: b.current >= b.target,
     remaining: Math.max(b.target - b.current, 0),
     progress: `${Math.min(b.current, b.target)}/${b.target}`,
-  })), [companions.length, visitedList.length, neighborhoods.length, distinctCategories, distinctNationalities]);
+  })), [journey, distinctNationalities]);
   const earnedBadgeCount = badges.filter(b => b.earned).length;
   const nextBadge = useMemo(() =>
     badges.filter(b => !b.earned).sort((a, b) => a.remaining - b.remaining)[0] ?? null,
@@ -103,20 +103,22 @@ export default function JournalPanel({ bookmarks, companions = [], mapCenter, on
           )}
         </div>
         <div className="passport-stats">
+          {/* Counts come from the engine; the lists below still come from the
+              bookmark records, because a list needs the records themselves. */}
           <div className="stat-box">
-            <span className="stat-num">{visitedList.length}</span>
-            <span className="stat-label">Visited</span>
+            <span className="stat-num">{journey.experienceCount}</span>
+            <span className="stat-label">Done</span>
           </div>
           <div className="stat-box">
             <span className="stat-num">{savedList.length}</span>
             <span className="stat-label">Saved</span>
           </div>
           <div className="stat-box">
-            <span className="stat-num">{metPeople.length}</span>
+            <span className="stat-num">{journey.companionCount}</span>
             <span className="stat-label">Met</span>
           </div>
           <div className="stat-box">
-            <span className="stat-num">{neighborhoods.length}</span>
+            <span className="stat-num">{journey.districtCount}</span>
             <span className="stat-label">Areas</span>
           </div>
         </div>
