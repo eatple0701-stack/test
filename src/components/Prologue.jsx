@@ -26,13 +26,13 @@ export default function Prologue({ onComplete }) {
     <div className="prologue-layout">
       <div className={`prologue-content ${leaving ? 'fade-out' : 'fade-in'}`}>
         <div className="prologue-step">
-          <span className="prologue-flag" aria-hidden="true">🇰🇷</span>
-          <h1 className="prologue-title">Experience Korea through food.</h1>
+          <span className="prologue-kr" aria-hidden="true">밥친구</span>
+          <h1 className="prologue-title">Don&rsquo;t just visit Korea.<br />Share a Korean table.</h1>
           <p className="prologue-subtitle">
-            Choose a culture, follow it one step at a time, and keep what you
-            have done in your passport.
+            Samgyeopsal starts at two servings. Gamjatang comes in a pot for
+            the table. Find someone to eat the food you cannot order alone.
           </p>
-          <button className="prologue-btn" onClick={enter}>Start exploring</button>
+          <button className="prologue-btn" onClick={enter}>밥친구 찾기 · Find a table</button>
         </div>
       </div>
     </div>

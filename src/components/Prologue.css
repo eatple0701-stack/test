@@ -64,10 +64,14 @@
   opacity: 0.9;
 }
 
-/* The flag anchors the single welcome screen now that the location icon and
-   the fake spinner are gone. */
-.prologue-flag {
-  font-size: 44px;
+/* The Korean name of the product, set in the same myeongjo the rest of the
+   app uses for Hangul. It replaced a flag emoji: a flag says which country,
+   which the next line already says, and says nothing about what this is. */
+.prologue-kr {
+  font-family: var(--ex-kr);
+  font-size: 34px;
   line-height: 1;
-  margin-bottom: 4px;
+  letter-spacing: 0.1em;
+  color: var(--ex-brass);
+  margin-bottom: 6px;
 }

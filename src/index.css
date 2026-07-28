@@ -5045,3 +5045,933 @@ button {
   outline: 2px solid var(--ex-brass);
   outline-offset: 3px;
 }
+
+/* ================================================================
+   밥친구 — tables
+   ================================================================
+   Shares the editorial language established on Explore: Hangul as the
+   artwork, the serif for the thing being offered, one accent used on
+   type and hairlines only. The dish is always the largest element on
+   any card here, because the dish is what the traveller came for. */
+
+.tables-tab {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.25s ease;
+}
+
+.tables-head {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 22px 24px;
+  background: var(--ex-field);
+  color: var(--ex-paper);
+}
+.tables-head__kr {
+  font-family: var(--ex-kr);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--ex-brass);
+}
+.tables-head__title {
+  margin-top: 10px;
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(27px, 7.4vw, 34px);
+  line-height: 1.14;
+  text-wrap: balance;
+}
+.tables-head__sub {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(248, 246, 240, 0.65);
+}
+.tables-head__cta {
+  margin-top: 18px;
+  width: 100%;
+  padding: 14px;
+  background: var(--ex-paper);
+  color: var(--ex-field);
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.15s ease;
+}
+.tables-head__cta:active { transform: scale(0.985); }
+.tables-head__cta:focus-visible {
+  outline: 2px solid var(--ex-brass);
+  outline-offset: 3px;
+}
+
+/* Said out loud, not discovered. A host who thinks strangers can already
+   see their table has been misled by our silence. */
+.tables-notice {
+  margin: 14px 20px 0;
+  padding: 10px 12px;
+  background: var(--orange-tint);
+  border: 1px solid var(--orange-line);
+  border-radius: var(--radius);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+
+.menu-chips {
+  display: flex;
+  gap: 8px;
+  padding: 16px 20px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.menu-chips::-webkit-scrollbar { display: none; }
+.menu-chip {
+  flex: none;
+  /* Clears the 44px floor this project holds every tappable control to. */
+  min-height: 44px;
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.menu-chip.is-on {
+  background: var(--ex-field);
+  border-color: var(--ex-field);
+  color: var(--ex-paper);
+}
+.menu-chip__kr {
+  font-family: var(--ex-kr);
+  color: var(--ex-brass);
+}
+.menu-chip.is-on .menu-chip__kr { color: var(--ex-brass); }
+
+.table-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px 8px;
+}
+
+.table-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  width: 100%;
+  padding: 18px 18px 16px;
+  background: var(--ex-paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.table-card:hover {
+  border-color: var(--ex-brass);
+  box-shadow: var(--shadow-1);
+}
+.table-card:active { transform: scale(0.994); }
+
+.table-card__word {
+  position: absolute;
+  right: -0.06em;
+  bottom: -0.28em;
+  z-index: -1;
+  font-family: var(--ex-kr);
+  font-weight: 700;
+  font-size: clamp(76px, 21vw, 110px);
+  line-height: 0.8;
+  color: var(--ex-brass);
+  opacity: 0.18;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.table-card__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.table-card__cat {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.table-card__mine {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: var(--green-tint);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+
+.table-card__dish {
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(24px, 6.4vw, 30px);
+  line-height: 1.1;
+  color: var(--ink);
+}
+.table-card__why {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-body);
+  max-width: 34ch;
+}
+.table-card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.table-card__dot { opacity: 0.5; }
+
+.table-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 9px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.table-card__host {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted-strong);
+}
+/* Seeded example rows say so. A demo that passes invented strangers off as
+   real users is the one thing this screen must not do. */
+.table-card__sample {
+  padding: 1px 6px;
+  border: 1px solid var(--line-hover);
+  border-radius: 999px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.table-card__seats {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+.table-card__seats.is-full { color: var(--muted); }
+
+.tables-empty {
+  padding: 30px 24px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.tables-empty__title {
+  font-family: var(--ex-display);
+  font-size: 21px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.tables-empty__cta {
+  margin-top: 16px;
+  padding: 12px 20px;
+  background: var(--ex-field);
+  color: var(--ex-paper);
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tables-alt {
+  margin: 10px 20px 32px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+.tables-alt:hover { border-color: var(--line-hover); }
+
+/* ---------- Form pages: open a table, take a seat ---------- */
+
+.sheet-page {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 40px;
+  animation: fadeIn 0.2s ease;
+}
+.sheet-page__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.sheet-page__head h1 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink-title, var(--ink));
+}
+.sheet-page__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--ink);
+  cursor: pointer;
+}
+.sheet-page__back:hover { background: var(--fill); }
+
+.form-block {
+  padding: 20px 20px 0;
+}
+.form-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink-title, var(--ink));
+  margin-bottom: 10px;
+}
+
+.dish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+.dish-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.dish-option:hover { border-color: var(--ex-brass); }
+.dish-option.is-on {
+  background: var(--ex-field);
+  border-color: var(--ex-field);
+}
+.dish-option__kr {
+  font-family: var(--ex-kr);
+  font-size: 18px;
+  color: var(--ex-brass);
+}
+.dish-option__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.dish-option.is-on .dish-option__name { color: var(--ex-paper); }
+.dish-option__min {
+  font-size: 11px;
+  color: var(--muted);
+}
+.dish-option.is-on .dish-option__min { color: rgba(248, 246, 240, 0.6); }
+
+.dish-brief {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.dish-brief__cat {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.dish-brief__how {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+.dish-brief__contains {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--orange-strong);
+}
+
+.field-row {
+  display: flex;
+  gap: 10px;
+}
+.field-row .field { flex: 1; }
+.field {
+  display: block;
+  margin-bottom: 12px;
+}
+.field__label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 12px 13px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--ink);
+  resize: vertical;
+}
+.field input:focus,
+.field textarea:focus {
+  outline: 2px solid var(--green-strong);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.field__hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.seat-picker {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.seat-option {
+  flex: 1;
+  padding: 14px 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.seat-option.is-on {
+  background: var(--ex-field);
+  border-color: var(--ex-field);
+  color: var(--ex-paper);
+}
+.seat-option:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.form-problems {
+  margin: 16px 20px 0;
+  padding: 12px 14px 12px 30px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #991B1B;
+}
+
+.form-actions { padding: 22px 20px 0; }
+.form-submit {
+  width: 100%;
+  padding: 15px;
+  background: var(--ex-field);
+  color: var(--ex-paper);
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.15s ease;
+}
+.form-submit:active { transform: scale(0.985); }
+.form-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ---------- Table detail ---------- */
+
+.detail-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 24px 20px 22px;
+  background: var(--ex-field);
+  color: var(--ex-paper);
+}
+.detail-hero__word {
+  position: absolute;
+  right: -0.08em;
+  bottom: -0.32em;
+  z-index: -1;
+  font-family: var(--ex-kr);
+  font-weight: 700;
+  font-size: clamp(104px, 30vw, 160px);
+  line-height: 0.8;
+  color: var(--ex-brass);
+  opacity: 0.17;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.detail-hero__cat {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ex-brass);
+}
+.detail-hero__dish {
+  margin-top: 8px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(30px, 8vw, 38px);
+  line-height: 1.1;
+}
+.detail-hero__rom {
+  font-family: var(--font);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(248, 246, 240, 0.55);
+}
+.detail-hero__why {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(248, 246, 240, 0.88);
+  max-width: 42ch;
+}
+
+.detail-block {
+  padding: 20px 20px 0;
+}
+.detail-block__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  margin-bottom: 7px;
+}
+.detail-block__body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+.detail-block__contains {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--orange-strong);
+}
+.detail-block--facts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.detail-fact {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  color: var(--ink-body);
+}
+.detail-seats {
+  font-weight: 700;
+  color: var(--green-strong);
+}
+.detail-seats.is-full { color: var(--muted); }
+
+.who-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.who-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+.who-row:last-child { border-bottom: none; }
+.who-row__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ex-brass);
+  flex: none;
+}
+.who-row__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.who-row__role {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.detail-note {
+  margin-top: 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--ex-brass);
+  font-family: var(--ex-display);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+
+.join-block {
+  margin: 24px 20px 0;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.join-block--in {
+  background: var(--green-tint);
+  border-color: transparent;
+}
+.join-confirmed {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+.join-next {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+.join-blocked {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-strong);
+  text-align: center;
+}
+.join-leave {
+  margin-top: 14px;
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 1px solid var(--line-hover);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .table-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tables-head { padding: 38px 32px 30px; }
+}
+
+/* ================================================================
+   At the table — phrases
+   ================================================================
+   Styled for the conditions it will actually meet: a loud room, one
+   hand, a waiter waiting. The Korean is the largest thing on every
+   card because turning the phone around is the fastest way through a
+   language gap — it needs no signal, no battery and no confidence. */
+
+.phrase-open {
+  margin-top: 14px;
+  width: 100%;
+  padding: 13px;
+  background: var(--ex-field);
+  color: var(--ex-paper);
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.15s ease;
+}
+.phrase-open:active { transform: scale(0.985); }
+.phrase-open:focus-visible {
+  outline: 2px solid var(--ex-brass);
+  outline-offset: 3px;
+}
+
+.phrase-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  background: var(--bg);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: slideUp 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+  padding-bottom: 40px;
+}
+
+.phrase-intro {
+  padding: 16px 20px 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted-strong);
+}
+
+.phrase-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 14px 20px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.phrase-tabs::-webkit-scrollbar { display: none; }
+.phrase-tab {
+  flex: none;
+  min-height: 44px;
+  padding: 8px 15px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.phrase-tab.is-on {
+  background: var(--ex-field);
+  border-color: var(--ex-field);
+  color: var(--ex-paper);
+}
+
+.phrase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 20px 0;
+}
+
+.phrase-card {
+  padding: 16px 18px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s ease;
+}
+.phrase-card.is-spoken { border-color: var(--ex-brass); }
+
+.phrase-card__en {
+  font-size: 13px;
+  color: var(--muted-strong);
+}
+/* The line that gets held up across a table. */
+.phrase-card__ko {
+  margin-top: 6px;
+  font-family: var(--ex-kr);
+  font-weight: 700;
+  font-size: clamp(24px, 6.6vw, 30px);
+  line-height: 1.35;
+  color: var(--ink);
+  word-break: keep-all;
+}
+.phrase-card__read {
+  margin-top: 6px;
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+.phrase-card__note {
+  margin-top: 10px;
+  padding-left: 11px;
+  border-left: 2px solid var(--ex-brass);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+.phrase-card__speak {
+  margin-top: 14px;
+  min-height: 44px;
+  padding: 10px 18px;
+  background: var(--ex-paper);
+  border: 1px solid var(--line-hover);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease;
+}
+.phrase-card__speak:active { transform: scale(0.97); }
+.phrase-card__speak:hover { border-color: var(--ex-brass); }
+
+.phrase-no-voice {
+  margin-top: 6px;
+  padding: 12px 14px;
+  background: var(--fill);
+  border-radius: var(--radius);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted-strong);
+}
+
+.phrase-note-lead {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted-strong);
+  margin-bottom: 2px;
+}
+
+/* Numbered because these are a deck to work through, not a ranking. */
+.question-card {
+  display: flex;
+  gap: 13px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.question-card__num {
+  flex: none;
+  font-family: var(--ex-display);
+  font-size: 17px;
+  color: var(--ex-brass);
+  line-height: 1.4;
+}
+.question-card__text {
+  font-family: var(--ex-display);
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+@media (min-width: 768px) {
+  .phrase-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: start;
+  }
+  .phrase-note-lead { grid-column: 1 / -1; }
+  .phrase-no-voice { grid-column: 1 / -1; }
+}
+
+/* ---------- Passport: tables still to come ---------- */
+
+/* Set apart from the record below it. That list is what happened; this is
+   what is promised, and the two must not read as the same kind of thing. */
+.upcoming-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 20px;
+}
+.upcoming-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--ex-paper);
+  border: 1px solid var(--ex-brass);
+  border-radius: var(--radius-lg);
+}
+.upcoming-row__kr {
+  flex: none;
+  font-family: var(--ex-kr);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--ex-brass);
+}
+.upcoming-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.upcoming-row__dish {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--ex-display);
+  font-size: 19px;
+  color: var(--ink);
+}
+.upcoming-row__badge {
+  padding: 2px 7px;
+  background: var(--green-tint);
+  border-radius: 999px;
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+.upcoming-row__when {
+  font-size: 12px;
+  color: var(--muted-strong);
+}
+.upcoming-row__who {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* A shared meal in the record reads as the strongest kind of entry there. */
+.record-item--table .record-item__mark { color: var(--ex-brass); }
+.record-item--table .record-item__title { font-weight: 700; }

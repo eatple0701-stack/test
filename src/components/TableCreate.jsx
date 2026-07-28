@@ -1,0 +1,170 @@
+import React, { useMemo, useState } from 'react';
+import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
+import { validateNewTable } from '../domain/policy/table.js';
+import { createTable } from '../data/tableRepository.js';
+import { ChevronLeftIcon } from './Icons';
+
+// Opening a table.
+//
+// The dish is chosen first and everything else follows from it, because the
+// dish is the thing being offered — a host is not booking a restaurant, they
+// are saying "I am eating this, there is room". Choosing the dish first also
+// lets the form tell you the minimum before you pick a number of seats
+// instead of rejecting you afterwards.
+
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
+export default function TableCreate({ profile, onProfileChange, onBack, onCreated }) {
+  const [menuId, setMenuId] = useState(null);
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('19:00');
+  const [place, setPlace] = useState('');
+  const [seats, setSeats] = useState(4);
+  const [note, setNote] = useState('');
+  const [hostName, setHostName] = useState(profile?.name ?? '');
+  const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const menu = menuId ? menuById(menuId) : null;
+
+  const problems = useMemo(() => {
+    const list = validateNewTable({ menuId, date, time, place, seats }, menu);
+    if (!hostName.trim()) list.push('Add the name people will look for.');
+    return list;
+  }, [menuId, date, time, place, seats, menu, hostName]);
+
+  const submit = async () => {
+    setSubmitted(true);
+    if (problems.length > 0 || saving) return;
+    setSaving(true);
+    const row = await createTable({
+      menuId, date, time, place: place.trim(), seats: Number(seats), note: note.trim(),
+      hostId: profile?.userId, hostName: hostName.trim(), hostNationality: profile?.nationality,
+    });
+    onProfileChange?.({ ...profile, name: hostName.trim() });
+    onCreated(row.id);
+  };
+
+  return (
+    <section className="sheet-page" aria-label="Open a table">
+      <header className="sheet-page__head">
+        <button className="sheet-page__back" onClick={onBack} aria-label="Back">
+          <ChevronLeftIcon size={20} />
+        </button>
+        <h1>상 차리기 · Open a table</h1>
+      </header>
+
+      <div className="form-block">
+        <h2 className="form-label">What are you eating?</h2>
+        <div className="dish-grid">
+          {menus.map(m => (
+            <button
+              key={m.id}
+              className={`dish-option${menuId === m.id ? ' is-on' : ''}`}
+              onClick={() => {
+                setMenuId(m.id);
+                // Never leave a seat count below the dish's own minimum.
+                setSeats(s => Math.max(Number(s) || 0, m.minPeople, 2));
+              }}
+            >
+              <span className="dish-option__kr">{m.nameKo}</span>
+              <span className="dish-option__name">{m.name}</span>
+              <span className="dish-option__min">
+                {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {menu && (
+        <div className="form-block">
+          <div className="dish-brief">
+            <span className="dish-brief__cat">{CATEGORY_LABEL[menu.category]?.en}</span>
+            <p className="dish-brief__how">{menu.howItWorks}</p>
+            {menu.contains.length > 0 && (
+              <p className="dish-brief__contains">Contains {menu.contains.join(', ')}</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="form-block">
+        <h2 className="form-label">When and where?</h2>
+        <div className="field-row">
+          <label className="field">
+            <span className="field__label">Date</span>
+            <input type="date" value={date} min={todayISO()} onChange={e => setDate(e.target.value)} />
+          </label>
+          <label className="field">
+            <span className="field__label">Time</span>
+            <input type="time" value={time} onChange={e => setTime(e.target.value)} />
+          </label>
+        </div>
+        <label className="field">
+          <span className="field__label">Where you will meet</span>
+          <input
+            type="text"
+            value={place}
+            placeholder="Exit 4, Jongno 3-ga station"
+            onChange={e => setPlace(e.target.value)}
+          />
+        </label>
+      </div>
+
+      <div className="form-block">
+        <h2 className="form-label">How many at the table?</h2>
+        <div className="seat-picker">
+          {[2, 3, 4, 5, 6].map(n => (
+            <button
+              key={n}
+              className={`seat-option${Number(seats) === n ? ' is-on' : ''}`}
+              disabled={Boolean(menu && n < menu.minPeople)}
+              onClick={() => setSeats(n)}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <p className="field__hint">
+          Counting you. {menu && menu.minPeople > 1
+            ? `${menu.name} needs ${menu.minPeople} or more.`
+            : 'A table needs at least two.'}
+        </p>
+      </div>
+
+      <div className="form-block">
+        <h2 className="form-label">Your name</h2>
+        <label className="field">
+          <input
+            type="text"
+            value={hostName}
+            placeholder="What people should look for"
+            onChange={e => setHostName(e.target.value)}
+          />
+        </label>
+        <label className="field">
+          <span className="field__label">Anything to say? (optional)</span>
+          <textarea
+            rows={3}
+            value={note}
+            placeholder="First time grilling is fine — I will do the scissors."
+            onChange={e => setNote(e.target.value)}
+          />
+        </label>
+      </div>
+
+      {submitted && problems.length > 0 && (
+        <ul className="form-problems">
+          {problems.map(p => <li key={p}>{p}</li>)}
+        </ul>
+      )}
+
+      <div className="form-actions">
+        <button className="form-submit" onClick={submit} disabled={saving}>
+          {saving ? 'Opening…' : '테이블 열기 · Open the table'}
+        </button>
+      </div>
+    </section>
+  );
+}

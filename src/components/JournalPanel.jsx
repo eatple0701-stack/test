@@ -1,8 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
 import { getTraveler } from '../data/travelers';
 import { traditionalMarkets } from '../data/experiences';
+import { menuById } from '../domain/catalog/menus.js';
+import { isPast } from '../domain/policy/table.js';
+import { listTables, listAllSignups } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById } from '../domain/catalog/index.js';
 import ChallengeRow from './ChallengeRow';
 
@@ -29,8 +32,45 @@ const activeCount = restaurants.filter(r => !isQuarantined(r)).length;
 
 export default function JournalPanel({
   bookmarks, companions = [], mapCenter, onRestaurantClick, onNavigate, journey,
-  attestations = [], visitedMarkets = [], onOpenSummary,
+  attestations = [], visitedMarkets = [], profile, onOpenSummary, onOpenTables,
 }) {
+  // Tables live behind the async repository rather than in React state, so
+  // they are fetched here the same way the Tables tab fetches them. When that
+  // repository becomes Supabase this call does not change.
+  const [myTables, setMyTables] = useState([]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const [tables, signups] = await Promise.all([listTables(), listAllSignups()]);
+      const mine = tables
+        .filter(t =>
+          t.hostId === profile?.userId ||
+          signups.some(s => s.tableId === t.id && s.userId === profile?.userId))
+        .map(t => ({
+          ...t,
+          hosted: t.hostId === profile?.userId,
+          // Everyone at the table except the person reading this page.
+          others: [
+            ...(t.hostId === profile?.userId ? [] : [t.hostName]),
+            ...signups
+              .filter(s => s.tableId === t.id && s.userId !== profile?.userId)
+              .map(s => s.name),
+          ].filter(Boolean),
+        }));
+      if (alive) setMyTables(mine);
+    })();
+    return () => { alive = false; };
+  }, [profile]);
+
+  // A meal you have not eaten yet is a plan, not a memory. The record below
+  // is what happened; a table on Sunday belongs above it as something still
+  // to come. Filing it as history would have the Passport claiming a dinner
+  // that has not been served.
+  const upcomingTables = useMemo(
+    () => myTables.filter(t => !isPast(t)).sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`)),
+    [myTables],
+  );
   const byId = useMemo(() => Object.fromEntries(restaurants.map(r => [r.id, r])), []);
 
   const stamped = useMemo(() =>
@@ -80,7 +120,29 @@ export default function JournalPanel({
       return themeId ? themeById(themeId) : null;
     };
 
+    // A meal that has happened, timestamped by when it was eaten rather than
+    // when it was booked — the record is a diary, and the day that matters is
+    // the day you sat down.
+    const tableItems = myTables
+      .filter(t => isPast(t))
+      .map(t => {
+        const menu = menuById(t.menuId);
+        if (!menu) return null;
+        const at = new Date(`${t.date}T${t.time || '00:00'}`);
+        return {
+          type: 'table',
+          ts: Number.isFinite(at.getTime()) ? at.getTime() : 0,
+          key: `table-${t.id}`,
+          title: menu.name,
+          subtitle: t.others.length > 0
+            ? `with ${t.others.join(', ')}`
+            : (t.hosted ? 'your table' : t.place),
+        };
+      })
+      .filter(Boolean);
+
     const items = [
+      ...tableItems,
       ...attestations
         .map(a => ({ entry: a, exp: experienceById(a.id) }))
         .filter(({ exp }) => exp)
@@ -125,7 +187,7 @@ export default function JournalPanel({
     }
     if (undated.length > 0) grouped.push({ key: 'undated', heading: 'Earlier', items: undated });
     return grouped;
-  }, [attestations, visitedMarkets, visitedList, savedList, metPeople]);
+  }, [attestations, visitedMarkets, visitedList, savedList, metPeople, myTables]);
 
   const recordCount = useMemo(
     () => days.reduce((n, d) => n + d.items.length, 0),
@@ -158,7 +220,10 @@ export default function JournalPanel({
     badges.filter(b => !b.earned).sort((a, b) => a.remaining - b.remaining)[0] ?? null,
   [badges]);
 
-  const isEmpty = recordCount === 0;
+  // A traveller with a table booked for Sunday has not done nothing — showing
+  // them "your memories are waiting" underneath it would be the page arguing
+  // with itself.
+  const isEmpty = recordCount === 0 && upcomingTables.length === 0;
 
   return (
     <section className="journal-panel" aria-label="Journal">
@@ -170,6 +235,42 @@ export default function JournalPanel({
           )}
         </div>
       </div>
+
+      {/* Above the record, because it has not happened yet. This is also the
+          only place a traveller can check what they agreed to — a seat taken
+          three days ago is easy to forget and expensive to miss. */}
+      {upcomingTables.length > 0 && (
+        <div className="journal-section">
+          <div className="journal-section-header">
+            <h3>Coming up</h3>
+            <span className="journal-badge-count">{upcomingTables.length}</span>
+          </div>
+          <div className="upcoming-list">
+            {upcomingTables.map(t => {
+              const menu = menuById(t.menuId);
+              if (!menu) return null;
+              return (
+                <div key={t.id} className="upcoming-row">
+                  <span className="upcoming-row__kr" aria-hidden="true">{menu.nameKo}</span>
+                  <div className="upcoming-row__body">
+                    <span className="upcoming-row__dish">
+                      {menu.name}
+                      {t.hosted && <span className="upcoming-row__badge">you host</span>}
+                    </span>
+                    <span className="upcoming-row__when">
+                      {new Date(`${t.date}T00:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+                      {' · '}{t.time} · {t.place}
+                    </span>
+                    {t.others.length > 0 && (
+                      <span className="upcoming-row__who">with {t.others.join(', ')}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {days.length > 0 && (
         <div className="journal-section">
@@ -366,8 +467,8 @@ export default function JournalPanel({
           </p>
           {onNavigate && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button className="btn-primary" onClick={() => onNavigate('match')} style={{ width: '100%' }}>Find Travel Mates</button>
-              <button className="btn-secondary" onClick={() => onNavigate('home')} style={{ width: '100%' }}>Explore Places</button>
+              <button className="btn-primary" onClick={() => onNavigate('match')} style={{ width: '100%' }}>Find a table</button>
+              <button className="btn-secondary" onClick={() => onNavigate('home')} style={{ width: '100%' }}>Explore cultures</button>
             </div>
           )}
         </div>

@@ -10,6 +10,10 @@ import MatchTab from './components/MatchTab';
 import Prologue from './components/Prologue';
 import TravelSummary from './components/TravelSummary';
 import ThemeComplete from './components/ThemeComplete';
+import TablesTab from './components/TablesTab';
+import TableCreate from './components/TableCreate';
+import TableDetail from './components/TableDetail';
+import { getProfile, saveProfile } from './data/profile';
 import { MAP_CENTER } from './utils';
 import { matchesDietary, isQuarantined } from './data/verification';
 import { journeyFromLegacy } from './domain/bridge/legacyJourney.js';
@@ -134,6 +138,16 @@ export default function App() {
     () => localStorage.getItem('kfm-prologue') === 'true'
   );
   const [showSummary, setShowSummary] = useState(false);
+
+  // 밥친구 navigation, kept local to the Tables tab rather than in the global
+  // tab state — opening a table is a step inside that tab, not a fifth
+  // destination, and switching tabs should not strand you mid-form.
+  const [tableView, setTableView] = useState({ screen: 'list' });
+  // Stands in for a logged-in user until Supabase auth arrives. The id has to
+  // stay stable for "this is your table" to mean anything, so it is read once
+  // and only the name and nationality are ever written back.
+  const [profile, setProfile] = useState(getProfile);
+  const updateProfile = (next) => setProfile(saveProfile(next));
 
   // The map is a tool now, not the backdrop. `mapScope` records what the user
   // was looking at when they opened it, so the overlay can say which question
@@ -435,7 +449,35 @@ export default function App() {
             themeProgress={themeProgress}
           />
         )}
-        {!openThemeId && activeTab === 'match' && (
+        {/* 밥친구. The tab leads with tables now — a dish somebody cannot
+            order alone is the product, and the swipe deck was a demo of
+            people rather than a way to eat. The deck is still reachable from
+            the table list, so nothing that existed has gone away. */}
+        {!openThemeId && activeTab === 'match' && tableView.screen === 'list' && (
+          <TablesTab
+            profile={profile}
+            onCreateTable={() => setTableView({ screen: 'create' })}
+            onOpenTable={(id) => setTableView({ screen: 'detail', tableId: id })}
+            onOpenMatch={() => setTableView({ screen: 'match' })}
+          />
+        )}
+        {!openThemeId && activeTab === 'match' && tableView.screen === 'create' && (
+          <TableCreate
+            profile={profile}
+            onProfileChange={updateProfile}
+            onBack={() => setTableView({ screen: 'list' })}
+            onCreated={(id) => setTableView({ screen: 'detail', tableId: id })}
+          />
+        )}
+        {!openThemeId && activeTab === 'match' && tableView.screen === 'detail' && (
+          <TableDetail
+            tableId={tableView.tableId}
+            profile={profile}
+            onProfileChange={updateProfile}
+            onBack={() => setTableView({ screen: 'list' })}
+          />
+        )}
+        {!openThemeId && activeTab === 'match' && tableView.screen === 'match' && (
           <MatchTab onMatch={handleAddCompanion} onNavigate={setActiveTab} />
         )}
         {!openThemeId && activeTab === 'journal' && (
@@ -446,6 +488,7 @@ export default function App() {
             onRestaurantClick={openDetail}
             onNavigate={setActiveTab}
             journey={journey}
+            profile={profile}
             attestations={attestations}
             visitedMarkets={visitedMarkets}
             onOpenSummary={() => setShowSummary(true)}

@@ -37,9 +37,13 @@ const icons = {
 // The map is no longer a destination. It was a top-level tab while it was
 // also the app's backdrop; now it is a tool opened from wherever the user
 // already is, so it has no place in primary navigation.
+// "Community" was a swipe deck of generated strangers. The product is the
+// table: a dish you cannot order alone, and the people already going to eat
+// it. Naming the tab after the thing being offered rather than after the
+// social feature is the difference between a listings app and this one.
 const tabs = [
   { id: 'home', label: 'Explore' },
-  { id: 'match', label: 'Community' },
+  { id: 'match', label: 'Tables' },
   { id: 'journal', label: 'Passport' },
   { id: 'profile', label: 'Profile' },
 ];
