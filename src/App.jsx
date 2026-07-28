@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { restaurants } from './data/restaurants';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
@@ -9,6 +9,7 @@ import HomeTab from './components/HomeTab';
 import MatchTab from './components/MatchTab';
 import Prologue from './components/Prologue';
 import TravelSummary from './components/TravelSummary';
+import ThemeComplete from './components/ThemeComplete';
 import { MAP_CENTER } from './utils';
 import { matchesDietary, isQuarantined } from './data/verification';
 import { journeyFromLegacy } from './domain/bridge/legacyJourney.js';
@@ -69,12 +70,17 @@ function loadBookmarks() {
 const MARKETS_KEY = 'kfm-markets';
 
 // Markets aren't restaurant records (no hours, menu or dietary facts to
-// verify), so a market visit is tracked as its own list of ids rather than
-// forced into the bookmark shape. Stored as [marketId].
+// verify), so a market visit is tracked separately. Stored as [{id, at}];
+// entries written before the Passport needed dates are bare id strings and
+// are read as `at: 0` — done, but with no date to place on the timeline.
 function loadMarkets() {
   try {
     const saved = JSON.parse(localStorage.getItem(MARKETS_KEY));
-    return Array.isArray(saved) ? saved.filter(id => typeof id === 'string') : [];
+    if (!Array.isArray(saved)) return [];
+    return saved
+      .map(e => (typeof e === 'string' ? { id: e, at: 0 } : e))
+      .filter(e => e && typeof e.id === 'string')
+      .map(e => ({ id: e.id, at: e.at ?? 0 }));
   } catch {
     return [];
   }
@@ -82,14 +88,17 @@ function loadMarkets() {
 
 const EXPERIENCES_KEY = 'kfm-experiences';
 
-// Experiences a traveller has declared done themselves. The domain has
-// accepted this route since Phase 0 — it is the only way an experience with
-// no verified venue can ever complete — but nothing wrote the key until now,
-// which left every preview theme permanently stuck. Stored as [experienceId].
+// Experiences a traveller has declared done themselves — the only route open
+// to a theme with no verified venue. Stored as [{id, at}]; bare id strings
+// from before the Passport needed dates read as `at: 0`.
 function loadAttestations() {
   try {
     const saved = JSON.parse(localStorage.getItem(EXPERIENCES_KEY));
-    return Array.isArray(saved) ? saved.filter(id => typeof id === 'string') : [];
+    if (!Array.isArray(saved)) return [];
+    return saved
+      .map(e => (typeof e === 'string' ? { id: e, at: 0 } : e))
+      .filter(e => e && typeof e.id === 'string')
+      .map(e => ({ id: e.id, at: e.at ?? 0 }));
   } catch {
     return [];
   }
@@ -168,9 +177,9 @@ export default function App() {
 
   const handleToggleAttestation = (experienceId) => {
     setAttestations(prev =>
-      prev.includes(experienceId)
-        ? prev.filter(id => id !== experienceId)
-        : [...prev, experienceId]
+      prev.some(e => e.id === experienceId)
+        ? prev.filter(e => e.id !== experienceId)
+        : [...prev, { id: experienceId, at: Date.now() }]
     );
   };
 
@@ -198,6 +207,41 @@ export default function App() {
 
   // Progress on the Theme axis: which theme is underway and what comes next.
   const themeProgress = useMemo(() => journeyProgress(domainJourney), [domainJourney]);
+
+  // Finishing a culture used to change one line of text and nothing else.
+  // This watches the set of finished themes for a new arrival, so the moment a
+  // theme completes the app can mark it — and so "you have just finished X"
+  // becomes a thing it can honestly say. It is deliberately session-scoped:
+  // "just" means during this visit, not "at some point in your trip".
+  // `complete` is the domain's answer — a theme is finished when one of its
+  // narratives is, which is not the same as having ticked every experience in
+  // it. Counting `done >= total` instead would withhold the moment from a
+  // traveller who walked a path to its end but left the optional detours.
+  const completedThemeIds = useMemo(
+    () => themeProgress.themes.filter(t => t.complete).map(t => t.themeId).sort().join(','),
+    [themeProgress],
+  );
+  const seenCompleteRef = useRef(null);
+  const [justCompletedThemeId, setJustCompletedThemeId] = useState(null);
+  // Separate from the above: the card is dismissed, the fact is not. Closing
+  // the celebration should not make the app forget what was just finished.
+  const [celebrateThemeId, setCelebrateThemeId] = useState(null);
+
+  useEffect(() => {
+    const now = new Set(completedThemeIds ? completedThemeIds.split(',') : []);
+    // The first pass records what was already finished before this session, so
+    // reopening the app does not congratulate a traveller for old work.
+    if (seenCompleteRef.current === null) {
+      seenCompleteRef.current = now;
+      return;
+    }
+    const fresh = [...now].find(id => !seenCompleteRef.current.has(id));
+    seenCompleteRef.current = now;
+    if (fresh) {
+      setJustCompletedThemeId(fresh);
+      setCelebrateThemeId(fresh);
+    }
+  }, [completedThemeIds]);
 
   // "Continue" must mean a theme genuinely underway. journeyProgress's
   // currentTheme falls back to the least-progressed theme when nothing has
@@ -248,18 +292,25 @@ export default function App() {
   );
 
   const suggestedReason = useMemo(
-    () => (suggestedTheme
-      ? reasonFor(suggestedTheme, {
-          visitedZones,
-          hasStarted: Boolean(continueTheme),
-        })
-      : null),
-    [suggestedTheme, visitedZones, continueTheme],
+    () => {
+      if (!suggestedTheme) return null;
+      const entry = themeProgress.themes.find(t => t.themeId === suggestedTheme.id);
+      return reasonFor(suggestedTheme, {
+        visitedZones,
+        hasStarted: Boolean(continueTheme),
+        justFinished: justCompletedThemeId ? themeById(justCompletedThemeId) : null,
+        untouched: (entry?.done ?? 0) === 0,
+        hasAnyProgress: journey.experienceCount > 0,
+      });
+    },
+    [suggestedTheme, visitedZones, continueTheme, themeProgress, justCompletedThemeId, journey],
   );
 
   const handleToggleMarket = (marketId) => {
     setVisitedMarkets(prev =>
-      prev.includes(marketId) ? prev.filter(id => id !== marketId) : [...prev, marketId]
+      prev.some(e => e.id === marketId)
+        ? prev.filter(e => e.id !== marketId)
+        : [...prev, { id: marketId, at: Date.now() }]
     );
   };
   const sustainabilityLens = useMemo(
@@ -358,6 +409,8 @@ export default function App() {
             onBack={() => setOpenThemeId(null)}
             onOpenRestaurant={openDetail}
             onToggleAttestation={handleToggleAttestation}
+            visitedMarkets={visitedMarkets}
+            onToggleMarket={handleToggleMarket}
           />
         )}
 
@@ -379,6 +432,7 @@ export default function App() {
             nextExperience={nextExperience}
             suggestedTheme={suggestedTheme}
             suggestedReason={suggestedReason}
+            themeProgress={themeProgress}
           />
         )}
         {!openThemeId && activeTab === 'match' && (
@@ -392,6 +446,8 @@ export default function App() {
             onRestaurantClick={openDetail}
             onNavigate={setActiveTab}
             journey={journey}
+            attestations={attestations}
+            visitedMarkets={visitedMarkets}
             onOpenSummary={() => setShowSummary(true)}
           />
         )}
@@ -447,6 +503,24 @@ export default function App() {
 
       {showSummary && (
         <TravelSummary journey={journey} onClose={() => setShowSummary(false)} />
+      )}
+
+      {celebrateThemeId && (
+        <ThemeComplete
+          theme={themeById(celebrateThemeId)}
+          remaining={(() => {
+            const t = themeProgress.themes.find(x => x.themeId === celebrateThemeId);
+            return t ? t.total - t.done : 0;
+          })()}
+          next={suggestedTheme}
+          nextReason={suggestedReason}
+          onClose={() => setCelebrateThemeId(null)}
+          onOpenNext={(theme) => {
+            setCelebrateThemeId(null);
+            setActiveTab('home');
+            setOpenThemeId(theme.id);
+          }}
+        />
       )}
 
     </div>

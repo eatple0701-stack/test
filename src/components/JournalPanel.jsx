@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
 import { getTraveler } from '../data/travelers';
-import { getCulture } from '../data/culture';
+import { traditionalMarkets } from '../data/experiences';
+import { experienceById, themeIdsOfExperience, themeById } from '../domain/catalog/index.js';
 import ChallengeRow from './ChallengeRow';
 
 function formatStampDate(ts) {
@@ -10,13 +11,26 @@ function formatStampDate(ts) {
   return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// The heading of a day in the record. Full and unambiguous, because this is
+// the line a traveller reads back later to remember when something happened.
+function formatDayHeading(ts) {
+  return new Date(ts).toLocaleDateString('en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+}
+
+const dayKey = (ts) => new Date(ts).toDateString();
+
 function sameDay(a, b) {
   return new Date(a).toDateString() === new Date(b).toDateString();
 }
 
 const activeCount = restaurants.filter(r => !isQuarantined(r)).length;
 
-export default function JournalPanel({ bookmarks, companions = [], mapCenter, onRestaurantClick, onNavigate, journey, onOpenSummary }) {
+export default function JournalPanel({
+  bookmarks, companions = [], mapCenter, onRestaurantClick, onNavigate, journey,
+  attestations = [], visitedMarkets = [], onOpenSummary,
+}) {
   const byId = useMemo(() => Object.fromEntries(restaurants.map(r => [r.id, r])), []);
 
   const stamped = useMemo(() =>
@@ -46,24 +60,77 @@ export default function JournalPanel({ bookmarks, companions = [], mapCenter, on
       .filter(v => v.companion),
   [visitedList, metPeople]);
 
-  const memories = useMemo(() => {
+  // The record: what happened, in the order it happened, grouped by day.
+  //
+  // This used to be a twelve-item tail of places and matches at the bottom of
+  // the panel, under four counters. A trip is not a set of counters — the
+  // thing worth keeping is that on one particular Tuesday you ate temple food
+  // at Balwoo, had the tea afterwards, and met someone. So every kind of
+  // completion the app knows about lands here: cultures finished, places
+  // visited and saved, markets walked, people met.
+  //
+  // Nothing is capped. A traveller who did twenty things should see twenty.
+  const days = useMemo(() => {
+    const marketById = Object.fromEntries(traditionalMarkets.map(m => [m.id, m]));
+
+    // An experience is remembered as the culture it belongs to, because that
+    // is what was chosen on Explore — "Temple Life", not "temple-tea".
+    const themeOf = (experienceId) => {
+      const themeId = themeIdsOfExperience(experienceId)[0];
+      return themeId ? themeById(themeId) : null;
+    };
+
     const items = [
+      ...attestations
+        .map(a => ({ entry: a, exp: experienceById(a.id) }))
+        .filter(({ exp }) => exp)
+        .map(({ entry, exp }) => ({
+          type: 'experience', ts: entry.at, key: `exp-${exp.id}`,
+          title: exp.title, subtitle: themeOf(exp.id)?.title ?? exp.zones[0] ?? null,
+        })),
+      ...visitedMarkets
+        .map(m => ({ entry: m, market: marketById[m.id] }))
+        .filter(({ market }) => market)
+        .map(({ entry, market }) => ({
+          type: 'market', ts: entry.at, key: `market-${market.id}`,
+          title: market.name, subtitle: market.zone,
+        })),
       ...visitedList.map(v => ({
         type: 'visit', ts: v.visitedAt, key: `visit-${v.place.id}`,
-        title: `Visited ${v.place.name.split('(')[0].trim()}`, subtitle: v.place.zone,
+        title: v.place.name.split('(')[0].trim(), subtitle: v.place.zone,
         place: v.place,
       })),
       ...savedList.map(v => ({
         type: 'save', ts: v.savedAt, key: `save-${v.place.id}`,
-        title: `Saved ${v.place.name.split('(')[0].trim()}`, subtitle: v.place.zone,
+        title: v.place.name.split('(')[0].trim(), subtitle: v.place.zone,
       })),
       ...metPeople.map(c => ({
         type: 'match', ts: c.matchedAt, key: `match-${c.travelerId}`,
-        title: `Matched with ${c.traveler.flag} ${c.traveler.name}`, subtitle: c.traveler.nationality,
+        title: `${c.traveler.flag} ${c.traveler.name}`, subtitle: c.traveler.nationality,
       })),
     ];
-    return items.sort((a, b) => (b.ts ?? 0) - (a.ts ?? 0)).slice(0, 12);
-  }, [visitedList, savedList, metPeople]);
+
+    // Entries saved before completions carried a timestamp have ts 0. They are
+    // real and still count; they just cannot be placed on a specific day, so
+    // they collect at the end rather than claiming 1 January 1970.
+    const dated = items.filter(i => i.ts > 0).sort((a, b) => b.ts - a.ts);
+    const undated = items.filter(i => !(i.ts > 0));
+
+    const grouped = [];
+    for (const item of dated) {
+      const key = dayKey(item.ts);
+      const last = grouped[grouped.length - 1];
+      if (last && last.key === key) last.items.push(item);
+      else grouped.push({ key, heading: formatDayHeading(item.ts), items: [item] });
+    }
+    if (undated.length > 0) grouped.push({ key: 'undated', heading: 'Earlier', items: undated });
+    return grouped;
+  }, [attestations, visitedMarkets, visitedList, savedList, metPeople]);
+
+  const recordCount = useMemo(
+    () => days.reduce((n, d) => n + d.items.length, 0),
+    [days],
+  );
 
   // Badge counts come from the journey engine, not from a second tally kept
   // here. They used to be measured off this panel's own visited list, which
@@ -91,7 +158,7 @@ export default function JournalPanel({ bookmarks, companions = [], mapCenter, on
     badges.filter(b => !b.earned).sort((a, b) => a.remaining - b.remaining)[0] ?? null,
   [badges]);
 
-  const isEmpty = stamped.length === 0 && metPeople.length === 0;
+  const isEmpty = recordCount === 0;
 
   return (
     <section className="journal-panel" aria-label="Journal">
@@ -102,41 +169,78 @@ export default function JournalPanel({ bookmarks, companions = [], mapCenter, on
             <button className="passport-share-btn" onClick={onOpenSummary}>Share journey</button>
           )}
         </div>
-        <div className="passport-stats">
-          {/* Counts come from the engine; the lists below still come from the
-              bookmark records, because a list needs the records themselves. */}
-          <div className="stat-box">
-            <span className="stat-num">{journey.experienceCount}</span>
-            <span className="stat-label">Done</span>
-          </div>
-          <div className="stat-box">
-            <span className="stat-num">{savedList.length}</span>
-            <span className="stat-label">Saved</span>
-          </div>
-          <div className="stat-box">
-            <span className="stat-num">{journey.companionCount}</span>
-            <span className="stat-label">Met</span>
-          </div>
-          <div className="stat-box">
-            <span className="stat-num">{journey.districtCount}</span>
-            <span className="stat-label">Areas</span>
-          </div>
-        </div>
+      </div>
 
-        <div className="passport-progress">
-          <div className="passport-progress__row">
-            <span>{earnedBadgeCount} of {badges.length} badges</span>
-            <span>{Math.round((earnedBadgeCount / badges.length) * 100)}%</span>
+      {days.length > 0 && (
+        <div className="journal-section">
+          <div className="journal-section-header">
+            <h3>Your record</h3>
+            <span className="journal-badge-count">{recordCount} moments</span>
           </div>
-          <div className="passport-progress__bar">
-            <div className="passport-progress__fill" style={{ width: `${(earnedBadgeCount / badges.length) * 100}%` }} />
+          <div className="record">
+            {days.map(day => (
+              <div key={day.key} className="record-day">
+                <h4 className="record-day__date">{day.heading}</h4>
+                <ul className="record-day__items">
+                  {day.items.map(item => (
+                    <li key={item.key} className={`record-item record-item--${item.type}`}>
+                      <span className="record-item__mark" aria-hidden="true">
+                        {item.type === 'save' ? '☆' : '✓'}
+                      </span>
+                      <span className="record-item__title">{item.title}</span>
+                      {item.subtitle && (
+                        <span className="record-item__sub">{item.subtitle}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-          {nextBadge && (
-            <p className="passport-progress__next">
-              {nextBadge.remaining} more to unlock {nextBadge.icon} {nextBadge.name}
-            </p>
-          )}
         </div>
+      )}
+
+      <div className="journal-section passport-summary">
+          <div className="journal-section-header">
+            <h3>Progress</h3>
+          </div>
+          {/* Counts come from the engine; the lists below still come from the
+              bookmark records, because a list needs the records themselves.
+              They sit under the record now rather than above it — the trip is
+              the point, and the numbers are a way of reading it. */}
+          <div className="passport-stats">
+            <div className="stat-box">
+              <span className="stat-num">{journey.experienceCount}</span>
+              <span className="stat-label">Done</span>
+            </div>
+            <div className="stat-box">
+              <span className="stat-num">{savedList.length}</span>
+              <span className="stat-label">Saved</span>
+            </div>
+            <div className="stat-box">
+              <span className="stat-num">{journey.companionCount}</span>
+              <span className="stat-label">Met</span>
+            </div>
+            <div className="stat-box">
+              <span className="stat-num">{journey.districtCount}</span>
+              <span className="stat-label">Areas</span>
+            </div>
+          </div>
+
+          <div className="passport-progress">
+            <div className="passport-progress__row">
+              <span>{earnedBadgeCount} of {badges.length} badges</span>
+              <span>{Math.round((earnedBadgeCount / badges.length) * 100)}%</span>
+            </div>
+            <div className="passport-progress__bar">
+              <div className="passport-progress__fill" style={{ width: `${(earnedBadgeCount / badges.length) * 100}%` }} />
+            </div>
+            {nextBadge && (
+              <p className="passport-progress__next">
+                {nextBadge.remaining} more to unlock {nextBadge.icon} {nextBadge.name}
+              </p>
+            )}
+          </div>
       </div>
 
       <div className="journal-section">
@@ -248,31 +352,6 @@ export default function JournalPanel({ bookmarks, companions = [], mapCenter, on
                 <span className="stamp-zone">{place.zone}</span>
                 {savedAt && <span className="stamp-date">{formatStampDate(savedAt)}</span>}
               </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {memories.length > 0 && (
-        <div className="journal-section">
-          <div className="journal-section-header">
-            <h3>My Korea Journey</h3>
-          </div>
-          <div className="memory-timeline">
-            {memories.map(m => (
-              <div key={m.key} className={`memory-item memory-item--${m.type}`}>
-                <span className="memory-item__dot" aria-hidden="true" />
-                <div className="memory-item__body">
-                  <span className="memory-item__title">{m.title}</span>
-                  <span className="memory-item__subtitle">{m.subtitle} · {formatStampDate(m.ts)}</span>
-
-                  {m.type === 'visit' && getCulture(m.place).passportMission && (
-                    <p className="memory-item__mission">
-                      ✓ {getCulture(m.place).passportMission.title}
-                    </p>
-                  )}
-                </div>
-              </div>
             ))}
           </div>
         </div>

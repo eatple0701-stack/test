@@ -21,6 +21,13 @@ export const LEGACY_KEYS = {
 
 const asArray = (value) => (Array.isArray(value) ? value : []);
 
+/** Accepts both the original bare-id shape and the timestamped `{id, at}`. */
+const idOf = (entry) => {
+  if (typeof entry === 'string') return entry;
+  if (entry && typeof entry.id === 'string') return entry.id;
+  return null;
+};
+
 /**
  * Map already-parsed legacy state onto a Journey.
  *
@@ -38,16 +45,20 @@ export function journeyFromLegacy({ bookmarks, markets, companions, attestations
     journey.visitedRestaurantIds.add(entry.id);
   }
 
-  for (const id of asArray(markets)) {
-    if (typeof id === 'string') journey.visitedMarketIds.add(id);
+  // Markets and attestations were first stored as bare id strings. They now
+  // carry a timestamp so the Passport can lay the trip out in the order it
+  // happened, and both shapes are accepted: an entry recorded before that
+  // change still counts as done, it just has no date to show.
+  for (const id of asArray(markets).map(idOf)) {
+    if (id) journey.visitedMarketIds.add(id);
   }
 
   for (const entry of asArray(companions)) {
     if (entry && typeof entry.travelerId === 'string') journey.companionIds.add(entry.travelerId);
   }
 
-  for (const id of asArray(attestations)) {
-    if (typeof id === 'string') journey.attestedExperienceIds.add(id);
+  for (const id of asArray(attestations).map(idOf)) {
+    if (id) journey.attestedExperienceIds.add(id);
   }
 
   return journey;

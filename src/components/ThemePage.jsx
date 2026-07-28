@@ -3,6 +3,7 @@ import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, CheckIcon } from './Icon
 import { experienceById, experienceIdsOfTheme, narrativesOfTheme, stepsOfNarrative, hasAnchor } from '../domain/catalog/index.js';
 import { experienceDone } from '../domain/policy/completion.js';
 import { restaurants } from '../data/restaurants';
+import { traditionalMarkets } from '../data/experiences';
 import { isQuarantined } from '../data/verification';
 
 // A Theme as a journey in progress, not a list of experiences.
@@ -17,6 +18,7 @@ import { isQuarantined } from '../data/verification';
 // rather than interleaved, which would make "next" ambiguous.
 export default function ThemePage({
   theme, journey, onBack, onOpenRestaurant, onToggleAttestation,
+  visitedMarkets = [], onToggleMarket,
 }) {
   const [expandDone, setExpandDone] = useState(false);
   if (!theme) return null;
@@ -53,6 +55,16 @@ export default function ThemePage({
   const venuesFor = (exp) =>
     exp.restaurantIds.map(id => restaurants.find(r => r.id === id)).filter(r => r && !isQuarantined(r));
 
+  // A step anchored to a market used to render as a dead end: no restaurant to
+  // open, no attestation allowed, and a hint saying the places were still
+  // being verified — which was untrue. The market is verified, the traveller
+  // just had no way to say they had been. Marking one is the same action the
+  // Explore feed already offers; it belongs on the step that asks for it.
+  const marketsFor = (exp) =>
+    exp.marketIds.map(id => traditionalMarkets.find(m => m.id === id)).filter(Boolean);
+
+  const marketVisited = (id) => visitedMarkets.some(e => e.id === id);
+
   // Attestation is the completion route for an experience with nothing to
   // visit. The policy refuses it for anchored experiences on purpose — it
   // must not become a way to tick off a restaurant you never went to — so the
@@ -62,6 +74,7 @@ export default function ThemePage({
   const renderNextCard = (step) => {
     const exp = step.experience;
     const venues = venuesFor(exp);
+    const markets = marketsFor(exp);
     return (
       <div className="next-step">
         <span className="next-step__label">Next step</span>
@@ -90,6 +103,23 @@ export default function ThemePage({
           </div>
         )}
 
+        {markets.length > 0 && onToggleMarket && (
+          <div className="next-step__venues">
+            {markets.map(m => (
+              <button
+                key={m.id}
+                className={`next-step__done${marketVisited(m.id) ? ' is-done' : ''}`}
+                onClick={() => onToggleMarket(m.id)}
+              >
+                <CheckIcon size={17} />{' '}
+                {marketVisited(m.id)
+                  ? `${m.name} — visited`
+                  : `방문 체크 · I have been to ${m.name}`}
+              </button>
+            ))}
+          </div>
+        )}
+
         {canAttest(exp) && (
           <button
             className="next-step__done"
@@ -99,7 +129,7 @@ export default function ThemePage({
           </button>
         )}
 
-        {!venues.length && !canAttest(exp) && (
+        {!venues.length && !markets.length && !canAttest(exp) && (
           <p className="next-step__hint">
             No verified place yet, and this step needs one — it will open up as
             venues are confirmed.
@@ -112,6 +142,10 @@ export default function ThemePage({
   const renderRow = (item, { done }) => {
     const exp = item.experience;
     if (!exp) return null;
+    // Rows offer the market tick only where there is exactly one market to
+    // mean — with two anchors a single tick would be guessing which one.
+    const rowMarkets = marketsFor(exp);
+    const soleMarket = rowMarkets.length === 1 ? rowMarkets[0] : null;
     return (
       <li key={exp.id} className={`step-row${done ? ' is-done' : ''}`}>
         <span className="step-row__mark" aria-hidden="true">
@@ -126,6 +160,15 @@ export default function ThemePage({
             className="step-row__check"
             aria-label={`Mark ${exp.title} done`}
             onClick={() => onToggleAttestation(exp.id)}
+          >
+            <CheckIcon size={14} />
+          </button>
+        )}
+        {!done && !canAttest(exp) && soleMarket && onToggleMarket && (
+          <button
+            className="step-row__check"
+            aria-label={`Mark ${soleMarket.name} visited`}
+            onClick={() => onToggleMarket(soleMarket.id)}
           >
             <CheckIcon size={14} />
           </button>

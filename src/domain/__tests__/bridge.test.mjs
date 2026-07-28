@@ -37,6 +37,27 @@ test('attestations map across when present', () => {
   assert.equal(j.attestedExperienceIds.has('makgeolli'), true);
 });
 
+// Markets and attestations grew a timestamp so the Passport could show a trip
+// in the order it happened. Anyone who used the app before that has bare id
+// strings in localStorage, and their completed themes must not un-complete
+// themselves on the next visit.
+test('timestamped and bare-id entries both count as done', () => {
+  const j = journeyFromLegacy({
+    markets: [{ id: 'gwangjang', at: 1000 }, 'sinpo'],
+    attestations: [{ id: 'makgeolli', at: 2000 }, 'temple-stay'],
+  });
+  assert.equal(j.visitedMarketIds.has('gwangjang'), true);
+  assert.equal(j.visitedMarketIds.has('sinpo'), true);
+  assert.equal(j.attestedExperienceIds.has('makgeolli'), true);
+  assert.equal(j.attestedExperienceIds.has('temple-stay'), true);
+});
+
+test('entries with no usable id are dropped rather than stored as undefined', () => {
+  const j = journeyFromLegacy({ markets: [null, {}, { at: 5 }], attestations: [42, { id: 7 }] });
+  assert.equal(j.visitedMarketIds.size, 0);
+  assert.equal(j.attestedExperienceIds.size, 0);
+});
+
 test('missing or malformed inputs degrade to an empty journey', () => {
   const j = journeyFromLegacy({});
   assert.equal(j.visitedRestaurantIds.size, 0);

@@ -31,12 +31,6 @@
   gap: 16px;
 }
 
-.prologue-step--center {
-  align-items: center;
-  text-align: center;
-  gap: 24px;
-}
-
 .prologue-title {
   font-size: 28px;
   font-weight: 800;
@@ -70,42 +64,10 @@
   opacity: 0.9;
 }
 
-.prologue-btn--ghost {
-  background: transparent;
-  color: var(--muted-strong);
-  margin-top: -8px;
-}
-.prologue-btn--ghost:hover {
-  background: transparent;
-  color: var(--ink);
-}
-
-.prologue-icon-wrapper {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--green-tint);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  color: var(--green-strong);
-}
-
-.prologue-icon-wrapper svg {
-  width: 32px;
-  height: 32px;
-}
-
-.prologue-spinner {
-  width: 48px;
-  height: 48px;
-  border: 3px solid var(--line);
-  border-top-color: var(--green-strong);
-  border-radius: 50%;
-  animation: prologueSpin 1s linear infinite;
-}
-
-@keyframes prologueSpin {
-  to { transform: rotate(360deg); }
+/* The flag anchors the single welcome screen now that the location icon and
+   the fake spinner are gone. */
+.prologue-flag {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: 4px;
 }

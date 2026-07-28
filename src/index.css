@@ -1,4 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Two faces for the Explore editorial layer only. Inter runs the whole
+   interface and will keep running it — it is a good UI face and a flat one,
+   which is exactly why a page built entirely from it reads as documentation.
+   Instrument Serif carries the questions; Gowun Batang, a Korean myeongjo,
+   carries the Hangul that those cards are built around. */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Gowun+Batang:wght@400;700&display=swap');
 
 :root {
   /* ----- Design tokens — modern travel app ----- */
@@ -38,6 +44,22 @@
 
   --tab-h: calc(64px + env(safe-area-inset-bottom));
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+  /* ----- Explore editorial layer -----
+     Scoped to the Explore feed; the rest of the app keeps the tokens above.
+
+     The three colours are lifted from this product's own illustration assets
+     (public/images/*.svg), which have been carrying a muted brass, a sage and
+     a warm paper this whole time while the interface stayed grey. Taking the
+     palette from the drawings rather than inventing one means the placeholder
+     art and the editorial type finally look like they come from the same
+     place. */
+  --ex-field: #12211B;      /* deep pine — the one dark object on the page */
+  --ex-brass: #C29E65;      /* rules, labels, the Hangul artwork */
+  --ex-sage: #7A917C;       /* walked-this-one state */
+  --ex-paper: #F8F6F0;      /* card ground, warmer than --bg on purpose */
+  --ex-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --ex-kr: 'Gowun Batang', 'Apple SD Gothic Neo', 'Malgun Gothic', serif;
 }
 
 * {
@@ -1996,8 +2018,10 @@ button {
 }
 
 /* ---------- Journal Passport Polish ---------- */
+/* The cover is a header band now: the stats it used to wrap moved below the
+   record, so it needs a bottom edge of its own again. */
 .passport-cover {
-  padding: 16px 20px 0;
+  padding: 16px 20px;
 }
 
 .tab-panel-header {
@@ -4362,55 +4386,72 @@ button {
   color: var(--muted);
 }
 
-.memory-timeline {
+/* ---------- Passport: the record ---------- */
+
+/* A day of the trip, read back. The date leads, the things done sit under
+   it as a list of ticks — closer to a diary page than a feed of cards. */
+.record {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 22px;
   padding: 0 20px;
 }
-.memory-item {
+.record-day__date {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.record-day__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.record-item {
   display: flex;
-  gap: 12px;
-  padding: 10px 0;
-  border-left: 2px solid var(--line);
-  padding-left: 16px;
-  margin-left: 6px;
-  position: relative;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
 }
-.memory-item:last-child {
-  border-left-color: transparent;
+.record-item:last-child {
+  border-bottom: none;
 }
-.memory-item__dot {
-  position: absolute;
-  left: -6px;
-  top: 14px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--line-hover);
+.record-item__mark {
+  flex: none;
+  font-size: 13px;
+  color: var(--green-strong);
 }
-.memory-item--visit .memory-item__dot { background: var(--green-strong); }
-.memory-item--save .memory-item__dot { background: var(--orange); }
-.memory-item--match .memory-item__dot { background: var(--muted-strong); }
-.memory-item__body {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+/* Saved is a wish, not a memory — it is in the record but not a tick. */
+.record-item--save .record-item__mark {
+  color: var(--muted);
 }
-.memory-item__title {
+.record-item__title {
   font-size: 14px;
   font-weight: 600;
   color: var(--ink);
 }
-.memory-item__subtitle {
+.record-item--save .record-item__title {
+  font-weight: 500;
+  color: var(--ink-body);
+}
+.record-item__sub {
+  margin-left: auto;
+  padding-left: 10px;
   font-size: 12px;
   color: var(--muted);
+  text-align: right;
 }
-.memory-item__mission {
-  margin-top: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--green-strong);
+
+.passport-summary .passport-stats,
+.passport-summary .passport-progress {
+  margin: 0 20px;
+}
+.passport-summary .passport-progress {
+  margin-top: 14px;
 }
 
 /* ---------- Profile: expandable settings ---------- */
@@ -4478,4 +4519,529 @@ button {
   .match-deck {
     align-items: center;
   }
+}
+
+/* ---------- The completion moment ----------
+   A stamp pressed into a passport page. One movement, 0.5s, then still.
+   The global prefers-reduced-motion rule above collapses all of it — the
+   card still appears and still says the same thing, it just does not move. */
+
+.complete-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(16, 32, 26, 0.55);
+  animation: completeScrimIn 0.22s ease both;
+}
+@keyframes completeScrimIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.complete-card {
+  width: 100%;
+  max-width: 340px;
+  padding: 28px 24px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  text-align: center;
+  animation: completeCardIn 0.34s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+@keyframes completeCardIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* The stamp arrives slightly late and slightly crooked, the way a real one
+   lands. It settles at -6deg rather than square — a stamp that is perfectly
+   aligned looks printed, not pressed. */
+.complete-stamp {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--green-strong);
+  border-radius: 50%;
+  color: var(--green-strong);
+  animation: completeStampIn 0.42s cubic-bezier(0.2, 1.3, 0.4, 1) 0.12s both;
+}
+@keyframes completeStampIn {
+  from { opacity: 0; transform: scale(1.9) rotate(14deg); }
+  to { opacity: 1; transform: scale(1) rotate(-6deg); }
+}
+.complete-stamp__mark {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.complete-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green-strong);
+}
+.complete-title {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--ink-title);
+}
+.complete-title-ko {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.complete-note {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-body);
+}
+
+.complete-next {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+}
+.complete-next__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.complete-next__btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  background: var(--green-tint);
+  border: none;
+  border-radius: var(--radius-md, 12px);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.complete-next__btn:active {
+  transform: scale(0.985);
+}
+.complete-next__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-title);
+}
+.complete-next__reason {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-body);
+}
+.complete-dismiss {
+  margin-top: 12px;
+  padding: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+
+/* ---------- Micro interactions ----------
+   Feedback that something registered, at the scale of the thing that was
+   pressed. Nothing here announces itself; the point is that a tap feels
+   answered rather than swallowed. */
+
+/* Checking off a step: the tick presses in, then the row settles as done. */
+.step-row__check,
+.next-step__done {
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.step-row__check:active,
+.next-step__done:active {
+  transform: scale(0.9);
+}
+.step-row.is-done .step-row__mark {
+  animation: stepChecked 0.32s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes stepChecked {
+  from { transform: scale(0.6); opacity: 0.4; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Saving a place: the heart takes a single beat. */
+.icon-btn--saved svg {
+  animation: heartBeat 0.34s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+@keyframes heartBeat {
+  0% { transform: scale(0.8); }
+  55% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* Continuing the journey: the primary action gives under the thumb. */
+.journey-lead__cta,
+.record-item,
+.passport-share-btn {
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.journey-lead__cta:active {
+  transform: scale(0.98);
+}
+
+/* ================================================================
+   Explore — the editorial layer
+   ================================================================
+   Everything above styles an interface. This styles a publication.
+
+   The rule that holds it together: exactly one dark object on the page
+   (the cover), and one accent used only for type and hairlines, never as
+   a fill. Take away either and the feed goes back to being a wall of
+   equally-weighted cards, which is the problem this replaces. */
+
+/* ---------- The cover ---------- */
+
+.cover {
+  position: relative;
+  overflow: hidden;
+  padding: 30px 22px 26px;
+  background: var(--ex-field);
+  color: var(--ex-paper);
+  isolation: isolate;
+}
+
+/* The Korean word, set far past the size of a label and cropped by the card
+   edge. A word that fits inside its box reads as a caption; a word that runs
+   out of room reads as print. It is the artwork — this product has eight
+   placeholder illustrations shared across forty restaurants, and a card
+   wearing one of those would say less than this does. */
+.cover__word {
+  position: absolute;
+  right: -0.12em;
+  bottom: -0.34em;
+  z-index: -1;
+  font-family: var(--ex-kr);
+  font-weight: 700;
+  font-size: clamp(120px, 34vw, 190px);
+  line-height: 0.8;
+  color: var(--ex-brass);
+  opacity: 0.16;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.cover__masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(194, 158, 101, 0.4);
+}
+.cover__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ex-brass);
+}
+.cover__date {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgba(248, 246, 240, 0.55);
+}
+
+.cover__question {
+  margin-top: 20px;
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(30px, 8.2vw, 40px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--ex-paper);
+  text-wrap: balance;
+}
+
+.cover__theme {
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(248, 246, 240, 0.9);
+}
+
+/* The reason, given room to sound like a person chose it. Same sentence the
+   policy has always produced — it was just set in eleven grey pixels, which
+   made an honest editorial judgement read as an automated string. */
+.cover__note {
+  margin-top: 22px;
+  padding-left: 14px;
+  border-left: 2px solid var(--ex-brass);
+}
+.cover__note-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ex-brass);
+}
+.cover__note-body {
+  margin-top: 5px;
+  font-family: var(--ex-display);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.45;
+  color: rgba(248, 246, 240, 0.92);
+}
+
+.cover__cta {
+  margin-top: 24px;
+  width: 100%;
+  padding: 15px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--ex-paper);
+  color: var(--ex-field);
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.15s ease;
+}
+.cover__cta:active {
+  transform: scale(0.985);
+}
+.cover__cta:hover {
+  opacity: 0.92;
+}
+
+/* ---------- The stack ---------- */
+
+.stack-head {
+  padding: 0 20px 14px;
+}
+.stack-head__title {
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(23px, 6vw, 28px);
+  line-height: 1.2;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.stack-head__sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* A stack, not a shelf. Seven cultures in a horizontal scroller is a menu you
+   skim past at 90px wide; these are the content, so they get the width of the
+   screen and are read one at a time. */
+.story-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 20px;
+}
+
+.story-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 168px;
+  padding: 20px 20px 22px;
+  background: var(--ex-paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.story-card:hover {
+  border-color: var(--ex-brass);
+  box-shadow: var(--shadow-1);
+}
+.story-card:active {
+  transform: scale(0.994);
+}
+
+.story-card__word {
+  position: absolute;
+  right: -0.08em;
+  bottom: -0.3em;
+  z-index: -1;
+  font-family: var(--ex-kr);
+  font-weight: 700;
+  font-size: clamp(92px, 26vw, 132px);
+  line-height: 0.8;
+  color: var(--ex-brass);
+  opacity: 0.2;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* The name is an eyebrow now. Nobody picked "Temple Life" off a menu — they
+   picked the question under it and learned the name on the way in. */
+.story-card__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.story-card__flag {
+  padding: 2px 7px;
+  border: 1px solid var(--line-hover);
+  border-radius: 999px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.story-card__question {
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(21px, 5.6vw, 26px);
+  line-height: 1.18;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  text-wrap: balance;
+  max-width: 15ch;
+}
+
+.story-card__foot {
+  margin-top: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Progress belongs to the traveller, not to the invitation — so it is a
+   hairline on the bottom edge rather than a widget in the composition. */
+.story-card__rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--line);
+}
+.story-card__rule-fill {
+  display: block;
+  height: 100%;
+  background: var(--ex-brass);
+}
+
+.story-card.is-complete {
+  border-color: var(--ex-sage);
+}
+.story-card.is-complete .story-card__word {
+  color: var(--ex-sage);
+  opacity: 0.24;
+}
+.story-card.is-complete .story-card__foot {
+  color: var(--ex-sage);
+  font-weight: 600;
+}
+
+/* ---------- Two ways to be surprised ---------- */
+
+.surprise-row {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px;
+}
+.surprise-btn {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.12s ease;
+}
+.surprise-btn:hover {
+  border-color: var(--ex-brass);
+}
+.surprise-btn:active {
+  transform: scale(0.985);
+}
+.surprise-btn__kr {
+  font-family: var(--ex-kr);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--ex-brass);
+}
+.surprise-btn__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-body);
+}
+
+/* ---------- The break before the reference material ---------- */
+
+.index-break {
+  margin: 34px 20px 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.index-break__title {
+  font-family: var(--ex-display);
+  font-size: 22px;
+  color: var(--ink);
+}
+.index-break__sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* From tablet up the stack becomes two columns — the cards keep their weight
+   without a single one stretching across the viewport and losing its shape. */
+@media (min-width: 768px) {
+  .story-stack {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cover {
+    padding: 40px 32px 34px;
+  }
+}
+
+/* The global focus ring is green, which all but disappears against the deep
+   field of the cover. Keyboard users get the same visibility everyone else
+   gets, so the ring changes colour where the ground does. */
+.cover__cta:focus-visible {
+  outline: 2px solid var(--ex-brass);
+  outline-offset: 3px;
 }

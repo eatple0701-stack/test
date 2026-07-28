@@ -8,7 +8,9 @@ import PlaceImage from './PlaceImage';
 import PlaceCard from './PlaceCard';
 import JourneyCard from './JourneyCard';
 import ChallengeRow from './ChallengeRow';
-import JourneyLead, { TodaysPick } from './JourneyLead';
+import JourneyLead from './JourneyLead';
+import ExploreCover from './ExploreCover';
+import ThemeStoryCard from './ThemeStoryCard';
 import { ChevronRightIcon, ClockIcon, MapPinIcon, SparkleIcon, CheckIcon } from './Icons';
 import { travelers } from '../data/travelers';
 import FoodRoulette from './FoodRoulette';
@@ -38,6 +40,7 @@ export default function HomeTab({
   onNavigate, onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
   journey, visitedMarkets = [], onToggleMarket, onOpenSummary, onOpenMap,
   onOpenTheme, continueTheme, nextExperience, suggestedTheme, suggestedReason,
+  themeProgress,
 }) {
   const byId = useMemo(() => Object.fromEntries(restaurants.map(r => [r.id, r])), []);
   const [showRoulette, setShowRoulette] = useState(false);
@@ -47,6 +50,15 @@ export default function HomeTab({
   // The Phase 0 catalog, filtered through the same visibility policy the
   // projections use — so a `planned` theme never leaks onto the feed.
   const surfacedThemes = useMemo(() => domainThemes.filter(isSurfaceableEntity), []);
+
+  // Read straight off the existing projection — the cards show progress, they
+  // do not compute it. A second tally here is how the Passport and the Theme
+  // page ended up disagreeing once already.
+  const progressById = useMemo(
+    () => Object.fromEntries((themeProgress?.themes ?? []).map(t => [t.themeId, t])),
+    [themeProgress],
+  );
+  const progressOf = (themeId) => (themeId ? progressById[themeId] ?? null : null);
 
   const todaysPick = activePlaces[dayOfYear(new Date()) % activePlaces.length];
   const hiddenGemPicks = hiddenGemIds.map(id => byId[id]).filter(Boolean);
@@ -58,69 +70,81 @@ export default function HomeTab({
 
   return (
     <section className="home-tab" aria-label="Home">
-      {/* 1. Hero — the promise */}
-      <div className="home-hero">
-        <p className="home-hero__eyebrow">Today in Korea</p>
-        <h1 className="home-hero__title">Experience Korea through food.</h1>
-        <p className="home-hero__body">
-          Taste local stories, learn the culture behind every dish — and share a meal with someone new if you'd like the company.
-        </p>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '16px' }}>
-          <button className="btn-secondary" onClick={() => { setCultureStart(0); setShowCulture(true); }} style={{ flex: 1 }}>
-            🇰🇷 Culture Cards
-          </button>
-          <button className="btn-secondary" onClick={() => setShowRoulette(true)} style={{ flex: 1 }}>
-            🎲 Food Roulette
-          </button>
-        </div>
-      </div>
+      {/* 1. The cover. Today's pick at full size, with the reason it was
+             picked set as a note rather than a caption. This is both the
+             app's first impression and its recommendation — printing a hero
+             that explains the product and then a chip that recommends
+             something was two openings competing for the same moment. */}
+      <ExploreCover
+        theme={suggestedTheme}
+        reason={suggestedReason}
+        progress={progressOf(suggestedTheme?.id)}
+        onOpen={onOpenTheme}
+      />
 
-      {/* 2. The answer, before the menu. A theme grid asks the traveller to
-             browse a taxonomy; this hands them one thing to do — the step
-             they are mid-way through, or a place to begin. */}
-      <div className="home-section home-section--tight">
-        <JourneyLead
-          continueTheme={continueTheme}
-          nextExperience={nextExperience}
-          suggestedTheme={suggestedTheme}
-          onOpenTheme={onOpenTheme}
-          onOpenSummary={onOpenSummary}
-        />
-      </div>
-
-      {/* 3. Today's recommendation — for the traveller who would rather start
-             something new than resume. Only shown alongside a resume card:
-             with no journey underway the lead card IS the recommendation, and
-             printing it twice would answer the same question twice. */}
-      {continueTheme && suggestedTheme && suggestedTheme.id !== continueTheme.themeId && (
+      {/* 2. Resume, for a traveller already mid-culture. Below the cover, not
+             above it: someone who is partway through does not need to be sold
+             the app, but they do need this within a thumb's reach. Suppressed
+             when nothing is underway, because its start state would offer the
+             same theme the cover just did. */}
+      {continueTheme && (
         <div className="home-section home-section--tight">
-          <TodaysPick theme={suggestedTheme} reason={suggestedReason} onOpenTheme={onOpenTheme} />
+          <JourneyLead
+            continueTheme={continueTheme}
+            nextExperience={nextExperience}
+            suggestedTheme={suggestedTheme}
+            onOpenTheme={onOpenTheme}
+            onOpenSummary={onOpenSummary}
+          />
         </div>
       )}
 
-      {/* 4. Themes — the full menu, once the direct answers are out of the way */}
+      {/* 3. The cultures. A stack, not a shelf — a horizontal row of seven
+             small cards is a menu you skim past, and these are the content.
+             One question at a time, at the width of the screen. */}
       <div className="home-section">
-        <div className="home-section__header">
-          <h2>오늘 한국에서 무엇을 경험해볼까요?</h2>
+        <div className="stack-head">
+          <h2 className="stack-head__title">Seven questions about how Korea eats</h2>
+          <p className="stack-head__sub">Each one is a culture you can walk into.</p>
         </div>
-        <p className="home-section__sub">Or choose a culture to explore</p>
-        <div className="home-scroll-row">
+        <div className="story-stack">
           {surfacedThemes.map(theme => (
-            <button
+            <ThemeStoryCard
               key={theme.id}
-              className={`theme-card${theme.status === 'preview' ? ' is-preview' : ''}`}
-              onClick={() => onOpenTheme(theme.id)}
-            >
-              <span className="theme-card__emoji">{theme.emoji}</span>
-              <h3>{theme.title}</h3>
-              <p>{theme.tagline}</p>
-              {theme.status === 'preview' && <span className="theme-card__badge">Preview</span>}
-            </button>
+              theme={theme}
+              progress={progressOf(theme.id)}
+              onOpen={onOpenTheme}
+            />
           ))}
         </div>
       </div>
 
-      {/* 5. Progress detail — the dashboard, below the call to action */}
+      {/* 4. The two ways to be surprised, kept — moved off the opening, where
+             they were competing with the cover, to the end of the reading. */}
+      <div className="home-section home-section--tight">
+        <div className="surprise-row">
+          <button className="surprise-btn" onClick={() => { setCultureStart(0); setShowCulture(true); }}>
+            <span className="surprise-btn__kr">문화</span>
+            <span className="surprise-btn__label">Culture Cards</span>
+          </button>
+          <button className="surprise-btn" onClick={() => setShowRoulette(true)}>
+            <span className="surprise-btn__kr">추첨</span>
+            <span className="surprise-btn__label">Food Roulette</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 5. Everything below is reference: places, markets, courses, people.
+             It was interleaved with the cultures before, which made the whole
+             page read as one long undifferentiated shelf. Behind a break it
+             becomes something you go to, rather than something you wade
+             through on the way to the content. */}
+      <div className="index-break">
+        <span className="index-break__title">The index</span>
+        <span className="index-break__sub">Places, markets and people behind the cultures</span>
+      </div>
+
+      {/* Progress detail — the dashboard, below the call to action */}
       {journey && (
         <div className="home-section home-section--tight">
           <JourneyCard journey={journey} onOpenSummary={onOpenSummary} />
@@ -182,7 +206,9 @@ export default function HomeTab({
         </div>
         <div className="home-scroll-row">
           {traditionalMarkets.map(m => {
-            const visited = visitedMarkets.includes(m.id);
+            // Entries are { id, at } — the date is what lets the Passport
+            // place this visit on the timeline.
+            const visited = visitedMarkets.some(e => e.id === m.id);
             return (
               <div key={m.id} className={`market-card${visited ? ' is-visited' : ''}`}>
                 <button
