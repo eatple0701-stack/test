@@ -11,6 +11,7 @@ import ChallengeRow from './ChallengeRow';
 import JourneyLead from './JourneyLead';
 import ExploreCover from './ExploreCover';
 import ThemeStoryCard from './ThemeStoryCard';
+import TablesLead from './TablesLead';
 import { ChevronRightIcon, ClockIcon, MapPinIcon, SparkleIcon, CheckIcon } from './Icons';
 import { travelers } from '../data/travelers';
 import FoodRoulette from './FoodRoulette';
@@ -82,7 +83,12 @@ export default function HomeTab({
         onOpen={onOpenTheme}
       />
 
-      {/* 2. Resume, for a traveller already mid-culture. Below the cover, not
+      {/* 2. The tables. Explore described seven cultures without ever saying
+             the app can seat you at one — the product's whole point lived
+             behind a tab nobody had a reason to press. */}
+      <TablesLead onOpenTables={() => onNavigate('match')} />
+
+      {/* 3. Resume, for a traveller already mid-culture. Below the cover, not
              above it: someone who is partway through does not need to be sold
              the app, but they do need this within a thumb's reach. Suppressed
              when nothing is underway, because its start state would offer the

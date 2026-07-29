@@ -5987,3 +5987,149 @@ button {
   line-height: 1.5;
   color: #991B1B;
 }
+
+/* ---------- Explore: open tables ---------- */
+
+/* Directly under the cover. The cover says what is interesting today; this
+   says what you could actually do this week. */
+.tables-lead { padding: 22px 0 4px; }
+.tables-lead__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 20px 12px;
+}
+.tables-lead__kr {
+  font-family: var(--ex-kr);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  color: var(--ex-brass);
+}
+.tables-lead__title {
+  margin-top: 3px;
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(21px, 5.4vw, 25px);
+  line-height: 1.2;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.tables-lead__all {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 0 4px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-strong);
+  cursor: pointer;
+}
+.tables-lead__row {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tables-lead__row::-webkit-scrollbar { display: none; }
+.lead-table {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  flex: 0 0 156px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 14px 14px 16px;
+  background: var(--ex-paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.12s ease;
+}
+.lead-table:hover { border-color: var(--ex-brass); }
+.lead-table:active { transform: scale(0.99); }
+.lead-table__kr {
+  position: absolute;
+  right: -0.06em;
+  bottom: -0.3em;
+  z-index: -1;
+  font-family: var(--ex-kr);
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 0.8;
+  color: var(--ex-brass);
+  opacity: 0.17;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.lead-table__dish {
+  font-family: var(--ex-display);
+  font-size: 19px;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.lead-table__when { font-size: 11px; color: var(--muted); }
+.lead-table__seats {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-strong);
+}
+.tables-lead__empty {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 0 20px;
+  padding: 16px;
+  background: var(--ex-paper);
+  border: 1px dashed var(--line-hover);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-body);
+  cursor: pointer;
+}
+
+/* ---------- Table detail: the culture note ---------- */
+
+.detail-culture {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-body);
+}
+.detail-theme {
+  margin-top: 13px;
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  background: var(--ex-paper);
+  border: 1px solid var(--ex-brass);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.detail-theme:hover { background: var(--green-tint); }
+.detail-theme__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.detail-theme__name {
+  margin-right: auto;
+  font-family: var(--ex-display);
+  font-size: 17px;
+  color: var(--ink);
+}

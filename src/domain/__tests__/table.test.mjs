@@ -11,6 +11,7 @@ import {
   seatsRemaining, isPast, joinBlocker, canJoin, validateNewTable, JOIN_BLOCK,
 } from '../policy/table.js';
 import { menuById, menus, sharedOnlyMenus } from '../catalog/menus.js';
+import { themeById } from '../catalog/index.js';
 
 const table = (over = {}) => ({
   id: 't1', menuId: 'samgyeopsal', hostId: 'host', seats: 4,
@@ -96,4 +97,30 @@ test('no menu quotes a price', () => {
   for (const m of menus) {
     assert.doesNotMatch(JSON.stringify(m), price, `${m.id} mentions a price`);
   }
+});
+
+test('every menu carries the culture note the table page reads', () => {
+  for (const m of menus) {
+    assert.ok(m.culture && m.culture.length > 40, `${m.id} has no culture note`);
+    // whyShared explains the portion; culture explains the meaning. If they
+    // are the same sentence one of them is not doing its job.
+    assert.notEqual(m.culture, m.whyShared, `${m.id} repeats whyShared as culture`);
+  }
+});
+
+test('a menu is linked to a theme only where that theme exists', () => {
+  for (const m of menus) {
+    if (m.themeId === null) continue;
+    assert.ok(themeById(m.themeId), `${m.id} points at a theme that is not in the catalog: ${m.themeId}`);
+  }
+});
+
+test('most dishes are deliberately linked to no theme at all', () => {
+  // The catalog has one theme these dishes genuinely belong to — the night
+  // food of Seoul After Dark. Filling in the rest to make the feature look
+  // complete would be inventing cultural membership nobody could check, so a
+  // majority being null is the correct state, not a gap to close.
+  const linked = menus.filter(m => m.themeId);
+  assert.ok(linked.length >= 1, 'no menu is linked to any theme');
+  assert.ok(linked.length < menus.length / 2, 'suspiciously many dishes claim a theme');
 });

@@ -36,6 +36,9 @@ export const menus = [
     // What the table actually does, for a traveller who has never sat at one.
     howItWorks:
       'Raw pork belly comes to a grill set into the table. You cook it yourself, cut it with scissors, then wrap a piece in lettuce with garlic, ssamjang and rice.',
+    themeId: 'seoul-after-dark',
+    culture:
+      "The grill in the middle is a job, not a decoration: somebody turns the meat, somebody cuts it, and wrapping a piece in lettuce and handing it to the person beside you is a small act of care Koreans do without mentioning it. This is the first round of a 회식 — the after-work dinner that built most Korean working relationships.",
     contains: ['pork'],
     spice: 0,
     zones: ['Jongno, Seoul', 'Mapo, Seoul', 'Gangnam, Seoul'],
@@ -51,6 +54,9 @@ export const menus = [
       'It is stir-fried on one wide iron plate in the centre of the table, and the plate does not come in a one-person size.',
     howItWorks:
       'Marinated chicken, cabbage and rice cake are fried in front of you. When the meat is gone, rice is fried in what is left in the pan — that second course is the part regulars come for.',
+    themeId: null,
+    culture:
+      "It comes from Chuncheon in the 1960s, where it was cheap enough that students called it 대학생 갈비 — student ribs. When the meat is gone the staff fry rice in what is left in the pan, and leaving before that second course is considered a waste of a good dinner.",
     contains: ['chicken'],
     spice: 3,
     zones: ['Sinchon, Seoul', 'Hongdae, Seoul'],
@@ -66,6 +72,9 @@ export const menus = [
       'The pot sits on a burner in the middle of the table and is ladled out by whoever is nearest. Shops list it by pot size — small is still two people.',
     howItWorks:
       'Pork spine simmered with potato and perilla leaf. You pull the meat off the bone with chopsticks; it is expected to be slow and messy.',
+    themeId: 'seoul-after-dark',
+    culture:
+      "Long a night-shift and market-worker meal, eaten late and slowly because the meat has to be worked off the bone by hand. It doubles as 해장 — the food Koreans eat the morning after drinking, which is its own recognised category here.",
     contains: ['pork'],
     spice: 3,
     zones: ['Jongno, Seoul', 'Dongdaemun, Seoul'],
@@ -81,6 +90,9 @@ export const menus = [
       'Cooked at the table in a shallow pan everyone eats out of directly, and ordered by the number of people rather than by the bowl.',
     howItWorks:
       'A stew built after the Korean War from what American bases had to spare — spam, sausage, baked beans — over a Korean broth. Instant noodles go in near the end.',
+    themeId: null,
+    culture:
+      "Built after the Korean War around Uijeongbu, from surplus the American bases had and Korean kitchens did not: spam, sausage, baked beans. A dish assembled out of scarcity became one the country now eats by choice, which is roughly the shape of post-war Korea in a single pan.",
     contains: ['pork', 'beef'],
     spice: 3,
     zones: ['Itaewon, Seoul', 'Uijeongbu'],
@@ -96,6 +108,9 @@ export const menus = [
       'It arrives as one platter of sliced pork with a pile of leaves and a bowl of kimchi to build from. The smallest platter on most menus feeds two.',
     howItWorks:
       'Boiled pork belly, served cool, that you wrap yourself in napa cabbage with radish salad and salted shrimp.',
+    themeId: null,
+    culture:
+      "Traditionally eaten on 김장 day, when families gather to make a winter's worth of kimchi together — UNESCO lists that gathering as intangible cultural heritage. The pork is what the household eats standing up, wrapped in leaves, while the work is still going on.",
     contains: ['pork', 'shellfish'],
     spice: 1,
     zones: ['Jongno, Seoul', 'Mapo, Seoul'],
@@ -111,6 +126,9 @@ export const menus = [
       'Sold by the whole trotter. There is no half order, and a whole one defeats one person.',
     howItWorks:
       'Pig trotter braised in soy, cinnamon and ginger until the skin turns to gelatin, then sliced and eaten wrapped in leaves.',
+    themeId: 'seoul-after-dark',
+    culture:
+      "The Jangchung-dong alley that made it famous was built by families displaced by the Korean War. It is 야식 food — the late meal ordered to a home or an office after everything else has closed, and almost never eaten by one person.",
     contains: ['pork'],
     spice: 0,
     zones: ['Jangchung, Seoul', 'Gongdeok, Seoul'],
@@ -126,6 +144,9 @@ export const menus = [
       'Served as a set with rice and a spread of side dishes, priced per crab and usually listed from two people up.',
     howItWorks:
       'Raw crab cured in soy sauce. You eat it with your hands, and the shell is meant to be filled with rice at the end — that last mouthful is the point of the dish.',
+    themeId: null,
+    culture:
+      "Koreans call it 밥도둑, the rice thief, because the salt in it makes you eat more rice than you meant to. The last step is filling the empty shell with rice and mixing it in — the dish is built around that final mouthful rather than the crab itself.",
     contains: ['shellfish'],
     spice: 0,
     zones: ['Sinsa, Seoul', 'Mapo, Seoul'],
@@ -141,6 +162,9 @@ export const menus = [
       'A full course of shared dishes brought out together. Most houses take the booking for two or more, and many ask for it a day ahead.',
     howItWorks:
       'A formal spread — soups, grilled fish, jeon, a dozen or more banchan — laid across the table at once rather than in courses. Everything in the middle is for everyone.',
+    themeId: null,
+    culture:
+      "It descends from the 반상, the formally counted Korean table: dishes were served in sets of three, five, seven or nine, and the number marked the household. Everything arrives at once rather than in courses, so nothing is anybody's alone.",
     contains: [],
     spice: 1,
     zones: ['Insadong, Seoul', 'Jongno, Seoul'],
@@ -160,6 +184,9 @@ export const menus = [
       'You can order this one alone. It is here because the banchan in the middle are refilled for the table, not the plate — with two people the spread doubles and nothing is wasted.',
     howItWorks:
       'A home-style set: rice, soup, and whatever side dishes the kitchen made that morning. Often there is no menu — you sit down and it comes.',
+    themeId: null,
+    culture:
+      "The everyday table — 집밥, home food, served in shops that often have no menu at all. What arrives is what the kitchen made that morning, and refills of the side dishes are free and expected, which is why asking for more is a compliment rather than an imposition.",
     contains: [],
     spice: 1,
     zones: ['Jongno, Seoul', 'Euljiro, Seoul'],
@@ -175,6 +202,9 @@ export const menus = [
       'Priced by the serving with a two-serving minimum almost everywhere, and grilled at the table where it needs watching.',
     howItWorks:
       'Beef or pork intestine grilled over charcoal until the fat inside renders. Regulars finish with fried rice in the same pan.',
+    themeId: 'seoul-after-dark',
+    culture:
+      "Offal was poverty food within living memory and is now among the more expensive things on a Korean grill — a change most people eating it can remember happening. It is drinking food, cooked slowly, and the table it belongs to is one nobody is in a hurry to leave.",
     contains: ['beef', 'pork'],
     spice: 1,
     zones: ['Wangsimni, Seoul', 'Euljiro, Seoul'],

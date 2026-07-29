@@ -3,7 +3,8 @@ import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, joinBlocker, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
 import { getTable, listSignups, createSignup, cancelSignup } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
-import { ChevronLeftIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
+import { themeById } from '../domain/catalog/index.js';
+import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 
 // One table, and the decision to sit at it.
 //
@@ -19,7 +20,7 @@ const fullDate = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 };
 
-export default function TableDetail({ tableId, profile, onProfileChange, onBack }) {
+export default function TableDetail({ tableId, profile, onProfileChange, onBack, onOpenTheme }) {
   const [table, setTable] = useState(null);
   const [signups, setSignups] = useState([]);
   const [name, setName] = useState(profile?.name ?? '');
@@ -39,6 +40,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack 
   useEffect(() => { refresh(); }, [tableId]);
 
   const menu = table ? menuById(table.menuId) : null;
+  const theme = menu?.themeId ? themeById(menu.themeId) : null;
   const left = useMemo(() => seatsRemaining(table, signups), [table, signups]);
   const blocker = useMemo(
     () => (table ? joinBlocker(table, signups, profile?.userId) : null),
@@ -133,6 +135,28 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack 
           식탁에서 · What to say at the table
         </button>
       </div>
+
+      {/* The curation the plan asks for, and the thing a table was missing:
+          why this dish is eaten together at all. Without it a table is a
+          booking; with it the meal is the point of the trip. */}
+      {menu.culture && (
+        <div className="detail-block">
+          <h3 className="detail-block__label">Why it is eaten together</h3>
+          <p className="detail-culture">{menu.culture}</p>
+
+          {/* Offered only where the catalog genuinely places the dish inside a
+              theme. Six of the ten belong to no theme, and manufacturing
+              membership to make this look fuller would be a cultural claim
+              nobody could check. */}
+          {theme && onOpenTheme && (
+            <button className="detail-theme" onClick={() => onOpenTheme(theme.id)}>
+              <span className="detail-theme__label">Part of</span>
+              <span className="detail-theme__name">{theme.title}</span>
+              <ChevronRightIcon size={14} />
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="detail-block detail-block--facts">
         <p className="detail-fact"><ClockIcon size={15} /> {fullDate(table.date)} at {table.time}</p>

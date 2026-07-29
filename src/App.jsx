@@ -475,6 +475,7 @@ export default function App() {
             profile={profile}
             onProfileChange={updateProfile}
             onBack={() => setTableView({ screen: 'list' })}
+            onOpenTheme={(id) => { setTableView({ screen: 'list' }); setActiveTab('home'); setOpenThemeId(id); }}
           />
         )}
         {!openThemeId && activeTab === 'match' && tableView.screen === 'match' && (
