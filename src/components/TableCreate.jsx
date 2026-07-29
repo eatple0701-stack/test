@@ -20,6 +20,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   const [date, setDate] = useState('');
   const [time, setTime] = useState('19:00');
   const [place, setPlace] = useState('');
+  const [restaurant, setRestaurant] = useState('');
   const [seats, setSeats] = useState(4);
   const [note, setNote] = useState('');
   const [hostName, setHostName] = useState(profile?.name ?? '');
@@ -39,7 +40,8 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     if (problems.length > 0 || saving) return;
     setSaving(true);
     const row = await createTable({
-      menuId, date, time, place: place.trim(), seats: Number(seats), note: note.trim(),
+      menuId, date, time, place: place.trim(), restaurant: restaurant.trim(),
+      seats: Number(seats), note: note.trim(),
       hostId: profile?.userId, hostName: hostName.trim(), hostNationality: profile?.nationality,
     });
     onProfileChange?.({ ...profile, name: hostName.trim() });
@@ -115,6 +117,20 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             value={place}
             placeholder="Exit 4, Jongno 3-ga station"
             onChange={e => setPlace(e.target.value)}
+          />
+        </label>
+
+        {/* The shop, which is not the same as the meeting point. A table that
+            named a station exit and nothing else left a guest with no idea
+            where they were actually eating. Optional on purpose — a host who
+            has not decided says so, rather than inventing a name. */}
+        <label className="field">
+          <span className="field__label">Which restaurant? (optional)</span>
+          <input
+            type="text"
+            value={restaurant}
+            placeholder="Sae Ma Eul Sikdang, or leave blank to decide together"
+            onChange={e => setRestaurant(e.target.value)}
           />
         </label>
       </div>

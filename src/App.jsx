@@ -440,6 +440,11 @@ export default function App() {
             suggestedTheme={suggestedTheme}
             suggestedReason={suggestedReason}
             themeProgress={themeProgress}
+            profile={profile}
+            onOpenTodayTable={(id) => {
+              setActiveTab('match');
+              setTableView({ screen: 'detail', tableId: id });
+            }}
           />
         )}
         {/* 밥친구. The tab leads with tables now — a dish somebody cannot

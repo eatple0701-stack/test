@@ -123,6 +123,20 @@ export async function createTable(input) {
   return tableFromRow(data);
 }
 
+/**
+ * Calling off a table. The signups go with it through the foreign key's
+ * `on delete cascade`, so there is no second call to get half-right.
+ *
+ * Row level security already restricts this to the host: `tables_delete_own`
+ * checks `host_id = auth.uid()`, so a guest cannot cancel somebody's dinner.
+ */
+export async function deleteTable(tableId) {
+  const sb = await client();
+  await currentUser();
+  const { error } = await sb.from('tables').delete().eq('id', tableId);
+  if (error) throw new Error(friendlyError(error));
+}
+
 export async function listSignups(tableId) {
   const sb = await client();
   await currentUser();

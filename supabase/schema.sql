@@ -47,13 +47,21 @@ create table if not exists public.tables (
   host_verified boolean not null default false,
   date          date not null,
   time          time not null,
+  -- Two different places, and a table needs both. `place` is where you meet
+  -- (a station exit); `restaurant` is where you eat. A table naming only the
+  -- exit leaves everybody standing outside the wrong shop. Nullable because a
+  -- host may not have decided yet, in which case the card says so.
   place         text not null,
+  restaurant    text default '',
   seats         integer not null check (seats between 2 and 8),
   note          text default '',
   created_at    timestamptz not null default now()
 );
 
 create index if not exists tables_date_idx on public.tables (date, time);
+
+-- Safe to re-run against a project created before `restaurant` existed.
+alter table public.tables add column if not exists restaurant text default '';
 
 -- ---------------------------------------------------------------------------
 -- Signups — one seat taken.

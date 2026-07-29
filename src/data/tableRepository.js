@@ -73,12 +73,31 @@ async function local_createTable(input) {
     date: input.date,
     time: input.time,
     place: input.place,
+    // The restaurant, separate from the meeting point. The plan has the host
+    // choosing 특정 한식 메뉴와 식당, and a table that names a station exit but
+    // not a shop leaves everybody standing outside the wrong one. Optional,
+    // because a host may genuinely not have decided yet — but then the table
+    // says so rather than leaving a blank.
+    restaurant: input.restaurant ?? '',
     seats: Number(input.seats),
     note: input.note ?? '',
     createdAt: Date.now(),
   };
   write(TABLES_KEY, [...read(TABLES_KEY), row]);
   return row;
+}
+
+/**
+ * Called off the table, and everybody's seats with it.
+ *
+ * There was no way to do this at all, which meant a host who could not make
+ * their own dinner had no way to say so. The signups go too: a seat at a
+ * table that no longer exists is worse than no seat, because it still shows
+ * up in a Passport as something that is going to happen.
+ */
+async function local_deleteTable(tableId) {
+  write(TABLES_KEY, read(TABLES_KEY).filter(t => t.id !== tableId));
+  write(SIGNUPS_KEY, read(SIGNUPS_KEY).filter(s => s.tableId !== tableId));
 }
 
 async function local_listSignups(tableId) {
@@ -177,6 +196,7 @@ export const isShared = () => useRemote;
 export const listTables = useRemote ? remote.listTables : local_listTables;
 export const getTable = useRemote ? remote.getTable : local_getTable;
 export const createTable = useRemote ? remote.createTable : local_createTable;
+export const deleteTable = useRemote ? remote.deleteTable : local_deleteTable;
 export const listSignups = useRemote ? remote.listSignups : local_listSignups;
 export const listAllSignups = useRemote ? remote.listAllSignups : local_listAllSignups;
 export const createSignup = useRemote ? remote.createSignup : local_createSignup;

@@ -5,6 +5,7 @@ import JourneyLead from './JourneyLead';
 import ExploreCover from './ExploreCover';
 import ThemeStoryCard from './ThemeStoryCard';
 import TablesLead from './TablesLead';
+import TodayTable from './TodayTable';
 import { ChevronRightIcon } from './Icons';
 import FoodRoulette from './FoodRoulette';
 import CultureCards, { CULTURE_CARDS } from './CultureCards';
@@ -13,7 +14,7 @@ export default function HomeTab({
   onNavigate, onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
   journey, visitedMarkets = [], onToggleMarket, onOpenSummary, onOpenMap,
   onOpenTheme, continueTheme, nextExperience, suggestedTheme, suggestedReason,
-  themeProgress,
+  themeProgress, profile, onOpenTodayTable,
 }) {
   const [showRoulette, setShowRoulette] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
@@ -35,6 +36,10 @@ export default function HomeTab({
 
   return (
     <section className="home-tab" aria-label="Home">
+      {/* Above the cover, and above everything, when a meal is today. There
+          are no push notifications and will not be before the pilot, so the
+          only reminder the app can give is being unmissable when opened. */}
+      <TodayTable profile={profile} onOpenTable={onOpenTodayTable} />
       {/* 1. The cover. Today's pick at full size, with the reason it was
              picked set as a note rather than a caption. This is both the
              app's first impression and its recommendation — printing a hero

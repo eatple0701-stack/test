@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, joinBlocker, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
-import { getTable, listSignups, createSignup, cancelSignup } from '../data/tableRepository.js';
+import { getTable, listSignups, createSignup, cancelSignup, deleteTable } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
+import SafetySheet from './SafetySheet';
 import { conflictsFor } from '../data/profile';
 import { themeById } from '../domain/catalog/index.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
@@ -31,6 +32,8 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const [joined, setJoined] = useState(false);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
   const [error, setError] = useState(null);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [safetyOpen, setSafetyOpen] = useState(false);
 
   const refresh = async () => {
     const [t, s] = await Promise.all([getTable(tableId), listSignups(tableId)]);
@@ -43,6 +46,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const menu = table ? menuById(table.menuId) : null;
   const theme = menu?.themeId ? themeById(menu.themeId) : null;
   const conflicts = conflictsFor(menu, profile);
+  const isHost = Boolean(profile?.userId) && table?.hostId === profile.userId;
   const left = useMemo(() => seatsRemaining(table, signups), [table, signups]);
   const blocker = useMemo(
     () => (table ? joinBlocker(table, signups, profile?.userId) : null),
@@ -93,6 +97,20 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     await refresh();
     setBusy(false);
     setJoined(true);
+  };
+
+  const cancelTable = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await deleteTable(tableId);
+    } catch (e) {
+      setError(e.message);
+      setBusy(false);
+      return;
+    }
+    setBusy(false);
+    onBack();
   };
 
   const leave = async () => {
@@ -171,7 +189,14 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
 
       <div className="detail-block detail-block--facts">
         <p className="detail-fact"><ClockIcon size={15} /> {fullDate(table.date)} at {table.time}</p>
-        <p className="detail-fact"><MapPinIcon size={15} /> {table.place}</p>
+        <p className="detail-fact"><MapPinIcon size={15} /> Meet at {table.place}</p>
+        {/* Named or honestly unnamed — a blank line here had guests assuming
+            the meeting point was the restaurant. */}
+        <p className="detail-fact detail-fact--muted">
+          {table.restaurant
+            ? <>Eating at {table.restaurant}</>
+            : <>Restaurant not decided yet — the table picks one together</>}
+        </p>
         <p className="detail-fact">
           <span className={`detail-seats${left === 0 ? ' is-full' : ''}`}>
             {left === 0 ? 'Full' : `${left} seat${left === 1 ? '' : 's'} left`}
@@ -189,10 +214,18 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             <span className="who-row__role">host</span>
           </li>
           {signups.map(s => (
-            <li key={s.id} className="who-row">
+            <li key={s.id} className="who-row who-row--stacked">
               <span className="who-row__dot" aria-hidden="true" />
-              <span className="who-row__name">{s.name}</span>
-              {s.nationality && <span className="who-row__role">{s.nationality}</span>}
+              <span className="who-row__line">
+                <span className="who-row__name">{s.name}</span>
+                {s.nationality && <span className="who-row__role">{s.nationality}</span>}
+              </span>
+              {/* The seat form asks "anything the table should know?" and
+                  people answer it with the thing that matters most — no pork,
+                  ten words of Korean, running late. It was being written to
+                  storage and shown to nobody, which is worse than never
+                  asking. */}
+              {s.note && <span className="who-row__note">“{s.note}”</span>}
             </li>
           ))}
         </ul>
@@ -217,6 +250,42 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <button className="join-leave" onClick={leave} disabled={busy}>
             Give up my seat
           </button>
+        </div>
+      ) : isHost ? (
+        /* The host's own table. Everything they can do about it is here,
+           because there was previously nowhere at all — a host who could not
+           make their own dinner had no way to say so, and the guests would
+           have found out by standing outside a restaurant. */
+        <div className="join-block">
+          <p className="join-blocked">{BLOCKER_TEXT[JOIN_BLOCK.OWN_TABLE]}</p>
+
+          {!confirmCancel ? (
+            <button className="join-leave" onClick={() => setConfirmCancel(true)}>
+              이 상 취소 · Call off this table
+            </button>
+          ) : (
+            <div className="cancel-confirm">
+              <p className="cancel-confirm__title">Call this table off?</p>
+              {signups.length > 0 ? (
+                <p className="cancel-confirm__body">
+                  {signups.length === 1 ? '1 person has' : `${signups.length} people have`} a seat
+                  {signups.length > 0 && `: ${signups.map(s => s.name).join(', ')}`}. The app cannot
+                  message them yet — if you have another way to reach them, tell them before you
+                  cancel. Their seats disappear when you do.
+                </p>
+              ) : (
+                <p className="cancel-confirm__body">Nobody has taken a seat, so nobody is affected.</p>
+              )}
+              <div className="cancel-confirm__row">
+                <button className="cancel-confirm__no" onClick={() => setConfirmCancel(false)}>
+                  Keep it
+                </button>
+                <button className="cancel-confirm__yes" onClick={cancelTable} disabled={busy}>
+                  {busy ? 'Cancelling…' : 'Call it off'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : blocker ? (
         <div className="join-block">
@@ -247,9 +316,16 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         </div>
       )}
 
+      {/* Quiet, at the bottom, and always there — not a scare on the way in,
+          but not something to go hunting for either. */}
+      <button className="safety-open" onClick={() => setSafetyOpen(true)}>
+        도움이 필요하면 · Feeling unsafe or need help?
+      </button>
+
       {phrasesOpen && (
         <PhraseSheet dish={menu.name} menuId={menu.id} onClose={() => setPhrasesOpen(false)} />
       )}
+      {safetyOpen && <SafetySheet onClose={() => setSafetyOpen(false)} />}
     </section>
   );
 }

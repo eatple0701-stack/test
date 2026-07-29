@@ -26,6 +26,7 @@ export function tableFromRow(row) {
     // agree, but the displayed string would gain a stray ":00".
     time: typeof row.time === 'string' ? row.time.slice(0, 5) : row.time,
     place: row.place,
+    restaurant: row.restaurant ?? '',
     seats: row.seats,
     note: row.note ?? '',
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
@@ -46,6 +47,7 @@ export function tableToRow(input, { hostId, hostVerified = false } = {}) {
     date: input.date,
     time: input.time,
     place: input.place,
+    restaurant: input.restaurant ?? '',
     seats: Number(input.seats),
     note: input.note ?? '',
   };
