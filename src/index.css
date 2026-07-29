@@ -6398,3 +6398,90 @@ button {
 .record-item--table .record-item__mark {
   color: var(--ex-brass-ink);
 }
+
+/* ---------- Profile: fields that do something ---------- */
+
+.profile-body { padding: 6px 20px 40px; }
+.profile-field { margin-top: 24px; }
+.profile-field__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.profile-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 16px;
+  color: var(--ink);
+}
+.profile-input:focus {
+  outline: 2px solid var(--green-strong);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.profile-field__hint {
+  margin-top: 7px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.profile-field .chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.profile-field .chip {
+  min-height: 44px;
+}
+.profile-link {
+  margin-top: 30px;
+  width: 100%;
+  min-height: 48px;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid var(--line-hover);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-body);
+  cursor: pointer;
+}
+.profile-foot {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+/* The dietary flag, wherever a dish is being decided on. */
+.detail-conflict {
+  margin-top: 12px;
+  padding: 11px 13px;
+  background: var(--orange-tint);
+  border: 1px solid var(--orange-line);
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9A3412;
+}
+.table-card__warn {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: var(--orange-tint);
+  border: 1px solid var(--orange-line);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #9A3412;
+}
+.table-card__mine + .table-card__warn { margin-left: 6px; }

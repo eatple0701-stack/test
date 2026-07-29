@@ -1,175 +1,138 @@
 import React, { useState } from 'react';
-import { ChevronRightIcon } from './Icons';
+import { RESTRICTIONS, restrictionLabel } from '../data/profile';
 
+// Profile — the four things the app actually does something with.
+//
+// What was here before was a settings screen in the shape of a settings
+// screen and nothing else. "Countries Visited: 3" was the literal number 3,
+// typed in; "Interests: Photography, History, Cafe Hopping" was a sentence
+// about a person nobody had asked. Travel Style and Availability opened
+// pickers wired to `onChange={() => {}}`. Match Preferences configured a
+// swipe deck that no longer exists, and Notifications toggled alerts the app
+// has no way to send.
+//
+// That is the same failure as the eighty generated travellers, pointed at
+// the user instead of at strangers: the screen was describing somebody it
+// had never met. Everything below is either typed by the person reading it
+// or not shown at all — and each field changes something visible elsewhere,
+// which is the only reason a setting deserves a row.
 
-const LANGUAGE_OPTIONS = ['English', '한국어', '日本語', '中文', 'Español'];
-const FOOD_OPTIONS = ['No preference', 'Mild', 'Spicy', 'Fermented-lover', 'Street food fan'];
-const DIETARY_OPTIONS = ['No restriction', 'Vegan', 'Vegetarian', 'Halal', 'Pescatarian'];
-const MATCH_RADIUS_OPTIONS = ['Same neighborhood', 'Anywhere in Seoul', 'Anywhere in Korea'];
+const LANGUAGES = ['English', '한국어', '日本語', '中文', 'Español', 'Français', 'العربية'];
 
-function SettingsRow({ icon, label, value, action, expanded, children }) {
+function Field({ label, hint, children }) {
   return (
-    <div className="settings-item-wrap">
-      <div className={`settings-item${action ? ' settings-item--clickable' : ''}`} onClick={action}>
-        <span className="settings-icon">{icon}</span>
-        <div className="settings-text">
-          <span className="settings-label">{label}</span>
-        </div>
-        {value && <span className="settings-value">{value}</span>}
-        {action && <ChevronRightIcon size={18} />}
-      </div>
-      {expanded && <div className="settings-expand">{children}</div>}
+    <div className="profile-field">
+      <span className="profile-field__label">{label}</span>
+      {children}
+      {hint && <p className="profile-field__hint">{hint}</p>}
     </div>
   );
 }
 
-function OptionPicker({ options, value, onChange }) {
-  return (
-    <div className="chip-row">
-      {options.map(opt => (
-        <button
-          key={opt}
-          className={`chip${value === opt ? ' active' : ''}`}
-          onClick={() => onChange(opt)}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  );
-}
+// Saved on every keystroke rather than on blur. Blur never fires if somebody
+// types their name and taps straight to Tables, and losing it there means
+// being asked for it again at the next table — which is the exact thing this
+// screen exists to stop.
+function ProfileTab({ profile, onProfileChange, onNavigate }) {
+  const [name, setName] = useState(profile?.name ?? '');
+  const [nationality, setNationality] = useState(profile?.nationality ?? '');
+  const languages = profile?.languages ?? [];
+  const avoids = profile?.avoids ?? [];
 
-function ToggleRow({ label, checked, onChange }) {
-  return (
-    <label className="toggle-row">
-      <span>{label}</span>
-      <span className={`toggle-switch${checked ? ' on' : ''}`} onClick={() => onChange(!checked)}>
-        <span className="toggle-switch__knob" />
-      </span>
-    </label>
-  );
-}
+  const save = (patch) => onProfileChange?.({ ...profile, ...patch });
 
-function ProfileTab({ onNavigate }) {
-  const [openSection, setOpenSection] = useState(null);
-  const [language, setLanguage] = useState('English');
-  const [foodPref, setFoodPref] = useState('No preference');
-  const [dietaryPref, setDietaryPref] = useState('No restriction');
-  const [matchRadius, setMatchRadius] = useState('Anywhere in Seoul');
-  const [notifyMatches, setNotifyMatches] = useState(true);
-  const [notifyMessages, setNotifyMessages] = useState(true);
-  const [notifyGatherings, setNotifyGatherings] = useState(false);
-
-  const toggleSection = (key) => setOpenSection(s => (s === key ? null : key));
+  const toggle = (list, value) =>
+    list.includes(value) ? list.filter(v => v !== value) : [...list, value];
 
   return (
     <section className="tab-panel profile-panel">
       <header className="screen-head">
         <span className="screen-head__kr">설정</span>
         <h1 className="screen-head__title">How the app should treat you.</h1>
-        <p className="screen-head__sub">Language, what you eat, and what you would rather not.</p>
+        <p className="screen-head__sub">
+          Set once here and no table asks you again.
+        </p>
       </header>
 
-      <div className="settings-list">
-        <SettingsRow
-          icon="🌐"
-          label="Language"
-          value={language}
-          action={() => toggleSection('language')}
-          expanded={openSection === 'language'}
+      <div className="profile-body">
+        <Field
+          label="Your name"
+          hint="What the table looks for when you arrive."
         >
-          <OptionPicker options={LANGUAGE_OPTIONS} value={language} onChange={setLanguage} />
-        </SettingsRow>
+          <input
+            type="text"
+            className="profile-input"
+            value={name}
+            placeholder="Aya"
+            onChange={e => { setName(e.target.value); save({ name: e.target.value.trim() }); }}
+          />
+        </Field>
 
-        <SettingsRow
-          icon="🍲"
-          label="Food Preferences"
-          value={foodPref}
-          action={() => toggleSection('food')}
-          expanded={openSection === 'food'}
+        <Field label="Where you are from" hint="Optional. Shown to the table, nowhere else.">
+          <input
+            type="text"
+            className="profile-input"
+            value={nationality}
+            placeholder="Japan"
+            onChange={e => { setNationality(e.target.value); save({ nationality: e.target.value.trim() }); }}
+          />
+        </Field>
+
+        <Field
+          label="Languages you speak"
+          hint="So a host knows what the table will run in."
         >
-          <OptionPicker options={FOOD_OPTIONS} value={foodPref} onChange={setFoodPref} />
-        </SettingsRow>
+          <div className="chip-row">
+            {LANGUAGES.map(l => (
+              <button
+                key={l}
+                className={`chip${languages.includes(l) ? ' active' : ''}`}
+                aria-pressed={languages.includes(l)}
+                onClick={() => save({ languages: toggle(languages, l) })}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+        </Field>
 
-        <SettingsRow
-          icon="🌱"
-          label="Dietary Preferences"
-          value={dietaryPref}
-          action={() => toggleSection('dietary')}
-          expanded={openSection === 'dietary'}
+        {/* The one setting that changes what other screens say. A dish whose
+            ingredients you have excluded is flagged on the table list, on the
+            table itself, and while opening one — the plan calls this 개인
+            조건에 적합한 한식 메뉴 우선 제시, and a preference the app never
+            acts on is decoration. */}
+        <Field
+          label="What you do not eat"
+          hint="Tables serving these are flagged before you ask for a seat. Nothing is hidden from you — the warning is on the card."
         >
-          <OptionPicker options={DIETARY_OPTIONS} value={dietaryPref} onChange={setDietaryPref} />
-        </SettingsRow>
+          <div className="chip-row">
+            {RESTRICTIONS.map(r => (
+              <button
+                key={r}
+                className={`chip${avoids.includes(r) ? ' active' : ''}`}
+                aria-pressed={avoids.includes(r)}
+                onClick={() => save({ avoids: toggle(avoids, r) })}
+              >
+                {restrictionLabel(r)}
+              </button>
+            ))}
+          </div>
+        </Field>
 
-        <SettingsRow
-          icon="✈️"
-          label="Travel Style"
-          value="Foodie, Cultural"
-          action={() => toggleSection('travelstyle')}
-          expanded={openSection === 'travelstyle'}
-        >
-          <OptionPicker options={['Foodie', 'Cultural', 'Adventure', 'Relaxation', 'Nightlife']} value="Foodie" onChange={() => {}} />
-        </SettingsRow>
+        <button className="profile-link" onClick={() => onNavigate('journal')}>
+          Everything you have done →
+        </button>
 
-        <SettingsRow
-          icon="🌍"
-          label="Countries Visited"
-          value="3"
-        />
-
-        <SettingsRow
-          icon="⭐"
-          label="Interests"
-          value="Photography, History, Cafe Hopping"
-        />
-
-        <SettingsRow
-          icon="📅"
-          label="Availability"
-          value="Weekends"
-          action={() => toggleSection('availability')}
-          expanded={openSection === 'availability'}
-        >
-          <OptionPicker options={['Weekdays', 'Weekends', 'Anytime', 'Evenings only']} value="Weekends" onChange={() => {}} />
-        </SettingsRow>
-
-        <SettingsRow
-          icon="🤝"
-          label="Match Preferences"
-          value={matchRadius}
-          action={() => toggleSection('matching')}
-          expanded={openSection === 'matching'}
-        >
-          <p className="settings-expand__hint">Who shows up in your Match deck.</p>
-          <OptionPicker options={MATCH_RADIUS_OPTIONS} value={matchRadius} onChange={setMatchRadius} />
-        </SettingsRow>
-
-        <SettingsRow
-          icon="🔔"
-          label="Notifications"
-          action={() => toggleSection('notifications')}
-          expanded={openSection === 'notifications'}
-        >
-          <ToggleRow label="New matches" checked={notifyMatches} onChange={setNotifyMatches} />
-          <ToggleRow label="Messages" checked={notifyMessages} onChange={setNotifyMessages} />
-          <ToggleRow label="Gatherings near me" checked={notifyGatherings} onChange={setNotifyGatherings} />
-        </SettingsRow>
-
-        <SettingsRow
-          icon="❤️"
-          label="Saved Places"
-          value="View Journal"
-          action={() => onNavigate('journal')}
-        />
-
-        <SettingsRow icon="ℹ️" label="About TableMate" value="v2.0" />
-        <SettingsRow icon="🔒" label="Privacy Policy" />
+        {/* Version and policy, and nothing that pretends to be a feature. */}
+        <p className="profile-foot">밥친구 Eatple · pilot build</p>
       </div>
     </section>
   );
 }
 
-export default function TabPanel({ tab, onNavigate }) {
-  if (tab === 'profile') return <ProfileTab onNavigate={onNavigate} />;
+export default function TabPanel({ tab, profile, onProfileChange, onNavigate }) {
+  if (tab === 'profile') {
+    return <ProfileTab profile={profile} onProfileChange={onProfileChange} onNavigate={onNavigate} />;
+  }
   return null;
 }

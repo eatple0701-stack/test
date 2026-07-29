@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { validateNewTable } from '../domain/policy/table.js';
 import { createTable } from '../data/tableRepository.js';
+import { conflictsFor } from '../data/profile';
 import { ChevronLeftIcon } from './Icons';
 
 // Opening a table.
@@ -84,6 +85,12 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             <p className="dish-brief__how">{menu.howItWorks}</p>
             {menu.contains.length > 0 && (
               <p className="dish-brief__contains">Contains {menu.contains.join(', ')}</p>
+            )}
+            {conflictsFor(menu, profile).length > 0 && (
+              <p className="detail-conflict">
+                You said you do not eat {conflictsFor(menu, profile).join(' or ')} — you can still
+                host this, you just will not be eating all of it.
+              </p>
             )}
           </div>
         </div>

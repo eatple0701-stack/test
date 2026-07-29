@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, isPast } from '../domain/policy/table.js';
 import { listTables, listAllSignups, seedSampleTables, isLocalOnly } from '../data/tableRepository.js';
+import { conflictsFor } from '../data/profile';
 import { ChevronRightIcon, MapPinIcon, ClockIcon } from './Icons';
 
 // 밥친구 — the tables you can ask to sit at.
@@ -127,6 +128,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
           const rows = signupsFor[t.id] ?? [];
           const left = seatsRemaining(t, rows);
           const isMine = profile && t.hostId === profile.userId;
+          const conflicts = conflictsFor(menu, profile);
 
           return (
             <button key={t.id} className="table-card" onClick={() => onOpenTable(t.id)}>
@@ -137,6 +139,9 @@ export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
                   {CATEGORY_LABEL[menu.category]?.en ?? ''}
                 </span>
                 {isMine && <span className="table-card__mine">Your table</span>}
+                {conflicts.length > 0 && (
+                  <span className="table-card__warn">contains {conflicts.join(', ')}</span>
+                )}
               </span>
 
               <h2 className="table-card__dish">{menu.name}</h2>

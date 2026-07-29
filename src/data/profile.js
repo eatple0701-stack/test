@@ -13,6 +13,30 @@ const PROFILE_KEY = 'bapchingu-profile';
 
 const newUserId = () => `u-${Math.random().toString(36).slice(2, 10)}`;
 
+/**
+ * What a traveller can rule out, in the exact vocabulary the menu catalog
+ * uses in `contains`.
+ *
+ * Deliberately ingredients rather than diets. "Halal" and "Vegetarian" are
+ * how people describe themselves, but they are not what the catalog records,
+ * and translating between the two would mean this app deciding what somebody
+ * else's rules permit — with a plate of pork riding on being right. Asking
+ * which ingredients to flag is a question the data can actually answer.
+ */
+export const RESTRICTIONS = ['pork', 'beef', 'chicken', 'shellfish'];
+
+export const restrictionLabel = (r) => `No ${r}`;
+
+/**
+ * The ingredients in this dish that the traveller has ruled out.
+ * Empty means nothing to warn about.
+ */
+export function conflictsFor(menu, profile) {
+  const avoids = profile?.avoids ?? [];
+  if (avoids.length === 0 || !menu?.contains) return [];
+  return menu.contains.filter(c => avoids.includes(c));
+}
+
 export function getProfile() {
   try {
     const raw = localStorage.getItem(PROFILE_KEY);

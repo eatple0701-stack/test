@@ -3,6 +3,7 @@ import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, joinBlocker, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
 import { getTable, listSignups, createSignup, cancelSignup } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
+import { conflictsFor } from '../data/profile';
 import { themeById } from '../domain/catalog/index.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 
@@ -41,6 +42,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
 
   const menu = table ? menuById(table.menuId) : null;
   const theme = menu?.themeId ? themeById(menu.themeId) : null;
+  const conflicts = conflictsFor(menu, profile);
   const left = useMemo(() => seatsRemaining(table, signups), [table, signups]);
   const blocker = useMemo(
     () => (table ? joinBlocker(table, signups, profile?.userId) : null),
@@ -126,6 +128,15 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         <p className="detail-block__body">{menu.howItWorks}</p>
         {menu.contains.length > 0 && (
           <p className="detail-block__contains">Contains {menu.contains.join(', ')}</p>
+        )}
+
+        {/* Said where the decision is made, not buried in a settings screen.
+            The table is not hidden — a traveller may still want it, and may
+            be eating with somebody who does. */}
+        {conflicts.length > 0 && (
+          <p className="detail-conflict">
+            This has {conflicts.join(' and ')} in it, which you said you do not eat.
+          </p>
         )}
 
         {/* The app used to stop here — it delivered somebody to a restaurant

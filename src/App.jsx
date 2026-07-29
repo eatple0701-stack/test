@@ -497,7 +497,7 @@ export default function App() {
           />
         )}
         {!openThemeId && activeTab === 'profile' && (
-          <TabPanel tab={activeTab} onNavigate={setActiveTab} />
+          <TabPanel tab={activeTab} profile={profile} onProfileChange={updateProfile} onNavigate={setActiveTab} />
         )}
 
       </div>
