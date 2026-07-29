@@ -1,39 +1,7 @@
-// Dummy content for the Home screen — "today's gatherings" and "popular
-// courses" stand in for a future recommendation feed. Course stops reference
-// real restaurant ids so tapping through still opens real detail pages.
+// Reference content for the index: markets, courses, neighbourhoods and
+// seasonal notes. The invented gatherings and travellers that used to live
+// here are gone — this product does not show people who do not exist.
 
-export const gatherings = [
-  {
-    id: 'g1',
-    title: 'Gwangjang Market street food crawl',
-    hostName: 'Marco',
-    hostFlag: '🇮🇹',
-    time: 'Today, 6:30 PM',
-    zone: 'Jongno, Seoul',
-    spotsLeft: 3,
-    tag: 'Street food',
-  },
-  {
-    id: 'g2',
-    title: 'Halal dinner in Itaewon',
-    hostName: 'Layla',
-    hostFlag: '🇲🇾',
-    time: 'Today, 7:00 PM',
-    zone: 'Itaewon, Seoul',
-    spotsLeft: 2,
-    tag: 'Halal',
-  },
-  {
-    id: 'g3',
-    title: 'Temple food & tea, slow morning',
-    hostName: 'Aiko',
-    hostFlag: '🇯🇵',
-    time: 'Tomorrow, 10:00 AM',
-    zone: 'Seochon, Seoul',
-    spotsLeft: 4,
-    tag: 'Vegan',
-  },
-];
 
 export const courses = [
   {

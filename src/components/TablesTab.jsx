@@ -20,7 +20,7 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
-export default function TablesTab({ onOpenTable, onCreateTable, onOpenMatch, profile }) {
+export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
   const [menuFilter, setMenuFilter] = useState(null);
@@ -165,14 +165,6 @@ export default function TablesTab({ onOpenTable, onCreateTable, onOpenMatch, pro
         })}
       </div>
 
-      {/* The swipe deck that used to own this tab. It is a way to meet people
-          rather than a way to eat, so it sits under the tables instead of in
-          front of them — but it is still here. */}
-      {onOpenMatch && (
-        <button className="tables-alt" onClick={onOpenMatch}>
-          Rather meet people first? <ChevronRightIcon size={14} />
-        </button>
-      )}
     </section>
   );
 }

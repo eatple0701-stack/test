@@ -6,11 +6,11 @@ import TabBar from './components/TabBar';
 import TabPanel from './components/TabPanel';
 import JournalPanel from './components/JournalPanel';
 import HomeTab from './components/HomeTab';
-import MatchTab from './components/MatchTab';
 import Prologue from './components/Prologue';
 import TravelSummary from './components/TravelSummary';
 import ThemeComplete from './components/ThemeComplete';
 import TablesTab from './components/TablesTab';
+import PlacesTab from './components/PlacesTab';
 import TableCreate from './components/TableCreate';
 import TableDetail from './components/TableDetail';
 import { getProfile, saveProfile } from './data/profile';
@@ -334,13 +334,6 @@ export default function App() {
 
   // Logged from Match's "Eat together" — re-matching the same traveler moves
   // their entry to the top rather than duplicating it in Journal.
-  const handleAddCompanion = (traveler) => {
-    setCompanions(prev => [
-      { travelerId: traveler.id, matchedAt: Date.now() },
-      ...prev.filter(c => c.travelerId !== traveler.id),
-    ]);
-  };
-
   // "Explore nearby" used to switch to a map tab. There is no map tab now:
   // the same intent opens the map as a tool, pre-filtered to what was asked
   // for, and closing it returns to whatever the user was reading.
@@ -458,7 +451,6 @@ export default function App() {
             profile={profile}
             onCreateTable={() => setTableView({ screen: 'create' })}
             onOpenTable={(id) => setTableView({ screen: 'detail', tableId: id })}
-            onOpenMatch={() => setTableView({ screen: 'match' })}
           />
         )}
         {!openThemeId && activeTab === 'match' && tableView.screen === 'create' && (
@@ -478,8 +470,17 @@ export default function App() {
             onOpenTheme={(id) => { setTableView({ screen: 'list' }); setActiveTab('home'); setOpenThemeId(id); }}
           />
         )}
-        {!openThemeId && activeTab === 'match' && tableView.screen === 'match' && (
-          <MatchTab onMatch={handleAddCompanion} onNavigate={setActiveTab} />
+        {!openThemeId && activeTab === 'places' && (
+          <PlacesTab
+            onOpenRestaurant={openDetail}
+            onOpenStory={openStory}
+            onExploreZone={goExplore}
+            bookmarkedIds={bookmarkedIds}
+            onToggleBookmark={handleToggleBookmark}
+            visitedMarkets={visitedMarkets}
+            onToggleMarket={handleToggleMarket}
+            onOpenMap={openMap}
+          />
         )}
         {!openThemeId && activeTab === 'journal' && (
           <JournalPanel

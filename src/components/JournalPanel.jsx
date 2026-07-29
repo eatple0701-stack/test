@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
-import { getTraveler } from '../data/travelers';
 import { traditionalMarkets } from '../data/experiences';
 import { menuById } from '../domain/catalog/menus.js';
 import { isPast } from '../domain/policy/table.js';
@@ -23,10 +22,6 @@ function formatDayHeading(ts) {
 }
 
 const dayKey = (ts) => new Date(ts).toDateString();
-
-function sameDay(a, b) {
-  return new Date(a).toDateString() === new Date(b).toDateString();
-}
 
 const activeCount = restaurants.filter(r => !isQuarantined(r)).length;
 
@@ -51,12 +46,14 @@ export default function JournalPanel({
           ...t,
           hosted: t.hostId === profile?.userId,
           // Everyone at the table except the person reading this page.
-          others: [
-            ...(t.hostId === profile?.userId ? [] : [t.hostName]),
+          people: [
+            ...(t.hostId === profile?.userId
+              ? []
+              : [{ key: `host-${t.id}`, name: t.hostName, nationality: t.hostNationality || '' }]),
             ...signups
               .filter(s => s.tableId === t.id && s.userId !== profile?.userId)
-              .map(s => s.name),
-          ].filter(Boolean),
+              .map(s => ({ key: s.userId || s.id, name: s.name, nationality: s.nationality || '' })),
+          ].filter(p => p.name),
         }));
       if (alive) setMyTables(mine);
     })();
@@ -83,22 +80,24 @@ export default function JournalPanel({
   const visitedList = stamped.filter(s => s.visitedAt != null);
   const savedList = stamped.filter(s => s.visitedAt == null);
 
-  // Logged whenever "Eat together" is confirmed in Match (see App.jsx).
-  const metPeople = useMemo(() =>
-    companions
-      .map(c => ({ ...c, traveler: getTraveler(c.travelerId) }))
-      .filter(c => c.traveler)
-      .sort((a, b) => b.matchedAt - a.matchedAt),
-  [companions]);
-
-  // A visit and a match logged on the same day reads as "shared" — the
-  // closest signal available without a real booking/check-in link tying a
-  // specific meal to a specific companion.
-  const sharedVisits = useMemo(() =>
-    visitedList
-      .map(v => ({ ...v, companion: metPeople.find(c => sameDay(c.matchedAt, v.visitedAt)) }))
-      .filter(v => v.companion),
-  [visitedList, metPeople]);
+  // The people you actually shared a meal with.
+  //
+  // This used to read a list written by a swipe deck of eighty procedurally
+  // generated travellers — names assembled from arrays, matched by tapping a
+  // card. Nobody was ever met. It now comes from the tables you sat at, where
+  // the other names are people who asked for a seat at a real meal.
+  const metPeople = useMemo(() => {
+    const seen = new Map();
+    for (const t of myTables) {
+      if (!isPast(t)) continue;                 // a booking is not a meeting
+      const at = new Date(`${t.date}T${t.time || '00:00'}`).getTime();
+      for (const person of t.people) {
+        // First shared meal wins, so a regular does not appear twice.
+        if (!seen.has(person.key)) seen.set(person.key, { ...person, metAt: at });
+      }
+    }
+    return [...seen.values()].sort((a, b) => b.metAt - a.metAt);
+  }, [myTables]);
 
   // The record: what happened, in the order it happened, grouped by day.
   //
@@ -134,8 +133,8 @@ export default function JournalPanel({
           ts: Number.isFinite(at.getTime()) ? at.getTime() : 0,
           key: `table-${t.id}`,
           title: menu.name,
-          subtitle: t.others.length > 0
-            ? `with ${t.others.join(', ')}`
+          subtitle: t.people.length > 0
+            ? `with ${t.people.map(p => p.name).join(', ')}`
             : (t.hosted ? 'your table' : t.place),
         };
       })
@@ -166,9 +165,9 @@ export default function JournalPanel({
         type: 'save', ts: v.savedAt, key: `save-${v.place.id}`,
         title: v.place.name.split('(')[0].trim(), subtitle: v.place.zone,
       })),
-      ...metPeople.map(c => ({
-        type: 'match', ts: c.matchedAt, key: `match-${c.travelerId}`,
-        title: `${c.traveler.flag} ${c.traveler.name}`, subtitle: c.traveler.nationality,
+      ...metPeople.map(p => ({
+        type: 'match', ts: p.metAt, key: `met-${p.key}`,
+        title: `Met ${p.name}`, subtitle: p.nationality || null,
       })),
     ];
 
@@ -202,7 +201,10 @@ export default function JournalPanel({
   // Nationalities stay local — the engine models companions but not where
   // they are from, and inventing a count it does not hold would put the two
   // back out of step for the sake of one badge.
-  const distinctNationalities = useMemo(() => new Set(metPeople.map(c => c.traveler.nationality)).size, [metPeople]);
+  const distinctNationalities = useMemo(
+    () => new Set(metPeople.map(p => p.nationality).filter(Boolean)).size,
+    [metPeople],
+  );
   const badges = useMemo(() => [
     { id: 'first-meetup', icon: '🤝', name: 'First Meetup', current: journey.companionCount, target: 1 },
     { id: 'foods', icon: '🍜', name: 'Tried 5 Korean foods', current: journey.experienceCount, target: 5 },
@@ -261,8 +263,8 @@ export default function JournalPanel({
                       {new Date(`${t.date}T00:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
                       {' · '}{t.time} · {t.place}
                     </span>
-                    {t.others.length > 0 && (
-                      <span className="upcoming-row__who">with {t.others.join(', ')}</span>
+                    {t.people.length > 0 && (
+                      <span className="upcoming-row__who">with {t.people.map(p => p.name).join(', ')}</span>
                     )}
                   </div>
                 </div>
@@ -375,36 +377,18 @@ export default function JournalPanel({
             <h3>People Met</h3>
           </div>
           <div className="companion-list">
-            {metPeople.map(({ travelerId, matchedAt, traveler }) => (
-              <div key={travelerId} className="companion-card">
-                <div className="companion-card__avatar" style={{ background: traveler.color }}>
-                  {traveler.name.slice(0, 1)}
+            {metPeople.map(p => (
+              <div key={p.key} className="companion-card">
+                <div className="companion-card__avatar" style={{ background: 'var(--ex-brass)' }}>
+                  {p.name.slice(0, 1)}
                 </div>
                 <div className="companion-card__body">
-                  <span className="companion-card__name">{traveler.flag} {traveler.name}</span>
-                  <span className="companion-card__meta">{traveler.nationality} · met {formatStampDate(matchedAt)}</span>
+                  <span className="companion-card__name">{p.name}</span>
+                  <span className="companion-card__meta">
+                    {p.nationality ? `${p.nationality} · ` : ''}shared a table {formatStampDate(p.metAt)}
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {sharedVisits.length > 0 && (
-        <div className="journal-section">
-          <div className="journal-section-header">
-            <h3>Visited Together</h3>
-          </div>
-          <div className="journal-grid">
-            {sharedVisits.map(({ place, visitedAt, companion }) => (
-              <button key={place.id} className="stamp" onClick={() => onRestaurantClick(place)}>
-                <span className="stamp-ring">
-                  <img src={place.image} alt="" />
-                </span>
-                <span className="stamp-name">{place.name.split('(')[0].trim()}</span>
-                <span className="stamp-zone">with {companion.traveler.flag} {companion.traveler.name}</span>
-                {visitedAt && <span className="stamp-date">{formatStampDate(visitedAt)}</span>}
-              </button>
             ))}
           </div>
         </div>
@@ -463,7 +447,7 @@ export default function JournalPanel({
           <img src="https://images.unsplash.com/photo-1580651315530-69c8e0026377?auto=format&fit=crop&q=80&w=200&h=200" alt="Empty Passport" style={{ width: 150, height: 150, borderRadius: '50%', objectFit: 'cover', marginBottom: '20px' }} />
           <h3 style={{ fontSize: '20px', marginBottom: '8px' }}>Your Travel Memories are Waiting</h3>
           <p style={{ color: '#666', marginBottom: '24px', lineHeight: '1.5' }}>
-            Start your Korean adventure by exploring places, or meet fellow travelers to create unforgettable memories together.
+            Ask for a seat at a table, or explore a culture — whatever you do lands here.
           </p>
           {onNavigate && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

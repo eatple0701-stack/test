@@ -6221,3 +6221,41 @@ button {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ---------- Places tab ---------- */
+
+.places-tab {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.25s ease;
+  padding-bottom: 24px;
+}
+.places-head {
+  padding: 26px 22px 6px;
+}
+.places-head__kr {
+  font-family: var(--ex-kr);
+  font-size: 12px;
+  letter-spacing: 0.26em;
+  color: var(--ex-brass);
+}
+.places-head__title {
+  margin-top: 8px;
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(25px, 6.6vw, 31px);
+  line-height: 1.15;
+  color: var(--ink-title, var(--ink));
+  text-wrap: balance;
+}
+.places-head__sub {
+  margin-top: 7px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Five tabs where there were four — the labels need the room. */
+.tab-bar .tab-label {
+  font-size: 10.5px;
+}
