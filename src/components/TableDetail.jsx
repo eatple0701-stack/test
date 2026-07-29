@@ -28,6 +28,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack 
   const [busy, setBusy] = useState(false);
   const [joined, setJoined] = useState(false);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
+  const [error, setError] = useState(null);
 
   const refresh = async () => {
     const [t, s] = await Promise.all([getTable(tableId), listSignups(tableId)]);
@@ -65,10 +66,22 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack 
   const join = async () => {
     if (busy || !name.trim()) return;
     setBusy(true);
-    await createSignup({
-      tableId, userId: profile?.userId, name: name.trim(),
-      nationality: nationality.trim(), note: note.trim(),
-    });
+    setError(null);
+    try {
+      await createSignup({
+        tableId, userId: profile?.userId, name: name.trim(),
+        nationality: nationality.trim(), note: note.trim(),
+      });
+    } catch (e) {
+      // Once tables are shared, two phones can reach for the same chair at
+      // once. The database refuses the second one, and the person holding it
+      // needs to be told which of them lost rather than left staring at a
+      // button that did nothing.
+      setError(e.message);
+      await refresh();
+      setBusy(false);
+      return;
+    }
     // Asked once, not at every table. Typing your own name into the same two
     // boxes for the third time is the point where an app stops feeling like
     // it is on your side.
@@ -192,6 +205,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack 
             <span className="field__label">Anything the table should know? (optional)</span>
             <textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="No pork, and my Korean is about ten words." />
           </label>
+          {error && <p className="join-error">{error}</p>}
           <button className="form-submit" onClick={join} disabled={busy || !name.trim()}>
             {busy ? 'Asking…' : '자리 요청 · Take a seat'}
           </button>

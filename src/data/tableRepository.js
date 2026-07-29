@@ -44,22 +44,22 @@ const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).sli
  * The UI reads this to tell the truth on screen rather than letting a host
  * believe strangers can already see what they just opened.
  */
-export const isLocalOnly = () => true;
+const local_isLocalOnly = () => true;
 
 /** Every table, soonest meal first. */
-export async function listTables() {
+async function local_listTables() {
   const rows = read(TABLES_KEY);
   return rows.slice().sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
 }
 
-export async function getTable(id) {
+async function local_getTable(id) {
   return read(TABLES_KEY).find(t => t.id === id) ?? null;
 }
 
 /**
  * @param {object} input { menuId, hostName, hostNationality, date, time, place, seats, note }
  */
-export async function createTable(input) {
+async function local_createTable(input) {
   const row = {
     id: newId(),
     menuId: input.menuId,
@@ -81,21 +81,21 @@ export async function createTable(input) {
   return row;
 }
 
-export async function listSignups(tableId) {
+async function local_listSignups(tableId) {
   return read(SIGNUPS_KEY)
     .filter(s => s.tableId === tableId)
     .sort((a, b) => a.createdAt - b.createdAt);
 }
 
 /** Signups for every table at once, so a list screen makes one call. */
-export async function listAllSignups() {
+async function local_listAllSignups() {
   return read(SIGNUPS_KEY);
 }
 
 /**
  * @param {object} input { tableId, userId, name, nationality, languages, note }
  */
-export async function createSignup(input) {
+async function local_createSignup(input) {
   const row = {
     id: newId(),
     tableId: input.tableId,
@@ -110,7 +110,7 @@ export async function createSignup(input) {
   return row;
 }
 
-export async function cancelSignup(signupId) {
+async function local_cancelSignup(signupId) {
   write(SIGNUPS_KEY, read(SIGNUPS_KEY).filter(s => s.id !== signupId));
 }
 
@@ -122,7 +122,7 @@ export async function cancelSignup(signupId) {
  * `isSample` so the UI can say so — a demo that quietly passes invented
  * strangers off as real users is the one thing this screen must not do.
  */
-export async function seedSampleTables() {
+async function local_seedSampleTables() {
   if (read(TABLES_KEY).length > 0) return;
 
   const day = 86400000;
@@ -152,3 +152,47 @@ export async function seedSampleTables() {
   }));
   write(TABLES_KEY, rows);
 }
+
+// ---------------------------------------------------------------------------
+// Which backend
+// ---------------------------------------------------------------------------
+// Everything above is the localStorage implementation the pilot was built on.
+// Everything below chooses between it and Supabase and re-exports one set of
+// names, so no screen has ever had to know which one it is talking to.
+//
+// The switch is the presence of keys, not a flag somebody has to remember to
+// flip: set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY and the app is on
+// shared storage; leave them unset and it keeps working on one device. That
+// also means a developer without keys can still run the whole app.
+
+import * as remote from './supabaseBackend.js';
+
+const useRemote = remote.isConfigured();
+
+export const isLocalOnly = () => !useRemote;
+
+/** True once tables are shared between devices. Read by the Tables screen. */
+export const isShared = () => useRemote;
+
+export const listTables = useRemote ? remote.listTables : local_listTables;
+export const getTable = useRemote ? remote.getTable : local_getTable;
+export const createTable = useRemote ? remote.createTable : local_createTable;
+export const listSignups = useRemote ? remote.listSignups : local_listSignups;
+export const listAllSignups = useRemote ? remote.listAllSignups : local_listAllSignups;
+export const createSignup = useRemote ? remote.createSignup : local_createSignup;
+export const cancelSignup = useRemote ? remote.cancelSignup : local_cancelSignup;
+
+// Seeded example rows exist to keep the first run from being an empty screen.
+// A shared database has other people's real tables in it, so seeding there
+// would be inventing strangers rather than filling a gap.
+export const seedSampleTables = useRemote ? remote.seedSampleTables : local_seedSampleTables;
+
+/**
+ * The signed-in identity, once there is a server to have one.
+ *
+ * On localStorage this is a no-op and the app keeps using the random local id
+ * from data/profile.js; on Supabase it signs in and returns the real user, so
+ * row level security has something to key off.
+ */
+export const ensureProfile = useRemote ? remote.ensureProfile : async (local) => local;
+export const saveProfileFields = useRemote ? remote.saveProfileFields : async () => {};

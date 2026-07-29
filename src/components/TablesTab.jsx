@@ -75,7 +75,9 @@ export default function TablesTab({ onOpenTable, onCreateTable, onOpenMatch, pro
       </header>
 
       {/* Said plainly rather than discovered later. A host who believes
-          strangers can already see this would be misled by silence. */}
+          strangers can already see this would be misled by silence — and once
+          they genuinely can, the notice has to stop appearing rather than
+          keep warning about a limitation that no longer exists. */}
       {isLocalOnly() && (
         <p className="tables-notice">
           Tables are saved on this device only for now — shared tables go live

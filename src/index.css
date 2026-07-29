@@ -5975,3 +5975,15 @@ button {
 /* A shared meal in the record reads as the strongest kind of entry there. */
 .record-item--table .record-item__mark { color: var(--ex-brass); }
 .record-item--table .record-item__title { font-weight: 700; }
+
+/* The seat race, once tables are shared: two phones, one chair. */
+.join-error {
+  margin-bottom: 12px;
+  padding: 11px 13px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #991B1B;
+}
