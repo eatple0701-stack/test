@@ -604,11 +604,19 @@ button {
 
 /* ---------- Restaurant detail: a storytelling journey ---------- */
 
+/* Above the map, because the map is one of the places this opens from.
+   These sat at 20/21 from when a restaurant could only be opened from a
+   list, and the map overlay that arrived later claimed 400 — so tapping a
+   place on the map mounted this sheet perfectly and then drew the map on
+   top of it. The click looked like it did nothing.
+
+   The scale it has to fit: tab-bar 15, match modal 300, map 400, *here*,
+   theme completion 1200, phrase sheet 1300, crash screen 2000. */
 .detail-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(16, 24, 40, 0.45);
-  z-index: 20;
+  z-index: 500;
   animation: fadeIn 0.25s ease;
 }
 
@@ -620,7 +628,7 @@ button {
   height: 92dvh;
   background: var(--surface);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  z-index: 21;
+  z-index: 501;
   overflow: hidden;
   display: flex;
   flex-direction: column;
