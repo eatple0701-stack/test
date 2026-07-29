@@ -248,7 +248,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       )}
 
       {phrasesOpen && (
-        <PhraseSheet dish={menu.name} onClose={() => setPhrasesOpen(false)} />
+        <PhraseSheet dish={menu.name} menuId={menu.id} onClose={() => setPhrasesOpen(false)} />
       )}
     </section>
   );

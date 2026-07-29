@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   phrases, tableQuestions, PHRASE_GROUP, GROUP_LABEL,
 } from '../content/phrases.js';
+import QuizDeck from './QuizDeck';
 import { ChevronLeftIcon } from './Icons';
 
 // The thing you hold at the table.
@@ -15,7 +16,16 @@ import { ChevronLeftIcon } from './Icons';
 // depends on a Korean voice being installed on the device and many are not,
 // so the sheet has to work completely without it.
 
-const GROUPS = [PHRASE_GROUP.ORDER, PHRASE_GROUP.DIETARY, PHRASE_GROUP.TABLE, PHRASE_GROUP.TALK];
+// The quiz is a fifth tab rather than its own button on the table page,
+// because it is the same moment as the conversation cards — the minutes just
+// after strangers sit down. Anything for that moment belongs in one sheet you
+// can hold.
+const QUIZ = 'quiz';
+const GROUPS = [PHRASE_GROUP.ORDER, PHRASE_GROUP.DIETARY, PHRASE_GROUP.TABLE, PHRASE_GROUP.TALK, QUIZ];
+const TAB_LABEL = {
+  ...Object.fromEntries(Object.entries(GROUP_LABEL).map(([k, v]) => [k, v.en])),
+  [QUIZ]: 'Quiz',
+};
 
 /** Is there a Korean voice on this device? Voices arrive asynchronously. */
 function useKoreanVoice() {
@@ -35,7 +45,7 @@ function useKoreanVoice() {
   return voice;
 }
 
-export default function PhraseSheet({ onClose, dish }) {
+export default function PhraseSheet({ onClose, dish, menuId }) {
   const [group, setGroup] = useState(PHRASE_GROUP.ORDER);
   const [spokenId, setSpokenId] = useState(null);
   const voice = useKoreanVoice();
@@ -81,12 +91,19 @@ export default function PhraseSheet({ onClose, dish }) {
             className={`phrase-tab${group === g ? ' is-on' : ''}`}
             onClick={() => setGroup(g)}
           >
-            {GROUP_LABEL[g].en}
+            {TAB_LABEL[g]}
           </button>
         ))}
       </div>
 
-      {group === PHRASE_GROUP.TALK ? (
+      {group === QUIZ ? (
+        <div className="phrase-list">
+          <p className="phrase-note-lead">
+            Ask one out loud. The answer matters less than the sentence after it.
+          </p>
+          <QuizDeck menuId={menuId} />
+        </div>
+      ) : group === PHRASE_GROUP.TALK ? (
         <div className="phrase-list">
           {/* Not phrases — questions for the table. Both sides can answer
               every one of these; a card that only asks the visitor to explain
