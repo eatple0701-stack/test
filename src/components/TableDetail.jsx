@@ -34,6 +34,10 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const [error, setError] = useState(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
+  const [editingIdentity, setEditingIdentity] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
+  // Set once in Profile, so the seat form has nothing left to ask.
+  const profileKnown = Boolean(profile?.name?.trim());
 
   const refresh = async () => {
     const [t, s] = await Promise.all([getTable(tableId), listSignups(tableId)]);
@@ -297,18 +301,44 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       ) : (
         <div className="join-block">
           <h3 className="detail-block__label">Ask for a seat</h3>
-          <label className="field">
-            <span className="field__label">Your name</span>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="What to call you" />
-          </label>
-          <label className="field">
-            <span className="field__label">Where you are from (optional)</span>
-            <input type="text" value={nationality} onChange={e => setNationality(e.target.value)} placeholder="Japan" />
-          </label>
-          <label className="field">
-            <span className="field__label">Anything the table should know? (optional)</span>
-            <textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="No pork, and my Korean is about ten words." />
-          </label>
+
+          {/* Three form fields for information the app already has is the
+              wrong question to ask somebody who has decided. Where a profile
+              exists, this collapses to one button and a line saying who is
+              being sent — with a way in for the one thing that changes per
+              table, which is what the table should know about you tonight. */}
+          {profileKnown && !editingIdentity ? (
+            <p className="join-as">
+              Going as <strong>{profile.name}</strong>
+              {profile.nationality ? ` from ${profile.nationality}` : ''}
+              <button className="join-as__edit" onClick={() => setEditingIdentity(true)}>
+                Change
+              </button>
+            </p>
+          ) : (
+            <>
+              <label className="field">
+                <span className="field__label">Your name</span>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="What to call you" />
+              </label>
+              <label className="field">
+                <span className="field__label">Where you are from (optional)</span>
+                <input type="text" value={nationality} onChange={e => setNationality(e.target.value)} placeholder="Japan" />
+              </label>
+            </>
+          )}
+
+          {!noteOpen ? (
+            <button className="join-note-open" onClick={() => setNoteOpen(true)}>
+              + Anything the table should know?
+            </button>
+          ) : (
+            <label className="field">
+              <span className="field__label">Anything the table should know?</span>
+              <textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="No pork, and my Korean is about ten words." autoFocus />
+            </label>
+          )}
+
           {error && <p className="join-error">{error}</p>}
           <button className="form-submit" onClick={join} disabled={busy || !name.trim()}>
             {busy ? 'Asking…' : '자리 요청 · Take a seat'}

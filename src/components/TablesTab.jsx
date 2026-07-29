@@ -128,6 +128,10 @@ export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
           const rows = signupsFor[t.id] ?? [];
           const left = seatsRemaining(t, rows);
           const isMine = profile && t.hostId === profile.userId;
+          // A seat you already hold. The host got a badge and a guest got
+          // nothing, so somebody scrolling this list could not tell which
+          // table they were already going to without opening each one.
+          const iAmGoing = Boolean(profile?.userId) && rows.some(s => s.userId === profile.userId);
           const conflicts = conflictsFor(menu, profile);
 
           return (
@@ -139,6 +143,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
                   {CATEGORY_LABEL[menu.category]?.en ?? ''}
                 </span>
                 {isMine && <span className="table-card__mine">Your table</span>}
+                {iAmGoing && <span className="table-card__mine">You are going</span>}
                 {conflicts.length > 0 && (
                   <span className="table-card__warn">contains {conflicts.join(', ')}</span>
                 )}

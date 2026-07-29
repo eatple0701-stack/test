@@ -6861,3 +6861,40 @@ button {
   line-height: 1.6;
   color: var(--muted-strong);
 }
+
+/* Taking a seat when the app already knows who you are. */
+.join-as {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 15px;
+  color: var(--ink-body);
+}
+.join-as strong { color: var(--ink); }
+.join-as__edit {
+  min-height: 44px;
+  padding: 0 4px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-strong);
+  cursor: pointer;
+}
+.join-note-open {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: 14px;
+  padding: 11px 13px;
+  background: transparent;
+  border: 1px dashed var(--line-hover);
+  border-radius: var(--radius);
+  text-align: left;
+  font-size: 13px;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+.join-note-open:hover { border-color: var(--ex-brass); }
