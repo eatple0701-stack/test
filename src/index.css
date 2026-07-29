@@ -6133,3 +6133,83 @@ button {
   font-size: 17px;
   color: var(--ink);
 }
+
+/* ---------- Crash recovery ---------- */
+
+.crash {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+  overflow-y: auto;
+}
+.crash__card {
+  width: 100%;
+  max-width: 380px;
+}
+.crash__kr {
+  font-family: var(--ex-kr);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--ex-brass);
+}
+.crash__title {
+  margin-top: 10px;
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.15;
+  color: var(--ink-title, var(--ink));
+}
+.crash__body {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+.crash__actions {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.crash__primary,
+.crash__secondary {
+  min-height: 48px;
+  padding: 13px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.crash__primary {
+  background: var(--ex-field);
+  color: var(--ex-paper);
+  border: none;
+}
+.crash__secondary {
+  background: transparent;
+  color: var(--ink-body);
+  border: 1px solid var(--line-hover);
+}
+.crash__details {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.crash__details pre {
+  margin-top: 8px;
+  padding: 10px;
+  max-height: 180px;
+  overflow: auto;
+  background: var(--fill);
+  border-radius: var(--radius);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

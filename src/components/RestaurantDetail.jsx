@@ -258,10 +258,25 @@ function RestaurantDetailInner({
                 {isKnown(restaurant.transit) && (
                   <div className="practical-row">
                     <TrainIcon size={17} />
+                    {/* Each piece gets its own element rather than sitting as
+                        a bare text node beside its siblings.
+
+                        This app is read by people whose browsers offer to
+                        translate it, and Chrome's translator does not edit
+                        text in place — it replaces each text node with a
+                        <font> wrapper. React still holds the original node,
+                        so when it later removes one it calls removeChild on
+                        something that is no longer a child, and the whole
+                        screen dies with NotFoundError. Removing an *element*
+                        survives that, because the element itself is still
+                        where React left it. */}
                     <span>
-                      {restaurant.transit.value.station} {restaurant.transit.value.line}
-                      {restaurant.transit.value.exit && `, exit ${restaurant.transit.value.exit}`}
-                      {' '}· {restaurant.transit.value.walkingMinutes} min walk
+                      <span>{restaurant.transit.value.station}</span>{' '}
+                      <span>{restaurant.transit.value.line}</span>
+                      {restaurant.transit.value.exit && (
+                        <span>, exit {restaurant.transit.value.exit}</span>
+                      )}
+                      <span> · {restaurant.transit.value.walkingMinutes} min walk</span>
                     </span>
                   </div>
                 )}
