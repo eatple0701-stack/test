@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { UserIcon, ChevronRightIcon } from './Icons';
+import { ChevronRightIcon } from './Icons';
+
 
 const LANGUAGE_OPTIONS = ['English', '한국어', '日本語', '中文', 'Español'];
 const FOOD_OPTIONS = ['No preference', 'Mild', 'Spicy', 'Fermented-lover', 'Street food fan'];
@@ -63,11 +64,11 @@ function ProfileTab({ onNavigate }) {
 
   return (
     <section className="tab-panel profile-panel">
-      <div className="tab-panel-header">
-        <span className="panel-icon" aria-hidden="true"><UserIcon size={24} /></span>
-        <h2>Settings</h2>
-        <p>Manage your preferences and app settings.</p>
-      </div>
+      <header className="screen-head">
+        <span className="screen-head__kr">설정</span>
+        <h1 className="screen-head__title">How the app should treat you.</h1>
+        <p className="screen-head__sub">Language, what you eat, and what you would rather not.</p>
+      </header>
 
       <div className="settings-list">
         <SettingsRow

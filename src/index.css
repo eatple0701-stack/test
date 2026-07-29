@@ -55,7 +55,13 @@
      art and the editorial type finally look like they come from the same
      place. */
   --ex-field: #12211B;      /* deep pine — the one dark object on the page */
-  --ex-brass: #C29E65;      /* rules, labels, the Hangul artwork */
+  --ex-brass: #C29E65;      /* rules, labels, the Hangul artwork — on the dark field */
+  /* The same brass is unreadable on paper: #C29E65 on #F7F7F8 measures
+     2.3:1, and the small Korean labels wearing it are body-size text that
+     needs 4.5. This is that colour taken down until it passes. The large
+     decorative Hangul keeps the light brass — it is aria-hidden artwork,
+     not text anybody has to read. */
+  --ex-brass-ink: #7A5F2E;
   --ex-sage: #7A917C;       /* walked-this-one state */
   --ex-paper: #F8F6F0;      /* card ground, warmer than --bg on purpose */
   --ex-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
@@ -6258,4 +6264,137 @@ button {
 /* Five tabs where there were four — the labels need the room. */
 .tab-bar .tab-label {
   font-size: 10.5px;
+}
+
+/* ================================================================
+   Screen head — the one masthead every tab uses
+   ================================================================
+   Explore, Tables, Places, Passport and Profile each grew their own
+   header, which is how five screens in one app ended up looking like
+   three apps. This is the shape they share: a Korean word set small
+   and wide in brass, the sentence that says what the screen is set in
+   the display serif, and a quiet line of fact underneath.
+
+   Two grounds only. `--dark` is the deep field, and a screen may use
+   it when it *is* the object — the tables you could join, the passport
+   you are filling. A screen that is a directory of other things stays
+   on paper. */
+
+.screen-head {
+  padding: 26px 22px 8px;
+}
+.screen-head__kr {
+  display: block;
+  font-family: var(--ex-kr);
+  font-size: 12px;
+  letter-spacing: 0.26em;
+  color: var(--ex-brass);
+}
+.screen-head__title {
+  margin-top: 9px;
+  font-family: var(--ex-display);
+  font-weight: 400;
+  font-size: clamp(26px, 7vw, 33px);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  color: var(--ink-title, var(--ink));
+  text-wrap: balance;
+}
+.screen-head__sub {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.screen-head--dark {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 22px 24px;
+  background: var(--ex-field);
+  color: var(--ex-paper);
+}
+.screen-head--dark .screen-head__title {
+  color: var(--ex-paper);
+}
+.screen-head--dark .screen-head__sub {
+  color: rgba(248, 246, 240, 0.62);
+}
+
+/* One action, on the head itself, for the screens that have exactly one. */
+.screen-head__cta {
+  margin-top: 18px;
+  width: 100%;
+  min-height: 48px;
+  padding: 14px;
+  background: var(--ex-paper);
+  color: var(--ex-field);
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.15s ease;
+}
+.screen-head__cta:active { transform: scale(0.985); }
+.screen-head__cta:focus-visible {
+  outline: 2px solid var(--ex-brass);
+  outline-offset: 3px;
+}
+
+/* A secondary action sitting beside the title rather than under it. */
+.screen-head__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+}
+.screen-head__link {
+  flex: none;
+  min-height: 44px;
+  padding: 0 4px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ex-brass);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.screen-head:not(.screen-head--dark) .screen-head__link {
+  color: var(--green-strong);
+}
+
+/* ---------- Section headings, shared ----------
+   The Passport used one weight and Explore another; on a page that now
+   carries both they read as two designs. This is the Explore one. */
+
+.journal-section-header h3,
+.home-section__header h2 {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+
+/* ---------- Profile ---------- */
+
+.profile-panel .settings-list {
+  padding: 0 20px;
+}
+.profile-panel .settings-item {
+  border-radius: var(--radius-lg);
+}
+
+/* Brass that has to be read, on a paper ground. */
+.screen-head:not(.screen-head--dark) .screen-head__kr,
+.tables-lead__kr,
+.question-card__num,
+.menu-chip:not(.is-on) .menu-chip__kr,
+.surprise-btn__kr,
+.upcoming-row__kr,
+.record-item--table .record-item__mark {
+  color: var(--ex-brass-ink);
 }

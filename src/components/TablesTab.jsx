@@ -63,13 +63,13 @@ export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
 
   return (
     <section className="tables-tab" aria-label="밥친구 tables">
-      <header className="tables-head">
-        <span className="tables-head__kr">밥친구</span>
-        <h1 className="tables-head__title">Dishes you cannot order alone.</h1>
-        <p className="tables-head__sub">
+      <header className="screen-head screen-head--dark">
+        <span className="screen-head__kr">밥친구</span>
+        <h1 className="screen-head__title">Dishes you cannot order alone.</h1>
+        <p className="screen-head__sub">
           Ask to sit at a table, or open one and see who comes.
         </p>
-        <button className="tables-head__cta" onClick={onCreateTable}>
+        <button className="screen-head__cta" onClick={onCreateTable}>
           상 차리기 · Open a table
         </button>
       </header>

@@ -52,10 +52,10 @@ export default function PlacesTab({
 
   return (
     <section className="places-tab" aria-label="Places">
-      <header className="places-head">
-        <span className="places-head__kr">둘러보기</span>
-        <h1 className="places-head__title">Places, markets and the city around them.</h1>
-        <p className="places-head__sub">
+      <header className="screen-head">
+        <span className="screen-head__kr">둘러보기</span>
+        <h1 className="screen-head__title">Places, markets and the city around them.</h1>
+        <p className="screen-head__sub">
           {activePlaces.length} verified places, {traditionalMarkets.length} markets.
         </p>
       </header>

@@ -229,14 +229,22 @@ export default function JournalPanel({
 
   return (
     <section className="journal-panel" aria-label="Journal">
-      <div className="passport-cover">
-        <div className="passport-cover__head">
-          <h2 className="passport-cover__title">Travel Memories</h2>
+      <header className="screen-head screen-head--dark">
+        <div className="screen-head__row">
+          <div>
+            <span className="screen-head__kr">여권</span>
+            <h1 className="screen-head__title">What this trip has been so far.</h1>
+          </div>
           {onOpenSummary && (
-            <button className="passport-share-btn" onClick={onOpenSummary}>Share journey</button>
+            <button className="screen-head__link" onClick={onOpenSummary}>Share</button>
           )}
         </div>
-      </div>
+        <p className="screen-head__sub">
+          {recordCount === 0
+            ? 'Nothing recorded yet — whatever you do lands here.'
+            : `${recordCount} moment${recordCount === 1 ? '' : 's'} recorded.`}
+        </p>
+      </header>
 
       {/* Above the record, because it has not happened yet. This is also the
           only place a traveller can check what they agreed to — a seat taken
