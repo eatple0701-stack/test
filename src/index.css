@@ -1,3 +1,9 @@
+/* Pretendard is the default UI face of Korean apps, and the reason is that it
+   sets Hangul and Latin at the same optical weight — so a bilingual interface
+   stops looking like two interfaces bolted together. It replaces Inter and
+   the two editorial faces below, which are now only loaded because the rules
+   that used them are still in the file. */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 /* Two faces for the Explore editorial layer only. Inter runs the whole
    interface and will keep running it — it is a good UI face and a flat one,
@@ -6914,3 +6920,364 @@ button {
   text-decoration: none;
 }
 .quiz__source:hover { color: var(--ink); }
+
+/* ================================================================
+   Redesign — a Korean mobile app, not a magazine
+   ================================================================
+   The brief, in the words it was given in: 당근마켓 60% Meetup 40%.
+   "이거 눌러보고 싶다." 당근, Meetup, 토스. 코드보다 사용자의 감정.
+
+   What got built instead was an editorial magazine — Instrument Serif in
+   twenty-two places, a deep pine chrome in twenty-three, Hangul cropped by
+   the card edge as artwork. It reads well in a screenshot and it is the
+   wrong object. A foreign traveller opening this on a phone at a station
+   exit needs the plainness of 당근 and the calm of 토스, not a cover story.
+
+   So: one sans for everything, warm rather than austere, bigger type, softer
+   corners, more air, and no ornament that a hurried person has to decode.
+
+   This layer sits last on purpose. It overrides the editorial layer rather
+   than deleting it, so the change is one file to revert if it is wrong. */
+
+/* Pretendard is the default UI face of Korean apps for a reason: one family
+   that sets Hangul and Latin at the same optical weight, so a bilingual
+   interface stops looking like two interfaces. */
+
+:root {
+  --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+          'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+
+  /* The serif is gone from the interface. Both aliases now resolve to the
+     same sans so the twenty-two call sites need no edits. */
+  --ex-display: var(--font);
+  --ex-kr: var(--font);
+
+  /* 토스-ish neutrals: near-black that is not black, and a grey that stays
+     legible at 13px. */
+  --bg: #F2F4F6;
+  --surface: #FFFFFF;
+  --surface-hover: #F9FAFB;
+  --fill: #F2F4F6;
+  --ink: #191F28;
+  --ink-title: #191F28;
+  --ink-body: #4E5968;
+  --muted: #8B95A1;
+  --muted-strong: #6B7684;
+  --line: #E5E8EB;
+  --line-hover: #D1D6DB;
+
+  /* Warm, because this is food and because 당근 taught every Korean phone
+     that warm means approachable. Two values: a fill and a darker one that
+     clears AA as text on white. */
+  --accent: #FF6F0F;
+  --accent-ink: #C2410C;
+  --accent-tint: #FFF3E9;
+  --accent-line: #FFD9BC;
+
+  /* The old green stays only where it means "done". */
+  --green: #15AA7A;
+  --green-strong: #12916A;
+  --green-tint: #E7F7F1;
+
+  /* Softer and larger than before — Toss rounds generously and never uses a
+     hard edge on a touch target. */
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --shadow-1: 0 1px 2px rgba(25, 31, 40, 0.04), 0 4px 16px rgba(25, 31, 40, 0.06);
+  --shadow-2: 0 8px 32px rgba(25, 31, 40, 0.16);
+}
+
+body {
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.01em;   /* Pretendard is designed slightly tight */
+}
+
+/* ---------- Mastheads: light, big, plain ---------- */
+
+.screen-head,
+.screen-head--dark,
+.cover,
+.tables-head,
+.places-head,
+.detail-hero {
+  background: var(--surface);
+  color: var(--ink);
+  padding: 28px 20px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.screen-head--dark .screen-head__title,
+.cover__question,
+.detail-hero__dish {
+  color: var(--ink);
+}
+.screen-head--dark .screen-head__sub,
+.cover__date,
+.detail-hero__why {
+  color: var(--muted-strong);
+}
+
+/* The Korean word becomes a small warm label instead of a wall of type. */
+.screen-head__kr,
+.tables-lead__kr,
+.cover__label,
+.detail-hero__cat,
+.today-table__eyebrow,
+.places-head__kr {
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent-ink);
+}
+
+.screen-head__title,
+.cover__question,
+.stack-head__title,
+.tables-lead__title,
+.places-head__title,
+.detail-hero__dish,
+.table-card__dish,
+.story-card__question,
+.quiz__prompt,
+.index-break__title,
+.crash__title {
+  font-family: var(--font);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+.screen-head__title,
+.cover__question { font-size: 26px; }
+.detail-hero__dish { font-size: 28px; }
+.table-card__dish,
+.story-card__question,
+.tables-lead__title,
+.stack-head__title { font-size: 20px; }
+.quiz__prompt { font-size: 19px; }
+
+/* ---------- The ornament goes ----------
+   Hangul cropped by the card edge was the signature of the magazine. On a
+   phone, at a station, it is a large grey shape between somebody and the
+   sentence they are trying to read. */
+.cover__word,
+.story-card__word,
+.table-card__word,
+.lead-table__kr,
+.detail-hero__word,
+.today-table__kr {
+  display: none;
+}
+
+/* ---------- Cards: white, soft, roomy ---------- */
+
+.story-card,
+.table-card,
+.lead-table,
+.quiz__card,
+.safety-step,
+.phrase-card,
+.question-card,
+.upcoming-row,
+.dish-brief {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+.story-card,
+.table-card { padding: 18px; gap: 8px; }
+.story-card { min-height: 0; }
+.story-card__eyebrow,
+.table-card__cat {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted-strong);
+}
+.story-card__question { max-width: none; }
+
+/* ---------- Buttons: tall, bold, rounded rect ---------- */
+
+.screen-head__cta,
+.form-submit,
+.quiz__next,
+.tables-empty__cta,
+.crash__primary,
+.phrase-open,
+.cover__cta,
+.today-table__cta,
+.join-leave,
+.profile-link,
+.safety__report,
+.safety-open,
+.tables-alt {
+  min-height: 54px;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.screen-head__cta,
+.form-submit,
+.quiz__next,
+.tables-empty__cta,
+.crash__primary,
+.phrase-open,
+.cover__cta {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+}
+.today-table__cta { color: var(--accent-ink); }
+
+/* Selected states pick up the warm accent. */
+.menu-chip.is-on,
+.dish-option.is-on,
+.seat-option.is-on,
+.phrase-tab.is-on,
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.menu-chip.is-on .menu-chip__kr,
+.dish-option.is-on .dish-option__kr { color: #fff; }
+.dish-option__kr,
+.surprise-btn__kr,
+.upcoming-row__kr,
+.quiz__mark { color: var(--accent-ink); }
+
+.menu-chip,
+.phrase-tab,
+.chip,
+.dish-option,
+.seat-option {
+  border-radius: var(--radius);
+  font-size: 15px;
+}
+
+/* ---------- Today's table: the one loud thing, in warm ---------- */
+
+.today-table {
+  background: var(--accent-tint);
+  color: var(--ink);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-lg);
+  margin: 16px 20px 0;
+  padding: 18px;
+  box-shadow: none;
+}
+.today-table__dish { font-size: 22px; font-weight: 700; color: var(--ink); }
+.today-table__where { font-size: 16px; font-weight: 600; color: var(--ink); }
+.today-table__who,
+.today-table__shop { color: var(--ink-body); font-size: 14px; }
+.today-table__badge {
+  background: rgba(255, 111, 15, 0.16);
+  color: var(--accent-ink);
+}
+
+/* ---------- Emergency numbers stay loud, in the colour of urgency ------- */
+
+.safety__call {
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.safety__call-num { color: var(--ink); font-weight: 800; font-size: 28px; }
+.safety__call-label { color: var(--muted-strong); text-transform: none; letter-spacing: 0; font-size: 12px; }
+
+/* ---------- Section labels: readable, not typographic ---------- */
+
+.journal-section-header h3,
+.home-section__header h2,
+.detail-block__label,
+.form-label,
+.profile-field__label,
+.quiz__count,
+.record-day__date {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--ink);
+}
+
+/* ---------- Air ---------- */
+
+.home-section { padding: 26px 0 0; }
+.story-stack,
+.table-list { gap: 12px; }
+.profile-field { margin-top: 26px; }
+
+/* Quiet the remaining editorial hairlines. */
+.cover__note,
+.detail-note,
+.quiz__reveal,
+.phrase-card__note {
+  border-left-color: var(--accent-line);
+}
+.cover__note-label { color: var(--accent-ink); letter-spacing: 0; text-transform: none; font-size: 13px; }
+.cover__note-body { font-family: var(--font); font-style: normal; font-size: 15px; color: var(--ink-body); }
+.detail-note,
+.question-card__text { font-family: var(--font); font-style: normal; }
+.question-card__num { color: var(--accent-ink); font-family: var(--font); font-weight: 700; }
+
+/* Last of the magazine voice: small caps with wide tracking. It reads as a
+   masthead and a traveller reads it as shouting. */
+.cover__theme,
+.table-card__cat,
+.story-card__eyebrow,
+.detail-block__label,
+.upcoming-row__badge,
+.table-card__mine,
+.today-table__badge,
+.table-card__sample,
+.story-card__flag,
+.who-row__role,
+.safety__owed-label,
+.crash__kr,
+.quiz__tag {
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+.cover__theme {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+
+/* Nav: bigger labels now that there is room for them. */
+.tab-bar .tab-label { font-size: 11.5px; font-weight: 600; }
+.tab-item.active { color: var(--accent-ink); }
+
+/* Record marks pick up the warm accent instead of brass. */
+.record-item--table .record-item__mark,
+.story-card__rule-fill { color: var(--accent-ink); background: var(--accent); }
+.record-item__mark { color: var(--green-strong); }
+
+/* White on #FF6F0F measures 2.79:1 — below AA for 16px text, which is what
+   a primary button is. The bright orange stays for tints and marks where it
+   carries no text; anything with a white label sits on this deeper one. */
+:root { --accent-strong: #C2540A; }
+.screen-head__cta,
+.form-submit,
+.quiz__next,
+.tables-empty__cta,
+.crash__primary,
+.phrase-open,
+.cover__cta,
+.menu-chip.is-on,
+.dish-option.is-on,
+.seat-option.is-on,
+.phrase-tab.is-on,
+.chip.active {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+.story-card__rule-fill { background: var(--accent-strong); }

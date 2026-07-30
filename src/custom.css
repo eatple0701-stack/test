@@ -5,8 +5,11 @@
   --transition-speed: 0.3s;
 }
 
+/* This file loads after index.css, so a hardcoded family here silently beat
+   the design token and left the body text on Inter while every heading had
+   moved to Pretendard. Reading the token keeps one place in charge. */
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font);
   letter-spacing: -0.01em;
 }
 
