@@ -6,7 +6,6 @@ import { menuById } from '../domain/catalog/menus.js';
 import { isPast } from '../domain/policy/table.js';
 import { listTables, listAllSignups } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById } from '../domain/catalog/index.js';
-import ChallengeRow from './ChallengeRow';
 
 function formatStampDate(ts) {
   if (!ts) return null;
@@ -205,22 +204,53 @@ export default function JournalPanel({
     () => new Set(metPeople.map(p => p.nationality).filter(Boolean)).size,
     [metPeople],
   );
-  const badges = useMemo(() => [
-    { id: 'first-meetup', icon: '🤝', name: 'First Meetup', current: journey.companionCount, target: 1 },
-    { id: 'foods', icon: '🍜', name: 'Tried 5 Korean foods', current: journey.experienceCount, target: 5 },
-    { id: 'districts', icon: '🗺️', name: 'Visited 3 districts', current: journey.districtCount, target: 3 },
-    { id: 'cuisines', icon: '🍱', name: 'Explored 3 cuisines', current: journey.cuisineCount, target: 3 },
-    { id: 'world-table', icon: '🌍', name: 'Met people from 3 countries', current: distinctNationalities, target: 3 },
-  ].map(b => ({
-    ...b,
-    earned: b.current >= b.target,
-    remaining: Math.max(b.target - b.current, 0),
-    progress: `${Math.min(b.current, b.target)}/${b.target}`,
-  })), [journey, distinctNationalities]);
-  const earnedBadgeCount = badges.filter(b => b.earned).length;
-  const nextBadge = useMemo(() =>
-    badges.filter(b => !b.earned).sort((a, b) => a.remaining - b.remaining)[0] ?? null,
-  [badges]);
+  // Meals that have actually happened, and how many different dishes they
+  // covered — the two numbers this product is about.
+  const eaten = useMemo(() => myTables.filter(t => isPast(t)), [myTables]);
+  const dishesShared = useMemo(
+    () => new Set(eaten.map(t => t.menuId)).size,
+    [eaten],
+  );
+
+  // One goal list, not two.
+  //
+  // The Passport carried five badges and six challenges — eleven goals, all
+  // of them from the restaurant-finder this used to be. "Taste three kinds of
+  // Korean kitchen", "Eat something fermented", "Explore three districts":
+  // a tourist checklist that says nothing about sitting down with somebody.
+  // Four remain, and each one is the product's own sentence.
+  const goals = useMemo(() => [
+    {
+      id: 'first-table',
+      name: 'Share one table',
+      hint: 'The whole idea, once.',
+      current: eaten.length, target: 1,
+    },
+    {
+      id: 'three-dishes',
+      name: 'Three dishes you could not have ordered alone',
+      hint: 'Different dishes, not repeats.',
+      current: dishesShared, target: 3,
+    },
+    {
+      id: 'two-countries',
+      name: 'Eat with people from two countries',
+      hint: 'Counted from who was at your tables.',
+      current: distinctNationalities, target: 2,
+    },
+    {
+      id: 'one-culture',
+      name: 'Walk one culture end to end',
+      hint: 'Any theme on Explore, finished.',
+      current: journey.experienceCount, target: 2,
+    },
+  ].map(g => ({
+    ...g,
+    done: g.current >= g.target,
+    remaining: Math.max(g.target - g.current, 0),
+  })), [eaten, dishesShared, distinctNationalities, journey]);
+
+  const goalsDone = goals.filter(g => g.done).length;
 
   // A traveller with a table booked for Sunday has not done nothing — showing
   // them "your memories are waiting" underneath it would be the page arguing
@@ -311,73 +341,52 @@ export default function JournalPanel({
         </div>
       )}
 
+      {/* Four counts, and each one is something this app helped cause.
+          "Areas" and "Saved" were here before — a district total is a tourist
+          statistic, and a wishlist is not an achievement. */}
       <div className="journal-section passport-summary">
-          <div className="journal-section-header">
-            <h3>Progress</h3>
+        <div className="journal-section-header">
+          <h3>This trip so far</h3>
+        </div>
+        <div className="passport-stats">
+          <div className="stat-box">
+            <span className="stat-num">{eaten.length}</span>
+            <span className="stat-label">밥상 · tables</span>
           </div>
-          {/* Counts come from the engine; the lists below still come from the
-              bookmark records, because a list needs the records themselves.
-              They sit under the record now rather than above it — the trip is
-              the point, and the numbers are a way of reading it. */}
-          <div className="passport-stats">
-            <div className="stat-box">
-              <span className="stat-num">{journey.experienceCount}</span>
-              <span className="stat-label">Done</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-num">{savedList.length}</span>
-              <span className="stat-label">Saved</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-num">{journey.companionCount}</span>
-              <span className="stat-label">Met</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-num">{journey.districtCount}</span>
-              <span className="stat-label">Areas</span>
-            </div>
+          <div className="stat-box">
+            <span className="stat-num">{metPeople.length}</span>
+            <span className="stat-label">사람 · met</span>
           </div>
-
-          <div className="passport-progress">
-            <div className="passport-progress__row">
-              <span>{earnedBadgeCount} of {badges.length} badges</span>
-              <span>{Math.round((earnedBadgeCount / badges.length) * 100)}%</span>
-            </div>
-            <div className="passport-progress__bar">
-              <div className="passport-progress__fill" style={{ width: `${(earnedBadgeCount / badges.length) * 100}%` }} />
-            </div>
-            {nextBadge && (
-              <p className="passport-progress__next">
-                {nextBadge.remaining} more to unlock {nextBadge.icon} {nextBadge.name}
-              </p>
-            )}
+          <div className="stat-box">
+            <span className="stat-num">{journey.experienceCount}</span>
+            <span className="stat-label">문화 · done</span>
           </div>
+          <div className="stat-box">
+            <span className="stat-num">{journey.foodCount}</span>
+            <span className="stat-label">장소 · visited</span>
+          </div>
+        </div>
       </div>
 
       <div className="journal-section">
         <div className="journal-section-header">
-          <h3>Achievements</h3>
-          <span className="journal-badge-count">{earnedBadgeCount} Earned</span>
+          <h3>Worth doing</h3>
+          <span className="journal-badge-count">{goalsDone}/{goals.length}</span>
         </div>
-        <div className="badges-grid">
-          {badges.map(b => (
-            <div key={b.id} className={`badge-item${b.earned ? ' earned' : ' locked'}`} title={b.earned ? 'Earned' : b.progress}>
-              <div className="badge-icon">{b.icon}</div>
-              <span className="badge-name">{b.name}</span>
-            </div>
+        <ul className="goal-list">
+          {goals.map(g => (
+            <li key={g.id} className={`goal${g.done ? ' is-done' : ''}`}>
+              <span className="goal__mark" aria-hidden="true">{g.done ? '✓' : ''}</span>
+              <span className="goal__body">
+                <span className="goal__name">{g.name}</span>
+                <span className="goal__hint">
+                  {g.done ? 'Done.' : `${g.hint} ${g.current}/${g.target}`}
+                </span>
+              </span>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
-
-      {journey && (
-        <div className="journal-section">
-          <div className="journal-section-header">
-            <h3>Explore Challenge</h3>
-            <span className="journal-badge-count">{journey.doneCount}/{journey.challenges.length} Complete</span>
-          </div>
-          <ChallengeRow challenges={journey.challenges} />
-        </div>
-      )}
 
       {metPeople.length > 0 && (
         <div className="journal-section">

@@ -589,7 +589,7 @@ export default function App() {
       />
 
       {showSummary && (
-        <TravelSummary journey={journey} onClose={() => setShowSummary(false)} />
+        <TravelSummary journey={journey} profile={profile} onClose={() => setShowSummary(false)} />
       )}
 
       {celebrateThemeId && (
