@@ -315,7 +315,6 @@ function RestaurantDetailInner({
                   <button
                     className={`icon-btn icon-btn--lg${isVisited ? ' icon-btn--visited' : ''}`}
                     aria-label={isVisited ? `Mark ${name} as not visited` : `Mark ${name} as visited`}
-                    disabled={!isBookmarked}
                     onClick={() => onToggleVisited(restaurant.id)}
                   >
                     <CheckIcon size={21} />

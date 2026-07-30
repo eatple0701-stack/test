@@ -360,12 +360,31 @@ export default function App() {
   // Marking a visit only ever edits an entry that is already saved, so the
   // invariant (visitedAt implies savedAt) holds by construction — this can
   // never create a record. Unsaving drops the entry, taking the visit with it.
+  // Marking a place visited saves it too, if it was not saved already.
+  //
+  // A visit used to be a field on a bookmark record, so the control was
+  // disabled until you had hearted the place first — with nothing on screen
+  // saying so. The theme page tells you "mark a place visited to complete
+  // this step", you go to the place, and the button is grey. That was the
+  // only route through the culture half of the app, and it was a dead end
+  // for anybody who did not guess the prerequisite.
+  //
+  // Having been somewhere implies having been interested in it, so the save
+  // is created rather than demanded.
   const handleToggleVisited = (id) => {
-    setBookmarks(prev => prev.map(b =>
-      b.id === id && b.savedAt !== null
-        ? { ...b, visitedAt: b.visitedAt === null ? Date.now() : null }
-        : b
-    ));
+    setBookmarks(prev => {
+      const existing = prev.find(b => b.id === id);
+      if (!existing) {
+        return [...prev, { id, savedAt: Date.now(), visitedAt: Date.now() }];
+      }
+      return prev.map(b => (b.id === id
+        ? {
+            ...b,
+            savedAt: b.savedAt ?? Date.now(),
+            visitedAt: b.visitedAt == null ? Date.now() : null,
+          }
+        : b));
+    });
   };
 
   const filteredRestaurants = useMemo(() => {
@@ -418,6 +437,7 @@ export default function App() {
             onToggleAttestation={handleToggleAttestation}
             visitedMarkets={visitedMarkets}
             onToggleMarket={handleToggleMarket}
+            onFindTable={() => { setOpenThemeId(null); setActiveTab('match'); setTableView({ screen: 'list' }); }}
           />
         )}
 

@@ -18,7 +18,7 @@ import { isQuarantined } from '../data/verification';
 // rather than interleaved, which would make "next" ambiguous.
 export default function ThemePage({
   theme, journey, onBack, onOpenRestaurant, onToggleAttestation,
-  visitedMarkets = [], onToggleMarket,
+  visitedMarkets = [], onToggleMarket, onFindTable,
 }) {
   const [expandDone, setExpandDone] = useState(false);
   if (!theme) return null;
@@ -272,6 +272,24 @@ export default function ThemePage({
             <ol className="step-rows">
               {loose.map(item => renderRow(item, { done: isDone(item.experience) }))}
             </ol>
+          </section>
+        )}
+
+        {/* The way out of a culture and into the product.
+            A theme page had three controls: back, and two restaurant names.
+            Somebody reading why a monk leaves nothing on the plate, and
+            wanting to go and find out, had no route to the one thing this app
+            does. The link is to the table list rather than to any particular
+            dish — claiming a culture maps onto a menu would be a connection
+            the catalog does not make for most of these. */}
+        {onFindTable && (
+          <section className="theme-page__section">
+            <button className="theme-cta" onClick={() => onFindTable(theme.id)}>
+              <span className="theme-cta__title">같이 먹을 사람 찾기</span>
+              <span className="theme-cta__sub">
+                Most of this is better with somebody. See who has a table open.
+              </span>
+            </button>
           </section>
         )}
       </div>

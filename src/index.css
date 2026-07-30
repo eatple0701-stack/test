@@ -7281,3 +7281,37 @@ body {
   border-color: var(--accent-strong);
 }
 .story-card__rule-fill { background: var(--accent-strong); }
+
+/* The way out of a culture and into a table. */
+.theme-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-height: 64px;
+  padding: 18px;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+}
+.theme-cta__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.theme-cta__sub {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+
+/* Caps missed in the first sweep. */
+.complete-eyebrow, .complete-next__label, .cover__note-label,
+.record-day__date, .phrase-card__en, .safety__call-label {
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+.complete-eyebrow { font-size: 14px; color: var(--accent-ink); }
+.complete-title { font-family: var(--font); font-weight: 700; }
