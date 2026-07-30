@@ -7315,3 +7315,45 @@ body {
 }
 .complete-eyebrow { font-size: 14px; color: var(--accent-ink); }
 .complete-title { font-family: var(--font); font-weight: 700; }
+
+/* ---------- A restaurant as a place to open a table ---------- */
+
+.place-table-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-top: 10px;
+  min-height: 64px;
+  padding: 16px 18px;
+  background: var(--accent-strong);
+  border: none;
+  border-radius: var(--radius);
+  text-align: left;
+  cursor: pointer;
+}
+.place-table-cta__title { font-size: 17px; font-weight: 700; color: #fff; }
+.place-table-cta__sub { font-size: 13px; line-height: 1.45; color: rgba(255,255,255,0.88); }
+
+.place-tables { margin-top: 14px; }
+.place-tables__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.place-tables__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.place-tables__dish { font-size: 15px; font-weight: 700; color: var(--ink); }
+.place-tables__when { margin-left: auto; font-size: 13px; color: var(--ink-body); }

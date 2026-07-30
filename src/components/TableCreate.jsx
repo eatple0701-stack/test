@@ -15,12 +15,15 @@ import { ChevronLeftIcon } from './Icons';
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
-export default function TableCreate({ profile, onProfileChange, onBack, onCreated }) {
+export default function TableCreate({ profile, onProfileChange, onBack, onCreated, prefill }) {
   const [menuId, setMenuId] = useState(null);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('19:00');
-  const [place, setPlace] = useState('');
-  const [restaurant, setRestaurant] = useState('');
+  // Arriving from a restaurant fills in the two things that place already
+  // knows. The dish is still asked, because a restaurant's category is not a
+  // menu and guessing one would put the wrong word on somebody's table.
+  const [place, setPlace] = useState(prefill?.place ?? '');
+  const [restaurant, setRestaurant] = useState(prefill?.restaurant ?? '');
   const [seats, setSeats] = useState(4);
   const [note, setNote] = useState('');
   const [hostName, setHostName] = useState(profile?.name ?? '');

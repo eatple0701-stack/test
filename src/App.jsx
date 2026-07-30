@@ -143,6 +143,8 @@ export default function App() {
   // tab state — opening a table is a step inside that tab, not a fifth
   // destination, and switching tabs should not strand you mid-form.
   const [tableView, setTableView] = useState({ screen: 'list' });
+  // Carried from a restaurant into the open-a-table form.
+  const [tablePrefill, setTablePrefill] = useState(null);
   // Stands in for a logged-in user until Supabase auth arrives. The id has to
   // stay stable for "this is your table" to mean anything, so it is read once
   // and only the name and nationality are ever written back.
@@ -474,12 +476,13 @@ export default function App() {
         {!openThemeId && activeTab === 'match' && tableView.screen === 'list' && (
           <TablesTab
             profile={profile}
-            onCreateTable={() => setTableView({ screen: 'create' })}
+            onCreateTable={() => { setTablePrefill(null); setTableView({ screen: 'create' }); }}
             onOpenTable={(id) => setTableView({ screen: 'detail', tableId: id })}
           />
         )}
         {!openThemeId && activeTab === 'match' && tableView.screen === 'create' && (
           <TableCreate
+            prefill={tablePrefill}
             profile={profile}
             onProfileChange={updateProfile}
             onBack={() => setTableView({ screen: 'list' })}
@@ -562,6 +565,20 @@ export default function App() {
         isBookmarked={selectedRestaurant ? bookmarkedIds.includes(selectedRestaurant.id) : false}
         onToggleBookmark={handleToggleBookmark}
         isVisited={selectedRestaurant ? visitedIds.includes(selectedRestaurant.id) : false}
+        onOpenTableHere={(r) => {
+          setTablePrefill({
+            restaurant: r.name.split('(')[0].trim(),
+            place: r.address?.value ?? r.zone,
+          });
+          setSelectedRestaurant(null);
+          setActiveTab('match');
+          setTableView({ screen: 'create' });
+        }}
+        onOpenTable={(id) => {
+          setSelectedRestaurant(null);
+          setActiveTab('match');
+          setTableView({ screen: 'detail', tableId: id });
+        }}
         onToggleVisited={handleToggleVisited}
         mapCenter={mapCenter}
         focusStory={focusStory}

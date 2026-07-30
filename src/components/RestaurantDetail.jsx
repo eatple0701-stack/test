@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PlaceImage from './PlaceImage';
 import PlaceCard from './PlaceCard';
+import { menuById } from '../domain/catalog/menus.js';
+import { isPast } from '../domain/policy/table.js';
+import { listTables } from '../data/tableRepository.js';
 import {
   HeartIcon, CompassIcon, XIcon, ClockIcon, MapPinIcon, CrescentIcon,
   MildIcon, FermentIcon, SproutIcon, RecycleIcon, LeafIcon,
@@ -73,7 +76,29 @@ export default class RestaurantDetail extends React.Component {
 function RestaurantDetailInner({
   restaurant, onClose, isBookmarked, onToggleBookmark, isVisited, onToggleVisited,
   mapCenter, focusStory, onOpenRestaurant, onExploreZone, bookmarkedIds = [], onNavigate,
+  onOpenTableHere, onOpenTable,
 }) {
+  // Tables already happening at this restaurant. Read the same way every
+  // other screen reads them, so the Supabase swap reaches here for free.
+  const [tablesHere, setTablesHere] = useState([]);
+
+  // This component renders before `restaurant` exists — the hook has to run
+  // on every render, so it cannot assume the prop is there.
+  const restaurantName = restaurant?.name;
+
+  useEffect(() => {
+    if (!restaurantName) { setTablesHere([]); return undefined; }
+    let alive = true;
+    const key = restaurantName.split('(')[0].trim().toLowerCase();
+    (async () => {
+      const all = await listTables();
+      const here = all.filter(t =>
+        !isPast(t) && t.restaurant && t.restaurant.trim().toLowerCase() === key);
+      if (alive) setTablesHere(here);
+    })();
+    return () => { alive = false; };
+  }, [restaurantName]);
+
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
   const [showDirections, setShowDirections] = useState(false);
@@ -485,12 +510,37 @@ function RestaurantDetailInner({
                     <HeartIcon size={16} filled={isBookmarked} />
                     {isBookmarked ? 'In Passport' : 'Save to Passport'}
                   </button>
-                  {onNavigate && (
-                    <button className="btn-secondary" onClick={() => onNavigate('match')}>
-                      Meet Travelers
-                    </button>
-                  )}
                 </div>
+
+                {/* The one thing this app does, offered from the place it
+                    would happen. "Meet Travelers" used to sit here and go to
+                    a swipe deck that no longer exists; before that the whole
+                    Places half of the app had no route into a table at all,
+                    which left eighteen restaurants sitting outside the
+                    product looking in. */}
+                {onOpenTableHere && (
+                  <button className="place-table-cta" onClick={() => onOpenTableHere(restaurant)}>
+                    <span className="place-table-cta__title">여기서 상 차리기</span>
+                    <span className="place-table-cta__sub">
+                      Open a table at {name} and see who wants to come.
+                    </span>
+                  </button>
+                )}
+
+                {tablesHere.length > 0 && (
+                  <div className="place-tables">
+                    <p className="place-tables__label">
+                      {tablesHere.length === 1 ? 'A table here' : `${tablesHere.length} tables here`}
+                    </p>
+                    {tablesHere.map(t => (
+                      <button key={t.id} className="place-tables__row" onClick={() => onOpenTable?.(t.id)}>
+                        <span className="place-tables__dish">{menuById(t.menuId)?.name ?? t.menuId}</span>
+                        <span className="place-tables__when">{t.date} · {t.time}</span>
+                        <ChevronRightIcon size={14} />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
 
