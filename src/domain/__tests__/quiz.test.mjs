@@ -8,7 +8,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { quiz, quizFor } from '../../content/quiz.js';
+import { quiz, quizFor, unsourcedQuestions } from '../../content/quiz.js';
+import { SOURCES, sourceById } from '../../content/sources.js';
 import { menus, menuById } from '../catalog/menus.js';
 
 test('every question is answerable and carries its explanation', () => {
@@ -82,4 +83,61 @@ test("the plan's own example question is answered honestly", () => {
   assert.equal(q.answer, false);
   assert.match(q.reveal, /Jeonju/);
   assert.match(q.reveal, /argued|debated|older/i);
+});
+
+// ---------------------------------------------------------------------------
+// Sourcing
+// ---------------------------------------------------------------------------
+// The plan schedules 신뢰할 수 있는 한식 정보 출처 선정 for 8/10–16 and the note
+// from 감부장님 asks for 할루시네이션 방지. These are that requirement made
+// enforceable: an unsourced claim about Korea cannot reach a traveller.
+
+test('nothing unsourced ever reaches a table', () => {
+  for (const q of quizFor(null)) {
+    assert.ok(q.sources?.length > 0, `${q.id} is being asked with no source`);
+  }
+  for (const m of menus) {
+    for (const q of quizFor(m.id)) {
+      assert.ok(q.sources?.length > 0, `${q.id} reaches the ${m.id} deck unsourced`);
+    }
+  }
+});
+
+test('every question declares a sources field, even when it is empty', () => {
+  // An empty array is a statement — nobody has checked this yet. A missing
+  // field is an oversight, and the two must not look alike.
+  for (const q of quiz) {
+    assert.ok(Array.isArray(q.sources), `${q.id} has no sources field at all`);
+  }
+});
+
+test('every cited id resolves to a real registry entry', () => {
+  for (const q of quiz) {
+    for (const id of q.sources) {
+      assert.ok(sourceById(id), `${q.id} cites "${id}", which is not in the source registry`);
+    }
+  }
+});
+
+test('every registry entry says what it supports and where it is', () => {
+  for (const [id, src] of Object.entries(SOURCES)) {
+    assert.ok(src.title && src.publisher, `${id} is missing a title or publisher`);
+    assert.match(src.url, /^https:\/\//, `${id} has no https url`);
+    // Without this the registry becomes a bibliography nobody can audit.
+    assert.ok(src.supports?.length > 30, `${id} does not say which claim it backs`);
+  }
+});
+
+test('the sourced deck still works as a quiz', () => {
+  const asked = quizFor(null);
+  assert.ok(asked.length >= 4, `only ${asked.length} questions survive sourcing`);
+  const trues = asked.filter(q => q.answer).length;
+  assert.ok(trues >= 1 && trues < asked.length, 'the sourced deck is all one answer');
+});
+
+test('what still needs a source is countable, not invisible', () => {
+  // The worklist for the team. If this ever hits zero the file can go.
+  const waiting = unsourcedQuestions();
+  for (const q of waiting) assert.equal(q.sources.length, 0);
+  assert.ok(waiting.length + quiz.filter(q => q.sources.length > 0).length === quiz.length);
 });

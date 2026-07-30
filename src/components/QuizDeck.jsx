@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { quizFor } from '../content/quiz.js';
+import { sourcesFor } from '../content/sources.js';
 
 // 문화 퀴즈 — one question at a time, at the table.
 //
@@ -56,6 +57,15 @@ export default function QuizDeck({ menuId }) {
             </p>
             {/* The part worth reading out. */}
             <p className="quiz__reveal">{q.reveal}</p>
+
+            {/* Shown, not filed away. Half the point of sourcing this is that
+                a traveller — or a reviewer asking 근거가 뭐냐 — can follow it. */}
+            {sourcesFor(q.sources).map(src => (
+              <a key={src.url} className="quiz__source" href={src.url} target="_blank" rel="noreferrer">
+                {src.publisher}
+              </a>
+            ))}
+
             <button className="quiz__next" onClick={next}>Next question</button>
           </div>
         )}

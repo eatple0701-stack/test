@@ -6898,3 +6898,19 @@ button {
   cursor: pointer;
 }
 .join-note-open:hover { border-color: var(--ex-brass); }
+
+/* The source behind a quiz answer, shown rather than filed away. */
+.quiz__source {
+  display: inline-block;
+  margin-top: 10px;
+  margin-right: 8px;
+  min-height: 44px;
+  padding: 12px 13px;
+  background: var(--fill);
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted-strong);
+  text-decoration: none;
+}
+.quiz__source:hover { color: var(--ink); }

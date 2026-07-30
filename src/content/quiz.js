@@ -23,10 +23,13 @@
  * `menuId` ties a question to a dish so the table you are actually sitting at
  * asks first. `null` means it belongs to the general pool.
  */
+import { isSourced, sourcesFor } from './sources.js';
+
 export const quiz = [
   // ---- Tied to a dish -----------------------------------------------------
   {
     id: 'samgyeopsal-name',
+    sources: [],
     menuId: 'samgyeopsal',
     prompt: 'Samgyeopsal literally means "three-layer meat".',
     answer: true,
@@ -35,6 +38,7 @@ export const quiz = [
   },
   {
     id: 'budae-origin',
+    sources: [],
     menuId: 'budae-jjigae',
     prompt: 'Budae jjigae was invented using surplus food from American army bases after the Korean War.',
     answer: true,
@@ -43,6 +47,7 @@ export const quiz = [
   },
   {
     id: 'bossam-kimjang',
+    sources: ['unesco-kimjang'],
     menuId: 'bossam',
     prompt: 'Bossam is traditionally eaten on the day a family makes its winter kimchi.',
     answer: true,
@@ -51,6 +56,7 @@ export const quiz = [
   },
   {
     id: 'gejang-nickname',
+    sources: [],
     menuId: 'ganjang-gejang',
     prompt: 'Ganjang gejang is nicknamed "the rice thief".',
     answer: true,
@@ -59,6 +65,7 @@ export const quiz = [
   },
   {
     id: 'jokbal-what',
+    sources: [],
     menuId: 'jokbal',
     prompt: 'Jokbal is made from pig trotters.',
     answer: true,
@@ -67,6 +74,7 @@ export const quiz = [
   },
   {
     id: 'dakgalbi-chuncheon',
+    sources: [],
     menuId: 'dakgalbi',
     prompt: 'Dakgalbi comes from Chuncheon, not Seoul.',
     answer: true,
@@ -75,6 +83,7 @@ export const quiz = [
   },
   {
     id: 'gamjatang-haejang',
+    sources: [],
     menuId: 'gamjatang',
     prompt: 'Gamjatang is often eaten the morning after drinking.',
     answer: true,
@@ -83,6 +92,7 @@ export const quiz = [
   },
   {
     id: 'gopchang-what',
+    sources: [],
     menuId: 'gopchang',
     prompt: 'Gopchang is a cut of grilled intestine.',
     answer: true,
@@ -91,6 +101,7 @@ export const quiz = [
   },
   {
     id: 'hanjeongsik-count',
+    sources: [],
     menuId: 'hanjeongsik',
     prompt: 'A traditional Korean table was counted in sets of three, five, seven or nine dishes.',
     answer: true,
@@ -99,6 +110,7 @@ export const quiz = [
   },
   {
     id: 'baekban-refill',
+    sources: [],
     menuId: 'baekban',
     prompt: 'At a baekban restaurant you pay extra for more side dishes.',
     answer: false,
@@ -106,11 +118,22 @@ export const quiz = [
       'Refills are free and expected. Asking for more kimchi is closer to a compliment than an imposition — the banchan belong to the table, not to your plate.',
   },
 
+  {
+    id: 'bossam-word',
+    sources: ['encykorea-bossam-kimchi'],
+    menuId: 'bossam',
+    prompt: 'The word bossam originally named a kind of kimchi, not a pork dish.',
+    answer: true,
+    reveal:
+      '보쌈김치 was a luxury kimchi from Kaesong — radish, pine nuts, jujube and chestnut tied up in a leaf like a bundle — and the encyclopedia traces it to royal court cooking. The pork platter borrowed the name later.',
+  },
+
   // ---- The general pool ---------------------------------------------------
   // Table manners, which is where a foreign guest is most likely to be quietly
   // unsure and least likely to ask.
   {
     id: 'bibimbap-jeonju',
+    sources: ['wikipedia-bibimbap-ko', 'khan-bibimbap-invented'],
     menuId: null,
     // The plan's own example question. Its answer is not the obvious one, and
     // saying so is better curation than repeating a tidy claim.
@@ -121,6 +144,7 @@ export const quiz = [
   },
   {
     id: 'rice-bowl',
+    sources: ['facts-korea-dining'],
     menuId: null,
     prompt: 'You should lift your rice bowl off the table while eating, as in Japan.',
     answer: false,
@@ -129,6 +153,7 @@ export const quiz = [
   },
   {
     id: 'pouring',
+    sources: ['facts-korea-dining'],
     menuId: null,
     prompt: 'It is normal to fill your own glass first.',
     answer: false,
@@ -137,6 +162,7 @@ export const quiz = [
   },
   {
     id: 'turn-away',
+    sources: ['facts-korea-dining'],
     menuId: null,
     prompt: 'When drinking beside someone much older, you turn your head away from them.',
     answer: true,
@@ -145,6 +171,7 @@ export const quiz = [
   },
   {
     id: 'kimchi-red',
+    sources: [],
     menuId: null,
     prompt: 'All kimchi is red and spicy.',
     answer: false,
@@ -153,9 +180,24 @@ export const quiz = [
   },
 ];
 
-/** Questions for this dish first, then the general pool. */
+/**
+ * Questions for this dish first, then the general pool — and nothing that
+ * has not been sourced.
+ *
+ * The filter is the whole point. A question with an empty `sources` array is
+ * one nobody has checked, and an unchecked assertion about Korea taught to a
+ * foreigner inside a foundation-funded project is exactly the failure this
+ * app keeps trying not to commit. It stays in the file so it can be sourced;
+ * it does not reach a table until it is.
+ */
 export function quizFor(menuId) {
-  const mine = menuId ? quiz.filter(q => q.menuId === menuId) : [];
-  const general = quiz.filter(q => q.menuId === null);
+  const asked = quiz.filter(isSourced);
+  const mine = menuId ? asked.filter(q => q.menuId === menuId) : [];
+  const general = asked.filter(q => q.menuId === null);
   return [...mine, ...general];
 }
+
+/** Everything still waiting on a source, for the review worklist. */
+export const unsourcedQuestions = () => quiz.filter(q => !isSourced(q));
+
+export { sourcesFor };
