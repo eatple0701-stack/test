@@ -269,10 +269,18 @@ export default function JournalPanel({
             <button className="screen-head__link" onClick={onOpenSummary}>Share</button>
           )}
         </div>
+        {/* The masthead counted the record and nothing else, so a traveller
+            who had just taken a seat was told nothing had happened directly
+            above a section listing what was happening on Sunday. The same
+            argument the isEmpty check below avoids, one element higher. */}
         <p className="screen-head__sub">
-          {recordCount === 0
-            ? 'Nothing recorded yet — whatever you do lands here.'
-            : `${recordCount} moment${recordCount === 1 ? '' : 's'} recorded.`}
+          {recordCount > 0
+            ? `${recordCount} moment${recordCount === 1 ? '' : 's'} recorded.`
+            : upcomingTables.length > 0
+              ? `Nothing recorded yet — ${upcomingTables.length === 1
+                  ? 'one table booked. It lands here after.'
+                  : `${upcomingTables.length} tables booked. They land here after.`}`
+              : 'Nothing recorded yet — whatever you do lands here.'}
         </p>
       </header>
 
