@@ -6961,8 +6961,17 @@ button {
   --ink: #191F28;
   --ink-title: #191F28;
   --ink-body: #4E5968;
-  --muted: #8B95A1;
-  --muted-strong: #6B7684;
+  /* Was #8B95A1 — the grey every Korean app uses for secondary text, and
+     3.04:1 on white. It is the right grey on a 6.1" OLED held indoors and
+     the wrong one for a traveller reading a seat count on a street in
+     August. Measured across all five tabs it was failing AA on 24 separate
+     elements, including the tab labels, which are the most-looked-at text
+     in the app.
+
+     This is the same value as --ink-secondary rather than a second opinion
+     about it, so there is one answer to "what colour is secondary text". */
+  --muted: #5A6472;
+  --muted-strong: #4E5968;
   --line: #E5E8EB;
   --line-hover: #D1D6DB;
 
@@ -6976,7 +6985,12 @@ button {
 
   /* The old green stays only where it means "done". */
   --green: #15AA7A;
-  --green-strong: #12916A;
+  /* "Strong" was the name and not the behaviour: #12916A measures 3.97:1 on
+     white and 3.59:1 on --green-tint, which is the pairing it is actually
+     used in — a mint chip with green text. It carries counts, place tags and
+     the secondary button label, so it had to clear AA on both grounds, not
+     one. Same hue, enough depth to be read outdoors. */
+  --green-strong: #0B7355;
   --green-tint: #E7F7F1;
 
   /* Softer and larger than before — Toss rounds generously and never uses a
@@ -7505,3 +7519,18 @@ body {
    redesign layer and measures 3.04:1, which is fine for a decorative label
    and not fine for a sentence somebody needs to read. */
 :root { --ink-secondary: #5A6472; }
+
+/* The masthead's action, on a header that is no longer dark.
+   .screen-head--dark is a leftover from the editorial layer: the class is
+   still applied but its dark field was dropped in the redesign, so the brass
+   meant for a dark ground was being printed on white at 2.51:1. Brass is
+   still correct on an actually-dark surface, and there is not one left. */
+.screen-head__link { color: var(--accent-ink); }
+
+/* The pronunciation, which had been invisible.
+   The detail hero used to sit on a dark field and this line was cream at 55%
+   opacity against it. The redesign made the hero white and the cream stayed:
+   #F8F6F0 on #FFFFFF is 1.08:1, so "sam-gyeop-sal" was on the screen and
+   could not be read. It is the one line on the page a traveller needs in
+   order to say the dish out loud to a host. */
+.detail-hero__rom { color: var(--ink-secondary); letter-spacing: 0.02em; }
