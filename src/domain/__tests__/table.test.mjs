@@ -11,6 +11,7 @@ import {
   seatsRemaining, isPast, joinBlocker, canJoin, validateNewTable, JOIN_BLOCK,
 } from '../policy/table.js';
 import { menuById, menus, sharedOnlyMenus } from '../catalog/menus.js';
+import { RESTRICTIONS } from '../../data/profile.js';
 import { themeById } from '../catalog/index.js';
 
 const table = (over = {}) => ({
@@ -96,6 +97,42 @@ test('no menu quotes a price', () => {
   const price = /\d[\d,.]*\s*(won|krw|₩)|₩\s*\d/i;
   for (const m of menus) {
     assert.doesNotMatch(JSON.stringify(m), price, `${m.id} mentions a price`);
+  }
+});
+
+test('a dish that lists no ingredients has said why', () => {
+  // The bug this locks out: an empty `contains` renders no warning at all, so
+  // "checked, there is none of it" and "nobody enumerated a spread of twelve
+  // banchan" looked the same on screen — silence, read as safety by the one
+  // traveller who most needed the answer.
+  for (const m of menus) {
+    if (m.contains.length === 0) {
+      assert.equal(m.varies, true,
+        `${m.id} lists no ingredients and does not say the spread varies`);
+    }
+  }
+});
+
+test('an ingredient a dish describes is an ingredient it declares', () => {
+  // 한정식 described grilled fish in howItWorks while declaring nothing, which
+  // is how the contradiction got found. Prose and record have to agree.
+  for (const m of menus) {
+    const prose = `${m.howItWorks} ${m.whyShared}`.toLowerCase();
+    for (const [word, ingredient] of [['fish', 'fish'], ['pork', 'pork'], ['beef', 'beef']]) {
+      if (new RegExp(`\\b${word}\\b`).test(prose) && !m.varies) {
+        assert.ok(m.contains.includes(ingredient),
+          `${m.id} describes ${word} but does not declare it`);
+      }
+    }
+  }
+});
+
+test('every restriction a traveller can tick is one a dish can carry', () => {
+  // A tick box that no dish can ever match is a promise the catalog cannot
+  // keep — the traveller sets it and is never warned about anything.
+  const declared = new Set(menus.flatMap(m => m.contains));
+  for (const r of RESTRICTIONS) {
+    assert.ok(declared.has(r), `nothing in the catalog contains ${r}`);
   }
 });
 

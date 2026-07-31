@@ -22,8 +22,14 @@ const newUserId = () => `u-${Math.random().toString(36).slice(2, 10)}`;
  * and translating between the two would mean this app deciding what somebody
  * else's rules permit — with a plate of pork riding on being right. Asking
  * which ingredients to flag is a question the data can actually answer.
+ *
+ * `fish` was missing, which mattered more here than the list length suggests:
+ * the catalog's own description of 한정식 names grilled fish, and a traveller
+ * had no way to say that was the thing they could not eat. Korean soup stock
+ * is anchovy far more often than not, so it is also the ingredient hardest to
+ * see coming from the name of a dish.
  */
-export const RESTRICTIONS = ['pork', 'beef', 'chicken', 'shellfish'];
+export const RESTRICTIONS = ['pork', 'beef', 'chicken', 'fish', 'shellfish'];
 
 export const restrictionLabel = (r) => `No ${r}`;
 

@@ -7457,3 +7457,18 @@ body {
   line-height: 1.5;
   color: var(--ink-secondary);
 }
+
+/* "We cannot check this one" — quieter than a conflict, because it is not an
+   alarm about this dish, it is the app saying where its own knowledge stops.
+   Neutral rather than orange for the same reason: an orange panel next to a
+   real conflict would make the two look equally urgent. */
+.detail-varies {
+  margin-top: 10px;
+  padding: 11px 13px;
+  background: var(--fill);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}

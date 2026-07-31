@@ -14,6 +14,19 @@
 // Deliberately absent: prices. They move, they differ by district, and this
 // project does not assert things it cannot check. A traveller told "about
 // 20,000 won" who is charged 34,000 has been misled by us, not by the shop.
+//
+// `contains` and `varies` carry the same rule into ingredients, where getting
+// it wrong costs more than money. An empty `contains` used to be the app's
+// only way of saying two very different things — "checked, and there is none
+// of it" for a dish that is one cut of meat, and "nobody enumerated a spread
+// of twelve side dishes" for 한상. On screen they were identical: no warning
+// at all. A traveller avoiding pork read silence as safety.
+//
+// So `varies: true` marks a dish whose accompanying spread is chosen by the
+// house, on the day. It never suppresses a warning — conflicts still show —
+// it adds one the app could not otherwise give: this cannot be checked in
+// advance, ask before you sit down. The two dishes carrying it say so in
+// their own descriptions, which is where the contradiction was found.
 
 export const MENU_CATEGORY = {
   GRILL: 'grill',       // 구이 — cooked at the table
@@ -165,7 +178,14 @@ export const menus = [
     themeId: null,
     culture:
       "It descends from the 반상, the formally counted Korean table: dishes were served in sets of three, five, seven or nine, and the number marked the household. Everything arrives at once rather than in courses, so nothing is anybody's alone.",
-    contains: [],
+    // howItWorks two fields up names grilled fish. The record said this dish
+    // contained nothing, so the app printed a description of fish and no
+    // warning, on the same screen, to somebody who had said they avoid it.
+    contains: ['fish'],
+    // And the rest of the spread is a dozen banchan chosen by the house, so
+    // what is *not* in it cannot be promised. See the note on `varies` at the
+    // top of this file.
+    varies: true,
     spice: 1,
     zones: ['Insadong, Seoul', 'Jongno, Seoul'],
   },
@@ -187,7 +207,11 @@ export const menus = [
     themeId: null,
     culture:
       "The everyday table — 집밥, home food, served in shops that often have no menu at all. What arrives is what the kitchen made that morning, and refills of the side dishes are free and expected, which is why asking for more is a compliment rather than an imposition.",
+    // Rice and soup are the dish; everything else is whatever the kitchen made
+    // that morning, which this catalog says itself two fields up. There is no
+    // honest ingredient list for a meal decided at dawn.
     contains: [],
+    varies: true,
     spice: 1,
     zones: ['Jongno, Seoul', 'Euljiro, Seoul'],
   },

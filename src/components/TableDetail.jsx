@@ -161,6 +161,17 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </p>
         )}
 
+        {/* Only where the app genuinely cannot answer, and only to somebody
+            who asked the question. A 한상 is whatever the house made that
+            morning, so silence here was not a clearance — it was the app
+            having nothing to say and looking like it had checked. */}
+        {menu.varies && (profile?.avoids?.length ?? 0) > 0 && (
+          <p className="detail-varies">
+            The side dishes change by the house and by the day, so this one
+            cannot be checked in advance. Ask before you sit down.
+          </p>
+        )}
+
         {/* The app used to stop here — it delivered somebody to a restaurant
             and then had nothing to offer at the meal itself, which is the
             only part of this that matters. */}
