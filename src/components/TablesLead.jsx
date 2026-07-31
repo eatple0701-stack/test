@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { menuById } from '../domain/catalog/menus.js';
-import { seatsRemaining, isPast } from '../domain/policy/table.js';
+import { seatsRemaining, isPast, canJoin } from '../domain/policy/table.js';
 import { listTables, listAllSignups, seedSampleTables } from '../data/tableRepository.js';
 import { ChevronRightIcon } from './Icons';
 
@@ -22,7 +22,7 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
-export default function TablesLead({ onOpenTables, onOpenTable }) {
+export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
 
@@ -38,13 +38,20 @@ export default function TablesLead({ onOpenTables, onOpenTable }) {
 
   if (tables === null) return null;
 
-  // Only tables somebody could still join. A full table or one that already
-  // happened is not an invitation, and showing it here would make the section
-  // look busier at the cost of being useful.
-  const open = tables
-    .filter(t => !isPast(t))
-    .filter(t => seatsRemaining(t, signups.filter(s => s.tableId === t.id)) > 0)
-    .slice(0, 3);
+  // Only tables *this reader* could still join, which is a different question
+  // from whether a seat exists. The heading promises tables you could join and
+  // the card counts seats left, so listing one you already have a seat at
+  // invites somebody to something they have already done — and the detail
+  // screen then correctly tells them they are going. The policy has always
+  // known the difference; this section was the one place not asking it.
+  const joinable = tables.filter(t =>
+    canJoin(t, signups.filter(s => s.tableId === t.id), profile?.userId));
+  const open = joinable.slice(0, 3);
+
+  // A table that exists but is closed to this reader is not "nobody has set a
+  // table" — that would call the host's dinner nothing on the screen of the
+  // guest who is going to it.
+  const anyUpcoming = tables.some(t => !isPast(t));
 
   return (
     <section className="tables-lead" aria-label="Open tables">
@@ -52,7 +59,11 @@ export default function TablesLead({ onOpenTables, onOpenTable }) {
         <div>
           <span className="tables-lead__kr">밥친구</span>
           <h2 className="tables-lead__title">
-            {open.length > 0 ? 'Tables you could join this week' : 'Nobody has set a table yet'}
+            {open.length > 0
+              ? 'Tables you could join this week'
+              : anyUpcoming
+                ? 'You are in every table that is open'
+                : 'Nobody has set a table yet'}
           </h2>
         </div>
         <button className="tables-lead__all" onClick={onOpenTables}>
@@ -62,7 +73,9 @@ export default function TablesLead({ onOpenTables, onOpenTable }) {
 
       {open.length === 0 ? (
         <button className="tables-lead__empty" onClick={onOpenTables}>
-          Samgyeopsal starts at two servings. Open a table and see who comes.
+          {anyUpcoming
+            ? 'Nothing else to ask for this week. Open a table of your own and see who comes.'
+            : 'Samgyeopsal starts at two servings. Open a table and see who comes.'}
         </button>
       ) : (
         <div className="tables-lead__row">

@@ -68,6 +68,7 @@ export default function HomeTab({
     <TablesLead
       onOpenTables={() => onNavigate('match')}
       onOpenTable={onOpenTable}
+      profile={profile}
     />
   );
 
