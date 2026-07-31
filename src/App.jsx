@@ -467,6 +467,10 @@ export default function App() {
               setActiveTab('match');
               setTableView({ screen: 'detail', tableId: id });
             }}
+            onOpenTable={(id) => {
+              setActiveTab('match');
+              setTableView({ screen: 'detail', tableId: id });
+            }}
           />
         )}
         {/* 밥친구. The tab leads with tables now — a dish somebody cannot

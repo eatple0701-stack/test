@@ -7403,3 +7403,105 @@ body {
 .summary-card__title { font-family: var(--font); font-weight: 700; }
 
 .summary-card__footer { text-transform: none; letter-spacing: -0.01em; }
+
+/* ---------------------------------------------------------------------------
+   First run — the traveller who has never taken a seat
+   ---------------------------------------------------------------------------
+   The tables move above the cover for this person, so the sample label has to
+   work here too: these three cards are now the first thing in the app, and the
+   list screen has always said `sample` while this one never did.
+*/
+.lead-table__sample {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--line-hover);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  /* Not --muted. The redesign layer set that to #8B95A1, which measures
+     3.04:1 on white — under AA, and this label is the one word on the card
+     that has to survive being read in daylight. */
+  color: var(--ink-secondary);
+  vertical-align: 1px;
+}
+
+/* Three steps, in the app's own voice — Korean word, English gloss, one line
+   of plain fact. Numbered because these happen in order, which is the whole
+   reassurance: there is nothing between pressing the button and dinner. */
+.first-run {
+  margin: 4px 20px 8px;
+  padding: 18px 18px 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.first-run__kr {
+  margin: 0;
+  font-family: var(--ex-kr);
+  font-size: 13px;
+  color: var(--accent-ink);
+}
+.first-run__title {
+  margin: 4px 0 16px;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.first-run__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.first-run__step {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+.first-run__num {
+  flex: 0 0 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  /* --accent behind white text is 2.79:1. The darker mark exists for exactly
+     this: anywhere the orange carries a glyph rather than an area. */
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.first-run__text { min-width: 0; }
+.first-run__head {
+  margin: 0 0 3px;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.first-run__step-kr {
+  font-family: var(--ex-kr);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.first-run__step-en {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.first-run__body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+
+/* Secondary text that has to pass AA on white. --muted is #8B95A1 in the
+   redesign layer and measures 3.04:1, which is fine for a decorative label
+   and not fine for a sentence somebody needs to read. */
+:root { --ink-secondary: #5A6472; }

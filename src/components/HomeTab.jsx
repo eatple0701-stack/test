@@ -6,6 +6,7 @@ import ExploreCover from './ExploreCover';
 import ThemeStoryCard from './ThemeStoryCard';
 import TablesLead from './TablesLead';
 import TodayTable from './TodayTable';
+import FirstRun from './FirstRun';
 import { ChevronRightIcon } from './Icons';
 import FoodRoulette from './FoodRoulette';
 import CultureCards, { CULTURE_CARDS } from './CultureCards';
@@ -14,7 +15,7 @@ export default function HomeTab({
   onNavigate, onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
   journey, visitedMarkets = [], onToggleMarket, onOpenSummary, onOpenMap,
   onOpenTheme, continueTheme, nextExperience, suggestedTheme, suggestedReason,
-  themeProgress, profile, onOpenTodayTable,
+  themeProgress, profile, onOpenTodayTable, onOpenTable,
 }) {
   const [showRoulette, setShowRoulette] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
@@ -33,6 +34,42 @@ export default function HomeTab({
   );
   const progressOf = (themeId) => (themeId ? progressById[themeId] ?? null : null);
 
+  // Nobody yet: no name on file, no culture walked, nothing underway. The
+  // prologue's button says 밥친구 찾기 — Find a table — and pressing it landed
+  // on an editorial cover about a fish market in Busan. The app broke its own
+  // promise on the first tap, and the one thing it exists to do was the second
+  // thing on the page.
+  //
+  // For this traveller only, the order flips: what you can do tonight, then
+  // what there is to read. Everybody else keeps the cover, because somebody
+  // three cultures in does not need to be sold the product again.
+  const newHere =
+    !profile?.name?.trim() &&
+    (journey?.experienceCount ?? 0) === 0 &&
+    !continueTheme;
+
+  const cover = (
+    /* The cover. Today's pick at full size, with the reason it was picked set
+       as a note rather than a caption. This is the app's recommendation —
+       printing a hero that explains the product and then a chip that
+       recommends something was two openings competing for one moment. */
+    <ExploreCover
+      theme={suggestedTheme}
+      reason={suggestedReason}
+      progress={progressOf(suggestedTheme?.id)}
+      onOpen={onOpenTheme}
+    />
+  );
+
+  const tables = (
+    /* The tables. Explore described seven cultures without ever saying the app
+       can seat you at one — the product's whole point lived behind a tab
+       nobody had a reason to press. */
+    <TablesLead
+      onOpenTables={() => onNavigate('match')}
+      onOpenTable={onOpenTable}
+    />
+  );
 
   return (
     <section className="home-tab" aria-label="Home">
@@ -40,22 +77,19 @@ export default function HomeTab({
           are no push notifications and will not be before the pilot, so the
           only reminder the app can give is being unmissable when opened. */}
       <TodayTable profile={profile} onOpenTable={onOpenTodayTable} />
-      {/* 1. The cover. Today's pick at full size, with the reason it was
-             picked set as a note rather than a caption. This is both the
-             app's first impression and its recommendation — printing a hero
-             that explains the product and then a chip that recommends
-             something was two openings competing for the same moment. */}
-      <ExploreCover
-        theme={suggestedTheme}
-        reason={suggestedReason}
-        progress={progressOf(suggestedTheme?.id)}
-        onOpen={onOpenTheme}
-      />
 
-      {/* 2. The tables. Explore described seven cultures without ever saying
-             the app can seat you at one — the product's whole point lived
-             behind a tab nobody had a reason to press. */}
-      <TablesLead onOpenTables={() => onNavigate('match')} />
+      {newHere ? (
+        <>
+          {tables}
+          <FirstRun />
+          {cover}
+        </>
+      ) : (
+        <>
+          {cover}
+          {tables}
+        </>
+      )}
 
       {/* 3. Resume, for a traveller already mid-culture. Below the cover, not
              above it: someone who is partway through does not need to be sold

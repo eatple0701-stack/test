@@ -22,7 +22,7 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
-export default function TablesLead({ onOpenTables }) {
+export default function TablesLead({ onOpenTables, onOpenTable }) {
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
 
@@ -71,12 +71,25 @@ export default function TablesLead({ onOpenTables }) {
             if (!menu) return null;
             const left = seatsRemaining(t, signups.filter(s => s.tableId === t.id));
             return (
-              <button key={t.id} className="lead-table" onClick={onOpenTables}>
+              /* Opens this table, not the list. A card that names a dish, a
+                 night and a seat count is a specific invitation, and sending
+                 it to a directory instead was the app quietly refusing the
+                 thing it had just offered. */
+              <button
+                key={t.id}
+                className="lead-table"
+                onClick={() => (onOpenTable ? onOpenTable(t.id) : onOpenTables())}
+              >
                 <span className="lead-table__kr" aria-hidden="true">{menu.nameKo}</span>
                 <span className="lead-table__dish">{menu.name}</span>
                 <span className="lead-table__when">{dayLabel(t.date)} · {t.time}</span>
                 <span className="lead-table__seats">
                   {left} seat{left === 1 ? '' : 's'} left
+                  {/* The table list has said `sample` since the day these were
+                      seeded; this screen never did, which meant the first
+                      three tables anybody ever saw were invented and unlabelled
+                      on the highest-traffic screen in the app. */}
+                  {t.isSample && <span className="lead-table__sample">sample</span>}
                 </span>
               </button>
             );
