@@ -7390,3 +7390,70 @@ body {
    could not be read. It is the one line on the page a traveller needs in
    order to say the dish out loud to a host. */
 .detail-hero__rom { color: var(--ink-secondary); letter-spacing: 0.02em; }
+
+/* ---------------------------------------------------------------------------
+   Host brief — the terms of the evening, before the first field
+   ---------------------------------------------------------------------------
+   Korean leads here because the reader is the host and the screen already
+   speaks that way (상 차리기, 테이블 열기). The English sits under it rather
+   than beside it, so neither language is a caption for the other.
+*/
+.host-brief {
+  margin: 4px 20px 20px;
+  padding: 18px;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-lg);
+}
+.host-brief__kr {
+  margin: 0;
+  font-family: var(--ex-kr);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.host-brief__title {
+  margin: 2px 0 14px;
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  color: var(--ink-secondary);
+}
+.host-brief__list { margin: 0; }
+.host-brief__item + .host-brief__item {
+  margin-top: 13px;
+  padding-top: 13px;
+  border-top: 1px solid var(--accent-line);
+}
+.host-brief__term {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+.host-brief__term-kr {
+  font-family: var(--ex-kr);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.host-brief__term-en {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+.host-brief__def { margin: 0; }
+.host-brief__ko,
+.host-brief__en { display: block; }
+.host-brief__ko {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.host-brief__en {
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}

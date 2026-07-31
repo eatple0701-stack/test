@@ -3,6 +3,7 @@ import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { validateNewTable } from '../domain/policy/table.js';
 import { createTable } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
+import HostBrief from './HostBrief';
 import { ChevronLeftIcon } from './Icons';
 
 // Opening a table.
@@ -59,6 +60,10 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
         </button>
         <h1>상 차리기 · Open a table</h1>
       </header>
+
+      {/* Before the first field, because these are the terms of the evening
+          and not a footnote to it. Removes itself once they have hosted. */}
+      <HostBrief profile={profile} />
 
       <div className="form-block">
         <h2 className="form-label">What are you eating?</h2>
