@@ -145,6 +145,19 @@ export default function App() {
   const [tableView, setTableView] = useState({ screen: 'list' });
   // Carried from a restaurant into the open-a-table form.
   const [tablePrefill, setTablePrefill] = useState(null);
+
+  // Pressing a tab means "take me to that tab", and for 밥친구 that is the list
+  // of tables. The state above was left where it stood, so a traveller who had
+  // read one table, gone to Explore and pressed Tables again arrived back at
+  // that same table instead of the tables — the nav pointing at a screen they
+  // had already finished with, and no way to reach the list except Back.
+  //
+  // Only for the nav. Arriving at a specific table from Explore or from a
+  // restaurant sets the view straight after and is meant to land there.
+  const goToTab = (tab) => {
+    if (tab === 'match') setTableView({ screen: 'list' });
+    setActiveTab(tab);
+  };
   // Stands in for a logged-in user until Supabase auth arrives. The id has to
   // stay stable for "this is your table" to mean anything, so it is read once
   // and only the name and nationality are ever written back.
@@ -445,7 +458,7 @@ export default function App() {
 
         {!openThemeId && activeTab === 'home' && (
           <HomeTab
-            onNavigate={setActiveTab}
+            onNavigate={goToTab}
             onOpenRestaurant={openDetail}
             onOpenStory={openStory}
             onExploreZone={goExplore}
@@ -520,7 +533,7 @@ export default function App() {
             companions={companions}
             mapCenter={mapCenter}
             onRestaurantClick={openDetail}
-            onNavigate={setActiveTab}
+            onNavigate={goToTab}
             journey={journey}
             profile={profile}
             attestations={attestations}
@@ -529,7 +542,7 @@ export default function App() {
           />
         )}
         {!openThemeId && activeTab === 'profile' && (
-          <TabPanel tab={activeTab} profile={profile} onProfileChange={updateProfile} onNavigate={setActiveTab} />
+          <TabPanel tab={activeTab} profile={profile} onProfileChange={updateProfile} onNavigate={goToTab} />
         )}
 
       </div>
@@ -539,7 +552,7 @@ export default function App() {
           every tab's content. */}
       <TabBar
         activeTab={activeTab}
-        onSelect={(tab) => { setOpenThemeId(null); setActiveTab(tab); }}
+        onSelect={(tab) => { setOpenThemeId(null); goToTab(tab); }}
       />
 
       <MapOverlay
@@ -589,7 +602,7 @@ export default function App() {
         onOpenRestaurant={openDetail}
         onExploreZone={goExplore}
         bookmarkedIds={bookmarkedIds}
-        onNavigate={setActiveTab}
+        onNavigate={goToTab}
       />
 
       {showSummary && (
