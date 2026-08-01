@@ -127,3 +127,42 @@ test('the two races that actually happen are named in plain English', () => {
   assert.match(friendlyError({ message: 'fetch failed' }), /connection/i);
   assert.match(friendlyError(null), /connection/i);
 });
+
+// ---------------------------------------------------------------------------
+// The host as 문화 큐레이터 — a credential nobody can grant themselves, and a
+// promise anybody may make.
+// ---------------------------------------------------------------------------
+
+test('a table cannot be created already verified', async () => {
+  // The badge is the one claim in this app a traveller acts on when deciding
+  // whether to meet a stranger. If a screen could set it, it would mean
+  // nothing. The database refuses it too — see tables_insert_own in
+  // schema.sql — this checks the client never even tries.
+  const row = tableToRow(
+    { menuId: 'samgyeopsal', hostName: 'Nobody', date: '2026-08-20', time: '19:00',
+      place: 'Jongno', seats: 4, hostVerified: true, hostKind: 'creator' },
+    { hostId: 'u-1' },
+  );
+  assert.equal(row.host_verified, false, 'a client-supplied hostVerified reached the row');
+  assert.equal(row.host_kind, undefined, 'the client wrote host_kind, which is the team’s column');
+});
+
+test('guides survive the round trip and unknown ids do not', () => {
+  const row = tableToRow(
+    { menuId: 'bossam', hostName: 'Jiwon', date: '2026-08-20', time: '19:00',
+      place: 'Euljiro', seats: 4, guides: ['order', 'manners', 'teach-me-taekwondo'] },
+    { hostId: 'u-2' },
+  );
+  assert.deepEqual(row.guides, ['order', 'manners'], 'an unknown guide id was stored');
+
+  const back = tableFromRow({ ...row, id: 't', date: '2026-08-20', seats: 4 });
+  assert.deepEqual(back.guides, ['order', 'manners']);
+});
+
+test('a row from before guides existed reads as no promise, not a crash', () => {
+  const back = tableFromRow({ id: 't', menu_id: 'jokbal', host_id: 'h', host_name: 'A',
+    date: '2026-08-20', time: '19:00:00', place: 'Sinsa', seats: 3 });
+  assert.deepEqual(back.guides, []);
+  assert.equal(back.hostKind, null);
+  assert.equal(back.hostVerified, false);
+});

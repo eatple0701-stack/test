@@ -10,6 +10,8 @@
 // Field-mapping bugs are silent — a mistyped column name yields `undefined`
 // rather than an error, and `undefined` renders as an empty card.
 
+import { cleanGuides } from '../domain/catalog/hosts.js';
+
 /** A `tables` row as it comes out of Postgres → the shape the screens read. */
 export function tableFromRow(row) {
   if (!row) return null;
@@ -20,6 +22,8 @@ export function tableFromRow(row) {
     hostName: row.host_name,
     hostNationality: row.host_nationality ?? '',
     hostVerified: row.host_verified ?? false,
+    hostKind: row.host_kind ?? null,
+    guides: Array.isArray(row.guides) ? row.guides : [],
     date: row.date,
     // Postgres returns `time` as HH:MM:SS; the app formats and compares HH:MM
     // everywhere, and `new Date('2026-08-17T19:00:00')` and the HH:MM form
@@ -43,7 +47,12 @@ export function tableToRow(input, { hostId, hostVerified = false } = {}) {
     host_id: hostId,
     host_name: input.hostName,
     host_nationality: input.hostNationality ?? '',
+    // Sent for completeness and refused by the database: the insert policy in
+    // schema.sql rejects a row where host_verified is true, so a crafted
+    // request cannot buy a badge. host_kind is not written here at all — it is
+    // the team's column, set out of band once somebody has been checked.
     host_verified: hostVerified,
+    guides: cleanGuides(input.guides),
     date: input.date,
     time: input.time,
     place: input.place,

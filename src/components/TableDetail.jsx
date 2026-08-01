@@ -6,6 +6,7 @@ import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
 import { conflictsFor } from '../data/profile';
 import { PURPOSE } from '../content/safety.js';
+import { guideById, hostKindLabel } from '../domain/catalog/hosts.js';
 import { themeById } from '../domain/catalog/index.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 
@@ -51,6 +52,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const menu = table ? menuById(table.menuId) : null;
   const theme = menu?.themeId ? themeById(menu.themeId) : null;
   const conflicts = conflictsFor(menu, profile);
+  // Resolved through the catalog, so an id the app does not know renders
+  // nothing rather than a blank row.
+  const guidesOffered = (table?.guides ?? []).map(guideById).filter(Boolean);
   const isHost = Boolean(profile?.userId) && table?.hostId === profile.userId;
   const left = useMemo(() => seatsRemaining(table, signups), [table, signups]);
   const blocker = useMemo(
@@ -221,6 +225,27 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         </p>
       </div>
 
+      {/* What the host said they would explain. Above "Who is going" because
+          it is the reason to choose this table over another one serving the
+          same dish — and because a traveller weighing whether to sit with
+          strangers is weighing exactly this. */}
+      {guidesOffered.length > 0 && (
+        <div className="detail-block">
+          <h3 className="detail-block__label">문화 가이드 · What the host will show you</h3>
+          <ul className="guide-list">
+            {guidesOffered.map(g => (
+              <li key={g.id} className="guide-line">
+                <span className="guide-line__kr">{g.kr}</span>
+                <span className="guide-line__en">{g.en}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="guide-list__note">
+            Said by the host when they opened this table, in their words.
+          </p>
+        </div>
+      )}
+
       <div className="detail-block">
         <h3 className="detail-block__label">Who is going</h3>
         <ul className="who-list">
@@ -228,6 +253,16 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             <span className="who-row__dot" aria-hidden="true" />
             <span className="who-row__name">{table.hostName}</span>
             <span className="who-row__role">host</span>
+            {/* Only ever on a table the team checked. An unverified host gets
+                no mark at all rather than a lesser one — a scale of trust
+                invites reading its bottom rung as "checked, and found
+                wanting", which is a claim nobody made. */}
+            {table.hostVerified && (
+              <span className="who-row__verified">
+                인증 · verified
+                {hostKindLabel(table.hostKind) && ` · ${hostKindLabel(table.hostKind).en}`}
+              </span>
+            )}
           </li>
           {signups.map(s => (
             <li key={s.id} className="who-row who-row--stacked">

@@ -12,6 +12,8 @@
 // phone reads their own empty phone. Deploying to Vercel does not change this
 // — deployment ships the app, not the data. Shared tables need shared storage.
 
+import { cleanGuides } from '../domain/catalog/hosts.js';
+
 const TABLES_KEY = 'bapchingu-tables';
 const SIGNUPS_KEY = 'bapchingu-signups';
 
@@ -70,6 +72,14 @@ async function local_createTable(input) {
     // anyone yet, so the field exists and stays false — the badge must never
     // appear until something real backs it.
     hostVerified: false,
+    // Which vetted category the team placed them in. Set by the same process
+    // that sets hostVerified — never here, never by a screen.
+    hostKind: null,
+    // What this host says they will walk the table through. A promise, not a
+    // credential, so unlike the two fields above anybody may make it — and it
+    // is filtered against the catalog so a hand-written id cannot invent a
+    // label on somebody else's screen.
+    guides: cleanGuides(input.guides),
     date: input.date,
     time: input.time,
     place: input.place,

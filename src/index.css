@@ -7533,3 +7533,90 @@ body {
   line-height: 1.5;
   color: var(--ink-secondary);
 }
+
+/* ---------------------------------------------------------------------------
+   호스트 · 문화 큐레이터
+   --------------------------------------------------------------------------- */
+
+/* Ticking what you will explain, on the create screen. Reads as a set of
+   offers rather than a settings list, because that is what it is. */
+.guide-picks { display: grid; gap: 8px; }
+.guide-pick {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.guide-pick.is-on {
+  background: var(--accent-tint);
+  border-color: var(--accent);
+}
+.guide-pick__kr {
+  font-family: var(--ex-kr);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.guide-pick__en {
+  margin-left: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+.guide-pick__say {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+.guide-pick.is-on .guide-pick__say { color: var(--accent-ink); }
+.form-label__hint {
+  margin: -4px 0 10px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+
+/* The same promise, read by the guest. */
+.guide-list { margin: 0; padding: 0; list-style: none; }
+.guide-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+.guide-line:last-child { border-bottom: none; }
+.guide-line__kr {
+  font-family: var(--ex-kr);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.guide-line__en { font-size: 13px; color: var(--ink-secondary); }
+.guide-list__note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+
+/* The badge. Only ever rendered on a table the team checked, so it can afford
+   to look like something — an unverified host shows nothing here at all. */
+.who-row__verified,
+.table-card__verified {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--green-tint);
+  color: var(--green-strong);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}

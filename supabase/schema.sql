@@ -63,6 +63,25 @@ create index if not exists tables_date_idx on public.tables (date, time);
 -- Safe to re-run against a project created before `restaurant` existed.
 alter table public.tables add column if not exists restaurant text default '';
 
+-- The host as 문화 큐레이터, which is the plan's actual definition of the role.
+--
+-- host_kind is the team's column. It records which vetted category a checked
+-- host falls into — 미식 동아리, 국제교류 동아리, 한식 전공, 로컬 푸드 크리에이터
+-- — and like host_verified it is set out of band, by whoever did the checking,
+-- never by the app. There is deliberately no policy granting an update of
+-- either column to anyone: verification is not a thing a user can perform on
+-- themselves, and the way to guarantee that is to give the client no route.
+alter table public.tables add column if not exists host_kind text;
+
+-- guides is the host's own promise about what they will explain tonight, so
+-- unlike the two above it is theirs to write. Constrained to the catalog's
+-- four ids so a row cannot carry a label the app never wrote.
+alter table public.tables add column if not exists guides text[] not null default '{}';
+
+alter table public.tables drop constraint if exists tables_guides_known;
+alter table public.tables add constraint tables_guides_known
+  check (guides <@ array['order', 'eat', 'manners', 'origin']::text[]);
+
 -- ---------------------------------------------------------------------------
 -- Signups — one seat taken.
 -- ---------------------------------------------------------------------------
@@ -151,9 +170,21 @@ drop policy if exists tables_read on public.tables;
 create policy tables_read on public.tables
   for select to authenticated using (true);
 
+-- A host may open a table as themselves, and may not arrive verified.
+--
+-- The host_id check alone was not enough: it left host_verified writable on
+-- insert, so anyone able to craft a request could hand themselves the badge
+-- the whole trust model rests on — and it is the one claim in this app a
+-- traveller would actually act on when deciding to meet a stranger. The badge
+-- is granted afterwards, by the team, out of band.
 drop policy if exists tables_insert_own on public.tables;
 create policy tables_insert_own on public.tables
-  for insert to authenticated with check (host_id = auth.uid());
+  for insert to authenticated
+  with check (
+    host_id = auth.uid()
+    and host_verified = false
+    and host_kind is null
+  );
 
 drop policy if exists tables_delete_own on public.tables;
 create policy tables_delete_own on public.tables

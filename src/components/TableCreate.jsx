@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { validateNewTable } from '../domain/policy/table.js';
+import { GUIDES } from '../domain/catalog/hosts.js';
 import { createTable } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import HostBrief from './HostBrief';
@@ -28,6 +29,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   const [seats, setSeats] = useState(4);
   const [note, setNote] = useState('');
   const [hostName, setHostName] = useState(profile?.name ?? '');
+  const [guides, setGuides] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -44,7 +46,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     if (problems.length > 0 || saving) return;
     setSaving(true);
     const row = await createTable({
-      menuId, date, time, place: place.trim(), restaurant: restaurant.trim(),
+      menuId, date, time, place: place.trim(), restaurant: restaurant.trim(), guides,
       seats: Number(seats), note: note.trim(),
       hostId: profile?.userId, hostName: hostName.trim(), hostNationality: profile?.nationality,
     });
@@ -162,6 +164,41 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             ? `${menu.name} needs ${menu.minPeople} or more.`
             : 'A table needs at least two.'}
         </p>
+      </div>
+
+      {/* The plan's 문화 큐레이터, asked as a question the host can answer.
+          Everything above this point describes a booking; this is the part
+          that makes the evening an exchange rather than four people eating.
+          Optional on purpose — a host who ticks nothing still hosts, and a
+          box nobody can honestly tick would be worse than no box. */}
+      <div className="form-block">
+        <h2 className="form-label">문화 가이드 · What will you walk the table through?</h2>
+        <p className="form-label__hint">
+          Optional. Whatever you tick is shown on your table, in your guests&rsquo; language,
+          so they know what to expect before they ask for a seat.
+        </p>
+        <div className="guide-picks">
+          {GUIDES.map(g => {
+            const on = guides.includes(g.id);
+            return (
+              <button
+                key={g.id}
+                type="button"
+                className={`guide-pick${on ? ' is-on' : ''}`}
+                aria-pressed={on}
+                /* Functional, not `[...guides, g.id]`. Two taps close enough
+                   together to land in one React batch both read the same
+                   captured array, and the second silently drops the first. */
+                onClick={() => setGuides(cur =>
+                  cur.includes(g.id) ? cur.filter(x => x !== g.id) : [...cur, g.id])}
+              >
+                <span className="guide-pick__kr">{g.kr}</span>
+                <span className="guide-pick__en">{g.en}</span>
+                <span className="guide-pick__say">{g.hostAsk}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="form-block">
