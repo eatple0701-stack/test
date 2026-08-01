@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  phrases, tableQuestions, PHRASE_GROUP, GROUP_LABEL,
+  phrases, questionsFor, ASK_WHO_LABEL, PHRASE_GROUP, GROUP_LABEL,
 } from '../content/phrases.js';
 import QuizDeck from './QuizDeck';
 import { ChevronLeftIcon } from './Icons';
@@ -51,6 +51,13 @@ export default function PhraseSheet({ onClose, dish, menuId }) {
   const voice = useKoreanVoice();
 
   const shown = useMemo(() => phrases.filter(p => p.group === group), [group]);
+
+  // The conversation deck, with this dish's own openers first. Held as an
+  // index rather than shuffled, so pressing Another walks the whole deck
+  // instead of showing the same card twice and running out by luck.
+  const deck = useMemo(() => questionsFor(menuId), [menuId]);
+  const [askAt, setAskAt] = useState(0);
+  const ask = deck[askAt % deck.length];
 
   const speak = (phrase) => {
     if (!voice) return;
@@ -105,18 +112,29 @@ export default function PhraseSheet({ onClose, dish, menuId }) {
         </div>
       ) : group === PHRASE_GROUP.TALK ? (
         <div className="phrase-list">
-          {/* Not phrases — questions for the table. Both sides can answer
-              every one of these; a card that only asks the visitor to explain
-              themselves turns a meal into an interview. */}
+          {/* One card, not a list of six. The old copy said "read one out when
+              the table goes quiet" and then printed all of them to scroll
+              through, which is the wrong shape for a moment where somebody is
+              holding a phone in one hand and wants a single sentence. */}
           <p className="phrase-note-lead">
-            Questions both sides can answer. Read one out when the table goes quiet.
+            One question at a time. Hand the phone over — it is written both ways.
           </p>
-          {tableQuestions.map((q, i) => (
-            <div key={q} className="question-card">
-              <span className="question-card__num">{String(i + 1).padStart(2, '0')}</span>
-              <p className="question-card__text">{q}</p>
-            </div>
-          ))}
+
+          <div className="ask-card">
+            <span className="ask-card__who">
+              {ASK_WHO_LABEL[ask.who].ko} · {ASK_WHO_LABEL[ask.who].en}
+            </span>
+            {/* Korean largest, exactly as the phrase cards do it, because this
+                is the card most likely to be turned around and read by
+                somebody else at the table. */}
+            <p className="ask-card__ko" lang="ko">{ask.ko}</p>
+            <p className="ask-card__en">{ask.en}</p>
+          </div>
+
+          <button className="ask-next" onClick={() => setAskAt(i => (i + 1) % deck.length)}>
+            다음 질문 · Another
+          </button>
+          <p className="ask-count">{askAt + 1} / {deck.length}</p>
         </div>
       ) : (
         <div className="phrase-list">

@@ -7620,3 +7620,67 @@ body {
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------------------
+   문화교류 질문 카드 — one question, in both languages
+   ---------------------------------------------------------------------------
+   Built to be handed across a table rather than scrolled. Korean is the
+   largest thing on it for the same reason the phrase cards do that: the
+   fastest way through a language gap is turning the phone around, and this is
+   the card most likely to be turned around.
+*/
+.ask-card {
+  margin: 0 20px;
+  padding: 22px 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+.ask-card__who {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--fill);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink-secondary);
+}
+.ask-card__ko {
+  margin: 0 0 10px;
+  font-family: var(--ex-kr);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--ink);
+  word-break: keep-all;
+}
+.ask-card__en {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.ask-next {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 12px 20px 0;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-family: var(--ex-kr);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+.ask-next:active { transform: scale(0.99); }
+.ask-count {
+  margin: 8px 20px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-secondary);
+}
