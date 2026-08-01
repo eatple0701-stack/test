@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  SAFETY_STEPS, NOT_YET_BUILT, REPORT_CHANNEL, reportingConfigured,
+  SAFETY_STEPS, NOT_YET_BUILT, REPORT_CHANNEL, reportingConfigured, PURPOSE,
 } from '../content/safety.js';
 import { ChevronLeftIcon } from './Icons';
 
@@ -22,6 +22,18 @@ export default function SafetySheet({ onClose }) {
         </button>
         <h1>도움 · Getting help</h1>
       </header>
+
+      {/* Above the emergency numbers, because most of what this screen is
+          reached for is not an emergency — it is somebody wanting to know
+          what the rules are before they decide. */}
+      <div className="safety-purpose">
+        <p className="safety-purpose__head">
+          <span className="safety-purpose__kr">{PURPOSE.kr}</span>
+          <span className="safety-purpose__en">{PURPOSE.en}</span>
+        </p>
+        <p className="safety-purpose__rule">{PURPOSE.rule}</p>
+        <p className="safety-purpose__broken">{PURPOSE.ifBroken}</p>
+      </div>
 
       <div className="safety">
         <a className="safety__call" href="tel:112">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { PURPOSE } from '../content/safety.js';
 import './Prologue.css';
 
 // One screen, then the app.
@@ -32,6 +33,11 @@ export default function Prologue({ onComplete }) {
             Samgyeopsal starts at two servings. Gamjatang comes in a pot for
             the table. Find someone to eat the food you cannot order alone.
           </p>
+          {/* Before the button, not after it. Somebody deciding whether this
+              app is for them is deciding it here, and the answer to the
+              question they are actually asking should not be two screens
+              deeper than the invitation. */}
+          <p className="prologue-purpose">{PURPOSE.short}</p>
           <button className="prologue-btn" onClick={enter}>밥친구 찾기 · Find a table</button>
         </div>
       </div>

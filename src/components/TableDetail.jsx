@@ -5,6 +5,7 @@ import { getTable, listSignups, createSignup, cancelSignup, deleteTable } from '
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
 import { conflictsFor } from '../data/profile';
+import { PURPOSE } from '../content/safety.js';
 import { themeById } from '../domain/catalog/index.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 
@@ -354,6 +355,14 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <button className="form-submit" onClick={join} disabled={busy || !name.trim()}>
             {busy ? 'Asking…' : '자리 요청 · Take a seat'}
           </button>
+
+          {/* Under the button that commits an evening with strangers, because
+              this is the moment the question gets asked and the app had no
+              answer anywhere in it. */}
+          <p className="join-purpose">
+            <span className="join-purpose__kr">{PURPOSE.kr}</span>
+            {PURPOSE.rule}
+          </p>
         </div>
       )}
 

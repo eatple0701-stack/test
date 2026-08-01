@@ -29,6 +29,40 @@ export const reportingConfigured = () =>
   Boolean(REPORT_CHANNEL.label && REPORT_CHANNEL.href);
 
 /**
+ * What this app is for, and what it is not for.
+ *
+ * The business plan defines the product in its first line as 데이팅이 아닌
+ * '목적형 밥친구' 매칭 — purpose-built meal matching, not dating. The app had
+ * never said so anywhere. Not once, in any screen, in any language.
+ *
+ * On an app that seats strangers of any gender at a table together, saying
+ * nothing is not neutrality. The traveller deciding whether to take a seat,
+ * and whoever they told about it before leaving the hotel, both fill that
+ * silence with the worst reading available. Stating the rule costs one
+ * sentence and is the cheapest safety work in the whole product.
+ *
+ * Deliberately not promising enforcement we do not have. A comparable pilot
+ * in this same team's plan advertises immediate permanent bans; there is no
+ * moderation queue here, no blocking, and no reporting channel wired up yet
+ * — all three are named in NOT_YET_BUILT below. So this says what the rule
+ * is and what a person can actually do, which is leave and tell the team,
+ * rather than implying a system is watching.
+ */
+export const PURPOSE = {
+  kr: '목적형 밥친구',
+  en: 'Here for the food',
+  rule:
+    '밥친구 seats people who want to eat a dish nobody can order alone. It is ' +
+    'not a dating app, and a seat at a table is not an opening to ask somebody out.',
+  ifBroken:
+    'If somebody treats it as one: you can leave, and you can tell the team ' +
+    'afterwards. A host who made somebody uncomfortable should not be hosting ' +
+    'the next table.',
+  /** One line, for places where a paragraph would be too much. */
+  short: 'For eating together — not a dating app.',
+};
+
+/**
  * What to do now, in order of who can help fastest.
  *
  * Written for somebody reading it at a table with their phone under the

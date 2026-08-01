@@ -7472,3 +7472,64 @@ body {
   line-height: 1.5;
   color: var(--ink-secondary);
 }
+
+/* ---------------------------------------------------------------------------
+   목적형 밥친구 — what the app is for, said where people decide
+   --------------------------------------------------------------------------- */
+
+/* Under the join button. Quiet, because it is a reassurance and not a
+   warning: styling it like an alert would suggest something had gone wrong. */
+.join-purpose {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.join-purpose__kr {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--ex-kr);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* On the safety sheet it is the headline, so it carries weight the inline
+   versions do not. */
+.safety-purpose {
+  margin: 0 20px 18px;
+  padding: 16px 18px;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-lg);
+}
+.safety-purpose__head {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.safety-purpose__kr {
+  font-family: var(--ex-kr);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.safety-purpose__en {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-ink);
+}
+.safety-purpose__rule {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.safety-purpose__broken {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}

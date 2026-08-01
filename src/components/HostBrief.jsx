@@ -40,6 +40,15 @@ const POINTS = [
     ko: '아직 앱 안에서 대화할 수 없습니다. 약속이 바뀌거나 취소해도 참가자에게 알림이 가지 않습니다.',
     body: 'There is no messaging yet. If the plan changes or you call it off, the app cannot tell them.',
   },
+  // The plan's own first definition of the product, told to the person who
+  // sets the terms of the evening. A guest reading this rule elsewhere in the
+  // app is protected by it only if the host is holding the same one.
+  {
+    kr: '목적형 밥친구',
+    en: 'What the table is for',
+    ko: '데이팅이 아니라 같이 밥 먹는 자리입니다. 참가자에게도 같은 문장이 보입니다.',
+    body: 'This is a meal, not a date. Your guests are shown the same rule before they take a seat.',
+  },
 ];
 
 export default function HostBrief({ profile }) {
