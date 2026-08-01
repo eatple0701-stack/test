@@ -7,6 +7,7 @@ import SafetySheet from './SafetySheet';
 import { conflictsFor } from '../data/profile';
 import { PURPOSE } from '../content/safety.js';
 import { guideById, hostKindLabel } from '../domain/catalog/hosts.js';
+import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../domain/catalog/languages.js';
 import { themeById } from '../domain/catalog/index.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 
@@ -55,6 +56,8 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // Resolved through the catalog, so an id the app does not know renders
   // nothing rather than a blank row.
   const guidesOffered = (table?.guides ?? []).map(guideById).filter(Boolean);
+  const tableLanguages = cleanLanguages(table?.languages);
+  const { fit, shared: sharedLangs } = languageFit(tableLanguages, profile?.languages);
   const isHost = Boolean(profile?.userId) && table?.hostId === profile.userId;
   const left = useMemo(() => seatsRemaining(table, signups), [table, signups]);
   const blocker = useMemo(
@@ -88,6 +91,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       await createSignup({
         tableId, userId: profile?.userId, name: name.trim(),
         nationality: nationality.trim(), note: note.trim(),
+        languages: profile?.languages ?? [],
       });
     } catch (e) {
       // Once tables are shared, two phones can reach for the same chair at
@@ -223,6 +227,40 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </span>
           of {table.seats}
         </p>
+      </div>
+
+      {/* Language, said plainly, in all four of its states. Somebody weighing
+          an evening with four strangers is mostly weighing whether they will
+          understand anything, and the app held both halves of the answer and
+          printed neither. Never hides the table: a traveller may still want a
+          meal with no shared language, and that is their call to make with
+          the fact in front of them rather than ours to make by omission. */}
+      <div className="detail-block">
+        <h3 className="detail-block__label">언어 · What this table runs in</h3>
+        {tableLanguages.length > 0 ? (
+          <p className="lang-row">
+            {tableLanguages.map(l => <span key={l} className="lang-chip">{l}</span>)}
+          </p>
+        ) : (
+          <p className="lang-note">The host did not say.</p>
+        )}
+
+        {fit === LANGUAGE_FIT.SHARED && (
+          <p className="lang-note lang-note--good">
+            You and this table both have {sharedLangs.join(' and ')}.
+          </p>
+        )}
+        {fit === LANGUAGE_FIT.NONE && (
+          <p className="lang-note lang-note--warn">
+            Nothing here matches what you speak. People manage — but bring a
+            translation app, and the phrases below.
+          </p>
+        )}
+        {fit === LANGUAGE_FIT.MINE_UNSAID && (
+          <p className="lang-note">
+            You have not said what you speak, so this cannot be compared. Profile.
+          </p>
+        )}
       </div>
 
       {/* What the host said they would explain. Above "Who is going" because

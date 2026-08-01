@@ -13,6 +13,7 @@
 // — deployment ships the app, not the data. Shared tables need shared storage.
 
 import { cleanGuides } from '../domain/catalog/hosts.js';
+import { cleanLanguages } from '../domain/catalog/languages.js';
 
 const TABLES_KEY = 'bapchingu-tables';
 const SIGNUPS_KEY = 'bapchingu-signups';
@@ -80,6 +81,9 @@ async function local_createTable(input) {
     // is filtered against the catalog so a hand-written id cannot invent a
     // label on somebody else's screen.
     guides: cleanGuides(input.guides),
+    // What the evening will actually run in. The single fact a traveller
+    // needs most and the app had never once printed.
+    languages: cleanLanguages(input.languages),
     date: input.date,
     time: input.time,
     place: input.place,

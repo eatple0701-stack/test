@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LANGUAGES } from '../domain/catalog/languages.js';
 import { RESTRICTIONS, restrictionLabel } from '../data/profile';
 
 // Profile — the four things the app actually does something with.
@@ -17,7 +18,8 @@ import { RESTRICTIONS, restrictionLabel } from '../data/profile';
 // or not shown at all — and each field changes something visible elsewhere,
 // which is the only reason a setting deserves a row.
 
-const LANGUAGES = ['English', '한국어', '日本語', '中文', 'Español', 'Français', 'العربية'];
+// The list lives in the catalog now: a table declares languages too, and two
+// copies of this array is how the Profile and the table stop agreeing.
 
 function Field({ label, hint, children }) {
   return (

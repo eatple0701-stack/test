@@ -164,6 +164,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
                 <span className="table-card__host">
                   Hosted by {t.hostName}
                   {t.hostVerified && <span className="table-card__verified">인증 · verified</span>}
+                  {/* Scanning a list, the language is the fastest filter a
+                      traveller applies. */}
+                  {(t.languages ?? []).length > 0 && (
+                    <span className="table-card__langs">{t.languages.join(' · ')}</span>
+                  )}
                   {t.isSample && <span className="table-card__sample">sample</span>}
                 </span>
                 <span className={`table-card__seats${left === 0 ? ' is-full' : ''}`}>

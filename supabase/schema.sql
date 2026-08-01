@@ -78,6 +78,12 @@ alter table public.tables add column if not exists host_kind text;
 -- four ids so a row cannot carry a label the app never wrote.
 alter table public.tables add column if not exists guides text[] not null default '{}';
 
+-- What the evening runs in. The Profile has collected this from every user
+-- since it was built, and its own hint promises it is so a host knows what the
+-- table will run in — while nothing anywhere showed it to anyone.
+alter table public.tables add column if not exists languages text[] not null default '{}';
+alter table public.signups add column if not exists languages text[] not null default '{}';
+
 alter table public.tables drop constraint if exists tables_guides_known;
 alter table public.tables add constraint tables_guides_known
   check (guides <@ array['order', 'eat', 'manners', 'origin']::text[]);

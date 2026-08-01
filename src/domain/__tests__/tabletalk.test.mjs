@@ -16,6 +16,8 @@ import {
   tableQuestions, dishQuestions, questionsFor, ASK_WHO, ASK_WHO_LABEL,
 } from '../../content/phrases.js';
 import { menus } from '../catalog/menus.js';
+import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../catalog/languages.js';
+import { tableToRow, tableFromRow } from '../../data/tableMapping.js';
 
 const everyCard = [...tableQuestions, ...Object.values(dishQuestions).flat()];
 
@@ -77,4 +79,49 @@ test('no question asks something a dating rule would forbid', () => {
   for (const q of everyCard) {
     assert.doesNotMatch(q.en, banned, `${q.id} asks something the no-dating rule rules out`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// 언어 — the fact the Profile promised and the app never delivered.
+// ---------------------------------------------------------------------------
+
+test('a table and a traveller who share nothing are told so, not hidden', () => {
+  const { fit, shared } = languageFit(['한국어'], ['English']);
+  assert.equal(fit, LANGUAGE_FIT.NONE);
+  assert.deepEqual(shared, []);
+});
+
+test('a shared language is named, because the useful sentence names it', () => {
+  const { fit, shared } = languageFit(['한국어', 'English'], ['English', '日本語']);
+  assert.equal(fit, LANGUAGE_FIT.SHARED);
+  assert.deepEqual(shared, ['English']);
+});
+
+test('silence on either side is its own state, not a mismatch', () => {
+  // Flattening these into NONE would invent a warning about a table that
+  // simply has not answered yet; flattening into SHARED would hide a real one.
+  assert.equal(languageFit([], ['English']).fit, LANGUAGE_FIT.TABLE_UNSAID);
+  assert.equal(languageFit(['English'], []).fit, LANGUAGE_FIT.MINE_UNSAID);
+  assert.equal(languageFit([], []).fit, LANGUAGE_FIT.TABLE_UNSAID);
+  assert.equal(languageFit(undefined, undefined).fit, LANGUAGE_FIT.TABLE_UNSAID);
+});
+
+test('languages are cleaned to the catalog and read in one order', () => {
+  // Two lists written in different orders must render the same, or two
+  // identical tables look different.
+  assert.deepEqual(cleanLanguages(['日本語', 'English', 'Klingon']), ['English', '日本語']);
+  assert.deepEqual(cleanLanguages(['English', '日本語']), ['English', '日本語']);
+  assert.deepEqual(cleanLanguages('English'), []);
+});
+
+test('a table row carries its languages through the database and back', () => {
+  const row = tableToRow(
+    { menuId: 'bossam', hostName: 'Jiwon', date: '2026-08-20', time: '19:00',
+      place: 'Euljiro', seats: 4, languages: ['한국어', 'English', 'Dothraki'] },
+    { hostId: 'u-9' },
+  );
+  assert.deepEqual(row.languages, ['English', '한국어']);
+  assert.deepEqual(tableFromRow({ ...row, id: 't', seats: 4 }).languages, ['English', '한국어']);
+  // A row written before the column existed reads as "did not say".
+  assert.deepEqual(tableFromRow({ id: 't', menu_id: 'bossam', seats: 4 }).languages, []);
 });

@@ -11,6 +11,7 @@
 // rather than an error, and `undefined` renders as an empty card.
 
 import { cleanGuides } from '../domain/catalog/hosts.js';
+import { cleanLanguages } from '../domain/catalog/languages.js';
 
 /** A `tables` row as it comes out of Postgres → the shape the screens read. */
 export function tableFromRow(row) {
@@ -24,6 +25,7 @@ export function tableFromRow(row) {
     hostVerified: row.host_verified ?? false,
     hostKind: row.host_kind ?? null,
     guides: Array.isArray(row.guides) ? row.guides : [],
+    languages: Array.isArray(row.languages) ? row.languages : [],
     date: row.date,
     // Postgres returns `time` as HH:MM:SS; the app formats and compares HH:MM
     // everywhere, and `new Date('2026-08-17T19:00:00')` and the HH:MM form
@@ -53,6 +55,7 @@ export function tableToRow(input, { hostId, hostVerified = false } = {}) {
     // the team's column, set out of band once somebody has been checked.
     host_verified: hostVerified,
     guides: cleanGuides(input.guides),
+    languages: cleanLanguages(input.languages),
     date: input.date,
     time: input.time,
     place: input.place,
@@ -82,6 +85,7 @@ export function signupToRow(input, { userId } = {}) {
     user_id: userId,
     name: input.name,
     nationality: input.nationality ?? '',
+    languages: cleanLanguages(input.languages),
     note: input.note ?? '',
   };
 }

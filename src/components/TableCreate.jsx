@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { validateNewTable } from '../domain/policy/table.js';
 import { GUIDES } from '../domain/catalog/hosts.js';
+import { LANGUAGES, cleanLanguages } from '../domain/catalog/languages.js';
 import { createTable } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import HostBrief from './HostBrief';
@@ -30,6 +31,8 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   const [note, setNote] = useState('');
   const [hostName, setHostName] = useState(profile?.name ?? '');
   const [guides, setGuides] = useState([]);
+  // Their own profile answer, so the question is not asked twice.
+  const [languages, setLanguages] = useState(() => cleanLanguages(profile?.languages));
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -46,7 +49,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     if (problems.length > 0 || saving) return;
     setSaving(true);
     const row = await createTable({
-      menuId, date, time, place: place.trim(), restaurant: restaurant.trim(), guides,
+      menuId, date, time, place: place.trim(), restaurant: restaurant.trim(), guides, languages,
       seats: Number(seats), note: note.trim(),
       hostId: profile?.userId, hostName: hostName.trim(), hostNationality: profile?.nationality,
     });
@@ -164,6 +167,35 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             ? `${menu.name} needs ${menu.minPeople} or more.`
             : 'A table needs at least two.'}
         </p>
+      </div>
+
+      {/* The single fact a traveller weighs hardest and the app never printed.
+          Pre-filled from the host's own profile, because they have already
+          answered this once and being asked twice is how a form stops feeling
+          like it is on your side. */}
+      <div className="form-block">
+        <h2 className="form-label">언어 · What will this table run in?</h2>
+        <p className="form-label__hint">
+          Shown on your table. Somebody deciding whether to sit with four strangers
+          is mostly deciding whether they will understand anything.
+        </p>
+        <div className="lang-picks">
+          {LANGUAGES.map(l => {
+            const on = languages.includes(l);
+            return (
+              <button
+                key={l}
+                type="button"
+                className={`lang-pick${on ? ' is-on' : ''}`}
+                aria-pressed={on}
+                onClick={() => setLanguages(cur =>
+                  cur.includes(l) ? cur.filter(x => x !== l) : [...cur, l])}
+              >
+                {l}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* The plan's 문화 큐레이터, asked as a question the host can answer.
