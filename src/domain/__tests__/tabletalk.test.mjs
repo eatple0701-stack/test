@@ -132,20 +132,37 @@ test('a table row carries its languages through the database and back', () => {
 // 상황별 표현 — the sentences the plan names, and the ones the Profile implies.
 // ---------------------------------------------------------------------------
 
-test('the four sentences the business plan writes out are all in the app', () => {
+test('the sentences the business plan writes out can all be said', () => {
   // Quoted from 핵심기능 4. Checked as exact strings rather than trusted to a
   // comment, because a comment two lists away claimed the conversation cards
   // were two-way while half of them were not.
   const fromPlan = [
     '덜 맵게 해주세요.',
     '육수에 고기가 들어가나요?',
-    '이 음식은 몇 명이 먹을 수 있나요?',
     '알레르기가 있는 재료가 들어가나요?',
   ];
   const spoken = phrases.map(p => p.ko);
   for (const line of fromPlan) {
     assert.ok(spoken.includes(line), `the plan writes "${line}" and the app cannot say it`);
   }
+});
+
+test('the one sentence a native ear rejected is the corrected one', () => {
+  // The plan's fourth line is 이 음식은 몇 명이 먹을 수 있나요, and the Korean
+  // speakers who tested the app marked exactly that one as sounding wrong. The
+  // app says 이거 몇 인분이에요 instead.
+  //
+  // This test exists so the divergence is a decision on the record rather than
+  // something that looks like drift — and so nobody quietly restores the
+  // plan's wording later on the strength of the document.
+  const line = phrases.find(p => p.id === 'how-many-people');
+  assert.equal(line.ko, '이거 몇 인분이에요?');
+  assert.ok(
+    !phrases.some(p => p.ko === '이 음식은 몇 명이 먹을 수 있나요?'),
+    'the wording the testers rejected is back in the phrasebook',
+  );
+  // 인분 is the unit shops answer in, and the unit this product turns on.
+  assert.match(line.ko, /인분/);
 });
 
 test('every rule a traveller can declare is one they can say out loud', () => {

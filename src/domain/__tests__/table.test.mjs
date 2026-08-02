@@ -192,3 +192,15 @@ test('an untimed dish keeps the form default rather than getting a guess', () =>
   // has started guessing.
   assert.ok(menus.filter(m => m.eatenAt).length <= 5, 'suspiciously many dishes claim a time');
 });
+
+test('every dish says in English what it is', () => {
+  // Testers could not tell what half the catalog was from the romanisation.
+  // The gloss is the fix, and a dish added later without one would quietly
+  // reintroduce the problem for exactly the person it was written for.
+  for (const m of menus) {
+    assert.ok(m.gloss && m.gloss.length > 8, `${m.id} has no English gloss`);
+    assert.notEqual(m.gloss, m.name, `${m.id}'s gloss just repeats the romanisation`);
+    // It is a name, not a paragraph — it sits under the title on a card.
+    assert.ok(m.gloss.length < 40, `${m.id}'s gloss is too long to sit under a name`);
+  }
+});

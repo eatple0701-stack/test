@@ -155,6 +155,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               </span>
 
               <h2 className="table-card__dish">{menu.name}</h2>
+              <p className="table-card__gloss">{menu.gloss}</p>
 
               {/* The reason this table exists at all. */}
               <p className="table-card__why">{menu.whyShared}</p>

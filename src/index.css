@@ -7898,3 +7898,27 @@ body {
   cursor: pointer;
 }
 .detail-share:active { transform: scale(0.99); }
+
+/* The English name beside the sound.
+   Testers said romanisation alone carries nothing for a dish they have not
+   met — "Ganjang Gejang" is a noise until somebody opens it. The gloss sits
+   under the name everywhere the name appears. */
+.dish-option__gloss {
+  display: block;
+  margin-top: 1px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--ink-secondary);
+}
+.dish-option.is-on .dish-option__gloss { color: rgba(255, 255, 255, 0.88); }
+.table-card__gloss {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--ink-secondary);
+}
+.detail-hero__gloss {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}

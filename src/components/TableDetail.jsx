@@ -169,6 +169,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           {menu.name}
           <span className="detail-hero__rom">{menu.romanization}</span>
         </h2>
+        {/* Under the name, above the reason. Somebody who arrived on a shared
+            link may be meeting this word for the first time. */}
+        <p className="detail-hero__gloss">{menu.gloss}</p>
         <p className="detail-hero__why">{menu.whyShared}</p>
       </div>
 

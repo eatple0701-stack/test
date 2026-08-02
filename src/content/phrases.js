@@ -51,8 +51,17 @@ export const phrases = [
     id: 'how-many-people',
     group: PHRASE_GROUP.ORDER,
     en: 'How many people is this for?',
-    ko: '이 음식은 몇 명이 먹을 수 있나요?',
-    read: 'i EUM-shik-eun myeot-myeong-i mo-geul su it-na-yo',
+    // The plan writes this as 이 음식은 몇 명이 먹을 수 있나요, and it is in the
+    // plan word for word — but the Korean speakers who tested the app marked
+    // it as the one line that sounds wrong. What a person actually says over a
+    // menu is 이거 몇 인분이에요. Shorter, and it asks about servings, which is
+    // the unit the shop answers in and the unit this whole product turns on.
+    //
+    // Fidelity to the document loses to a native ear here. A phrase card is
+    // held up to a stranger; the cost of an odd sentence is paid in that
+    // moment, by the traveller, not by us.
+    ko: '이거 몇 인분이에요?',
+    read: 'i-go myeot IN-bun-i-e-yo',
   },
   {
     id: 'allergy',

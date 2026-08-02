@@ -99,6 +99,9 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             >
               <span className="dish-option__kr">{m.nameKo}</span>
               <span className="dish-option__name">{m.name}</span>
+              {/* The romanisation is a sound, not a meaning. Testers could not
+                  tell what half these words were until they opened one. */}
+              <span className="dish-option__gloss">{m.gloss}</span>
               <span className="dish-option__min">
                 {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
               </span>

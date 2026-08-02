@@ -89,6 +89,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
             >
               <span className="dish-option__kr">{m.nameKo}</span>
               <span className="dish-option__name">{m.name}</span>
+              <span className="dish-option__gloss">{m.gloss}</span>
               <span className="dish-option__min">
                 {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
               </span>

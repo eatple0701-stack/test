@@ -77,6 +77,12 @@ export const menus = [
   {
     id: 'samgyeopsal',
     name: 'Samgyeopsal',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Grilled pork belly",
     nameKo: '삼겹살',
     romanization: 'sam-gyeop-sal',
     category: MENU_CATEGORY.GRILL,
@@ -99,6 +105,12 @@ export const menus = [
   {
     id: 'dakgalbi',
     name: 'Dakgalbi',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Chicken stir-fried at the table",
     nameKo: '닭갈비',
     romanization: 'dak-gal-bi',
     category: MENU_CATEGORY.GRILL,
@@ -119,6 +131,12 @@ export const menus = [
   {
     id: 'gamjatang',
     name: 'Gamjatang',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Pork spine and potato stew",
     nameKo: '감자탕',
     romanization: 'gam-ja-tang',
     category: MENU_CATEGORY.STEW,
@@ -140,6 +158,12 @@ export const menus = [
   {
     id: 'budae-jjigae',
     name: 'Budae Jjigae',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Sausage and noodle army stew",
     nameKo: '부대찌개',
     romanization: 'bu-dae-jji-gae',
     category: MENU_CATEGORY.STEW,
@@ -158,6 +182,12 @@ export const menus = [
   {
     id: 'bossam',
     name: 'Bossam',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Boiled pork you wrap in cabbage",
     nameKo: '보쌈',
     romanization: 'bo-ssam',
     category: MENU_CATEGORY.PLATTER,
@@ -176,6 +206,12 @@ export const menus = [
   {
     id: 'jokbal',
     name: 'Jokbal',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Braised pig trotter, sliced",
     nameKo: '족발',
     romanization: 'jok-bal',
     category: MENU_CATEGORY.PLATTER,
@@ -194,6 +230,12 @@ export const menus = [
   {
     id: 'ganjang-gejang',
     name: 'Ganjang Gejang',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Raw crab cured in soy sauce",
     nameKo: '간장게장',
     romanization: 'gan-jang-ge-jang',
     category: MENU_CATEGORY.SET,
@@ -212,6 +254,12 @@ export const menus = [
   {
     id: 'hanjeongsik',
     name: 'Hanjeongsik',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "A full Korean course, all at once",
     nameKo: '한정식',
     romanization: 'han-jeong-sik',
     category: MENU_CATEGORY.SET,
@@ -237,6 +285,12 @@ export const menus = [
   {
     id: 'baekban',
     name: 'Baekban',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Rice, soup and the day's side dishes",
     nameKo: '백반',
     romanization: 'baek-ban',
     category: MENU_CATEGORY.SET,
@@ -263,6 +317,12 @@ export const menus = [
   {
     id: 'gopchang',
     name: 'Gopchang',
+    // What it is, in words somebody can picture without knowing the name.
+    // Testers said romanisation alone is opaque for a dish they have not met:
+    // "Ganjang Gejang" carries nothing, and a descriptive English name beside
+    // it does. Each one is taken from this dish's own howItWorks rather than
+    // written fresh, so the short name and the long one cannot drift apart.
+    gloss: "Charcoal-grilled intestine",
     nameKo: '곱창',
     romanization: 'gop-chang',
     category: MENU_CATEGORY.GRILL,
