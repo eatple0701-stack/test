@@ -80,6 +80,7 @@ export function signupFromRow(row) {
     gender: row.gender ?? null,
     languages: row.languages ?? [],
     diets: Array.isArray(row.diets) ? row.diets : [],
+    allergyNote: row.allergy_note ?? '',
     note: row.note ?? '',
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
   };
@@ -94,6 +95,7 @@ export function signupToRow(input, { userId } = {}) {
     gender: cleanGender(input.gender),
     languages: cleanLanguages(input.languages),
     diets: cleanDiets(input.diets),
+    allergy_note: input.allergyNote ?? '',
     note: input.note ?? '',
   };
 }

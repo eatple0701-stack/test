@@ -135,6 +135,14 @@ alter table public.signups add column if not exists diets text[] not null defaul
 -- counts a table's host and every current signup.
 alter table public.signups add column if not exists gender text;
 
+-- Free text, unlike the five fixed booleans this repo also carries as
+-- request-level flags — a guest hits the edge of a fixed list eventually
+-- ("what if ur allergic to prawns" covered shellfish; a nut or sesame
+-- allergy would not have had a box). Never matched against a menu's
+-- ingredients — there is no vocabulary here to match against — so this
+-- is carried exactly like diets and never rendered as a checked fact.
+alter table public.signups add column if not exists allergy_note text default '';
+
 -- ---------------------------------------------------------------------------
 -- Overbooking guard
 -- ---------------------------------------------------------------------------

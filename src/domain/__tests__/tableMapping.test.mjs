@@ -70,6 +70,32 @@ test('gender maps both ways, like nationality', () => {
   assert.equal(signupOut.gender, 'Woman');
 });
 
+test('a free-text allergy note maps both ways and defaults to an empty string, never null', () => {
+  const s = signupFromRow({
+    id: 'uuid-s', table_id: 'uuid-1', user_id: 'uuid-u', name: 'Aya',
+    allergy_note: 'Severe shellfish allergy', created_at: '2026-07-29T11:00:00Z',
+  });
+  assert.equal(s.allergyNote, 'Severe shellfish allergy');
+
+  const out = signupToRow(
+    { tableId: 'uuid-1', name: 'Aya', allergyNote: 'No sesame please' },
+    { userId: 'uuid-u' },
+  );
+  assert.equal(out.allergy_note, 'No sesame please');
+
+  // A row from before this column existed reads as "nothing said", the same
+  // way a missing note or diets list does — not null, which who-row__allergy
+  // would render as the literal word "null".
+  const missing = signupFromRow({
+    id: 'uuid-s', table_id: 'uuid-1', user_id: 'uuid-u', name: 'Aya',
+    created_at: '2026-07-29T11:00:00Z',
+  });
+  assert.equal(missing.allergyNote, '');
+
+  const untyped = signupToRow({ tableId: 'uuid-1', name: 'Aya' }, { userId: 'uuid-u' });
+  assert.equal(untyped.allergy_note, '');
+});
+
 test('an unknown or missing gender never reaches the row as a guess', () => {
   const out = tableToRow(
     { menuId: 'bossam', hostName: 'Kang', hostGender: 'nonsense',

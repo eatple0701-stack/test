@@ -98,6 +98,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         // than used by the app to rule on a dish it cannot check.
         diets: profile?.diets ?? [],
         gender: profile?.gender ?? null,
+        allergyNote: profile?.allergyNote ?? '',
       });
     } catch (e) {
       // Once tables are shared, two phones can reach for the same chair at
@@ -412,6 +413,10 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                     .map(d => `${d.kr} · ${d.en}`).join(', ')}
                 </span>
               )}
+              {/* Free text, so unlike diets above it the app cannot cross-check
+                  it against menu.contains — orange marks "read this" without
+                  claiming a check that never happened. */}
+              {s.allergyNote && <span className="who-row__allergy">{s.allergyNote}</span>}
               {s.note && <span className="who-row__note">“{s.note}”</span>}
             </li>
           ))}

@@ -34,6 +34,7 @@ function Field({ label, hint, children }) {
 export default function ProfileFields({ profile, onProfileChange }) {
   const [name, setName] = useState(profile?.name ?? '');
   const [nationality, setNationality] = useState(profile?.nationality ?? '');
+  const [allergyNote, setAllergyNote] = useState(profile?.allergyNote ?? '');
   const languages = profile?.languages ?? [];
   const avoids = profile?.avoids ?? [];
   const diets = profile?.diets ?? [];
@@ -134,6 +135,28 @@ export default function ProfileFields({ profile, onProfileChange }) {
               </button>
             ))}
           </div>
+        </Field>
+
+        {/* The five boxes above are a fixed list on purpose — see
+            RESTRICTIONS's own comment — and a fixed list always has an edge
+            somebody falls off. A nut or sesame allergy has nowhere to go
+            above this line. This does not check anything either, same as
+            the boxes above it; it is carried to the host as a sentence
+            instead of five checkboxes. */}
+        <Field
+          label="Anything else you can't eat? (optional)"
+          hint="Free text, sent to the host with your seat request — not checked against any menu, just carried."
+        >
+          <textarea
+            rows={2}
+            className="profile-input"
+            value={allergyNote}
+            placeholder="Severe shellfish allergy, and no sesame please"
+            onChange={e => {
+              setAllergyNote(e.target.value);
+              save({ allergyNote: e.target.value.trim() });
+            }}
+          />
         </Field>
 
         {/* Deliberately a separate question from the one above, and worded so

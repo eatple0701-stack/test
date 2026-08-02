@@ -128,7 +128,7 @@ async function local_listAllSignups() {
 }
 
 /**
- * @param {object} input { tableId, userId, name, nationality, gender, languages, note }
+ * @param {object} input { tableId, userId, name, nationality, gender, languages, diets, allergyNote, note }
  */
 async function local_createSignup(input) {
   const row = {
@@ -141,6 +141,8 @@ async function local_createSignup(input) {
     languages: input.languages ?? [],
     // How they eat, in their own word, on its way to the host.
     diets: cleanDiets(input.diets),
+    // The escape valve for RESTRICTIONS's fixed five, carried the same way.
+    allergyNote: input.allergyNote ?? '',
     note: input.note ?? '',
     createdAt: Date.now(),
   };

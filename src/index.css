@@ -8013,6 +8013,19 @@ body {
   color: var(--green-strong);
 }
 
+/* Free text, unlike .who-row__diet's fixed vocabulary above — the app
+   cannot check it against menu.contains the way it checks avoids, so this
+   is not styled as a verified conflict (see .detail-conflict's boxed
+   treatment for what that looks like). Orange for "read this" without
+   claiming a check that never happened. */
+.who-row__allergy {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--orange-strong);
+}
+
 /* The headcount, said before somebody commits an evening. Neutral by default;
    the two-person case is the one worth a second look, so it gets a frame
    rather than a colour that would read as a warning about the host. */

@@ -24,3 +24,10 @@ test('a fresh profile has an unset gender, not a missing key', () => {
   assert.equal(p.gender, null);
   assert.ok('gender' in p, 'the key must exist so ?? defaults are never needed downstream');
 });
+
+test('a fresh profile has an empty allergy note, not a missing key', () => {
+  globalThis.localStorage.clear();
+  const p = getProfile();
+  assert.equal(p.allergyNote, '');
+  assert.ok('allergyNote' in p, 'the key must exist so ?? defaults are never needed downstream');
+});

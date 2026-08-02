@@ -85,7 +85,17 @@ export function getProfile() {
   } catch {
     // fall through to a fresh identity
   }
-  const fresh = { userId: newUserId(), name: '', nationality: '', languages: [], gender: null };
+  const fresh = {
+    userId: newUserId(), name: '', nationality: '', languages: [], gender: null,
+    // Free text, on purpose. RESTRICTIONS is a fixed five and a foreign
+    // tester hit its edge immediately — "what if ur allergic to prawns"
+    // (shellfish covers that one; a nut or sesame allergy would not have).
+    // This does not replace the fixed list or try to widen it; it is the
+    // escape valve for whatever the five ingredients don't name, carried
+    // to the host exactly like diets — a message, never a verdict the app
+    // renders about a dish it cannot check.
+    allergyNote: '',
+  };
   saveProfile(fresh);
   return fresh;
 }
