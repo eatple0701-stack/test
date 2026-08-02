@@ -42,7 +42,7 @@
 - Produces:
   - `STATUS` = `{ PLANNED:'planned', PREVIEW:'preview', PUBLISHED:'published', RETIRED:'retired' }`
   - `EXPERIENCE_KIND` = `{ DISH:'dish', PLACE:'place', RITUAL:'ritual', SETTING:'setting' }`
-  - `COMPLETION_SOURCE` = `{ PLACE_VISIT:'place-visit', EVENT_ATTENDANCE:'event-attendance', MISSION_CHECK:'mission-check', SELF_ATTEST:'self-attest' }`
+  - `COMPLETION_SOURCE` = `{ PLACE_VISIT:'place-visit', EVENT_ATTENDANCE:'event-attendance', SELF_ATTEST:'self-attest' }`
   - `BLOCKER` = `{ MISSING_VENUE:'missing-venue', OUT_OF_SEASON:'out-of-season', NO_EVENT_OCCURRENCE:'no-event-occurrence', REGION_UNAVAILABLE:'region-unavailable' }`
   - `isSurfaceable(status) -> boolean`
   - `emptyJourney() -> Journey`
@@ -92,10 +92,10 @@ test('experience kinds cover the four authoring shapes', () => {
   assert.deepEqual(Object.values(EXPERIENCE_KIND).sort(), ['dish', 'place', 'ritual', 'setting']);
 });
 
-test('completion sources are the four seeded strategies', () => {
+test('completion sources are the three seeded strategies', () => {
   assert.deepEqual(
     Object.values(COMPLETION_SOURCE).sort(),
-    ['event-attendance', 'mission-check', 'place-visit', 'self-attest'],
+    ['event-attendance', 'place-visit', 'self-attest'],
   );
 });
 
@@ -154,7 +154,6 @@ export const EXPERIENCE_KIND = {
 export const COMPLETION_SOURCE = {
   PLACE_VISIT: 'place-visit',
   EVENT_ATTENDANCE: 'event-attendance',
-  MISSION_CHECK: 'mission-check',
   SELF_ATTEST: 'self-attest',
 };
 
@@ -444,8 +443,12 @@ export const experiences = [
       title: 'Walk It First',
       detail: 'Walk the full alley before you buy. Deciding after seeing everything is how locals shop.',
     },
+    // Anchored to namdaemun alone, deliberately disjoint from the gwangjang
+    // anchors of street-first-timer's required steps. That disjointness is
+    // what lets an optional step be unreachable while the narrative stays
+    // playable — the only way the `degraded` verdict can ever be exercised.
     restaurantIds: [],
-    marketIds: ['gwangjang', 'namdaemun'],
+    marketIds: ['namdaemun'],
     zones: ['Jongno, Seoul', 'Hoehyeon, Seoul'],
     acceptsSelfAttest: false,
   },
@@ -863,6 +866,15 @@ export const narrativeSteps = [
   },
 
   {
+    narrativeId: 'street-first-timer',
+    experienceId: 'market-alley',
+    order: 4,
+    required: false,
+    transition:
+      'Before you leave, walk the alley end to end. Seeing the whole trade in one line is the part people remember.',
+  },
+
+  {
     narrativeId: 'noodle-origin',
     experienceId: 'jajangmyeon',
     order: 1,
@@ -1243,10 +1255,10 @@ test('preview and published entities surface; planned does not', () => {
   assert.equal(isSurfaceableEntity({ status: STATUS.PLANNED }), false);
 });
 
-test('the registry seeds four sources', () => {
+test('the registry seeds three sources', () => {
   assert.deepEqual(
     completionSources.map(s => s.id).sort(),
-    ['event-attendance', 'mission-check', 'place-visit', 'self-attest'],
+    ['event-attendance', 'place-visit', 'self-attest'],
   );
 });
 
@@ -1281,6 +1293,31 @@ test('self-attestation does not complete an experience that has anchors', () => 
   );
 });
 
+test('attestation is refused for an anchored experience even if it opts in', () => {
+  // The guarantee must come from the policy, not from catalog-authoring
+  // convention: a record that both carries an anchor and sets the flag must
+  // still refuse attestation. The seed has no such record, so the test
+  // contrives one rather than passing for the wrong reason.
+  const contrived = {
+    id: 'contrived-anchored',
+    restaurantIds: ['balwoo'],
+    marketIds: [],
+    acceptsSelfAttest: true,
+  };
+  const j = emptyJourney();
+  j.attestedExperienceIds.add('contrived-anchored');
+  assert.equal(
+    experienceDone(contrived, j), false,
+    'having an anchor must veto the attestation route',
+  );
+
+  j.visitedRestaurantIds.add('balwoo');
+  assert.equal(
+    experienceDone(contrived, j), true,
+    'the same record completes normally through its anchor',
+  );
+});
+
 test('a narrative completes when its required steps are done, ignoring optional ones', () => {
   const j = emptyJourney();
   j.visitedRestaurantIds.add('balwoo');
@@ -1296,9 +1333,35 @@ test('a theme completes when any one of its narratives completes', () => {
 
 test('a theme is explored as soon as any of its experiences is done', () => {
   const j = emptyJourney();
-  j.visitedMarketIds.add('gwangjang');
+  // makgeolli belongs to street-food but is only an optional step of its
+  // narrative, so attesting it explores the theme without completing it.
+  // A gwangjang visit would NOT work here: both required steps of
+  // street-first-timer are anchored to that market, so it completes the theme.
+  j.attestedExperienceIds.add('makgeolli');
   assert.equal(themeExplored('street-food', j), true);
   assert.equal(themeDone('street-food', j), false, 'exploring is not completing');
+});
+
+test('a market visit completes exactly the experiences anchored to that market', () => {
+  const j = emptyJourney();
+  j.visitedMarketIds.add('gwangjang');
+  for (const id of ['gwangjang-market', 'bindaetteok']) {
+    assert.equal(
+      experienceDone(experienceById(id), j), true,
+      `${id} is anchored to gwangjang and must complete on that visit`,
+    );
+  }
+  assert.equal(
+    experienceDone(experienceById('market-alley'), j), false,
+    'market-alley is anchored to namdaemun, so a gwangjang visit must not complete it',
+  );
+  assert.equal(themeDone('street-food', j), true, 'both required steps are satisfied');
+
+  j.visitedMarketIds.add('namdaemun');
+  assert.equal(
+    experienceDone(experienceById('market-alley'), j), true,
+    'visiting its own market completes it',
+  );
 });
 
 test('restaurant is the single entity that cannot be entered directly', () => {
@@ -1394,7 +1457,8 @@ export const completionSources = [
       return e.restaurantIds.some(id => admissible.has(id) && j.visitedRestaurantIds.has(id));
     },
     evidenceOf: (e, j) => {
-      const id = e.restaurantIds.find(x => j.visitedRestaurantIds.has(x));
+      const admissible = admissiblePlaceIds();
+      const id = e.restaurantIds.find(x => admissible.has(x) && j.visitedRestaurantIds.has(x));
       return id ? { kind: 'restaurant', id } : null;
     },
   },
@@ -1409,19 +1473,18 @@ export const completionSources = [
     },
   },
   {
-    id: COMPLETION_SOURCE.MISSION_CHECK,
-    label: 'Completed the mission',
-    // Missions are checked off through the same attestation record as
-    // self-attestation; kept separate so the two can diverge later without
-    // reshaping anything that consumes the registry.
-    appliesTo: (e) => e.acceptsSelfAttest,
-    isSatisfied: (e, j) => j.attestedExperienceIds.has(e.id),
-    evidenceOf: (e, j) => (j.attestedExperienceIds.has(e.id) ? { kind: 'mission', id: e.id } : null),
-  },
-  {
     id: COMPLETION_SOURCE.SELF_ATTEST,
+    // Covers both 'I completed the mission' and 'I did this': both resolve to
+    // the same attestation record, so they are one strategy rather than two
+    // identical ones. A distinct mission source earns its place once missions
+    // gain their own storage, and adding it then is a single registry entry.
     label: 'Marked as done',
-    appliesTo: (e) => e.acceptsSelfAttest,
+    // Requiring the absence of anchors here — rather than trusting the
+    // record's flag alone — keeps attestation from becoming a universal skip
+    // button for anchored experiences. The guarantee must come from the
+    // policy, not from catalog-authoring convention.
+    appliesTo: (e) =>
+      e.acceptsSelfAttest && e.restaurantIds.length === 0 && e.marketIds.length === 0,
     isSatisfied: (e, j) => j.attestedExperienceIds.has(e.id),
     evidenceOf: (e, j) => (j.attestedExperienceIds.has(e.id) ? { kind: 'attestation', id: e.id } : null),
   },
@@ -1495,7 +1558,7 @@ export function ancestryOfRestaurant(restaurantId) {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 53 tests total
+Expected: PASS, 55 tests total
 
 - [ ] **Step 7: Verify the dependency direction was not violated**
 
@@ -1702,10 +1765,13 @@ export function assessNarrative(narrativeId, context) {
 export function assessTheme(themeId, context) {
   const verdicts = narrativesOfTheme(themeId).map(n => assessNarrative(n.id, context));
   if (verdicts.length === 0) return verdict(false, false, [{ kind: BLOCKER.MISSING_VENUE, ref: themeId }]);
-  const playable = verdicts.some(v => v.playable);
+  const playableVerdicts = verdicts.filter(v => v.playable);
+  const playable = playableVerdicts.length > 0;
   return verdict(
     playable,
-    !playable ? false : verdicts.some(v => v.playable && v.degraded),
+    // Degraded only when there is no clean path: if any playable narrative
+    // runs without gaps, the theme is not degraded.
+    playable && playableVerdicts.every(v => v.degraded),
     playable ? [] : verdicts.flatMap(v => v.blockers),
   );
 }
@@ -1714,8 +1780,13 @@ export function assessTheme(themeId, context) {
 export function assessCollection(collectionId, context) {
   const verdicts = themeRefsOfCollection(collectionId).map(r => assessTheme(r.themeId, context));
   if (verdicts.length === 0) return verdict(false, false, [{ kind: BLOCKER.MISSING_VENUE, ref: collectionId }]);
-  const playable = verdicts.some(v => v.playable);
-  return verdict(playable, false, playable ? [] : verdicts.flatMap(v => v.blockers));
+  const playableVerdicts = verdicts.filter(v => v.playable);
+  const playable = playableVerdicts.length > 0;
+  return verdict(
+    playable,
+    playable && playableVerdicts.every(v => v.degraded),
+    playable ? [] : verdicts.flatMap(v => v.blockers),
+  );
 }
 ```
 
@@ -1747,11 +1818,15 @@ const dedupe = (markers) => {
   });
 };
 
-export function markersOfExperience(experienceId) {
+export function markersOfExperience(experienceId, themeId = null) {
   const e = experienceById(experienceId);
   if (!e) return [];
-  const [themeId] = themeIdsOfExperience(e.id);
-  const parentContext = { experienceId: e.id, themeId: themeId ?? null };
+  // Prefer the theme the caller reached this experience through; fall back to
+  // its first membership only when called without a scope. An experience can
+  // belong to several themes, and a marker must ascend to the one it was
+  // actually reached from.
+  const resolvedThemeId = themeId ?? themeIdsOfExperience(e.id)[0] ?? null;
+  const parentContext = { experienceId: e.id, themeId: resolvedThemeId };
   return [
     ...e.restaurantIds.map(id => ({ kind: 'restaurant', id, parentContext })),
     ...e.marketIds.map(id => ({ kind: 'market', id, parentContext })),
@@ -1759,7 +1834,7 @@ export function markersOfExperience(experienceId) {
 }
 
 export function markersOfTheme(themeId) {
-  return dedupe(experienceIdsOfTheme(themeId).flatMap(markersOfExperience));
+  return dedupe(experienceIdsOfTheme(themeId).flatMap(id => markersOfExperience(id, themeId)));
 }
 
 export function markersOfCollection(collectionId) {
@@ -1770,12 +1845,33 @@ export function markersOfCollection(collectionId) {
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 65 tests total
+Expected: PASS, 76 tests total
+
+> **Also amended:** `street-food` gained a second narrative, `street-quick-bite`
+> (one required step, no optional steps). The seed previously had no theme with
+> more than one narrative, so it never exercised the relationship Narrative
+> exists for — and `assessTheme`'s `every` could not be told apart from the
+> `some` bug it replaced. A test now fails if that operator is reverted.
+> Side effect, accepted: `street-food` is now undegradable (both narratives
+> share the `gwangjang` anchor and one is always clean), so collection-level
+> degradation has no discriminating test. Recorded on `assessCollection`
+> itself; closing it needs real content with a third anchor, not a bigger
+> fixture. See commits `1656e9b`, `4ef78e7`.
+
+> **Amended during execution.** Review found `degraded` structurally unreachable:
+> the seed's only optional steps were venue-less and self-attestable, so no
+> context could make them unreachable. `market-alley` — anchored, in the
+> `street-food` theme, but in no narrative — became `street-first-timer`'s
+> optional fourth step, giving the seed its missing optional-anchored case.
+> `assessTheme`/`assessCollection` were also corrected to degrade only when no
+> clean path remains, and `markersOfExperience` now takes the calling scope.
+> Six further tests cover the degradation path and the real `gwangjang`
+> collision across three `street-food` experiences; see commit `4719e8f`.
 
 - [ ] **Step 6: Verify the capability layer stayed pure**
 
 Run: `grep -rn "policy/" src/domain/capability/`
-Expected: no output.
+Expected: only comment lines, no import statements.
 
 - [ ] **Step 7: Commit**
 
@@ -1839,7 +1935,7 @@ test('narrativePath reports required count and completion', () => {
 
 test('narrativePath preserves step order and carries transitions', () => {
   const path = narrativePath('street-first-timer', emptyJourney());
-  assert.deepEqual(path.steps.map(s => s.order), [1, 2, 3]);
+  assert.deepEqual(path.steps.map(s => s.order), [1, 2, 3, 4]);
   for (const s of path.steps) assert.ok(s.transition.length > 0);
   assert.ok(path.steps[0].title.length > 0, 'steps must carry the experience title');
 });
@@ -1946,7 +2042,7 @@ Create `src/domain/projection/narrativePath.js`:
 // leaving a stale figure behind.
 
 import { experienceById, narrativeById, stepsOfNarrative } from '../catalog/index.js';
-import { experienceDone } from '../policy/completion.js';
+import { experienceDone, narrativeDone } from '../policy/completion.js';
 
 export function narrativePath(narrativeId, journey) {
   const narrative = narrativeById(narrativeId);
@@ -1968,9 +2064,12 @@ export function narrativePath(narrativeId, journey) {
     narrativeId,
     title: narrative?.title ?? narrativeId,
     steps,
+    // requiredCount and doneCount are presentation counts. `complete` is a
+    // policy decision and is delegated: a second copy of the rule here would
+    // let this view disagree with journeyProgress about the same narrative.
     requiredCount: required.length,
     doneCount: required.filter(s => s.done).length,
-    complete: required.length > 0 && required.every(s => s.done),
+    complete: narrativeDone(narrativeId, journey),
   };
 }
 ```
@@ -2094,7 +2193,7 @@ export function collectionFeed(journey, { at = new Date(), availableEvents } = {
 - [ ] **Step 6: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 74 tests total
+Expected: PASS, 85 tests total
 
 - [ ] **Step 7: Commit**
 
@@ -2300,7 +2399,7 @@ export function readLegacyJourney(storage) {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npm test`
-Expected: PASS, 82 tests total
+Expected: PASS, 93 tests total
 
 - [ ] **Step 5: Verify the bridge did not couple to the old engine**
 
@@ -2401,11 +2500,41 @@ test('a visit recorded by the legacy engine completes the matching experience', 
   assert.equal(experienceDone(experienceById('jajangmyeon'), journey), true);
 });
 
-test('the new projection never reports more done than the theme contains', () => {
+test('per-theme progress matches the figures the seed must produce', () => {
+  // Fixed expectations rather than values read back off the projection.
+  // An earlier version asserted `done <= total`, which Array.filter
+  // guarantees for any predicate however broken — it could not fail.
+  const expected = {
+    'temple-life': { done: 1, total: 2, pct: 50 },
+    'street-food': { done: 2, total: 4, pct: 50 },
+    'noodle-road': { done: 1, total: 2, pct: 50 },
+  };
+
   const p = journeyProgress(journeyFromLegacy(scenario));
-  for (const t of p.themes) {
-    assert.ok(t.done <= t.total, `${t.themeId} reports ${t.done}/${t.total}`);
-    assert.ok(t.pct >= 0 && t.pct <= 100, `${t.themeId} pct out of range`);
+  assert.equal(p.themes.length, Object.keys(expected).length);
+
+  for (const theme of p.themes) {
+    const want = expected[theme.themeId];
+    assert.ok(want, `unexpected theme ${theme.themeId}`);
+    assert.equal(theme.done, want.done, `${theme.themeId} done`);
+    assert.equal(theme.total, want.total, `${theme.themeId} total`);
+    assert.equal(theme.pct, want.pct, `${theme.themeId} pct`);
+  }
+});
+
+test('per-theme done counts agree with recomputing them from the catalog', () => {
+  // Independent of the projection's own arithmetic: walk the catalog and the
+  // completion policy directly. Catches a projection that reads the wrong
+  // theme's experiences or drops one — which comparing it against itself
+  // cannot.
+  const journey = journeyFromLegacy(scenario);
+  const p = journeyProgress(journey);
+
+  for (const theme of p.themes) {
+    const ids = experienceIdsOfTheme(theme.themeId);
+    const done = ids.filter(id => experienceDone(experienceById(id), journey)).length;
+    assert.equal(theme.total, ids.length, `${theme.themeId} total vs catalog`);
+    assert.equal(theme.done, done, `${theme.themeId} done vs policy`);
   }
 });
 
@@ -2414,11 +2543,21 @@ test('every catalogued theme appears in the projection', () => {
   assert.equal(p.themes.length, themes.length);
 });
 
-test('experiencesCompleted equals the sum of per-theme done counts', () => {
-  const journey = journeyFromLegacy(scenario);
-  const p = journeyProgress(journey);
-  const summed = p.themes.reduce((n, t) => n + t.done, 0);
-  assert.equal(p.experiencesCompleted, summed);
+test('experiencesCompleted counts each theme membership, including shared ones', () => {
+  // An earlier version reran the same reduce over the same array the
+  // projection had already used, so corrupt counts corrupted both sides
+  // identically. These are fixed figures instead.
+  //
+  // 4 here: temple-cuisine, gwangjang-market, bindaetteok, jajangmyeon.
+  const p = journeyProgress(journeyFromLegacy(scenario));
+  assert.equal(p.experiencesCompleted, 4);
+
+  // Attesting makgeolli adds it under BOTH themes it belongs to, so the
+  // figure rises by two rather than one. Pinning it stops a silent switch to
+  // distinct-counting.
+  const shared = journeyFromLegacy(scenario);
+  shared.attestedExperienceIds.add('makgeolli');
+  assert.equal(journeyProgress(shared).experiencesCompleted, 6);
 });
 
 test('an experience shared by two themes is counted in both', () => {
@@ -2436,7 +2575,7 @@ test('an experience shared by two themes is counted in both', () => {
 - [ ] **Step 2: Run the test**
 
 Run: `npm test`
-Expected: PASS, 90 tests total
+Expected: PASS, 102 tests total
 
 If any parity assertion fails, the defect is in the new model or the bridge — **never** in `src/data/journey.js`, which must not be edited.
 
@@ -2477,10 +2616,13 @@ experience shared by two themes is counted in both."
 
 ## Definition of Done for Phase 0
 
-- [ ] `npm test` passes with 90 tests
+- [ ] `npm test` passes with 102 tests
 - [ ] `npm run lint` shows no new warnings
 - [ ] `npm run check-data` exits 0
-- [ ] `git diff --stat HEAD -- src/data src/components src/App.jsx` is empty
+- [ ] `git diff --stat 432094a..HEAD -- src/data src/components src/App.jsx` is empty
+      (against the **branch base**, not `HEAD`. The working tree already
+      carried uncommitted feature work when Phase 0 began, so a `HEAD`
+      comparison could never be empty and would not have measured this phase.)
 - [ ] The only modified pre-existing file in the whole phase is `package.json` (one added script key)
 - [ ] `grep -rn "policy/" src/domain/catalog/ src/domain/capability/ src/domain/types.js` returns nothing
 - [ ] `grep -rn "data/journey" src/domain/` returns nothing
