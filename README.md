@@ -54,8 +54,20 @@ are easy to mix up (`sb_publishable_` is the one that belongs here;
 Run `supabase/schema.sql` once against a fresh project before pointing the
 app at it.
 
+**Deploying this bundle to an *existing* Supabase project (not a fresh one)?**
+Re-run `supabase/schema.sql` in the Supabase SQL editor first — it is
+idempotent (`add column if not exists` throughout), so re-running it is safe
+even if part of it was already applied. This batch added three nullable
+columns (`profiles.gender`, `tables.host_gender`, `signups.gender`); if the
+new app bundle reaches a live project before the schema is re-applied, every
+table-open, seat-join, and profile edit that touches those columns fails
+against the stale schema. The profile-sync failure is the dangerous one —
+`saveProfileFields`'s caller in `src/App.jsx` swallows the error
+(`.catch(() => {})`) so a profile edit can look saved on-screen while the
+database never received it.
+
 ```bash
-npm test          # 200 tests, node's built-in runner, no test-framework dependency
+npm test          # 210 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 ```

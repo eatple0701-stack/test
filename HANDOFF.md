@@ -162,7 +162,7 @@ npm run build
 | 요구 | 누가 | 상태 |
 | --- | --- | --- |
 | **다크 모드** | 외국인 | `prefers-color-scheme` 0건 |
-| **이메일·전화번호** | 8/2 회의, 외국인 | 프로필 필드는 `name`/`nationality`/`languages`뿐 |
+| **이메일·전화번호** | 8/2 회의, 외국인 | 프로필 필드는 `name`/`nationality`/`languages`/`gender`뿐 (이메일·전화번호는 이 배치에서도 안 만듦) |
 | **프로필 사진 / 랜덤 프사** | 8/2 회의 | 없음 (`avatar`는 다른 곳의 CSS 클래스명) |
 | **알러지 직접 입력** | 외국인("what if ur allergic to prawns") | 5종 고정. 요청 메모로만 전달됨 |
 | **신고·차단·후기** | 부장님 | `NOT_YET_BUILT`에 이름만 적혀 있음 |
@@ -179,6 +179,19 @@ npm run build
 섞어서 봤는지는 끝내 확인하지 못했지만, 어느 쪽이든 답은 같다고 판단해
 **만들었습니다** — 자기 신고 방식(`gender`, `nationality`와 동일하게 검증
 안 됨), Tables 탭의 "여성 동석" 필터로 (`docs/superpowers/plans/2026-08-02-feedback-response-batch1.md` Group D).
+
+이 필터에 관해 참고할 것 두 가지:
+
+- **RLS.** `profiles.gender`는 `nationality`가 이미 가진 것과 똑같이 넓은
+  읽기 정책(`profiles_read`)을 그대로 물려받습니다 — 새로운 노출이
+  아니라 기존 정책을 상속한 것이고, 이 배치에서 일부러 정책을 건드리지
+  않았습니다. 더 좁히려면 별도의 RLS/뷰 재설계가 필요하고, 이번 배치의
+  범위 밖입니다.
+- **범위.** 이 필터는 일부러 "여성" 하나로 고정된 단일 선호이지, 일반적인
+  성별 선택기가 아닙니다. 리뷰어가 요청한 것도 딱 그 하나("show me tables
+  where I won't be the only woman")입니다. `tableIncludesGender`
+  (`src/domain/catalog/genders.js`)는 어떤 값이든 받으므로, 나중에
+  일반화가 필요하면 데이터 모델이 아니라 UI만 바꾸면 됩니다.
 
 ### 교수님 지적 중 일부러 다르게 간 것
 
@@ -241,7 +254,8 @@ CSS 변수는 이미 한곳에 모여 있으니 값만 갈래를 내면 됩니�
 ### ④ 프로필 채우기 · 막힌 것 없음, 스키마 손댐
 
 회의와 외국인 리뷰가 같이 요구한 것들입니다. 현재 프로필은
-`name`/`nationality`/`languages`뿐입니다.
+`name`/`nationality`/`languages`/`gender`뿐입니다 (`gender`는 이 배치,
+Tasks 6–13에서 추가됨 — 아래 이메일·전화번호 등은 여전히 없습니다).
 
 - 이메일·전화번호 (회의: "이 정도는 받아놓을 수 있게끔")
 - 프로필 사진 또는 랜덤 프사
