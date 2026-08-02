@@ -39,24 +39,28 @@ The immediate cause was a push. The reason it was possible is that a folder for
 one product had a remote for another, and nothing in the repository said so.
 That is what this file and the hook are for.
 
+## How it was put back
+
+`rkdals0121/kfoodmap`'s `master` is restored at `dd0c7a4`, a commit whose tree
+is byte-identical to `b160514`. So the site is now correct because the branch
+is, not because Vercel is serving a promoted older build.
+
+It was done as an ordinary commit rather than a force push. The 87 밥친구
+commits in between stay reachable, so no existing clone breaks, nobody has to
+reset, and `git pull` does the right thing. Those commits were never at risk in
+any case — all 87 are in `rkdals0121/test`, which is where 밥친구 deploys from.
+The pre-restore state is also kept at
+`backup/master-before-restore-2026-08-02`.
+
+Both directions are now blocked. This repository carries
+`.githooks/pre-push`; the K-Food Map clone has the mirror image in its
+`.git/hooks/pre-push`, refusing pushes to `rkdals0121/test`. That one is
+deliberately uncommitted — it is a fact about how this machine is set up, not
+about that project — so it needs re-creating after a fresh clone.
+
 ## Still outstanding
 
-`rkdals0121/kfoodmap`'s `master` still holds 밥친구's commits. The site is
-correct because Vercel is serving a promoted earlier deployment, not because
-the branch is. Two consequences for whoever works on K-Food Map next:
-
-- a normal `git push` from `k-food-map/` will be rejected as non-fast-forward,
-  because its local `master` (`b160514`) is behind the remote
-- any push to that repository's `master` will redeploy 밥친구 over the site
-  again
-
-Fixing it needs one force push from the K-Food Map folder, by somebody who can
-confirm no teammate has work on that branch:
-
-```sh
-cd ../k-food-map
-git push --force origin master     # restores master to b160514
-```
-
-The state before that restore is kept on the remote as
-`backup/master-before-restore-2026-08-02`, so the force push is reversible.
+`rkdals0121/kfoodmap` still has a `phase0-domain-layer` branch that belongs to
+밥친구. It does not affect production, which only ever builds `master`, but it
+does produce preview deployments for the wrong app. Safe to delete whenever
+somebody wants to: the same commits are in `rkdals0121/test`.
