@@ -97,6 +97,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         // Halal, vegan, whatever they call it — carried to the host rather
         // than used by the app to rule on a dish it cannot check.
         diets: profile?.diets ?? [],
+        gender: profile?.gender ?? null,
       });
     } catch (e) {
       // Once tables are shared, two phones can reach for the same chair at
@@ -380,7 +381,16 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               <span className="who-row__dot" aria-hidden="true" />
               <span className="who-row__line">
                 <span className="who-row__name">{s.name}</span>
-                {s.nationality && <span className="who-row__role">{s.nationality}</span>}
+                {/* Self-declared, shown as one line with nationality rather
+                    than as a separate row — neither is verified, and
+                    stacking two unverified facts under two different visual
+                    weights would read as if one carried more certainty than
+                    the other. */}
+                {[s.nationality, s.gender].filter(Boolean).length > 0 && (
+                  <span className="who-row__role">
+                    {[s.nationality, s.gender].filter(Boolean).join(' · ')}
+                  </span>
+                )}
               </span>
               {/* The seat form asks "anything the table should know?" and
                   people answer it with the thing that matters most — no pork,

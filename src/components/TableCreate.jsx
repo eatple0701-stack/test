@@ -62,6 +62,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       menuId, date, time, place: place.trim(), restaurant: restaurant.trim(), guides, languages,
       seats: Number(seats), note: note.trim(),
       hostId: profile?.userId, hostName: hostName.trim(), hostNationality: profile?.nationality,
+      hostGender: profile?.gender ?? null,
     });
     onProfileChange?.({ ...profile, name: hostName.trim() });
     onCreated(row.id);
