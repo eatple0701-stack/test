@@ -19,20 +19,23 @@ import { ChevronLeftIcon } from './Icons';
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 export default function TableCreate({ profile, onProfileChange, onBack, onCreated, prefill }) {
-  const [menuId, setMenuId] = useState(null);
-  const [date, setDate] = useState('');
+  // A request arriving from 찾는 밥상 already named the dish and the day.
+  const [menuId, setMenuId] = useState(prefill?.menuId ?? null);
+  const [date, setDate] = useState(prefill?.date ?? '');
   const [time, setTime] = useState('19:00');
   // Arriving from a restaurant fills in the two things that place already
   // knows. The dish is still asked, because a restaurant's category is not a
   // menu and guessing one would put the wrong word on somebody's table.
   const [place, setPlace] = useState(prefill?.place ?? '');
   const [restaurant, setRestaurant] = useState(prefill?.restaurant ?? '');
-  const [seats, setSeats] = useState(4);
+  const [seats, setSeats] = useState(
+    () => Math.max(4, menuById(prefill?.menuId)?.minPeople ?? 0));
   const [note, setNote] = useState('');
   const [hostName, setHostName] = useState(profile?.name ?? '');
   const [guides, setGuides] = useState([]);
   // Their own profile answer, so the question is not asked twice.
-  const [languages, setLanguages] = useState(() => cleanLanguages(profile?.languages));
+  const [languages, setLanguages] = useState(
+    () => cleanLanguages(prefill?.languages ?? profile?.languages));
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
 

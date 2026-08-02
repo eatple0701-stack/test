@@ -21,7 +21,7 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
-export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
+export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile }) {
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
   const [menuFilter, setMenuFilter] = useState(null);
@@ -118,6 +118,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
           <button className="tables-empty__cta" onClick={onCreateTable}>
             상 차리기 · Open a table
           </button>
+          {/* The other half of an empty screen: say what you wanted, and let
+              the app either find it or hand it back as a table. */}
+          <button className="tables-empty__ask" onClick={onRequestTable}>
+            찾는 밥상 · Tell us what you are after
+          </button>
         </div>
       )}
 
@@ -181,6 +186,18 @@ export default function TablesTab({ onOpenTable, onCreateTable, profile }) {
         })}
       </div>
 
+      {/* Under the list, not only on the empty screen. A list with three
+          tables in it is empty in the way that matters if none of them is the
+          dish, the day or the district you wanted. */}
+      {tables !== null && shown.length > 0 && (
+        <button className="tables-ask" onClick={onRequestTable}>
+          <span className="tables-ask__kr">찾는 밥상</span>
+          <span className="tables-ask__body">
+            None of these? Say what you are after — we will look, and open it
+            for you if nobody has.
+          </span>
+        </button>
+      )}
     </section>
   );
 }

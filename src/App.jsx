@@ -13,6 +13,7 @@ import TablesTab from './components/TablesTab';
 import PlacesTab from './components/PlacesTab';
 import TableCreate from './components/TableCreate';
 import TableDetail from './components/TableDetail';
+import TableRequest from './components/TableRequest';
 import { getProfile, saveProfile } from './data/profile';
 import { MAP_CENTER } from './utils';
 import { matchesDietary, isQuarantined } from './data/verification';
@@ -494,7 +495,17 @@ export default function App() {
           <TablesTab
             profile={profile}
             onCreateTable={() => { setTablePrefill(null); setTableView({ screen: 'create' }); }}
+            onRequestTable={() => setTableView({ screen: 'request' })}
             onOpenTable={(id) => setTableView({ screen: 'detail', tableId: id })}
+          />
+        )}
+        {!openThemeId && activeTab === 'match' && tableView.screen === 'request' && (
+          <TableRequest
+            profile={profile}
+            onBack={() => setTableView({ screen: 'list' })}
+            onOpenTable={(id) => setTableView({ screen: 'detail', tableId: id })}
+            /* A want nobody answered, carried into the form as a table. */
+            onOpenAsHost={(prefill) => { setTablePrefill(prefill); setTableView({ screen: 'create' }); }}
           />
         )}
         {!openThemeId && activeTab === 'match' && tableView.screen === 'create' && (

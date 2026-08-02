@@ -7736,3 +7736,135 @@ body {
   font-weight: 600;
   color: var(--ink-secondary);
 }
+
+/* ---------------------------------------------------------------------------
+   찾는 밥상 — asking for a meal that may not exist
+   --------------------------------------------------------------------------- */
+.tables-ask {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 4px 20px 24px;
+  padding: 16px 18px;
+  text-align: left;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+.tables-ask__kr {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--ex-kr);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.tables-ask__body {
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.tables-empty__ask {
+  margin-top: 10px;
+  min-height: 44px;
+  padding: 0 18px;
+  background: none;
+  border: 1px solid var(--line-hover);
+  border-radius: var(--radius);
+  font-family: var(--ex-kr);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.req-results { margin-top: 8px; }
+.req-results__head {
+  margin: 0 20px 10px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.req-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 40px);
+  margin: 0 20px 8px;
+  padding: 14px 16px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+.req-row__kr {
+  flex: none;
+  font-family: var(--ex-kr);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.req-row__body { flex: 1; min-width: 0; }
+.req-row__dish {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.req-row__when {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--ink-secondary);
+}
+.req-row__shared {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-strong);
+}
+.req-row__seats {
+  flex: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+
+/* The empty result, which is the screen this whole feature exists for. */
+.req-none {
+  margin: 0 20px;
+  padding: 20px 18px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.req-none__title {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.req-none__body {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+}
+
+/* A selected dish, made readable.
+   The editorial layer wrote its label in paper cream on a dark field. The
+   redesign repainted that field with --accent-strong and the cream stayed:
+   #F8F6F0 on #C2540A is 4.26:1 at 13px, and the sub-label rode at 60% opacity
+   on top of that. It was only ever visible on a screen where something was
+   already chosen, which is why five sweeps of the create form missed it —
+   nothing is selected there until you tap. Plain white clears AA on the same
+   ground at 4.60:1. */
+.dish-option.is-on .dish-option__name { color: #fff; }
+.dish-option.is-on .dish-option__min { color: rgba(255, 255, 255, 0.88); }
