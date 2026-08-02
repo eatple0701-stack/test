@@ -37,6 +37,15 @@ export const quiz = [
       '삼 (three) 겹 (layer) 살 (flesh) — lean and fat banded together, which you can see in the raw slice before it hits the grill. Korean called it 세겹살 first, using the native word for three.',
   },
   {
+    id: 'samgyeopsal-imf',
+    sources: ['encykorea-samgyeopsal'],
+    menuId: 'samgyeopsal',
+    prompt: 'Samgyeopsal became a nationwide staple during Korea’s 1997 IMF financial crisis.',
+    answer: true,
+    reveal:
+      'Cheap and filling while wallets everywhere shrank, it got its own nickname for the moment — "IMF 삼겹살". A recession dish that never went back to being a niche one.',
+  },
+  {
     id: 'budae-origin',
     sources: ['encykorea-budae'],
     menuId: 'budae-jjigae',
@@ -44,6 +53,15 @@ export const quiz = [
     answer: true,
     reveal:
       '부대 means "military unit". Ham, sausage and bacon came out of the bases around Uijeongbu and went into a Korean broth. A dish assembled out of scarcity is now ordered by choice.',
+  },
+  {
+    id: 'budae-ramen',
+    sources: ['encykorea-budae'],
+    menuId: 'budae-jjigae',
+    prompt: 'Instant ramen noodles have always been part of budae jjigae.',
+    answer: false,
+    reveal:
+      'Ramen itself did not reach Korea until 1963, and it cost too much to spare on a stew for years after that. The noodle sitting in your bowl now is a later addition to a dish already decades old.',
   },
   {
     id: 'bossam-kimjang',
@@ -64,6 +82,15 @@ export const quiz = [
       '밥도둑 — it steals your rice, meaning it is good enough to make you eat far more than you meant to. The last step is mixing rice into the empty shell.',
   },
   {
+    id: 'gejang-raw',
+    sources: ['wikipedia-gejang-ko'],
+    menuId: 'ganjang-gejang',
+    prompt: 'The crab in ganjang gejang is cooked before it goes in the soy sauce.',
+    answer: false,
+    reveal:
+      'The crab is never cooked. The soy sauce is boiled and poured over it hot, drained, boiled again and poured back — three or four rounds — and it is the marinade that cooks, not the crab. It is why the dish makes some first-timers nervous, and why the ones who like it like it a lot.',
+  },
+  {
     id: 'jokbal-what',
     sources: ['encykorea-jokbal'],
     menuId: 'jokbal',
@@ -82,6 +109,15 @@ export const quiz = [
       'Chuncheon, from the late 1960s. By the 1970s the back alleys were full of it and it was cheap enough that students called it 대학생갈비 — student ribs.',
   },
   {
+    id: 'dakgalbi-method',
+    sources: ['encykorea-dakgalbi'],
+    menuId: 'dakgalbi',
+    prompt: 'Dakgalbi is grilled directly over an open flame, like samgyeopsal.',
+    answer: false,
+    reveal:
+      'It is stir-fried, not grilled — chicken, vegetables and rice cake all going into oil on a large hot iron pan together. Different technique, different reason four people end up leaning over the same pan.',
+  },
+  {
     id: 'gamjatang-haejang',
     sources: ['wikipedia-gamjatang-ko', 'encykorea-haejangguk'],
     menuId: 'gamjatang',
@@ -89,6 +125,15 @@ export const quiz = [
     answer: true,
     reveal:
       '해장 is its own recognised category of food here — from 해정(解酲), undoing the drink. Gamjatang, with its long-simmered broth, is one of the ones people reach for.',
+  },
+  {
+    id: 'gamjatang-cooktime',
+    sources: ['wikipedia-gamjatang-ko'],
+    menuId: 'gamjatang',
+    prompt: 'Gamjatang’s broth is simmered for about two hours.',
+    answer: true,
+    reveal:
+      'Pork spine, doenjang and a splash of soju, kept at a hard boil for roughly two hours before the vegetables go in. Not a dish anyone rushes — which is part of why it suits a slow table.',
   },
   {
     id: 'gopchang-what',
@@ -116,6 +161,15 @@ export const quiz = [
     answer: false,
     reveal:
       'Refills are free and expected. Asking for more kimchi is closer to a compliment than an imposition — the banchan belong to the table, not to your plate. Worth knowing that this is being argued about: with food prices up, some owners have started saying out loud that endless refills cannot last.',
+  },
+  {
+    id: 'baekban-literal',
+    sources: ['wikipedia-baekban-ko'],
+    menuId: 'baekban',
+    prompt: 'Baekban literally means "white rice".',
+    answer: true,
+    reveal:
+      '백 (white) 반 (rice) — the plainest possible name for the plainest possible thing on the table. The word grew to cover the whole spread of rice, soup and banchan that shows up around it, the way "table" can mean the meal and not just the furniture.',
   },
 
   {
@@ -177,6 +231,24 @@ export const quiz = [
     answer: false,
     reveal:
       '백김치 has no chilli at all, and 동치미 is a cold watery radish kimchi eaten in winter. Chilli only reached Korea partway through the Joseon dynasty — kimchi is older than the colour everyone associates with it.',
+  },
+  {
+    id: 'chopsticks-metal',
+    sources: ['facts-korea-dining'],
+    menuId: null,
+    prompt: 'Korean chopsticks are traditionally wooden, like in Japan and China.',
+    answer: false,
+    reveal:
+      'Metal, and noticeably harder to grip — flat rather than round, and slippery until your hand learns them. If the pair at your table feels different from the ones you know, that is not you.',
+  },
+  {
+    id: 'shared-pot',
+    sources: ['facts-korea-dining'],
+    menuId: null,
+    prompt: 'Everyone at the table dips their own spoon into the same pot of stew.',
+    answer: true,
+    reveal:
+      'Soup and stew are usually shared straight from the pot, not portioned into separate bowls first — which is most of why this app exists at all: a stew for one is a contradiction here.',
   },
 ];
 

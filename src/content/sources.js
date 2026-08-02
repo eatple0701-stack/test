@@ -22,10 +22,11 @@
 // testable assertions, and docs/sources-status.md lists which of them make
 // hard claims that still need backing.
 //
-// The filter now passes everything — all sixteen questions are sourced. That
-// is not a reason to remove it. Reading the sources changed four of the
-// questions, because the app had been saying more than its sources did, and
-// the next question somebody adds will arrive unsourced like all the others.
+// The filter now passes everything — all twenty-four questions are sourced.
+// That is not a reason to remove it. Reading the sources changed four of the
+// original sixteen, because the app had been saying more than its sources
+// did, and the next question somebody adds will arrive unsourced like all
+// the others.
 
 export const SOURCES = {
   'unesco-kimjang': {
@@ -59,15 +60,22 @@ export const SOURCES = {
     title: 'Eating and Drinking Customs in Korea',
     publisher: 'Facts and Details',
     url: 'https://factsanddetails.com/korea/South_Korea/People_2/entry-7230.html',
-    supports: 'Korean table manners: the rice bowl stays on the table unlike in China or Japan; you do not pour your own drink; you turn away from an elder to drink.',
+    // Read directly: "Koreans like to use metal chopsticks, which are far
+    // more slippery than conventional wooden ones," and on shared soup: "One
+    // is that Koreans like to eat soups from a communal pot and spoons are
+    // much better than chopstick for this method of eating" — with side
+    // dishes described as "often shared by more than one diner."
+    supports: 'Korean table manners: the rice bowl stays on the table unlike in China or Japan; you do not pour your own drink; you turn away from an elder to drink; chopsticks are traditionally metal rather than wood; soup, stew and side dishes are commonly shared from communal pots and plates rather than portioned per person.',
   },
   'encykorea-samgyeopsal': {
     title: '삼겹살구이',
     publisher: '한국민족문화대백과사전 · 한국학중앙연구원',
     url: 'https://encykorea.aks.ac.kr/Article/E0079961',
     // Read directly: "삼겹살은 살코기와 지방이 삼겹을 형성하고 있어서 붙은
-    // 이름이며 과거에는 세겹살로 불리웠다."
-    supports: 'The name describes lean and fat forming three layers, and the older form of the word was 세겹살.',
+    // 이름이며 과거에는 세겹살로 불리웠다." Also: "1970년대 후반부터는
+    // 삼겹살구이 전문점이 생겨난 것으로 보인다", and "1997년 IMF로 불경기가
+    // 이어지자 소위 'IMF 삼겹살'이라는 신조어가 생길 만큼 대중화되었다."
+    supports: 'The name describes lean and fat forming three layers, the older form of the word was 세겹살, dedicated samgyeopsal restaurants appeared from the late 1970s, and the dish became a nationwide staple during the 1997 IMF crisis, nicknamed "IMF samgyeopsal" for being cheap enough to afford.',
   },
   'encykorea-budae': {
     title: '부대찌개',
@@ -75,8 +83,11 @@ export const SOURCES = {
     url: 'https://encykorea.aks.ac.kr/Article/E0079968',
     // Read directly: after the war, food sent for American soldiers could be
     // got near the bases; a vendor in 의정부 was selling it from 1960 using
-    // sausage, ham and bacon from the base nearby.
-    supports: 'Budae jjigae came out of scarcity after the Korean War, built from ham, sausage and bacon obtained near US army bases, and Uijeongbu is where it was first sold.',
+    // sausage, ham and bacon from the base nearby. Also: "라면은 1963년에야
+    // 처음 국내에 들어왔고, 초창기에는 값이 너무 비싸서 부대찌개에 넣어 먹을
+    // 엄두를 내지 못했다" — ramen only reached Korea in 1963 and was too
+    // expensive to add to the dish for years after.
+    supports: 'Budae jjigae came out of scarcity after the Korean War, built from ham, sausage and bacon obtained near US army bases, Uijeongbu is where it was first sold, and instant ramen — now a common addition — only reached Korea in 1963 and was too costly to include for years afterward.',
   },
   'encykorea-jokbal': {
     title: '족발',
@@ -93,8 +104,11 @@ export const SOURCES = {
     url: 'https://encykorea.aks.ac.kr/Article/E0067943',
     // Read directly: began in Chuncheon bars in the late 1960s; through the
     // 1970s the Myeongdong back alleys filled with it and it drew soldiers on
-    // leave and students — "별명이 '대학생갈비', '서민갈비'라 불렸다".
-    supports: 'Dakgalbi began in Chuncheon in the late 1960s and was nicknamed 대학생갈비 as a cheap filling meal for students in the 1970s.',
+    // leave and students — "별명이 '대학생갈비', '서민갈비'라 불렸다". Also:
+    // "뜨겁게 달군 철판에 기름을 두르고 채소와 흰떡을 한데 넣고 볶는다" — it is
+    // stir-fried together on a hot iron pan with vegetables and rice cake, not
+    // grilled over an open flame.
+    supports: 'Dakgalbi began in Chuncheon in the late 1960s and was nicknamed 대학생갈비 as a cheap filling meal for students in the 1970s, and is cooked stir-fried on a hot iron pan with vegetables and rice cake rather than grilled over a flame.',
   },
   'encykorea-bansang': {
     title: '반상',
@@ -150,23 +164,30 @@ export const SOURCES = {
     publisher: '위키백과 (Korean Wikipedia)',
     url: 'https://ko.wikipedia.org/wiki/게장',
     // Read directly: "참게장은 '밥도둑'이라는 별명도 있는데, 입맛을 돋워 밥을
-    // 많이 먹게 할 만큼 맛있는 음식이라는 의미이다."
+    // 많이 먹게 할 만큼 맛있는 음식이라는 의미이다." Also on preparation: "손질한
+    // 게에 식은 간장물을 부어 담가 두었다가 먹는다" and "약 한 시간이 지난 뒤
+    // 간장만 따라내어 다시 끓여 게에 붓는다. 이 과정을 서너 번 반복한다" — the
+    // soy sauce is boiled and poured over repeatedly; the crab itself is never
+    // cooked.
     //
-    // Scope worth keeping honest: the page attaches the nickname to 참게장,
-    // the mitten-crab soy version, rather than to soy-cured crab in general.
-    supports: 'Soy-cured crab carries the nickname 밥도둑 — rice thief — meaning food good enough to make you eat far more rice; the page attests it for 참게장.',
+    // Scope worth keeping honest: the page attaches the 밥도둑 nickname to
+    // 참게장, the mitten-crab soy version, rather than to soy-cured crab in
+    // general.
+    supports: 'Soy-cured crab carries the nickname 밥도둑 — rice thief — meaning food good enough to make you eat far more rice; the page attests it for 참게장. The crab itself is raw, never cooked — only the soy sauce marinade is boiled, then poured over the crab repeatedly.',
   },
   'wikipedia-gamjatang-ko': {
     title: '감자탕',
     publisher: '위키백과 (Korean Wikipedia)',
     url: 'https://ko.wikipedia.org/wiki/감자탕',
     // Read directly: "한국에서는 해장국, 식사메뉴, 야식, 술안주 등으로 인기가
-    // 있는 요리에 해당한다."
+    // 있는 요리에 해당한다." Also on preparation: "새로운 냄비에 물을 다시
+    // 받아 돼지등뼈와 된장, 소주를 넣고 2시간 정도 팔팔 끓여 국물을 낸다" —
+    // the pork spine simmers roughly two hours to make the broth.
     //
     // Note this is the dish's use, not its name. The argument over whether
     // 감자 means potato or a cut of spine stays out of the quiz, as the note
     // at the top of quiz.js explains.
-    supports: 'Gamjatang is eaten as 해장국 as well as a meal, late-night food and drinking food.',
+    supports: 'Gamjatang is eaten as 해장국 as well as a meal, late-night food and drinking food, and its broth is made by simmering pork spine for roughly two hours.',
   },
   'koreatimes-banchan': {
     title: 'Inflation, hygiene woes hit Korean banchan culture',
@@ -180,6 +201,14 @@ export const SOURCES = {
     // traveller reading this app in 2026 should know the custom is under
     // pressure, and the quiz reveal now says so.
     supports: 'Free unlimited banchan refills remain the norm in Korea as of February 2026, while agricultural inflation has restaurant owners debating an end to the practice.',
+  },
+  'wikipedia-baekban-ko': {
+    title: '백반',
+    publisher: '위키백과 (Korean Wikipedia)',
+    url: 'https://ko.wikipedia.org/wiki/백반',
+    // Read directly: "백반(白飯)은 백미로 만든 흰 쌀밥을 말한다. 밥·국·반찬
+    // 등을 한 상에 차려놓은 음식을 의미하기도 한다."
+    supports: 'Baekban (白飯) literally means plain white rice, and the word has broadened to also name the whole rice-soup-banchan set meal served under that name.',
   },
 };
 
