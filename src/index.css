@@ -7877,3 +7877,24 @@ body {
   line-height: 1.45;
   color: var(--accent-ink);
 }
+
+/* Sending a table to somebody. Quiet and full-width under the facts, because
+   it is an action on the table rather than a decision about it. */
+.detail-share {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 14px;
+  min-height: 46px;
+  background: var(--surface);
+  border: 1px solid var(--line-hover);
+  border-radius: var(--radius);
+  font-family: var(--ex-kr);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+.detail-share:active { transform: scale(0.99); }

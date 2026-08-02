@@ -6,6 +6,7 @@ import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
 import { conflictsFor } from '../data/profile';
 import { PURPOSE } from '../content/safety.js';
+import { shareUrlFor } from '../routes.js';
 import { guideById, hostKindLabel } from '../domain/catalog/hosts.js';
 import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../domain/catalog/languages.js';
 import { themeById } from '../domain/catalog/index.js';
@@ -39,6 +40,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const [safetyOpen, setSafetyOpen] = useState(false);
   const [editingIdentity, setEditingIdentity] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [shared, setShared] = useState(false);
   // Set once in Profile, so the seat form has nothing left to ask.
   const profileKnown = Boolean(profile?.name?.trim());
 
@@ -110,6 +112,22 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     await refresh();
     setBusy(false);
     setJoined(true);
+  };
+
+  // Native share where the phone has it — that is the sheet with KakaoTalk in
+  // it, which is how this link will actually travel in Korea. Clipboard is the
+  // fallback, and the URL is visible in the bar either way.
+  const share = async () => {
+    const url = shareUrlFor(tableId);
+    const text = `${menu.name} · ${fullDate(table.date)} at ${table.time}, ${table.place}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: '밥친구', text, url }); return; } catch { /* dismissed */ }
+    }
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      setShared(true);
+      setTimeout(() => setShared(false), 2200);
+    } catch { /* clipboard blocked; the address bar still holds the link */ }
   };
 
   const cancelTable = async () => {
@@ -227,6 +245,14 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </span>
           of {table.seats}
         </p>
+
+        {/* The URL existed and nothing offered it. A host with empty seats has
+            no other way to fill them — there is no messaging, no notification
+            and no feed — so the link is the only reach this app gives them.
+            핵심기능 5 is SNS 확산, and this is the object that spreads. */}
+        <button className="detail-share" onClick={share}>
+          {shared ? <><CheckIcon size={15} /> Link copied</> : '링크 보내기 · Send this table to someone'}
+        </button>
       </div>
 
       {/* Language, said plainly, in all four of its states. Somebody weighing

@@ -16,6 +16,7 @@ import TableDetail from './components/TableDetail';
 import TableRequest from './components/TableRequest';
 import { getProfile, saveProfile } from './data/profile';
 import { MAP_CENTER } from './utils';
+import { pathFor, stateFromPath } from './routes.js';
 import { matchesDietary, isQuarantined } from './data/verification';
 import { journeyFromLegacy } from './domain/bridge/legacyJourney.js';
 import { journeyProgress } from './domain/projection/journeyProgress.js';
@@ -124,15 +125,20 @@ function loadCompanions() {
   }
 }
 
+// Read once, before any state exists: a link somebody was sent names a screen,
+// and the app has to start on it rather than on Explore and jump afterwards.
+const opening = stateFromPath(typeof window === 'undefined' ? '/' : window.location.pathname);
+
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(
+    () => activeRestaurants.find(r => r.id === opening.restaurantId) ?? null);
   const [bookmarks, setBookmarks] = useState(loadBookmarks);
   const [companions, setCompanions] = useState(loadCompanions);
   const [visitedMarkets, setVisitedMarkets] = useState(loadMarkets);
   const [attestations, setAttestations] = useState(loadAttestations);
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(opening.activeTab);
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
   const [focusStory, setFocusStory] = useState(false);
   const [prologueCompleted, setPrologueCompleted] = useState(
@@ -143,7 +149,7 @@ export default function App() {
   // 밥친구 navigation, kept local to the Tables tab rather than in the global
   // tab state — opening a table is a step inside that tab, not a fifth
   // destination, and switching tabs should not strand you mid-form.
-  const [tableView, setTableView] = useState({ screen: 'list' });
+  const [tableView, setTableView] = useState(opening.tableView);
   // Carried from a restaurant into the open-a-table form.
   const [tablePrefill, setTablePrefill] = useState(null);
 
@@ -173,7 +179,55 @@ export default function App() {
 
   // Theme is a screen, not a sheet: it replaces the tab's content and has a
   // back affordance, rather than stacking another overlay on the pile.
-  const [openThemeId, setOpenThemeId] = useState(null);
+  const [openThemeId, setOpenThemeId] = useState(opening.openThemeId);
+
+  // ---------------------------------------------------------------------
+  // The address bar
+  // ---------------------------------------------------------------------
+  // Everything above is screen state, and none of it used to reach the URL.
+  // Two things broke for the people testing this: the phone's back button
+  // left the app entirely, because every screen in a session shared one
+  // address and the browser had nowhere to go back to; and a table could not
+  // be sent to anybody, because there was no link to send. The second is not
+  // a convenience — 핵심기능 5 is SNS 확산, and the product had no shareable
+  // object in it at all.
+  //
+  // Written against the History API rather than a router, because the mapping
+  // is nine paths over four pieces of state that already exist.
+  const path = pathFor({
+    activeTab, tableView, openThemeId, restaurantId: selectedRestaurant?.id ?? null,
+  });
+
+  // Push only when the address actually changes, or every render would add a
+  // history entry and Back would walk on the spot.
+  const lastPath = useRef(null);
+  useEffect(() => {
+    if (lastPath.current === path) return;
+    // The first run adopts whatever is already in the bar — a shared link —
+    // instead of pushing a duplicate on top of it.
+    if (lastPath.current === null) window.history.replaceState({ path }, '', path);
+    else window.history.pushState({ path }, '', path);
+    lastPath.current = path;
+  }, [path]);
+
+  // Back and forward. Applied to state rather than reloading, so the trip is
+  // instant and nothing already fetched is thrown away.
+  useEffect(() => {
+    const onPop = () => {
+      const next = stateFromPath(window.location.pathname);
+      lastPath.current = window.location.pathname;
+      setOpenThemeId(next.openThemeId);
+      setActiveTab(next.activeTab);
+      setTableView(next.tableView);
+      if (!next.restaurantId) setSelectedRestaurant(null);
+      else {
+        const found = activeRestaurants.find(r => r.id === next.restaurantId);
+        setSelectedRestaurant(found ?? null);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const openMap = (scope = {}) => {
     setMapScope({
