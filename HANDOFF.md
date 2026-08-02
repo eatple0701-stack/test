@@ -1,1312 +1,223 @@
-# K-Food Map — Engineering Handoff
+# 밥친구 / Eatple — 인수인계
 
-**Status:** working prototype, production-grade data architecture, incomplete data.
-**Last updated:** 2026-07-18 · **HEAD:** `8807bac` (Nearby Route MVP —
-**Phase 6 underway**; v1.0 shipped at `07feea7`)
-**+ uncommitted changes** (Phase 6 — Story Timeline MVP: a sourced history
-timeline on the three venues whose story already carries one; `restaurants.js`
-gains a `timeline` editorial field on those three, plus app code and this
-file) · **Places:** 20 (18 active, 2 quarantined)
+**HEAD:** `43a28d6` · 2026-08-02 · 워킹트리 깨끗
+**테스트:** 200개 전부 통과 (`npm test`, 약 14초)
+**배포:** https://test-umber-phi-78.vercel.app
 
-This document is the canonical handoff. It should be enough to continue work
-without reading any prior conversation. Where it states a number, that number
-was measured from the repository at the commit above **plus the working
-tree**, not remembered. The working tree currently differs from `HEAD` in this
-file and three app-code/data files (`restaurants.js`, `RestaurantDetail.jsx`,
-`index.css`), no commit yet — see §12 for what that change is before assuming
-this document describes committed code.
+이 문서 하나로 이전 대화를 읽지 않고 이어서 작업할 수 있게 썼습니다.
+숫자는 기억이 아니라 위 커밋의 저장소에서 직접 센 것입니다.
+
+이 파일의 이전 버전은 **K-Food Map**이라는 다른 앱의 인수인계 문서였습니다.
+그 내용은 옆 저장소(`rkdals0121/kfoodmap`)와 이 저장소의 git 이력
+(`git show 31e4b2f:HANDOFF.md`)에 그대로 남아 있습니다.
 
 ---
 
-## 1. Project Overview
-
-### What this is
-
-A map-first web app that helps foreign visitors find Korean restaurants matching
-their dietary needs (vegan, halal, mild, fermented, zero-waste, local sourcing)
-and — the part that matters — understand the food culture behind them.
-
-It is part of a **digital public diplomacy** initiative. That single fact drives
-every architectural decision in this repo. A restaurant finder that is wrong is
-annoying. A state-adjacent cultural project that tells a Muslim traveller a
-restaurant is halal when nobody checked, or presents a contested commercial
-claim as national heritage, is a different category of failure. **Restaurant
-discovery is the entry point; cultural storytelling is the product.**
-
-### Target users
-
-First-time international visitors to Seoul and Incheon, typically with a
-dietary constraint (religious or ethical) and no Korean. Secondary: anyone
-curious about Korean food culture.
-
-### Design philosophy
-
-- **95% modern global UI, 5% Korean identity.** The interface should be
-  instantly familiar (Google/Apple Maps, Airbnb, Notion). Korean identity comes
-  from *content* — food stories, cultural explanations, the passport journal,
-  a few bilingual labels — not from paper textures or ornamental typography.
-- **Honest over complete.** `unknown` always beats a plausible guess.
-- **The map is the hero**, but never the whole screen: the first view is
-  search → filters → map (~46vh) → restaurant list, all without interaction.
-
-### Core user journey
-
-```
-Discover (map + filters + list)  →  Restaurant Detail  →  Journal
-```
-
-The detail page is deliberately a reading journey:
-
-```
-hero → quick facts ("can I eat here?") → practical (directions/hours/address)
-     → menu → why it's special (hook) → food story + "did you know?"
-     → sustainability → dining tips → provenance footer
-```
-
-### Maturity
-
-| Layer | State |
-|---|---|
-| UI / UX | **Done.** Five approved steps; responsive mobile/tablet/desktop; AA contrast; no known regressions. |
-| Trust & evidence architecture | **Done.** Production-grade, validated, documented. |
-| Lifecycle (existence/publication state) | **MVP, uncommitted.** `ACTIVE`/`QUARANTINE` implemented and enforced by `check-data`; `ARCHIVED`/`DELETED` are named only, no logic. See §2.14. |
-| Data | **Phase A verification complete.** 20 places (18 active, 2 quarantined); 18 have ≥1 confirmed field; 2 have zero — both are `akiya` and `makan`, both quarantined, not pending verification. **Every active restaurant now has at least one confirmed field and a street-precision address.** (No single "% verified" figure is meaningful here — see §8 for the field-level breakdown; many honestly unknown fields remain by design, not by omission.) |
-| Evidence migration | **1 of 20** restaurants migrated (demonstration only). |
-| Content (stories) | **Draft quality.** Marketing tone in 13/20; one story corrected so far. |
-
-The gap between "architecture done" and "data done" is the whole point of the
-current phase. **Do not add features. Fill the data.**
-
----
-
-## 2. Current Architecture
-
-### 2.1 Stack
-
-React 19 + Vite 7 + react-leaflet 5 + Leaflet 1.9. No backend, no router, no
-state library. State is `useState` in `src/App.jsx`. The journal persists to
-`localStorage` under `kfm-bookmarks` as `[{ id, savedAt, visitedAt }]` — see
-§2.15. Lint is `oxlint`.
-
-**Why no backend:** it was a hard constraint from the outset, and it has been
-load-bearing rather than limiting. Everything — verification, evidence,
-validation — happens at authoring time in Node and ships as static data.
-
-### 2.2 Restaurant data model — `src/data/restaurants.js` (928 lines)
-
-One flat array of 20 objects. Fields split into three groups:
-
-```js
-{
-  // identity — plain values
-  id, name, zone, category, image, photo, coverImage, gallery, traits,
-
-  // facts — value + provenance (see 2.3)
-  coordinates, address, hours, menus, phone, officialUrl, instagram, transit,
-  dietary: { vegan, halal, halalCertClaim? },
-
-  // editorial — prose, sourced via storyRefs
-  vibe, story, esg_point, storyRefs?,
-
-  // research metadata, never rendered
-  imageLeads?,
-}
-```
-
-`photo` / `coverImage` / `gallery` are the **image contract**: all null today.
-`PlaceImage` renders real photography when present and a designed illustration
-placeholder otherwise, so shipping photos later is a data change, not a code
-change.
-
-`traits` holds non-safety descriptors (`Mild Taste`, `Fermented`, `Zero-waste`,
-`Local Sourcing`). Dietary is deliberately **not** a trait — see 2.5.
-
-### 2.3 Fact system — `src/data/verification.js` (278 lines)
-
-Every field a user might act on is wrapped:
-
-```js
-fact(value, {
-  confidence,     // how far we trust it
-  source,         // where it came from
-  url, method,    // how to repeat the check (pre-evidence-layer records)
-  lastCheckedAt,  // when
-  evidence,       // one-line summary for the UI badge tooltip
-  evidenceRefs,   // pins into the evidence layer (post-migration)
-  precision,      // address only: 'street' | 'area'
-})
-```
-
-`fact()` enforces one invariant: **an unknown fact carries no value, and a
-valueless fact is unknown.** The two can never disagree, because the constructor
-normalises them. This is why no UI code ever needs a `value != null &&
-confidence !== 'unknown'` dance.
-
-Helpers: `isKnown`, `isConfirmed`, `needsCheck`, `trustBadge`,
-`dietaryBadges`, `dietaryConfidence`, `matchesDietary`, `validateDietary`.
-
-### 2.4 Confidence model — the two axes
-
-The single most important design decision in the repo. **Confidence and source
-are orthogonal and stay orthogonal.**
-
-```js
-CONFIDENCE = { CONFIRMED, SUPPORTED, INFERRED, UNKNOWN }
-SOURCE = { OFFICIAL, OPERATOR, GOVERNMENT, MAP_SERVICE, DIRECTORY,
-           COMMUNITY, RESEARCH, SELF_DECLARED, GEOCODER, AREA_FALLBACK }
-METHOD = { OPERATOR_SITE, GOV_LISTING, MAP_LOOKUP, MAP_CROSSCHECK,
-           ROUTING_API, DIRECTORY_LISTING, CORROBORATED }
-```
-
-- **`confirmed`** — checked against a primary source: a registry, the operator,
-  or an on-site visit. Requires `lastCheckedAt`, a `method` (inline or via
-  evidence), and `evidence`.
-- **`supported`** — a source states it outright; nobody has checked it.
-- **`inferred`** — our reading of context (a category, a venue's own branding).
-  The reasoning goes in `evidence`.
-- **`unknown`** — never rendered as fact.
-
-**Why not one flattened enum** (`Official / Community / Estimated / Unknown`,
-which was proposed and rejected): it collapses two different questions. You
-could not then express "community-reported **and** we confirmed it" or
-"official **but** three years stale". `trustBadge()` collapses the pair into one
-word for the reader — model expressiveness and screen simplicity are not a
-trade-off.
-
-`trustBadge(fact)` → `Official` · `Community-checked` · `Confirmed` ·
-`Reported` · `Inferred` · `Unknown`, each with a `tone` for styling.
-
-`dietaryConfidence(place)` returns the **weakest** known dietary level, because
-that is the one a traveller would be most surprised by. The detail page's caveat
-keys off it.
-
-### 2.5 Dietary model — safety-critical, so structured
-
-```js
-VEGAN = { FULL, OPTIONS, NONE, UNKNOWN }
-HALAL = { CERTIFIED, FRIENDLY, PORK_FREE, NONE, UNKNOWN }
-```
-
-Rules enforced by `validateDietary()` and `check-data`:
-
-- **`HALAL.CERTIFIED` requires `CONFIRMED` confidence *and* a `cert` reference.**
-  It may never be derived from a venue's name, its menu, or a vegan claim.
-  Currently **0 places are certified** — including EID, where Seoul's own
-  tourism site states KMF certification. See §9.
-- **Halal may only be `INFERRED` from `SELF_DECLARED`** (the venue's own name),
-  never from a category or another dietary field.
-- A claimed-but-unsighted certificate lives in `dietary.halalCertClaim` and the
-  UI prints it *as a claim*.
-- `PORK_FREE` exists but is unused: deriving it from `VEGAN.FULL` would chain an
-  inference onto an unconfirmed value.
-
-`matchesDietary()` is the only path a dietary filter chip may match, and
-`unknown` never matches — a filter must never send someone somewhere we cannot
-vouch for. Badges print the exact level, so "Vegan options" never reads as
-"Fully vegan". That distinction is the fix for the original defect (§6, P0).
-
-### 2.6 Source model — `data/evidence/sources.json`
-
-A source is the *publisher*, reusable across evidence records:
-
-```jsonc
-"src-itour-incheon": {
-  "id", "name", "kind": "government", "tier": 2, "homepage", "note"
-}
-```
-
-`kind` ∈ operator | government | map | sns | directory | press | reference.
-`tier` mirrors the project's agreed priority (operator 1 → government 2 → map 3
-→ sns 4 → directory 5 → press/reference 6). **Tier decides whose word wins when
-sources disagree. It does not decide how confident a fact may be** — that
-ceiling lives on the evidence version (§2.7), because the same source can be
-read well or badly.
-
-### 2.7 Evidence Layer — `src/data/evidence.js` + `data/evidence/*.json`
-
-```
-Restaurant → Fact → EvidenceRef → EvidenceRecord → EvidenceVersion → Source
-```
-
-An **EvidenceRecord** is one retrievable thing (a page). It has `id`,
-`sourceId`, `title`, `url`, and an ordered array of **versions**:
-
-```jsonc
-{
-  "version": 1,
-  "method": "GOV_LISTING",
-  "confidence": "supported",   // ← a CEILING, see below
-  "status": "active",
-  "capturedAt": "2026-07-17",
-  "checkedAt": "2026-07-17",
-  "retrievedBy": "claude-opus-4-8",
-  "excerpt": "…what the page actually said…",
-  "license": { "type": "unknown", "commercialUse": null, "note": "…" },
-  "notes": "…",
-  "supersedes": null,
-  "hash": "ea0e4dd587ff9034"
-}
-```
-
-**`confidence` on a version is a ceiling, not a second opinion.** It is the
-strongest a fact may claim on *this evidence alone*:
-
-| Retrieval | Ceiling |
-|---|---|
-| operator's own site | `confirmed` |
-| single map lookup | `supported` |
-| same lookup cross-checked against the other map service | `confirmed` |
-| government tourism listing | `supported` (authoritative but curated, goes stale) |
-| directory | `supported` |
-
-`check-data` enforces `fact.confidence ≤ max(ceiling of its refs)`. **This is
-how the source-priority order became a machine rule instead of a habit.**
-
-`status` ∈ active | superseded | partial | unreachable | disputed. Only the
-newest version may be `active`.
-
-### 2.8 Version pinning
-
-A fact pins the version it was established from:
-
-```js
-evidenceRefs: [evidenceRef("ev-gonghwachun-kakao-map", 1, "independent corroboration")]
-```
-
-When someone later appends v2 (the restaurant changed its hours),
-`check-data` reports:
-
-> `gonghwachun.hours: pins ev-gonghwachun-itour@1 while v2 exists — re-verify,
-> then move the pin (this is a warning by design, not a silent re-point)`
-
-**The warning is the feature.** A fact must never inherit a newer claim nobody
-re-checked. Pinning makes "this fact is behind its evidence" visible instead of
-silent.
-
-### 2.9 Immutability — SHA-256 sealing
-
-`hash` is a SHA-256 (truncated to 16 hex chars) over a canonical JSON encoding
-of exactly these frozen fields:
-
-```
-version, method, confidence, capturedAt, checkedAt, retrievedBy,
-excerpt, license, supersedes
-```
-
-`status` sits **outside** the hash, so superseding a version never requires
-rewriting it. Edit any frozen field in place and `check-data` fails with both
-hashes. Canonicalisation sorts object keys recursively, so key order cannot
-change a hash.
-
-- `node scripts/evidence-hash.mjs` — seals anything unsealed or `PLACEHOLDER`
-- `--check` — reports drift without writing
-- `--reseal <id>@<version>` — the loud escape hatch for a **bad seal**, not for
-  recording change. To record change, append a version.
-
-### 2.10 Story references
-
-Editorial prose carries `storyRefs` at the restaurant level, not on a fact:
-
-```js
-storyRefs: [
-  evidenceRef("ev-gonghwachun-sportsseoul-trademark", 1, "1905 founding, 1983 closure, 2002 trademark…"),
-  evidenceRef("ev-jajangmyeon-museum-heritage", 1, "the old building is the museum, and is registered heritage"),
-]
-```
-
-**Why prose gets its own refs:** editorial is where an unsourced claim does the
-most damage. The Gonghwachun story asserted a lineage the venue does not have,
-and no fact-level validation would ever have caught it, because it was not a
-fact — it was a paragraph. Currently only `gonghwachun` has `storyRefs`.
-
-### 2.11 Verification pipeline (human/agent process, not code)
-
-Source priority when gathering: **operator site → government/tourism →
-official map listings → operator SNS → trusted directory.**
-
-1. Naver Place (official API) → address, road address, coordinates
-   (`mapx`/`mapy` are lat/lng ×10⁷), website link, sometimes phone.
-2. Kakao Map (official API) → cross-check address; walking routes give
-   station + line + distance + duration. **The routing API does not return exit
-   numbers** — only Gonghwachun has one, from corroborating write-ups.
-3. Operator website (best source; `WebFetch`).
-4. Government tourism (visitseoul.net, itour.incheon.go.kr).
-5. DiningCode (fetchable, has per-day hours/break/last-order).
-6. Naver web search (`search_webkr`) as the discovery layer.
-
-**If sources disagree, the field stays `unknown`.** Never average. Never pick
-the convenient one. (Applied: `maji` hours.)
-
-### 2.12 `check-data` — `npm run check-data`
-
-The QA gate. Exits non-zero on any violation. Two halves:
-
-**Fact-level** (`scripts/check-data.mjs`, 118 lines)
-- the `fact()` invariant (unknown ⟷ valueless)
-- known facts must name a source
-- `CONFIRMED` needs `lastCheckedAt`, `evidence`, and a method (inline **or** via
-  evidence refs — both shapes valid during migration)
-- `hours` must be `{ raw, weekly }` with `raw` preserved; `weekly` days must be
-  valid keys, slots `HH:MM`
-- `transit` needs station, line, walkingMinutes
-- `validateDietary()` rules
-- badges never render from unknown facts
-- image leads: `reusable` needs a named licence and a settled `commercialUse`;
-  **a lead may never coexist with a shipped file** in photo/coverImage/gallery
-
-**Evidence-level** (`scripts/lib/check-evidence.mjs`, 180 lines) — ten rules,
-each proven to fire against a deliberately mutated copy of the store:
-
-| Rule | Fails when |
-|---|---|
-| duplicate ids | same id in two files |
-| broken references | fact pins a nonexistent id/version |
-| orphan evidence | a record no fact cites |
-| invalid version chains | numbers skip, `supersedes` wrong, old version still `active` |
-| impossible timestamps | not `YYYY-MM-DD`, future, `capturedAt > checkedAt`, or captured before the version it supersedes |
-| missing URLs | no `url` / `title` / `sourceId` |
-| unsupported methods | `method` outside the seven |
-| immutable violations | sealed version's frozen fields changed |
-| over-claiming | `fact.confidence` > evidence ceiling |
-| stale pins | newer version exists than the fact was verified against |
-
-**Dates compare against today in Seoul** (`Intl.DateTimeFormat` with
-`Asia/Seoul`). Every date in this dataset is a Korean calendar date; a UTC
-"today" called this morning's work "the future" for nine hours a day. That was a
-real bug the rule caught on itself.
-
-### 2.13 Build
-
-`vite build` → `dist/`. Bundle ≈ 430 kB JS / 33 kB CSS (≈ 129 / 10.6 kB gzip).
-
-**Evidence records are not in the bundle.** Verified by grepping the build:
-`retrievedBy`, `capturedAt`, `supersedes` appear **0** times; only the small ref
-id strings ship. Confirm after any change:
+## 0. 먼저 읽어야 할 경고 두 가지
+
+**하나. `README.md`는 이 앱 이야기가 아닙니다.**
+아직 **K-Food Map** — 지도 중심 식당 찾기 앱 — 을 설명합니다. 이 저장소는
+그 코드베이스에서 갈라져 나왔고 README는 갱신되지 않았습니다. 읽으면 완전히
+다른 제품을 이해하게 됩니다. 안 고친 이유는 제품 작업을 우선했기 때문이고,
+고치는 것 자체가 아래 4번의 첫 항목입니다.
+
+**둘. 이 폴더에서 `kfoodmap` 저장소로 절대 푸시하지 마세요.**
+8월 2일에 실제로 그 일이 일어났고, 남의 라이브 앱이 몇 시간 동안 밥친구를
+서빙했습니다. 지금은 원격이 하나뿐이고 pre-push 훅이 막지만, **새로 클론하면
+훅을 다시 켜야 합니다:**
 
 ```bash
-npm run build && grep -c retrievedBy dist/assets/*.js   # must be 0
+git config core.hooksPath .githooks
 ```
 
-### 2.14 Restaurant lifecycle — ACTIVE / QUARANTINE (MVP)
-
-A restaurant record's existence/publication state, kept separate from
-field-level `CONFIDENCE` (§2.4). A record can have well-sourced facts and
-still need excluding from the live app — because its existence *as an
-entity* is in doubt, or because the entity existed and has since stopped
-operating. `CONFIDENCE` has no vocabulary for either question: it grades how
-far we trust a *field*, and conflating the two would mean either blocking a
-well-verified place because one field is shaky, or shipping a restaurant
-that closed last year with impeccably-sourced hours.
-
-**Why this is an extension, not new architecture.** This was proposed after
-the project's architecture froze at the Evidence Layer (`b13b084`), so it is
-held to the same test every decision in §5 is: does it add a new
-verification mechanism, a new layer, or a new pattern? No on all three —
-`lifecycle.determination` is a `fact()`, accepted by the identical
-`hasEvidence()` / inline-`method`-and-`evidence` dual path `check-data`
-already applies to `CONFIRMED` facts (§2.12); no new axis was added
-alongside `CONFIDENCE`/`SOURCE` — `LIFECYCLE` is an orthogonal, optional
-field, not a competing confidence model; and it defaults to absent →
-`ACTIVE`, so no existing record needed a migration. What's new is a name for
-a question ("does this entity exist") the schema had no field for — added
-vocabulary on an existing primitive, not a new one. This paragraph, §5's
-decision entry, and DATA.md's Lifecycle section are this feature's design
-record; no separate ADR was judged necessary, consistent with how every
-other decision in this document is tracked.
-
-```js
-LIFECYCLE = { ACTIVE, QUARANTINE, ARCHIVED, DELETED }
-isQuarantined(restaurant)   // false whenever restaurant.lifecycle is absent
-```
-
-Only `ACTIVE` and `QUARANTINE` carry logic. `ARCHIVED` and `DELETED` are
-named in `src/data/verification.js` for vocabulary continuity — so the next
-restaurant that needs them doesn't invent a fifth status — but have no
-transition logic and no UI treatment; both are marked `TODO(lifecycle)` in
-the source. Backward compatible by construction: `isQuarantined()` reads
-`restaurant?.lifecycle?.status`, so a restaurant with no `lifecycle` key is
-unaffected and needs no migration.
-
-**Two different findings currently share `QUARANTINE`. Read the
-`determination`, not the status, to know which.** The MVP implements two
-statuses, but three distinct situations have already arisen:
-
-| Finding | Example | Status today | Status once `ARCHIVED` exists |
-|---|---|---|---|
-| Existence never established | `akiya` — no trace on either map service, the geocoding pipeline, or git history | `QUARANTINE` | `QUARANTINE` (unchanged — nothing was ever confirmed to archive) |
-| Existence well-established, credible evidence it has stopped operating | `makan` — a decade of independent write-ups and 112 reviews, but Seoul's tourism site marks it "[운영중지]" and both map services have dropped it | `QUARANTINE` | `ARCHIVED` |
-| Operating normally | the other 18 | `ACTIVE` | `ACTIVE` |
-
-The two are **not** the same claim, and the distinction is real: one says
-*we cannot find this place*, the other says *this place was real and is
-gone*. They collapse onto one status only because `ARCHIVED` is unimplemented
-(above), and both need the same user-facing outcome today — excluded from
-every discovery surface. Implementing `ARCHIVED` to separate them is a
-deliberate deferral, not an oversight: it would need transition logic, a UI
-treatment (an archived venue is arguably worth *showing* as closed rather
-than hiding, which is a design question nobody has answered), and a rule
-about what evidence promotes `QUARANTINE` → `ARCHIVED`. None of that is
-needed to keep a closed restaurant off the map, which is the whole job
-today. **Until then, a reader must not infer the finding from the status** —
-`akiya` and `makan` read identically as `QUARANTINE` and mean different
-things. Each record's `lifecycle.determination` carries the actual finding,
-its source, and its method; that fact, not the enum, is the audit record.
-This is also why the determination is a `fact()` rather than a boolean.
-
-**Why QUARANTINE and not DELETE:** deletion is a claim of its own — that the
-place definitely does not exist — and the project holds that claim to the
-same evidence bar as every other field (§11 rule 4–5: unknown beats
-fabricated certainty; never invent a value). `akiya`'s investigation found
-*no trace*, not *proof of absence*. Quarantine excludes it from every
-discovery surface without asserting a negative nobody has proven, and
-without discarding the record (and its evidence file, once it has one) if
-better evidence later confirms or refutes it. The answer holds for `makan`
-for the opposite reason: it demonstrably *did* exist, and deleting it would
-discard a decade of sourced history — including the finding that it closed,
-which is worth keeping precisely so nobody re-adds it next year.
-
-**Determination reuses `fact()`, not a parallel mechanism.** Classifying a
-record `QUARANTINE` is itself a claim, so it is written as one, using the
-same primitive as every other field:
-
-```js
-lifecycle: {
-  status: LIFECYCLE.QUARANTINE,
-  determination: fact(LIFECYCLE.QUARANTINE, {
-    confidence: CONFIDENCE.SUPPORTED,
-    source: SOURCE.RESEARCH,
-    method: METHOD.MAP_CROSSCHECK,
-    lastCheckedAt: "2026-07-17",
-    evidence: "…what was and wasn't found…",
-  }),
-}
-```
-
-`check-data` requires this fact to be auditable — an evidence ref **or** an
-inline `method` + `evidence`, the same dual path already allowed for
-`CONFIRMED` facts (§2.12) — before it accepts a `QUARANTINE` status.
-
-**Not on the Evidence Layer, by design — for `akiya`.** Its determination is
-inline, not a `data/evidence/akiya.json` record. The finding is "our search
-coverage turned up nothing," which is a statement about our own search, not a
-sourced claim about the venue — the Evidence Layer (§2.7) exists for the
-latter. This is also why the store gained no "negative evidence" record type:
-it keeps storing only evidence that says something about a source; an
-absence-of-listing finding stays where it was judged, on the fact itself.
-
-**`makan`'s determination is inline for a weaker reason, and that is worth
-knowing.** Unlike `akiya`'s, it *is* a sourced claim about the venue: a
-government page, at a stable URL, with a quotable marker ("[운영중지]") and a
-retrieval date. By the rule above it is evidence-layer-eligible, and a
-reviewer who notices the mismatch is reading correctly. It is inline anyway
-because 19 of 20 restaurants still carry inline `url`/`method`/`evidence`
-(§7 High #1) and migration is deliberately one-restaurant-at-a-time (§10
-Phase B) — so this is the project's existing migration debt, not a new
-exemption for lifecycle. When `makan` is migrated, its determination should
-move onto the layer with the rest of its facts; `akiya`'s should not.
-
-**`akiya` (아키야) — quarantined 2026-07-17.** Absent from Naver Place and
-Kakao Map under the name near Gaehang-ro, absent from the geocoding
-pipeline, and absent from git history predating this repo — unusual for an
-operating restaurant; every other place in the dataset is on both map
-services. Not proven fabricated, so `QUARANTINE`, not `DELETED`. Excluded
-from map, search, cards, and the Journal's next-stop logic; direct
-navigation to its detail page is a no-op (`App.jsx`'s `openDetail`/
-`openStory`). This supersedes the prior "next task" for `akiya` (correcting
-its abolished-district address, §7 High #3 as it read before this edit) —
-the address is moot while the record is hidden, and was left as-is rather
-than half-fixed. See §12 for what comes next.
-
-**Known integration gaps, found by re-reading the diff against the existing
-architecture (not yet fixed):**
-
-- `src/components/JournalPanel.jsx` imports `restaurants` directly rather
-  than a quarantine-filtered view. `nextStop` (line 26) filters with
-  `isQuarantined`; `byId` (line 14), `stamped` (lines 17–22), and the
-  passport-progress denominator `total` (line 38) do not. A restaurant
-  bookmarked before it was quarantined would still render as a name/photo
-  stamp card and count toward "of 20 stamped" — opening it stays blocked by
-  the `App.jsx` choke point, so this is a display inconsistency, not an
-  unverified-detail leak. No live bookmark currently exercises this for
-  either quarantined record; it is a code-level gap, not an observed defect.
-  See §7 Medium #11.
-- `scripts/lib/check-evidence.mjs`'s `factsOf()` — the whitelist the
-  evidence-layer rules (broken references, confidence ceilings, stale pins)
-  walk — does not include `lifecycle`. `check-data`'s quarantine rule only
-  checks that a determination *has* evidence refs (a presence check, via
-  `hasEvidence()`), not that they resolve or respect the confidence ceiling.
-  Not triggered today — `akiya` and `makan` both use inline
-  `method`/`evidence`, no `evidenceRefs` — but a determination that cited
-  evidence refs would bypass those checks until `factsOf()` is extended.
-  `makan` is the likely trigger, since its determination is
-  evidence-layer-eligible (above). See §7 Medium #12.
-
-**Status as of this writing:** the mechanism is **committed** at `b4c0e4b`
-(`LIFECYCLE`, `isQuarantined()`, the `check-data` rule, the `App.jsx`
-filters, and `akiya`'s determination). The `makan` determination described
-above is a **separate, uncommitted change** on top of it —
-`src/data/restaurants.js` and this file. All gates pass against the working
-tree: `check-data` (20 places, 0 violations), `lint`, `build`,
-`node scripts/evidence-hash.mjs --check`, and a live `npm run dev` check
-confirming 18 of 20 cards render with no "Akiya"/"Makan" text anywhere on
-the page. See §12.
-
-### 2.15 Journal state — saved vs visited (Passport Enhancement MVP)
-
-The journal entry, in `localStorage` under `kfm-bookmarks`:
-
-```js
-{ id, savedAt, visitedAt }   // visitedAt: timestamp, or null
-```
-
-**Two states, one entry.** `savedAt` is the wishlist — a place you mean to go.
-`visitedAt` is the visit record — a place you have been. They are not
-independent: **`visitedAt != null` implies `savedAt != null`.** A visit is
-recorded on a place already in the journal, so the visit control in
-`RestaurantDetail` stays disabled until the place is saved, and removing a
-bookmark drops the whole entry, taking the visit with it. `handleToggleVisited`
-only ever edits an existing entry — it cannot create one — so the invariant
-holds by construction rather than by check.
-
-**Passport progress counts visits, not saves.** `JournalPanel`'s "N of 20
-stamped" numerator is the visited count; the denominator stays
-`restaurants.length`. Saved-only places still appear in the journal, drawn with
-an open (dashed) ring, and are simply not counted. A fully inked stamp always
-means "you have been here" — which is what the passport metaphor claimed all
-along and did not previously deliver. The displayed stamp date is
-`visitedAt ?? savedAt`.
-
-**Migration is read-time, reusing the existing pattern** in `loadBookmarks()`.
-Two older shapes normalise: `{ id, savedAt }` gains `visitedAt: null`, and the
-original plain id strings become `savedAt: 0` — "saved at an unknown time"
-rather than `null`, so "is it saved" stays a plain `savedAt` test with no legacy
-special case. `0` is falsy, so date rendering is unchanged for those records,
-and they can still be marked visited like any other.
-
-The journal's recent line is labelled **"Recently saved"**, not "stamped": it
-is ordered by `savedAt` and prints `savedAt`, so the wording follows the logic
-rather than the other way round.
-
-**Not in this MVP:** cross-device sync of this state, and any accessible (text
-or ARIA) signal for the saved/visited distinction — see §7 Low #18.
+전말은 `docs/where-this-deploys.md`에 있습니다.
 
 ---
 
-## 3. Directory Structure
+## 1. 이 앱이 무엇인가
 
-```
-k-food-map/
-├── HANDOFF.md              ← this file
-├── index.html              app shell; title/meta/theme-color live here
-├── vite.config.js
-├── package.json            scripts: dev, build, lint, check-data, preview
-│
-├── src/                    everything that ships to the browser
-│   ├── App.jsx             all app state; filter + search logic; layout shell
-│   ├── utils.js            haversine, formatDistance, coordsOf,
-│   │                       getOpenStatus, todaysHours, directionsUrl, MAP_CENTER
-│   ├── index.css           design tokens + every style (no CSS-in-JS)
-│   ├── components/         presentational; no data fetching
-│   │   ├── MapComponent.jsx    Leaflet; pins; ResizeSync; moveend → mapCenter
-│   │   ├── FilterBar.jsx       search + dietary chips
-│   │   ├── BottomSheetList.jsx place cards, distance-sorted
-│   │   ├── RestaurantDetail.jsx the storytelling journey + provenance footer
-│   │   ├── JournalPanel.jsx    passport: progress, next stop, stamps
-│   │   ├── TabPanel.jsx        Discover / Profile placeholders
-│   │   ├── TabBar.jsx          bottom tabs (left-panel nav ≥1024px)
-│   │   ├── PlaceImage.jsx      photo ?? illustration placeholder
-│   │   └── Icons.jsx           every icon, hand-drawn SVG (no emoji)
-│   └── data/
-│       ├── restaurants.js  the 20 places (928 lines)
-│       ├── verification.js fact(), CONFIDENCE/SOURCE/METHOD/VEGAN/HALAL,
-│       │                   trustBadge, validateDietary, imageLead (278 lines)
-│       ├── evidence.js     evidenceRef(), vocabularies, IMMUTABLE_VERSION_FIELDS
-│       │                   — the only bundled part of the evidence layer (113 lines)
-│       └── culture.js      Korean food culture by category (82 lines)
-│
-├── data/evidence/          audit data — NOT bundled, read only by scripts/
-│   ├── sources.json        7 sources, shared
-│   └── gonghwachun.json    5 records / 5 versions (the one migrated place)
-│
-├── scripts/                Node-only tooling
-│   ├── check-data.mjs      the QA gate
-│   ├── evidence-hash.mjs   seal / --check / --reseal
-│   ├── lib/
-│   │   ├── evidence-store.mjs   load, hash, resolve, currentVersion
-│   │   └── check-evidence.mjs   the ten evidence rules + todayInSeoul()
-│   ├── migrate-dietary-v2.mjs      v1→v2 (historical record; decision table)
-│   ├── migrate-confidence-v3.mjs   v2→v3 (historical record)
-│   └── backfill-method.mjs         one-time, already applied
-│
-├── docs/
-│   ├── DATA.md             schema, never-infer/never-chain rules, migrations
-│   └── EVIDENCE.md         the evidence layer in depth
-│
-├── public/images/          7 food illustration SVGs + fallback
-└── [DEAD — see §7]         temp.js (0 bytes), verify.cjs, geocode_and_build.cjs,
-                            src/data/restaurants.json
-```
+**"Solo trip, Shared table."** 혼자 한국에 온 외국인 여행자가 한식에서
+차단되는 이유는 언어도 가격도 아니고 **1인분이 없다는 것**입니다.
+삼겹살은 2인분부터, 감자탕은 냄비 단위, 한정식은 2인 예약.
 
-**Migration scripts are kept on purpose.** They are the audit record of every
-dietary judgement ever made — each carries a decision table quoting the evidence
-it rested on. `--dry` still prints the reasoning. Do not delete them.
+그래서 이 앱은 식당을 찾아주지 않습니다. **같이 먹을 사람이 있는 상**을
+찾아줍니다. 혼자서는 주문 자체가 불가능한 요리를 걸고, 그 상에 자리를
+요청하거나 직접 상을 엽니다.
+
+상은 두 종류이고, 라벨은 주장할 수 없게 **파생**됩니다
+(`src/domain/catalog/hosts.js`):
+
+- **호스트 테이블** — 호스트가 문화 가이드를 하나 이상 켠 상
+- **테이블 메이트** — 그냥 같이 먹는 상
+
+`tableKind()`가 guides 배열에서 계산하므로, 가이드 없이 "호스트 테이블"로
+표시되는 일이 구조적으로 불가능합니다.
+
+### 화면 넷
+
+`Explore` / `Tables` / `Places` / `Passport`.
+Passport는 프로필과 합쳐져 있고 `/profile`은 별칭으로 남겨뒀습니다.
+
+라우터 라이브러리 없이 History API로 아홉 개 경로를 씁니다 (`src/routes.js`).
+`/tables/<id>`가 공유 링크입니다 — **`vercel.json`의 SPA rewrite가 없으면
+프로덕션에서만 404가 납니다.** 개발 서버에서는 멀쩡해서 놓치기 쉽습니다.
 
 ---
 
-## 4. Data Pipeline
-
-```
-                    AUTHORING TIME (Node)                        RUNTIME (browser)
- ┌──────────────────────────────────────────────────┐  ┌────────────────────────┐
- │ Source          data/evidence/sources.json       │  │                        │
- │   ↓             (publisher, kind, tier)          │  │                        │
- │ EvidenceVersion immutable; sealed with SHA-256;  │  │                        │
- │   ↓             carries excerpt + ceiling        │  │                        │
- │ EvidenceRecord  data/evidence/<id>.json          │  │                        │
- │   ↓             one file per restaurant          │  │                        │
- │ EvidenceRef ────┼──────────── pinned {id,version} ──→ src/data/restaurants.js│
- │   ↓             │                                │  │        ↓               │
- │ Validation      scripts/check-data.mjs           │  │      Fact              │
- │                 + lib/check-evidence.mjs         │  │        ↓               │
- │                 resolves refs → records →        │  │   App.jsx (filter)     │
- │                 versions → sources; enforces     │  │        ↓               │
- │                 ceilings, seals, chains          │  │   Components → UI      │
- └──────────────────────────────────────────────────┘  └────────────────────────┘
-```
-
-**Where each stage runs:**
-
-| Stage | Runs | Why |
-|---|---|---|
-| Source registry | Node only | audit data |
-| Evidence record / version | Node only | megabytes of excerpts at scale; the browser must never pay for the audit trail |
-| `evidenceRef` | **both** | tiny `{id, version}` pointers; must be authored inside the bundled data file |
-| Fact | **browser** | it *is* the app's data |
-| Validation | Node only (CI gate) | |
-| UI | browser | reads only `value`, `confidence`, `source`, `precision`, `lastCheckedAt`, `evidence` |
-
-That last row is measured, not assumed — the UI reads **no** `url` and **no**
-`method`, which is exactly why they could be removed from migrated facts.
-
----
-
-## 5. Important Engineering Decisions
-
-Each of these was a deliberate choice with a rejected alternative.
-
-**Evidence is not bundled.**
-Audit data, not app data. At 500 restaurants the store is megabytes of excerpts
-and licence notes no visitor needs. *Rejected:* keeping evidence in `src/` so
-the UI could show excerpts — that trades every visitor's bandwidth for a tooltip.
-
-**One evidence file per restaurant, not one index.**
-Diffs stay readable; two people verify different venues without conflicting;
-auditing one venue means opening one file. *Rejected:* a single `evidence.json`,
-which becomes unreviewable at ~4,000 records.
-
-**Evidence versions are immutable, enforced by SHA-256.**
-A rule in a document is a suggestion; a hash is a gate. `status` is outside the
-hash so superseding never rewrites history. *Rejected:* "please don't edit
-published versions" in the docs.
-
-**Facts pin evidence versions.**
-So a stale fact is *visible*. *Rejected:* facts pointing at "current", which
-would let a fact silently inherit a claim nobody re-checked — the exact failure
-this project exists to avoid.
-
-**Version `confidence` is a ceiling, not a second opinion.**
-Turns the source-priority order into `fact.confidence ≤ max(ceiling)`.
-*Rejected:* a per-evidence "how much do we trust this" number, which would be a
-third confidence with no crisp definition.
-
-**Provenance and confidence are separate axes.**
-"Official" answers *where from*; "estimated" answers *how sure*. One enum cannot
-say "community-reported and we confirmed it". *Rejected:* the flattened
-`Official/Community/Estimated/Unknown` enum.
-
-**Unknown beats guessing.**
-A traveller can act on "we don't know"; they cannot act on a wrong badge.
-Applied to: `maji` hours (sources conflict → unknown), `ggot-epida` menus
-(draft contradicted → withdrawn), `makan` (unverifiable → nothing upgraded).
-
-**No silent inference; no chaining.**
-An inference must be *labelled* `INFERRED` with its reasoning in `evidence`.
-A value derived from another *unconfirmed* value is banned outright —
-"plant-based, therefore halal" is exactly the defect P0 removed.
-
-**Invented data is deleted, not replaced.**
-`rating`, `reviews`, `food_mile` were fabricated and are gone. No new estimates
-took their place. 20 ratings in a 4.3–4.9 band is statistically impossible; an
-invented ESG kilometre figure is greenwashing.
-
-**Unconfirmed existence is quarantined, not deleted.**
-`DELETE` is a claim too — that a place definitely is not real — and the
-project holds itself to the same evidence bar it holds every other field to.
-*Rejected:* deleting `akiya` outright on a search-absence finding, which
-would assert a negative nobody has proven. See §2.14.
-
-**Verification-first.**
-The UI has been feature-complete since `c8b9089`. Everything since is data
-integrity. Paradoxically, *the polished UI made the bad data more dangerous* —
-it made unverified claims look authoritative.
-
-**Nothing is CONFIRMED without a repeatable method.**
-`check-data` rejects a confirmed fact with no method and no evidence. A
-confirmation nobody can re-run is just an assertion.
-
----
-
-## 6. Development Timeline
-
-| # | Milestone | Objective | Major changes | Architectural impact |
-|---|---|---|---|---|
-| — | `9376f31` | snapshot | pre-redesign baseline | git init; every step is revertable |
-| 1A-1 | `c9cdf30` | Home layout | design tokens, Inter, de-decoration (hanji texture/glass blur removed), search bar, chips, map at 46vh, always-on list | list no longer requires a filter — the single biggest discovery fix |
-| 1A-2 | `8f6c7ff` | Cards & data | scannable cards, `PlaceImage`, haversine distance, card-level save/directions/Read Story, `photo`/`coverImage`/`gallery`/`category` added | image contract established; bookmark 2 taps → 1 |
-| 1B | `31603f5` | Home polish | layered sheet, 4px spacing scale, micro-interactions, `prefers-reduced-motion`, theme-color | design system hardened |
-| 2 | `50a5ff8` | Restaurant Detail | Quick Facts, section journey, `culture.js` (8 categories), "Did you know?", dialog semantics, Escape, clipboard fallback | **content architecture**: category-shared culture with per-place override hooks |
-| 3 | `0222164` | Journal | passport cover, progress, next stop, dated stamps | bookmarks `["id"]` → `[{id, savedAt}]` with auto-migration |
-| 4 | `9f23acf` | Discover/Profile | lightweight placeholders linking back to the core loop | no new state |
-| 5 | `c8b9089` | Final polish | permanent split layout ≥768px, desktop dialog ≥1024px, token/radius/shadow QA, contrast fixes, legacy cleanup | UI complete; **feature work ends here** |
-| **P0** | `4080f6e` | Eliminate unsafe data | structured dietary schema, `fact()` provenance, **rating/reviews/food_mile deleted** | **the pivot.** Fixed: `bombay-brau` tagged Vegan while serving chicken; `maji` tagged Halal because it was plant-based |
-| — | `e341b27` | Refine trust model | `status`→`confidence` with 4 levels; SOURCE expanded; `trustBadge`; `validateDietary`; `check-data` born | nuance below the confirmed line, ceiling unmoved |
-| P1·1 | `f32c987` | Jongno/Insadong ×5 | Naver+Kakao verification | **`ggot-epida` was the wrong venue entirely** (name wrong, coords 640 m off); structured `hours {raw, weekly}`; `transit`, `phone`, `officialUrl`, `instagram` |
-| P1·2 | `6c9ce45` | Itaewon ×5 | operator sites reached | **first CONFIRMED dietary fact** (Plant Cafe, "100% vegan" from the operator); `makan` unverifiable; image-rights metadata |
-| P1·3 | `e84f677` | Gonghwachun | one place to production quality | **heritage claim was false**; Incheon district merger found; `fact()` gains `url`+`method`; 41 facts backfilled |
-| — | `b13b084` | **Evidence Layer** | normalized, versioned, immutable provenance | records/versions/sources; SHA-256 sealing; pinning; ten validation rules; `gonghwachun` migrated as demo |
-| — | *uncommitted* | **Restaurant Lifecycle (MVP)** | separate a record's existence/publication state from field-level confidence | `LIFECYCLE.ACTIVE`/`QUARANTINE` implemented and enforced by `check-data`; `ARCHIVED`/`DELETED` named only; `akiya` quarantined (existence unconfirmed, not proven fabricated); see §2.14 |
-
----
-
-## 7. Technical Debt
-
-### Critical — *none.*
-No known defect that misleads a user. That is the bar P0/P1 were run to; keep it.
-
-### High
-
-1. **19 of 20 restaurants are not on the evidence layer.** They still carry
-   inline `url`/`method`/`evidence`. Both shapes validate, so nothing is broken —
-   but the audit trail is one restaurant deep. *Rationale for the debt:*
-   migrating in bulk would defeat the purpose; the value is in re-reading each
-   claim while moving it. That is how Gonghwachun's false story surfaced.
-2. **2 of 20 restaurants have zero confirmed fields — `akiya` and `makan`,
-   and both are `QUARANTINE`d (§2.14).** No active restaurant has zero
-   confirmed fields any longer. (`chaeyuk-songdo`, `iryonghal`, `rim`,
-   `meat-morning`, `bombay-brau`, `arabesque`, `kampungku` and `nono-shop`
-   all left this list on 2026-07-17 — **Phase A is complete**; see §10 and
-   §12.) Their gap is no longer "unverified," it is "not currently
-   operating" (`akiya`: existence never confirmed; `makan`: prior existence
-   well-evidenced, but Seoul's tourism site marks it "[운영중지]" and it is
-   absent from both map services) — see §12.
-3. **`akiya`'s stale `Jung-gu` address is now moot, not fixed.** The district
-   merger (`Jung-gu` → 제물포구, effective 2026-07-01) that originally put
-   `akiya` on this list is superseded by a bigger finding: the place itself
-   has no trace on Naver Place, Kakao Map, or the geocoding pipeline. It was
-   quarantined on 2026-07-17 rather than corrected — see §2.14. The stale
-   address text is left in the record as-is; it is inert while the record is
-   hidden from every discovery surface.
-4. **0 area-level addresses among active restaurants.** Every active
-   restaurant is now at street precision.
-   (`iryonghal`, `rim`, `meat-morning`, `bombay-brau`, `arabesque` and
-   `nono-shop` all left this list 2026-07-17 — in `bombay-brau`'s and
-   `arabesque`'s cases the draft's area value was actually close to or
-   already in the correct district, but had never been confirmed against a
-   source; the others had the wrong district entirely, and `nono-shop`'s
-   area value described a location the venue had since relocated away from;
-   see §12. `makan`'s area-level address is not counted here: it is
-   quarantined and hidden from every discovery surface.)
-5. **Resolved.** The Lifecycle MVP (§2.14) is committed at `b4c0e4b`, and the
-   `nono-shop` investigation — the last Phase A restaurant — is committed at
-   `f0e5af4`. Both previously sat uncommitted on top of each other; neither
-   does now. No residual risk from this item. See §12.
-
-### Medium
-
-6. **5 restaurants have unknown hours** (re-measured 2026-07-18: `makan`,
-   `akiya`, `maji`, `iryonghal`, `meat-morning` — down from 10 as Phase A
-   verification progressively resolved most of them; this line had drifted
-   from the true count across several Phase A commits without being moved,
-   the exact class of staleness §7 Low #16 warns about). The UI is honest
-   ("Opening hours unknown — check before you go") but it is a real gap.
-7. **Story tone.** 12/20 stories carry marketing superlatives ("pinnacle",
-   "zenith", "uncompromising", "artisanal" ×5) — residue of the original AI
-   draft, and at odds with `culture.js`'s plain voice. `gonghwachun` and
-   `chaeyuk-songdo` have been rewritten; the latter was not a tone fix but a
-   correctness one — its draft story asserted the kitchen "replaces pork …
-   creating a surprisingly realistic vegan alternative", which contradicted
-   the record's own corrected badge (rule 16's defect class, and the second
-   time it has bitten after EID).
-8. **Culture content is category-shared with 0/20 overrides.** Five Itaewon
-   vegan places print the identical "Did you know?". The override hook
-   (`place.didYouKnow` / `place.diningTips`) exists and is unused.
-9. **Coverage gaps vs. the project's own proposal:** 0 reusable-container
-   restaurants, 0 traditional markets — both named in the founding proposal.
-   Itaewon is 6 of 12 Seoul places.
-10. **No exit numbers** except `gonghwachun`. Kakao's routing API does not return
-    them.
-11. **`JournalPanel` partially bypasses the quarantine filter (§2.14).**
-    `restaurants` is imported directly; `nextStop` filters with
-    `isQuarantined`, but `byId`, `stamped`, and the passport progress
-    denominator `total` do not (`src/components/JournalPanel.jsx:14,17,38`).
-    A restaurant bookmarked before it was quarantined would still render as a
-    stamp card and count toward "of 20 stamped." Opening it stays blocked by
-    `App.jsx`'s `openDetail`/`openStory` choke point, so this is a display
-    inconsistency, not an unverified-detail leak. Reproduced live during
-    Phase 4 QA (2026-07-18): a test-session browser had a stale `makan`
-    bookmark, which rendered a stamp card and inflated the "of 20" count;
-    clicking it was confirmed a no-op, no dialog, no console error. Not
-    reachable by a fresh user through the current UI — a restaurant can only
-    be bookmarked while active, and `makan`/`akiya` are unreachable from
-    every discovery surface (§2.1's map/search/list filter) before ever
-    being quarantined in this dataset.
-    **Phase 4 QA disposition (2026-07-18): accepted as post-v1.0
-    Documentation/UX debt, not a Release Blocker.** The trigger condition is
-    unreachable for a fresh v1.0 launch, and the one live reproduction above
-    confirmed the failure mode stays cosmetic (miscounted denominator, inert
-    card) — no unverified detail is ever exposed. Fix when `JournalPanel` is
-    next touched; do not gate v1.0 on it.
-12. **`check-evidence.mjs`'s `factsOf()` whitelist excludes `lifecycle`
-    (§2.14).** The evidence-layer rules (broken references, confidence
-    ceilings, stale pins) never walk a `lifecycle.determination` fact.
-    `check-data`'s quarantine rule only checks that a determination *has*
-    evidence refs, not that they resolve or respect the ceiling. Not
-    triggered today — `akiya` and `makan` both use an inline
-    `method`/`evidence`, no `evidenceRefs` — but a determination that cited
-    evidence refs would bypass those checks until `factsOf()` is extended to
-    include `lifecycle`. Extend it when `makan` is migrated (§2.14).
-    Re-confirmed inert during Phase 4 QA (2026-07-18): 0/20 quarantine
-    determinations use evidence-layer refs, so no violation is currently
-    possible through this gap.
-    **Phase 4 QA disposition (2026-07-18): accepted as post-v1.0
-    Documentation/tooling debt, not a Release Blocker.** The gap cannot fire
-    against any data that exists today; it only becomes live risk if/when
-    `makan`'s determination is migrated onto the Evidence Layer, which is
-    Phase B work and out of scope for v1.0. Extend `factsOf()` at that
-    migration, not before.
-
-### Low
-
-13. **Dead files, re-confirmed 2026-07-17:** `temp.js` (0 bytes, untracked),
-    `verify.cjs`, `geocode_and_build.cjs` (18 kB), `src/data/restaurants.json`
-    (18 kB, the pre-schema-v2 JSON `verify.cjs` reads and
-    `geocode_and_build.cjs` writes). Re-grepped across `src/`, `scripts/`,
-    `index.html`, `vite.config.js`, and `package.json` — zero references to
-    any of the four from live code. `geocode_and_build.cjs` is the only one
-    with salvage value (a re-geocoding pipeline; its embedded data is the
-    pre-P0 marketing-tone draft and should not be reused as-is).
-    Not deleted — no destructive action without explicit approval.
-14. **`oxlint` warns ×2** — both inside dead `geocode_and_build.cjs`.
-15. **No automated tests.** `check-data` is the only gate. The evidence rules
-    were proven by a throwaway mutation harness that was not kept — worth
-    formalising if this grows.
-16. **Documentation rot.** ~15 quantitative claims across §1, §7, §8 and §9 are
-    hand-maintained and go stale on the next data commit. Two were already
-    wrong at drafting (street addresses stated as 12/20, actually 13/20;
-    marketing-tone stories stated as ~14/20, actually 13/20) and were caught
-    only by measuring against the repository, not by review. There is no
-    `npm run metrics` to regenerate them and no rule requiring one. Until such
-    a script exists, treat every number in this document as valid only at the
-    `HEAD` stated in the header, and re-measure before citing it elsewhere.
-    This edit (2026-07-17) is itself such a re-measurement: the Lifecycle
-    section, `akiya`'s outcome, and the dead-file list were verified against
-    the repository, not carried over from a prior draft.
-17. **`.icon-btn--lg` suppresses the tinted state background — pre-existing.**
-    Inside the detail action row, a large icon button never shows its state
-    tint: `.icon-btn--lg` sets `background: var(--surface)` and, being later in
-    `index.css` at equal specificity, wins over `.icon-btn--saved` and
-    `.icon-btn--visited`. Found while verifying Passport Enhancement, and
-    confirmed **not** a regression from it — the shipped `--saved` state behaves
-    identically, and both classes resolve correctly in isolation (verified:
-    `--visited` yields `#ECF8F2` / `#0E9F6E` / `#087F5B` on a bare `.icon-btn`).
-    Border and text colour do apply; only the background is lost. Left alone
-    deliberately: fixing it would have expanded a scoped feature commit into a
-    change to shipped visual behaviour.
-18. **Saved vs visited is conveyed visually only.** The journal distinguishes
-    the two states through the stamp ring and date colour, with no text or ARIA
-    signal, so a screen-reader user cannot perceive it. Adding one requires new
-    wording, which was out of scope for the Passport Enhancement MVP.
-19. **The sustainability axis is thin, and `esg_point` is not an ESG field.**
-    Measured 2026-07-18 while building ESG Explorer, and recorded as a limit of
-    the current data rather than a reason to revisit the plan. Of 18 active
-    restaurants, **4** carry a sustainability trait (`Zero-waste` ×3,
-    `Local Sourcing` ×1), so the axis filters to 4. And while `esg_point` is
-    present on 18/18, reading all of them shows it is a mixed "what this place
-    stands for" line, not a sustainability field: some are environmental
-    (`sanchon`, `ggot-epida`), several restate the dietary record
-    (`osegyehyang`, `camouflage`), and some are cultural or commercial
-    (`eid`, `kampungku`, `gonghwachun`). **This is why the MVP surfaces
-    `esg_point` verbatim and never classifies, scores or aggregates it** —
-    deriving a sustainability category from that text would be inventing ESG
-    facts, which is permanently out of scope. Widening the axis is a content
-    problem (the content pass, §10 Cross-cutting), not a UI one.
-
----
-
-## 8. Quality Status
-
-### Completed (high confidence)
-
-| Item | Evidence |
-|---|---|
-| UI/UX, 5 approved steps | responsive 375/768/1280/1440 verified in-browser |
-| Accessibility | 44px touch targets, aria, keyboard focus, AA contrast (measured: 4.59–15.8:1) |
-| Trust model | `check-data` 0 violations, 20 places |
-| Evidence architecture | ten rules each proven to fire against a mutated store |
-| Immutability | SHA-256 drift detected in a live test |
-| Bundle hygiene | `retrievedBy`/`capturedAt`/`supersedes` = 0 occurrences in `dist/` |
-| Dietary safety | 0 falsely-certified; unknown never matches a filter |
-
-### Partially completed
-
-| Item | State | Confidence |
-|---|---|---|
-| Data verification | 18/20 have ≥1 confirmed field; 18/20 confirmed coordinates; 19/20 street addresses (the 20th is `makan`, quarantined); 14/20 structured hours | high (measured 2026-07-17) |
-| Lifecycle rollout | 2/20 (`akiya`, `makan`) quarantined; 18/20 `ACTIVE`; mechanism (§2.14) committed at `b4c0e4b`, `makan`'s determination committed at `55490f1` | high (measured, incl. live browser check) |
-| Evidence migration | 1/20 | high |
-| Story sourcing | 1/20 has `storyRefs` | high |
-| Image rights research | 5/20 have leads; **8 leads, 0 reusable** | medium — only 5 venues surveyed |
-| Contact data | officialUrl 8/20, phone 15/20, instagram 7/20, transit 16/20 | high (measured 2026-07-17) |
-
-### Not started
-
-- Real photography (contract ready, `photo`/`coverImage`/`gallery` all null)
-- Discover tab content; Profile settings
-- Entity layer (§10 Phase C)
-- Any backend, auth, or user-generated content
-- i18n (English only; Korean accents are hand-placed)
-
----
-
-## 9. Known Risks
-
-| Risk | Severity | Detail |
-|---|---|---|
-| **KMF certification unverified** | **High** | Seoul's official tourism site states EID is *"한국이슬람중앙회에서 할랄 인증을 받은 유일한 한식당"* — the strongest evidence in the dataset. Still held at `FRIENDLY`: no certificate number or expiry sighted, KMF's own register never reached, **and a lapsed certificate would read identically**. Recorded in `halalCertClaim`. Resolving this needs a call to the venue or KMF. Do not upgrade on the tourism page alone. |
-| **`makan` — resolved, quarantined 2026-07-17** | Was **High** | Settled, not merely upgraded. Prior existence is well-evidenced (a decade of independent blog visits, 112 TripAdvisor reviews, a named owner) — this was never an "invented restaurant" risk. What settled it: Seoul's official tourism site (visitseoul.net, last modified 2025-11-17) marks it **"[운영중지]"** (operation suspended), corroborated by absence from both Naver Place and Kakao Map under every name/address variant tried, validated against a working control (`eid`, same street, resolves on both). No evidence dated after mid-2025 shows continued operation. Directory sites (TripAdvisor, trazy, ohmyseoul, 10mag) still list it as open — expected lag, not counter-evidence. Quarantined rather than archived only because `ARCHIVED` has no implemented logic yet (§2.14). See §12. |
-| **Story evidence coverage** | **High** | 19/20 stories have no `storyRefs`. Gonghwachun proves the risk is real, not theoretical: the story asserted a heritage lineage the venue does not have, and no fact-level check could have caught it. |
-| **Image licensing** | **Medium** | 8 leads, **0 reusable**. No KOGL notice on Seoul or Incheon tourism pages → default copyright. Instagram's terms grant no third-party reuse. **Every route requires written permission.** `check-data` blocks a lead from becoming a shipped file. |
-| **Evidence migration drift** | **Medium** | While two shapes coexist, a reviewer must know which to trust. Mitigated: `check-data` accepts both; `hasEvidence(fact)` distinguishes them. |
-| **Entity duplication** | **Medium** | `ggot-epida` has two branches (Bukchon + Insadong); we model one. `gonghwachun` is entangled with two *other* entities (짜장면박물관, 공화춘터) that are not restaurants but are central to its story. The flat model cannot express branch-of, near, or succeeded-by. |
-| **`monks-butcher` vegan level** | **Medium** | Held `FULL`/`SUPPORTED`. Current sources tag it 비건레스토랑 and list no non-vegan dish, but the operator's own site never says so, and a 2019 write-up described *separate vegan and vegetarian menus*. Unresolved. |
-| **Data staleness has no clock** | **Medium** | `lastCheckedAt` exists; nothing warns when it ages. Incheon's district merger (2026-07-01) silently invalidated addresses. |
-| **Single-verifier bias** | **Low** | Every check to date was performed by one agent (`retrievedBy: claude-opus-4-8`). The field exists precisely so this is visible and a second verifier is distinguishable. |
-| **`ggot-epida` menu withdrawn** | **Low** | `menus` is `unknown` — the draft menu was contradicted by the venue's listing. Honest, but the detail page shows no menu. |
-
----
-
-## 10. Roadmap
-
-**Project roadmap — six phases, adopted 2026-07-18.** This is the
-authoritative statement of it. Prior discussion of this roadmap outside this
-document was provisional — a decision meant to survive sessions is not
-project state until it is written here (§11 rule 21 extended to governance,
-not only data).
-
-| # | Phase | State |
-|---|---|---|
-| 1 | Foundation | ✅ Done — see §1 Maturity |
-| 2 | Production Infrastructure | ✅ Done — see §1 Maturity, §8 Completed |
-| 3 | **Production Data** | **✅ Done, 2026-07-17, committed `f0e5af4`.** Phase A below is complete: every active restaurant verified. |
-| 4 | Final QA | **Ready to begin** — not yet started; see §12 |
-| 5 | Version 1.0 | Not started |
-| 6 | Feature Phase 2 | Not started — begins only after Phase 5 |
-
-Each phase depends on the last. Do not reorder without explicit approval.
-
-### Phase 3 — Production Data *(✅ complete, 2026-07-17)*
-
-This phase contains the existing implementation roadmap below, Phases A–D.
-**Only Phase A gated Phase 4 and 5, and Phase A is now done.** Phases B, C
-and D continue past Phase 3 but do not block Final QA or v1.0 — §7 High #1
-already treats evidence migration as non-blocking debt; this makes that fact
-part of the roadmap, not only the debt log. **Phase 4 (Final QA) is ready to
-begin** — see §12.
-
-#### Phase A — Data Verification *(✅ complete)*
-Bring the remaining unverified restaurants to the Gonghwachun standard, one at
-a time, each with a completion report.
-**`akiya` and `makan` are both resolved, not verified.** `akiya` (investigated
-2026-07-17): no trace on Naver Place, Kakao Map, or the geocoding pipeline;
-existence itself unconfirmed. `makan` (investigated 2026-07-17): existence is
-well-evidenced historically, but Seoul's tourism site marks it "[운영중지]"
-and it is absent from both map services — a closure signal, not an
-existence-unconfirmed one, though both land on `QUARANTINE` today since
-`ARCHIVED` (the more precise label for confirmed-closure) has no implemented
-logic — see §2.14. Neither was brought to production quality; both close out
-of this queue without adding to the "verified" count.
-`chaeyuk-songdo`, `iryonghal`, `rim`, `meat-morning`, `bombay-brau`,
-`arabesque`, `kampungku` and `nono-shop` were all verified to the
-Gonghwachun standard on 2026-07-17 and all eight stay `ACTIVE`. **Phase A is
-complete: 8 restaurants verified, 2 quarantined, 0 remaining.** Between the
-eight they show eight distinct ways a draft record goes wrong:
-`chaeyuk-songdo`'s dietary level described a different kitchen, `iryonghal`
-was filed under the wrong Incheon district outright, `rim` was accurate when
-written but went stale, `meat-morning` combined both — wrong district and a
-mislabelled vegan claim — `bombay-brau` was the mildest case (district and
-vegan level already correct, one mislabelled menu item), `arabesque`
-combined a real, government-sourced history (2003 as "Sahara Ten," renamed
-2007) with an overstated dietary claim, `kampungku` was the most severe —
-not a wrong district but a fabricated address in a different part of Seoul
-entirely, ~4 km from the real location — and `nono-shop` closed the phase
-with the `rim` pattern again: a real relocation (Itaewon to Hoehyeon
-Station, documented across nine dated posts) that made an accurate draft
-stale rather than wrong.
-**Phase A is done.** No further restaurants are queued — see §12 for the
-transition to Phase 4.
-**Why first:** everything downstream compounds on the data. Migrating unverified
-facts into evidence records just makes bad data auditable.
-
-#### Phase B — Evidence Migration *(not required for v1.0)*
-Move all 20 onto the evidence layer, retiring inline `url`/`method`.
-**Why after A:** migration is a re-reading exercise. Migrate a verified fact and
-you capture a real excerpt; migrate an unverified one and you fabricate one.
-Doing A and B in one pass per restaurant is acceptable and probably optimal.
-
-#### Phase C — Entity Layer *(not required for v1.0)*
-Restaurants are not the only entities. `짜장면박물관` is a museum; `공화춘터` is a
-heritage site; `ggot-epida` has two branches. Introduce a place-entity model
-with typed relations (`branch-of`, `succeeded-by`, `near`, `commemorates`).
-**Why after B:** relations need sourcing too. An entity graph built on unsourced
-claims is a faster way to be confidently wrong.
-
-#### Phase D — Knowledge Graph *(not required for v1.0)*
-Link entities to culture concepts (jajangmyeon, 사찰음식, 발우공양, 오신채) and to
-each other. This is where the public-diplomacy value compounds: a traveller
-follows *fermentation* across four restaurants and a museum.
-**Why last:** a graph is only as good as its nodes and edges.
-
-#### Cross-cutting, any time after A *(not required for v1.0)*
-- **Content pass:** strip marketing tone from the 19 remaining stories; write
-  per-place `didYouKnow`/`diningTips` for the crowded categories.
-- **Photography:** the licence research says every route needs permission.
-  Commissioning original photos may be cheaper than clearing rights.
-- **Staleness policy:** decide a re-check interval; have `check-data` warn.
-- **Coverage:** add reusable-container venues and traditional markets — both in
-  the founding proposal, both absent.
-
-### Phase 4 — Final QA
-
-One complete sweep, run only after Phase A has no unverified active
-restaurants left. Reuses gates that already exist — no new tooling:
-
-- `npm run check-data` — 0 violations
-- `node scripts/evidence-hash.mjs --check` — 0 pending, 0 drifted
-- confidence/lifecycle consistency — no active fact above its evidence
-  ceiling (§2.7); the `JournalPanel` quarantine bypass resolved (§7 Medium #11)
-- browser QA — responsive (375/768/1280/1440) and AA contrast re-check (§8)
-- bundle hygiene — `grep -c retrievedBy dist/assets/*.js` = 0
-- documentation verification — every figure in this document re-measured
-  against the repository at the release commit, not carried over (§7 Low #16)
-
-**Why after Phase 3:** these gates check that Phase 3's work is true at the
-release commit; running them earlier just means running them again later.
-
-### Phase 5 — Version 1.0
-
-Release once every Phase 4 gate is green. v1.0 means every visible claim is
-either verified or honestly marked unknown — no speculation, no hidden
-assumptions. Does **not** require Phase B/C/D complete, real photography,
-i18n, or any Phase 6 feature — see §8 "Not started" for what ships absent.
-
-### Phase 6 — Feature Phase 2
-
-Begins only after Phase 5. No Phase 6 work starts before v1.0 ships.
-Recommended order, frozen 2026-07-18 unless explicitly changed:
-
-1. **Multilingual (i18n).** Largest reach limiter for a public-diplomacy
-   product aimed at foreign visitors; touches every screen, so it goes first
-   to avoid rework once more screens exist.
-2. **Nearby Route.** Reuses coordinates already confirmed in Phase 3 and the
-   Kakao routing already used at authoring time — low new-risk, high reuse.
-   **MVP shipped.** The §2.1 question raised in §12 was settled by *not*
-   routing in-app: `directionsUrl()` now deep-links to Google Maps with an
-   origin (the current map centre) as well as the destination, so it opens a
-   routed trip rather than a bare pin — a link, not a runtime routing call, so
-   the no-backend constraint holds. Everything the planning notes filed under
-   Future Expansion (in-app polyline, ETA, transit-mode choice, live location)
-   stays out of scope. See §12.
-3. **Journey + Passport expansion.** Extends the existing Journal/passport
-   already in the core loop; no new data risk.
-   **Passport half: MVP shipped.** Saved and visited are now distinct states
-   and passport progress counts visits — see §2.15 for the state model and §7
-   Low #17–18 for the debt it left. **Story Timeline — the separate `Add`
-   candidate this item was split into during Phase 6 planning — also shipped:**
-   a sourced history timeline in the detail page, on the three venues whose
-   story already carries one (§12). The Food Journey half is untouched.
-4. **ESG Explorer.** Gated on a content pass first — `esg_point` is
-   currently thin and unaudited (the invented `food_mile` field was already
-   deleted at P0; nothing sourced replaced it).
-   **MVP shipped, deliberately below that gate — recorded as F4 in Phase 6
-   planning, not an oversight.** The gate above describes the *full* feature:
-   a richer ESG surface does need the content pass first. The MVP scoped
-   under it does not, because it writes nothing — it surfaces the `esg_point`
-   already rendered on the detail page, carrying the same "not independently
-   audited" caveat, so no claim gets stronger by being easier to find. The
-   two statements are both true at different scopes; read them together
-   rather than treating either as settled on its own. See §7 Low #19 for what
-   the current data can and cannot support, and §12.
-5. **AI Food Guide.** Deliberately late. An inference layer is only safe on
-   top of fully-sourced data and Phase C/D's entity/knowledge graph;
-   attempted earlier, it risks reintroducing the confident-hallucination
-   failure P0 removed.
-6. **Offline Mode.** A packaging concern, largely orthogonal to the rest.
-   Caching unstable content offline is worse than not caching, so it waits
-   for content to settle rather than leading.
-7. **User features.** The only item that breaks the load-bearing no-backend
-   constraint (§2.1), and it carries a moderation obligation already reasoned
-   about (§2.11: unmoderated crowd halal claims would be worse than no data).
-   Last, and gated on an infrastructure decision not yet made.
-
----
-
-## 11. Coding Rules
-
-These are enforced by `check-data` where a machine can; the rest are on you.
-
-**Data**
-1. Never silently infer. An inference is `INFERRED`, labelled, with reasoning in
-   `evidence`.
-2. Never chain. A value derived from another *unconfirmed* value is not
-   evidence.
-3. Never infer certifications. `HALAL.CERTIFIED` needs `CONFIRMED` + a `cert`
-   reference. A name, a menu, or a vegan claim is not a certificate.
-4. Unknown beats fabricated certainty. If sources disagree, the field stays
-   unknown. Never average; never pick the convenient source.
-5. Never invent a value to fill a field. Deleting an invented value is correct;
-   replacing it with a nicer invention is not.
-6. State a value at the **weakest** confidence its evidence supports.
-7. Never downgrade provenance. Do not replace a specific source with a vaguer
-   one, or drop `lastCheckedAt`, to make a record look tidier.
-
-**Evidence**
-8. Never overwrite a published evidence version. Append v2 with
-   `supersedes: <n>`. `--reseal` is for a bad seal, never for recording change.
-9. Never edit `data/evidence/*.json` by hand after sealing — the hash will
-   catch it, which is the point.
-10. Evidence belongs outside the bundle. Nothing in `src/` may import
-    `data/evidence/`.
-11. Every evidence version records what the source **actually said**
-    (`excerpt`), not your reading of it.
-12. Every story claim must eventually reference evidence (`storyRefs`).
-
-**Process**
-13. Never weaken `check-data` to make a change pass. If a rule is wrong, fix the
-    rule deliberately and say so.
-14. One restaurant at a time, with a completion report. Batches optimise for
-    throughput; this project optimises for not being wrong.
-15. Report every change to existing data: previous value, new value, source,
-    reason. Never overwrite silently.
-16. Verify in the browser before claiming a UI change works. Two real bugs
-    (`DIET_CAVEAT` missing its `CONFIRMED` case; EID's editorial contradicting
-    its own badge) were caught only by looking.
-
-**Code**
-17. Facts stay small. Bulky provenance goes in evidence records.
-18. `src/` is browser code; `scripts/` is Node. The data layer uses explicit
-    `.js` extensions so QA scripts can import it under plain Node.
-19. Styles live in `index.css` with tokens. No CSS-in-JS, no new hex outside
-    `:root`.
-20. Do not modify unrelated files. Record out-of-scope findings in the report
-    instead (see `akiya`).
-
-**Documentation**
-21. Update this document in the same commit as the change it describes. A
-    handoff that lags the code is a trap: it is most trusted exactly when it is
-    most wrong. If a change moves a number quoted in §1, §7, §8, or §9, move it
-    there too — do not let the next reader discover the drift by measuring.
-22. Bump `Last updated` and `HEAD` at the top of this document whenever you
-    touch it. They are the reader's only signal of how far to trust the numbers
-    below.
-
----
-
-## 12. Next Recommended Task
-
-**Phases 1–5 are closed.** Production Data (Phase 3) and Final QA (Phase 4)
-completed 2026-07-18, and v1.0 shipped at `07feea7` with `README.md` and
-`CHANGELOG.md`. The project is in **Phase 6 — Feature Phase 2** (§10).
-
-**Four Phase 6 features are complete.**
-
-**`Passport Enhancement` MVP** — committed at `c01db9c`. Saved and visited are
-distinct states (`visitedAt` alongside `savedAt` under the same
-`kfm-bookmarks` key, invariant holding by construction — §2.15), and passport
-progress counts visits rather than saves. Debt at §7 Low #17–18.
-
-**`ESG Explorer` MVP** — committed at `3a0ca9f`. A sustainability lens over the
-list that **creates no data**: a `Sustainability` group chip (OR over its two
-member traits, kept alongside them), and — while the axis is filtered — each
-card showing that restaurant's `esg_point` **verbatim** with the detail page's
-caveat printed once. Shipped below §10's stated content-pass gate on purpose
-(§10 Phase 6 item 4, the F4 record); the data's measured limits are §7 Low #19.
-
-**`Nearby Route` MVP** — committed at `8807bac`. The §2.1 question this section
-previously flagged was settled by **not routing in-app**:
-`directionsUrl(place, origin)` deep-links to Google Maps with the current map
-centre as `origin` and the venue as `destination`, opening a routed trip
-instead of a bare pin. `origin` is optional and falls back to the previous pin
-URL, so the link can never break. No runtime network call is added, so the
-no-backend constraint (§2.1) holds. In-app polyline, ETA, transit-mode choice
-and live location are Future Expansion and were not built.
-
-**`Story Timeline` MVP** — uncommitted at the time of writing. A sourced
-history timeline in the detail page's Food Story section, and it **creates no
-new facts** — every entry is drawn from the venue's existing `story`, all
-confirmed during the 2026-07-17 Phase 3 verification, none newly researched:
-
-- A new `timeline` **editorial field** (`[{ year, event }]`) on the data
-  layer, at the same level as `story`/`vibe`/`esg_point` — not a `fact()`, so
-  it inherits the story's sourcing rather than adding a parallel one, and
-  `check-data` (which only validates the known fact fields) is unaffected.
-- Present on **three** venues only — `gonghwachun`, `arabesque`, `rim` — the
-  ones whose story carries **more than one** dated event. `nono-shop` and
-  `chaeyuk-songdo` have a single dated event each (a relocation, a patent
-  year), which is not a timeline; they get none. Not researching the absent
-  ones is the point (Scope forbids new historical research), so partial
-  coverage is correct, not a gap — the same stance as `storyRefs` 1/20.
-- `gonghwachun`'s entry keeps the distinction its story is built around: the
-  1905 original (closed 1983) and the separate business trading under the name
-  today (trademark 2002, opened 2004) are four separate events, never merged
-  into one lineage. Blurring them would repeat the false-heritage error that
-  `gonghwachun`'s own verification (`e84f677`) existed to correct.
-- Renders only where `timeline` is present; every other detail page is
-  byte-unchanged. `restaurants.js` is edited for the first time since v1.0 —
-  three records gain the field, no existing value is touched.
-
-### Next recommended task
-
-Four Phase 6 features remain, unchanged in §10: Multilingual (i18n), AI Food
-Guide, Offline Mode, and the `User Features` split (Cross-Device Sync +
-User-Generated Content), plus the Food Journey piece of the Journey item. Their
-MVP scopes are frozen from Phase 6 planning; pick one and implement it directly
-rather than re-planning. Note that three of them (AI Food Guide, Cross-Device
-Sync, User-Generated Content) are gated on the same unmade §2.1 decision — see
-§7 High debt and the planning record.
-
-**Do not:** widen a feature commit to fix pre-existing UI behaviour found in
-passing (§7 Low #17 is the precedent); begin a second Phase 6 feature before
-the current one is committed; derive any ESG category, score or ranking from
-`esg_point` text (§7 Low #19); add in-app routing, ETA, or live location to
-Nearby Route (all Future Expansion, §10 item 2); research new history to widen
-Story Timeline coverage (Scope forbids it — §10 item 3).
-
----
-
-### Quick start
+## 2. 30분 안에 돌리기
 
 ```bash
 npm install
-npm run dev           # http://localhost:5173
-npm run check-data    # the gate — must print "No violations."
-npm run lint
-npm run build && grep -c retrievedBy dist/assets/*.js   # must print 0
-
-node scripts/evidence-hash.mjs --check            # evidence seal drift
-node scripts/migrate-dietary-v2.mjs --dry         # the dietary decision record
+cp .env.example .env.local
+npm run dev
 ```
 
-Read next: `docs/EVIDENCE.md`, then `docs/DATA.md`.
+`.env.local`을 안 채워도 **앱은 돕니다** — localStorage로 떨어져서 한 대
+안에서만 공유됩니다. 키가 필요하면 Supabase 대시보드 Project Settings → API에서
+가져오고, **`.env.example`의 주석을 꼭 읽으세요.** 대시보드가 키 이름을 바꿔서
+`sb_publishable_`(공개, 이게 들어감)과 `sb_secret_`(RLS 우회, **절대 금지**)를
+헷갈리기 쉽습니다. `VITE_` 접두사가 붙은 값은 브라우저 번들에 그대로
+컴파일됩니다.
 
-*Windows note: the repo path contains spaces and Korean characters. Some
-tooling needs a junction (`mklink /J`) to a plain-ASCII path.*
+새 Supabase 프로젝트에 붙일 때는 **먼저 `supabase/schema.sql`을 돌리세요.**
+anon 키가 공개여도 안전한 이유가 RLS이고, 그게 이 파일에 있습니다.
+
+```bash
+npm test          # 200개
+npm run lint      # oxlint
+npm run build
+```
+
+**검증은 375×812에서 하세요.** 데스크톱 폭에서 확인하다가 놓친 문제가 실제로
+있었습니다.
+
+---
+
+## 3. 이 저장소의 규칙 — 어기면 테스트가 잡습니다
+
+이 프로젝트는 **국고가 들어간 공공외교 사업**이고, 외국인에게 한국에 대해
+사실을 가르칩니다. 그래서 정직성 규칙이 문서가 아니라 **테스트로** 박혀
+있습니다.
+
+- **가격을 쓰지 않습니다.** 확인할 방법이 없습니다.
+- **출처 없는 퀴즈 문제는 여행자에게 도달하지 않습니다.** `quizFor`가
+  거릅니다. 파일에는 남고 화면에는 안 나옵니다.
+- **샘플 데이터는 샘플이라고 표시**합니다.
+- **요리에 대해 식이 판정을 내리지 않습니다.** 비건·할랄은 앱의 판정이 아니라
+  **호스트에게 전달되는 메시지**입니다 (`src/data/profile.js`).
+- **산문에 등장하는 재료는 `contains`에 선언**되어야 합니다. 빈 `contains`는
+  `varies: true`를 함께 선언해야 합니다.
+
+`src/content/sources.js`의 규칙이 특히 중요합니다: **등록된 출처는 전부 직접
+열어서 읽은 것**입니다. 제목만 보고 넣지 마세요. 각 항목 주석에 근거가 된
+문장이 인용돼 있으니 같은 형식으로 이어가면 됩니다.
+
+이건 장식이 아닙니다. 10개 문제에 출처를 붙이는 과정에서 **앱이 출처보다 많이
+말하고 있던 문장 4개**가 나왔습니다 — 12첩을 왕에게만 묶은 것, 고추 전래를
+"16세기"로 단정한 것 등. 무엇을 왜 고쳤는지는 `docs/sources-status.md`에
+있습니다.
+
+---
+
+## 4. 지금 할 수 있는 일 — 우선순위대로
+
+### ① README.md를 밥친구로 다시 쓰기 · 막힌 것 없음
+
+가장 값싸고 가장 확실한 작업입니다. 지금 이 저장소를 처음 여는 사람은 전부
+잘못된 제품을 이해하고 시작합니다. 위 1번 절과 `docs/where-this-deploys.md`가
+재료입니다.
+
+`docs/DATA.md`와 `docs/EVIDENCE.md`도 K-Food Map 시절 문서입니다. 다만 이쪽은
+`src/data/verification.js`가 아직 살아서 쓰고 있으니 **지우지 말고** 어디까지
+유효한지만 확인하세요.
+
+### ② 죽은 파일 정리 · 막힌 것 없음
+
+참조가 0인 K-Food Map 잔재입니다.
+
+| 파일 | 상태 |
+| --- | --- |
+| `temp.js` | 빈 파일 (0줄) |
+| `geocode_and_build.cjs` | 349줄, 참조 0 |
+| `verify.cjs` | 25줄, 참조 0 |
+
+`data/evidence/`(2개)는 `verification.js`가 쓰므로 **남겨두세요.**
+
+### ③ 퀴즈 문제 늘리기 · 막힌 것 없음
+
+현재 16문제, 전부 출처 있음. 한 상에서 6문제가 뜨는데 같은 상에 두 번 앉으면
+다 본 문제입니다. `src/content/quiz.js` 맨 위 주석의 두 규칙(논쟁적인 것 제외,
+reveal이 핵심)을 지키고 `sources.js` 형식대로 출처를 붙이면 됩니다.
+
+### ④ 안전 기능 세 가지 · 서버 작업 필요
+
+`src/content/safety.js`의 `NOT_YET_BUILT`에 이름이 적혀 있습니다. 숨긴 게
+아니라 **화면에 "아직 없다"고 표시**하고 있는 항목입니다.
+
+- 차단 (상대가 내 상을 못 보게)
+- 당근마켓 매너온도 같은 평판 신호
+- 앱 안에서 신고 (지금은 오픈채팅으로 나감)
+
+신고는 `https://open.kakao.com/o/g4hMZTGi`로 갑니다. **파일럿이 도는 동안
+사람이 그 방을 봐야 한다는 약속이 코드 주석에 적혀 있습니다.**
+
+---
+
+## 5. 막혀 있는 것 — 사람이 결정해야 진행됨
+
+원격 작업자가 혼자 뚫을 수 없습니다. 손대지 말고 넘기세요.
+
+| 항목 | 필요한 것 | 준비되면 |
+| --- | --- | --- |
+| 인증 호스트 | 실제 명단 | `host_verified` SQL 생성 |
+| 제휴 식당 | 제휴 확정 | 카탈로그 반영 |
+| Supabase 테스트 데이터 | 지워도 되는지 확인 | 아래 SQL |
+
+파일럿 전에 테스트 상을 비울 때 (**되돌릴 수 없습니다**):
+
+```sql
+delete from public.signups; delete from public.tables; delete from public.profiles;
+```
+
+---
+
+## 6. 구조에서 알아둘 것
+
+**계층:** `Policy → Projection → Capability → Entity → Value Object`
+(`src/domain/`). 판단은 policy로 올리세요. 컴포넌트 안에 규칙을 쓰면 테스트가
+닿지 않습니다 — "결과가 하나도 없을 때만 상 열기를 권한다"는 판단이 컴포넌트에
+있다가 틀려서 `src/domain/policy/matching.js`로 옮긴 전례가 있습니다.
+
+**저장소 이음매:** `src/data/tableRepository.js` 하나가 localStorage ⇄ Supabase를
+가립니다. 백엔드를 바꿀 일이 있으면 이 파일만 봅니다.
+
+**localStorage 키:** `bapchingu-tables`, `bapchingu-signups`, `bapchingu-profile`,
+`kfm-bookmarks`, `kfm-markets`, `kfm-experiences`, `kfm-prologue`
+(`kfm-` 접두사는 K-Food Map 시절 이름이 남은 것입니다).
+
+**테스트:** Node 24 내장 러너, 의존성 0. `src/**/*.test.mjs`, 17개 파일 200개.
+
+### 함정 두 개 — 둘 다 실제로 당했습니다
+
+**대비를 측정할 땐 트랜지션을 끄세요.** `document.visibilityState === "hidden"`
+이면 애니메이션 타임라인이 멈춰서 `getComputedStyle`이 **시작값**을 돌려줍니다.
+없는 버그를 한참 쫓았습니다.
+
+**두 탭은 두 사람이 아닙니다.** 같은 오리진의 탭은 Supabase 세션을 공유합니다.
+멀티유저 테스트는 실제 로그아웃 사이클로 하세요.
+
+---
+
+## 7. 배포
+
+```bash
+git push        # master → test/main → Vercel
+```
+
+`origin`은 제거했고 `master`는 `test/main`을 추적합니다. Vercel 환경변수에
+`VITE_SUPABASE_URL`과 `VITE_SUPABASE_ANON_KEY`가 들어 있어야 프로덕션이 공유
+저장소를 씁니다.
+
+전체 배치는 `docs/where-this-deploys.md`. **옆 폴더의 K-Food Map은 다른 앱이고
+다른 URL이며, 두 앱은 초기 git 이력을 공유합니다.** 그게 사고가 가능했던
+이유입니다.
