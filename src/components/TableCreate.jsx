@@ -3,6 +3,7 @@ import {
   menus, menuById, CATEGORY_LABEL, defaultHourFor, eatenAtLabels,
 } from '../domain/catalog/menus.js';
 import { validateNewTable } from '../domain/policy/table.js';
+import { MEETING_NOTE_MAX } from '../domain/policy/meeting.js';
 import { GUIDES, TABLE_KIND_LABEL } from '../domain/catalog/hosts.js';
 import { LANGUAGES, cleanLanguages } from '../domain/catalog/languages.js';
 import { createTable } from '../data/tableRepository.js';
@@ -41,6 +42,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   const [seats, setSeats] = useState(
     () => Math.max(4, menuById(prefill?.menuId)?.minPeople ?? 0));
   const [note, setNote] = useState('');
+  const [meetingNote, setMeetingNote] = useState('');
   const [hostName, setHostName] = useState(profile?.name ?? '');
   const [guides, setGuides] = useState([]);
   // Their own profile answer, so the question is not asked twice.
@@ -53,7 +55,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
 
   const problems = useMemo(() => {
     const list = validateNewTable({ menuId, date, time, place, seats }, menu);
-    if (!hostName.trim()) list.push('Add the name people will look for.');
+    if (!hostName.trim()) list.push('Add the name your guests should call you.');
     return list;
   }, [menuId, date, time, place, seats, menu, hostName]);
 
@@ -63,7 +65,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     setSaving(true);
     const row = await createTable({
       menuId, date, time, place: place.trim(), restaurant: restaurant.trim(), guides, languages,
-      seats: Number(seats), note: note.trim(),
+      seats: Number(seats), note: note.trim(), meetingNote,
       hostId: profile?.userId, hostName: hostName.trim(), hostNationality: profile?.nationality,
       hostGender: profile?.gender ?? null,
     });
@@ -322,9 +324,28 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           <input
             type="text"
             value={hostName}
-            placeholder="What people should look for"
+            /* Was "What people should look for", which asked the recognition
+               question on the name field and then had nowhere to put the
+               answer. A host taking it at its word would have called
+               themselves "red jacket by the stairs". The real question is the
+               field below. */
+            placeholder="What your guests should call you"
             onChange={e => setHostName(e.target.value)}
           />
+        </label>
+        <label className="field">
+          <span className="field__label">How will they spot you? (optional)</span>
+          <input
+            type="text"
+            value={meetingNote}
+            maxLength={MEETING_NOTE_MAX}
+            placeholder="Green jacket, by the CU on the corner"
+            onChange={e => setMeetingNote(e.target.value)}
+          />
+          <span className="field__note">
+            Only people with a seat see this — not everyone browsing. The app has no chat and no
+            phone numbers, so this is how somebody finds you at {place.trim() || 'the meeting point'}.
+          </span>
         </label>
         <label className="field">
           <span className="field__label">Anything to say? (optional)</span>

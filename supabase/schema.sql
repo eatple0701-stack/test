@@ -77,6 +77,22 @@ create index if not exists tables_date_idx on public.tables (date, time);
 -- Safe to re-run against a project created before `restaurant` existed.
 alter table public.tables add column if not exists restaurant text default '';
 
+-- How to recognise the host at the meeting point.
+--
+-- Readable by anyone who can read the table, because tables_read is one broad
+-- policy and narrowing it for a single column would mean a view and a second
+-- read path. The gate is in the app instead — canSeeMeetingNote in
+-- src/domain/policy/meeting.js shows it only to the host and to guests with a
+-- confirmed seat.
+--
+-- Worth being straight about what that means: this is a UI-level gate, not an
+-- RLS one, so anybody who reads the API directly can see it. That is an
+-- acceptable trade for a sentence like "green jacket, by the CU" and would not
+-- be for anything more identifying — which is the reason the field is capped
+-- at 140 characters and described to hosts as a jacket and a landmark rather
+-- than as free space.
+alter table public.tables add column if not exists meeting_note text default '';
+
 -- The host as 문화 큐레이터, which is the plan's actual definition of the role.
 --
 -- host_kind is the team's column. It records which vetted category a checked

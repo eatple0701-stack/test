@@ -9,6 +9,7 @@ import {
 import {
   ATTENDANCE, ATTENDANCE_PROMPT, attendanceOf, isNoShow, attendanceNote,
 } from '../domain/policy/attendance.js';
+import { canSeeMeetingNote, meetingGuidance } from '../domain/policy/meeting.js';
 import {
   getTable, listSignups, createSignup, cancelSignup, decideSignup, recordAttendance,
   deleteTable, createBlock,
@@ -97,6 +98,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // where a test can hold them, not in this file where only my eye could.
   const confirmed = useMemo(() => acceptedSignups(signups), [signups]);
   const affected = useMemo(() => affectedByCancellation(signups, table), [signups, table]);
+  const meeting = useMemo(() => meetingGuidance(table, { isHost }), [table, isHost]);
   const blocker = useMemo(
     () => (table ? joinBlocker(table, signups, profile?.userId) : null),
     [table, signups, profile],
@@ -459,6 +461,19 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </ul>
           <p className="guide-list__note">
             Said by the host when they opened this table, in their words.
+          </p>
+        </div>
+      )}
+
+      {/* The last hundred metres. Only for people who are actually going —
+          "green jacket by the CU" is where a specific person will physically
+          be at a specific time, and on a public page that is available to
+          anybody browsing, including somebody this host turned down. */}
+      {canSeeMeetingNote({ isHost, mySignupAccepted: Boolean(mySignup) && isAccepted(mySignup) }) && (
+        <div className="detail-block meeting-block">
+          <h3 className="detail-block__label">{meeting.title}</h3>
+          <p className={meeting.kind === 'written' ? 'meeting-note' : 'meeting-note meeting-note--none'}>
+            {meeting.body}
           </p>
         </div>
       )}

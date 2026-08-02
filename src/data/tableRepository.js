@@ -15,6 +15,7 @@
 import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
 import { cleanDiets } from './profile.js';
+import { cleanMeetingNote } from '../domain/policy/meeting.js';
 
 const TABLES_KEY = 'bapchingu-tables';
 const SIGNUPS_KEY = 'bapchingu-signups';
@@ -93,6 +94,10 @@ async function local_createTable(input) {
     // because a host may genuinely not have decided yet — but then the table
     // says so rather than leaving a blank.
     restaurant: input.restaurant ?? '',
+    // What to look for at the meeting point. The app puts strangers at a
+    // station exit and then had nothing more to say; this is the last
+    // hundred metres.
+    meetingNote: cleanMeetingNote(input.meetingNote),
     seats: Number(input.seats),
     note: input.note ?? '',
     createdAt: Date.now(),

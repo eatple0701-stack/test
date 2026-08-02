@@ -8555,3 +8555,15 @@ body {
   color: var(--muted);
   background: var(--fill);
 }
+
+/* The last hundred metres — what to look for at the meeting point. Only ever
+   rendered for the host and for guests with a confirmed seat. */
+.meeting-note {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+.meeting-note--none {
+  color: var(--muted);
+}

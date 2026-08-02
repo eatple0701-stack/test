@@ -14,6 +14,7 @@ import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
 import { cleanGender } from '../domain/catalog/genders.js';
 import { cleanDiets } from './profile.js';
+import { cleanMeetingNote } from '../domain/policy/meeting.js';
 
 /** A `tables` row as it comes out of Postgres → the shape the screens read. */
 export function tableFromRow(row) {
@@ -36,6 +37,9 @@ export function tableFromRow(row) {
     time: typeof row.time === 'string' ? row.time.slice(0, 5) : row.time,
     place: row.place,
     restaurant: row.restaurant ?? '',
+    // How to recognise the host on the night. Gated in the UI rather than by
+    // RLS — see canSeeMeetingNote in src/domain/policy/meeting.js.
+    meetingNote: row.meeting_note ?? '',
     seats: row.seats,
     note: row.note ?? '',
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
@@ -64,6 +68,7 @@ export function tableToRow(input, { hostId, hostVerified = false } = {}) {
     time: input.time,
     place: input.place,
     restaurant: input.restaurant ?? '',
+    meeting_note: cleanMeetingNote(input.meetingNote),
     seats: Number(input.seats),
     note: input.note ?? '',
   };
