@@ -11,6 +11,7 @@ import assert from 'node:assert/strict';
 import {
   tableFromRow, tableToRow, signupFromRow, signupToRow, friendlyError,
 } from '../../data/tableMapping.js';
+import { tableKind, TABLE_KIND, TABLE_KIND_LABEL } from '../catalog/hosts.js';
 import { seatsRemaining, isPast } from '../policy/table.js';
 
 const row = {
@@ -165,4 +166,35 @@ test('a row from before guides existed reads as no promise, not a crash', () => 
   assert.deepEqual(back.guides, []);
   assert.equal(back.hostKind, null);
   assert.equal(back.hostVerified, false);
+});
+
+// ---------------------------------------------------------------------------
+// 호스트 테이블 vs 테이블 메이트 — the two shapes the 8/2 meeting separated.
+// ---------------------------------------------------------------------------
+
+test('a table is hosted only when its host promised to guide it', () => {
+  // Derived rather than declared, for the same reason the verification badge
+  // is not client-writable: a label nobody has to earn gets claimed by
+  // everybody and stops meaning anything.
+  assert.equal(tableKind({ guides: ['order'] }), TABLE_KIND.HOSTED);
+  assert.equal(tableKind({ guides: ['order', 'manners', 'origin'] }), TABLE_KIND.HOSTED);
+  assert.equal(tableKind({ guides: [] }), TABLE_KIND.MATES);
+  assert.equal(tableKind({}), TABLE_KIND.MATES);
+  assert.equal(tableKind(null), TABLE_KIND.MATES);
+});
+
+test('a guide id the catalog does not know cannot buy the hosted label', () => {
+  assert.equal(tableKind({ guides: ['teach-me-taekwondo'] }), TABLE_KIND.MATES);
+  assert.equal(tableKind({ guides: ['nonsense', 'manners'] }), TABLE_KIND.HOSTED);
+});
+
+test('both kinds read as something a traveller would choose on purpose', () => {
+  // 테이블 메이트 is not the failure state of 호스트 테이블. Somebody who does
+  // not want to be taught anything tonight is a real traveller.
+  for (const kind of Object.values(TABLE_KIND)) {
+    const label = TABLE_KIND_LABEL[kind];
+    assert.ok(label.kr && label.en && label.blurb, `${kind} is missing a label`);
+    assert.doesNotMatch(label.blurb, /no |not |only |just |basic/i,
+      `${kind} is worded as a lack rather than a choice`);
+  }
 });

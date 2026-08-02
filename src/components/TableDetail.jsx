@@ -7,7 +7,7 @@ import SafetySheet from './SafetySheet';
 import { conflictsFor } from '../data/profile';
 import { PURPOSE } from '../content/safety.js';
 import { shareUrlFor } from '../routes.js';
-import { guideById, hostKindLabel } from '../domain/catalog/hosts.js';
+import { guideById, hostKindLabel, tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../domain/catalog/languages.js';
 import { themeById } from '../domain/catalog/index.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
@@ -290,6 +290,17 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             You have not said what you speak, so this cannot be compared. Profile.
           </p>
         )}
+      </div>
+
+      {/* Which of the two this evening is, said before the seat is asked for.
+          A 테이블 메이트 table is not a lesser 호스트 테이블 — somebody who
+          does not want to be taught anything tonight is a real traveller —
+          so both are stated as a choice rather than one as a shortfall. */}
+      <div className="detail-block detail-kind">
+        <span className={`detail-kind__tag is-${tableKind(table)}`}>
+          {tableKindLabel(table).kr} · {tableKindLabel(table).en}
+        </span>
+        <p className="detail-kind__blurb">{tableKindLabel(table).blurb}</p>
       </div>
 
       {/* What the host said they would explain. Above "Who is going" because

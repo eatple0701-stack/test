@@ -79,6 +79,48 @@ export const GUIDES = [
 
 export const guideById = (id) => GUIDES.find(g => g.id === id) ?? null;
 
+/**
+ * The two shapes of table the 8/2 meeting separated.
+ *
+ *   호스트 테이블 — a host gathering foreigners around a dish and walking them
+ *   through it. This is where the public diplomacy actually happens; the
+ *   professor's note is that without it the product is a useful travel app
+ *   and not much else, and that the answer is in 어떻게 rather than 무엇.
+ *
+ *   테이블 메이트 — people splitting a dish none of them could order alone.
+ *   Not a lesser table. A traveller who does not want to be taught anything
+ *   tonight is a real traveller, and 삼겹살 for four is the product working.
+ *
+ * Derived from the guides a host actually promised rather than declared in a
+ * field of its own. Two reasons. A label nobody has to earn gets claimed by
+ * everybody and then means nothing — the same reasoning that keeps the
+ * verification badge out of the client. And the host has already answered
+ * this question by ticking boxes; asking it twice would be the form arguing
+ * with itself about what those ticks meant.
+ */
+export const TABLE_KIND = {
+  HOSTED: 'hosted',
+  MATES: 'mates',
+};
+
+export const TABLE_KIND_LABEL = {
+  [TABLE_KIND.HOSTED]: {
+    kr: '호스트 테이블',
+    en: 'Hosted table',
+    blurb: 'The host walks the table through it.',
+  },
+  [TABLE_KIND.MATES]: {
+    kr: '테이블 메이트',
+    en: 'Table mates',
+    blurb: 'Everyone works it out together.',
+  },
+};
+
+export const tableKind = (table) =>
+  cleanGuides(table?.guides).length > 0 ? TABLE_KIND.HOSTED : TABLE_KIND.MATES;
+
+export const tableKindLabel = (table) => TABLE_KIND_LABEL[tableKind(table)];
+
 /** Only ids this catalog knows. Anything else is dropped rather than shown. */
 export const cleanGuides = (ids) =>
   Array.isArray(ids) ? ids.filter(id => GUIDES.some(g => g.id === id)) : [];

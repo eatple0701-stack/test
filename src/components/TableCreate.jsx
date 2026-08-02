@@ -3,7 +3,7 @@ import {
   menus, menuById, CATEGORY_LABEL, defaultHourFor, eatenAtLabels,
 } from '../domain/catalog/menus.js';
 import { validateNewTable } from '../domain/policy/table.js';
-import { GUIDES } from '../domain/catalog/hosts.js';
+import { GUIDES, TABLE_KIND_LABEL } from '../domain/catalog/hosts.js';
 import { LANGUAGES, cleanLanguages } from '../domain/catalog/languages.js';
 import { createTable } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
@@ -235,6 +235,18 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
         <p className="form-label__hint">
           Optional. Whatever you tick is shown on your table, in your guests&rsquo; language,
           so they know what to expect before they ask for a seat.
+        </p>
+
+        {/* The consequence of the ticks, said while they are being ticked.
+            The two kinds are derived from this rather than asked separately,
+            so a host should be able to see which one they are making. */}
+        <p className="kind-preview">
+          <span className={`kind-preview__tag is-${guides.length > 0 ? 'hosted' : 'mates'}`}>
+            {guides.length > 0 ? TABLE_KIND_LABEL.hosted.kr : TABLE_KIND_LABEL.mates.kr}
+          </span>
+          {guides.length > 0
+            ? ' — you are offering to walk the table through it.'
+            : ' — tick nothing and yours is a table where everyone works it out together. That is a real table too.'}
         </p>
         <div className="guide-picks">
           {GUIDES.map(g => {

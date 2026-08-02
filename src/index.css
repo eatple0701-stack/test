@@ -7922,3 +7922,56 @@ body {
   font-weight: 600;
   color: var(--ink-secondary);
 }
+
+/* ---------------------------------------------------------------------------
+   호스트 테이블 vs 테이블 메이트
+   ---------------------------------------------------------------------------
+   Two kinds, not a rank. The hosted one carries the accent because it is the
+   rarer offer and the one a first-timer is scanning for; the mates one is
+   neutral rather than grey, because a table where everyone works it out
+   together is a choice somebody makes on purpose and not a shortfall.
+*/
+.table-card__kind {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--ex-kr);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.table-card__kind.is-hosted { background: var(--accent-tint); color: var(--accent-ink); }
+.table-card__kind.is-mates  { background: var(--fill); color: var(--ink-secondary); }
+
+.detail-kind { display: flex; flex-direction: column; gap: 6px; }
+.detail-kind__tag {
+  align-self: flex-start;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-family: var(--ex-kr);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.detail-kind__tag.is-hosted { background: var(--accent-tint); color: var(--accent-ink); }
+.detail-kind__tag.is-mates  { background: var(--fill); color: var(--ink); }
+.detail-kind__blurb {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+
+.kind-preview {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.kind-preview__tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--ex-kr);
+  font-size: 12px;
+  font-weight: 700;
+}
+.kind-preview__tag.is-hosted { background: var(--accent-tint); color: var(--accent-ink); }
+.kind-preview__tag.is-mates  { background: var(--fill); color: var(--ink); }

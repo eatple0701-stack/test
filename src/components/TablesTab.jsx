@@ -3,6 +3,7 @@ import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, isPast } from '../domain/policy/table.js';
 import { listTables, listAllSignups, seedSampleTables, isLocalOnly } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
+import { tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon } from './Icons';
 
 // 밥친구 — the tables you can ask to sit at.
@@ -146,6 +147,12 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               <span className="table-card__top">
                 <span className="table-card__cat">
                   {CATEGORY_LABEL[menu.category]?.en ?? ''}
+                </span>
+                {/* The distinction the 8/2 meeting drew, and the one a
+                    nervous first-timer is actually scanning for: will
+                    somebody explain this to me, or are we all guessing? */}
+                <span className={`table-card__kind is-${tableKind(t)}`}>
+                  {tableKindLabel(t).kr}
                 </span>
                 {isMine && <span className="table-card__mine">Your table</span>}
                 {iAmGoing && <span className="table-card__mine">You are going</span>}
