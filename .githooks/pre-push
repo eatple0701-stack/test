@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# Refuse to push 밥친구 anywhere except its own repository.
+#
+# On 2 August this folder and ../k-food-map both had `origin` pointing at
+# github.com/rkdals0121/kfoodmap. 밥친구 was merged into that repo's master and
+# pushed, and kfoodmap.vercel.app — a different, live app — started serving
+# 밥친구 instead. Nothing was lost, but the other project's production URL was
+# wrong for several hours.
+#
+# `origin` has been removed from this clone and master now tracks test/main, so
+# a bare `git push` is already safe. This hook is the part that survives
+# somebody re-adding a remote later, including me.
+#
+# Install once:
+#   git config core.hooksPath .githooks
+#
+# To push somewhere new on purpose, add its host below rather than deleting
+# this file — the list is the record of where this app is allowed to go.
+
+ALLOWED='rkdals0121/test'
+
+remote_url="$2"
+
+case "$remote_url" in
+  *"$ALLOWED"*) exit 0 ;;
+esac
+
+cat >&2 <<EOF
+
+  push refused: this is 밥친구, and "$remote_url" is not its repository.
+
+  밥친구 belongs to      github.com/$ALLOWED   (branch main)
+                          → test-umber-phi-78.vercel.app
+
+  The K-Food Map app lives in ../k-food-map and owns
+                          github.com/rkdals0121/kfoodmap
+                          → kfoodmap.vercel.app
+
+  Pushing 밥친구 to that second repository replaced a live app once already.
+  If this push is genuinely intended, add the host to ALLOWED in
+  .githooks/pre-push.
+
+EOF
+exit 1
