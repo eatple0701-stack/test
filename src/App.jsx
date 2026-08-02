@@ -209,6 +209,44 @@ export default function App() {
     return watchSystemTheme();
   }, []);
 
+  // The horizontal rows (dish grid, market cards, culture cards — every
+  // `overflow-x: auto` in index.css) work fine on a touch screen: a swipe is
+  // already the right gesture. On a laptop it was not — a foreign tester's
+  // review named it directly: "터치패드를 이용하거나 마우스 휠을 누른 상태로
+  // 움직여야 해서 조금 불편함". Nothing here is component-specific, and
+  // nothing has to be: the fix is one place, applied to whichever row the
+  // cursor happens to be over, rather than seven near-identical handlers
+  // wired into seven components.
+  //
+  // Falls through to ordinary vertical scrolling once a row is already
+  // scrolled to the edge in the direction asked for, rather than trapping
+  // the wheel inside a short row a reader is just scrolling past — the same
+  // reason this checks scrollLeft's position, not just whether the element
+  // can scroll at all.
+  useEffect(() => {
+    const onWheel = (e) => {
+      if (e.deltaY === 0 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      let el = e.target;
+      while (el && el !== document.body) {
+        if (el.scrollWidth > el.clientWidth + 1) {
+          const overflowX = getComputedStyle(el).overflowX;
+          if (overflowX === 'auto' || overflowX === 'scroll') {
+            const atStart = el.scrollLeft <= 0;
+            const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
+            if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) break;
+            el.scrollLeft += e.deltaY;
+            e.preventDefault();
+            return;
+          }
+        }
+        el = el.parentElement;
+      }
+    };
+    // Not passive: redirecting the scroll requires being able to cancel it.
+    document.addEventListener('wheel', onWheel, { passive: false });
+    return () => document.removeEventListener('wheel', onWheel);
+  }, []);
+
   // The map is a tool now, not the backdrop. `mapScope` records what the user
   // was looking at when they opened it, so the overlay can say which question
   // it is answering rather than presenting itself as the destination.

@@ -7,6 +7,28 @@
     <meta name="description" content="Meet fellow travelers in Korea, share a meal, and explore Korean culture together." />
     <meta name="theme-color" content="#FFFFFF" />
     <title>밥친구 Eatple · Don't just visit Korea. Share a Korean table.</title>
+
+    <!-- 핵심기능 5, SNS 확산: the table share button (TableDetail.jsx) already
+         builds a link and hands it to the OS share sheet, which is how it
+         reaches KakaoTalk — but every link unfurled the same way, with no
+         preview at all, because nothing here told KakaoTalk or any other
+         app what to show. These are genuinely static: this is a client-only
+         SPA with no server to inject per-table meta tags at share time, so
+         a shared /tables/<id> link previews as 밥친구 in general, not as the
+         specific dish and host on that table. Making a shared table preview
+         its own dish would need server-side rendering or an edge function —
+         real infrastructure this project has deliberately not taken on. No
+         og:image: every asset in public/images is an SVG illustration, and
+         most link-preview crawlers (KakaoTalk included) either skip SVG or
+         render it badly: a text-only preview beats a broken-looking one. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="밥친구 Eatple" />
+    <meta property="og:title" content="밥친구 Eatple · Don't just visit Korea. Share a Korean table." />
+    <meta property="og:description" content="Meet fellow travelers in Korea, share a meal, and explore Korean culture together." />
+    <meta property="og:url" content="https://test-umber-phi-78.vercel.app" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="밥친구 Eatple" />
+    <meta name="twitter:description" content="Meet fellow travelers in Korea, share a meal, and explore Korean culture together." />
     <!-- Resolves the traveller's theme choice (or the OS default, for
          anyone who never chose) before the first paint, so there is no
          flash of the wrong theme while React boots. The only other place
