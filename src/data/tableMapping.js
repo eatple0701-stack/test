@@ -12,6 +12,7 @@
 
 import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
+import { cleanGender } from '../domain/catalog/genders.js';
 import { cleanDiets } from './profile.js';
 
 /** A `tables` row as it comes out of Postgres → the shape the screens read. */
@@ -23,6 +24,7 @@ export function tableFromRow(row) {
     hostId: row.host_id,
     hostName: row.host_name,
     hostNationality: row.host_nationality ?? '',
+    hostGender: row.host_gender ?? null,
     hostVerified: row.host_verified ?? false,
     hostKind: row.host_kind ?? null,
     guides: Array.isArray(row.guides) ? row.guides : [],
@@ -50,6 +52,7 @@ export function tableToRow(input, { hostId, hostVerified = false } = {}) {
     host_id: hostId,
     host_name: input.hostName,
     host_nationality: input.hostNationality ?? '',
+    host_gender: cleanGender(input.hostGender),
     // Sent for completeness and refused by the database: the insert policy in
     // schema.sql rejects a row where host_verified is true, so a crafted
     // request cannot buy a badge. host_kind is not written here at all — it is
@@ -74,6 +77,7 @@ export function signupFromRow(row) {
     userId: row.user_id,
     name: row.name,
     nationality: row.nationality ?? '',
+    gender: row.gender ?? null,
     languages: row.languages ?? [],
     diets: Array.isArray(row.diets) ? row.diets : [],
     note: row.note ?? '',
@@ -87,6 +91,7 @@ export function signupToRow(input, { userId } = {}) {
     user_id: userId,
     name: input.name,
     nationality: input.nationality ?? '',
+    gender: cleanGender(input.gender),
     languages: cleanLanguages(input.languages),
     diets: cleanDiets(input.diets),
     note: input.note ?? '',

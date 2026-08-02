@@ -27,6 +27,12 @@ create table if not exists public.profiles (
   created_at        timestamptz not null default now()
 );
 
+-- Self-declared, like nationality — never verified, never used by the app to
+-- judge a dish. Powers only the "tables with another woman" filter on Tables
+-- (src/domain/catalog/genders.js). See HANDOFF.md §4: praised by a reviewer
+-- for existing before it did.
+alter table public.profiles add column if not exists gender text;
+
 -- ---------------------------------------------------------------------------
 -- Tables — a meal somebody is opening seats at.
 -- ---------------------------------------------------------------------------
@@ -73,6 +79,11 @@ alter table public.tables add column if not exists restaurant text default '';
 -- themselves, and the way to guarantee that is to give the client no route.
 alter table public.tables add column if not exists host_kind text;
 
+-- Copied from the host's profile at table-open time, same treatment as
+-- host_nationality — self-declared, not a credential, and unlike
+-- host_verified/host_kind it IS the host's own to set.
+alter table public.tables add column if not exists host_gender text;
+
 -- guides is the host's own promise about what they will explain tonight, so
 -- unlike the two above it is theirs to write. Constrained to the catalog's
 -- four ids so a row cannot carry a label the app never wrote.
@@ -118,6 +129,11 @@ alter table public.signups add column if not exists languages text[] not null de
 -- How a guest describes their own eating, in their own word. Not a claim the
 -- app makes about a dish — a message to the host, who can ask the kitchen.
 alter table public.signups add column if not exists diets text[] not null default '{}';
+
+-- What a guest told the table about their gender, same treatment as diets:
+-- carried, not judged. Powers the "tables with another woman" filter, which
+-- counts a table's host and every current signup.
+alter table public.signups add column if not exists gender text;
 
 -- ---------------------------------------------------------------------------
 -- Overbooking guard

@@ -20,6 +20,7 @@ const row = {
   host_id: 'uuid-host',
   host_name: 'Minsu',
   host_nationality: 'Korea',
+  host_gender: 'Woman',
   host_verified: false,
   date: '2026-08-17',
   time: '19:00:00',
@@ -46,6 +47,42 @@ test('a table row maps onto every field the screens read', () => {
   assert.equal(t.isSample, false);
   // No field the screens read may come back undefined.
   for (const [k, v] of Object.entries(t)) assert.notEqual(v, undefined, `${k} is undefined`);
+});
+
+test('gender maps both ways, like nationality', () => {
+  const t = tableFromRow(row);
+  assert.equal(t.hostGender, 'Woman');
+
+  const out = tableToRow(
+    { menuId: 'bossam', hostName: 'Kang', hostGender: 'Man',
+      date: '2026-08-20', time: '18:00', place: 'Gongdeok', seats: '4', note: '' },
+    { hostId: 'uuid-host' },
+  );
+  assert.equal(out.host_gender, 'Man');
+
+  const s = signupFromRow({
+    id: 'uuid-s', table_id: 'uuid-1', user_id: 'uuid-u',
+    name: 'Aya', gender: 'Non-binary', created_at: '2026-07-29T11:00:00Z',
+  });
+  assert.equal(s.gender, 'Non-binary');
+
+  const signupOut = signupToRow({ tableId: 'uuid-1', name: 'Aya', gender: 'Woman' }, { userId: 'uuid-u' });
+  assert.equal(signupOut.gender, 'Woman');
+});
+
+test('an unknown or missing gender never reaches the row as a guess', () => {
+  const out = tableToRow(
+    { menuId: 'bossam', hostName: 'Kang', hostGender: 'nonsense',
+      date: '2026-08-20', time: '18:00', place: 'Gongdeok', seats: '4' },
+    { hostId: 'uuid-host' },
+  );
+  assert.equal(out.host_gender, null);
+
+  const t = tableFromRow({ ...row, host_gender: null });
+  assert.equal(t.hostGender, null);
+
+  const signupOut = signupToRow({ tableId: 'uuid-1', name: 'Aya', gender: 'not-a-gender' }, { userId: 'u' });
+  assert.equal(signupOut.gender, null);
 });
 
 test('Postgres time is trimmed to the HH:MM the app displays and compares', () => {
