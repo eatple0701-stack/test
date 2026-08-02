@@ -12,6 +12,7 @@
 
 import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
+import { cleanDiets } from './profile.js';
 
 /** A `tables` row as it comes out of Postgres → the shape the screens read. */
 export function tableFromRow(row) {
@@ -74,6 +75,7 @@ export function signupFromRow(row) {
     name: row.name,
     nationality: row.nationality ?? '',
     languages: row.languages ?? [],
+    diets: Array.isArray(row.diets) ? row.diets : [],
     note: row.note ?? '',
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
   };
@@ -86,6 +88,7 @@ export function signupToRow(input, { userId } = {}) {
     name: input.name,
     nationality: input.nationality ?? '',
     languages: cleanLanguages(input.languages),
+    diets: cleanDiets(input.diets),
     note: input.note ?? '',
   };
 }

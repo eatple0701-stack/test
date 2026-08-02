@@ -4,7 +4,7 @@ import { seatsRemaining, joinBlocker, BLOCKER_TEXT, JOIN_BLOCK } from '../domain
 import { getTable, listSignups, createSignup, cancelSignup, deleteTable } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
-import { conflictsFor } from '../data/profile';
+import { conflictsFor, dietById } from '../data/profile';
 import { PURPOSE } from '../content/safety.js';
 import { shareUrlFor } from '../routes.js';
 import { guideById, hostKindLabel, tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
@@ -94,6 +94,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         tableId, userId: profile?.userId, name: name.trim(),
         nationality: nationality.trim(), note: note.trim(),
         languages: profile?.languages ?? [],
+        // Halal, vegan, whatever they call it — carried to the host rather
+        // than used by the app to rule on a dish it cannot check.
+        diets: profile?.diets ?? [],
       });
     } catch (e) {
       // Once tables are shared, two phones can reach for the same chair at
@@ -301,6 +304,30 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           {tableKindLabel(table).kr} · {tableKindLabel(table).en}
         </span>
         <p className="detail-kind__blurb">{tableKindLabel(table).blurb}</p>
+
+        {/* The shape of the evening, said as a fact rather than as a rule.
+            The professor's review suggested a hard floor — 3인 이상만 매칭
+            확정 — and the concern under it is right: a stranger's dinner that
+            turns out to be two people is a different evening from the one the
+            app advertised. A seat minimum does not actually prevent that,
+            though. A table for four with one guest is still two people at
+            dinner, so the rule would reassure without doing anything.
+
+            What does work is telling somebody the number before they commit,
+            and being specific when that number is two. Nothing is blocked:
+            two people sharing 삼겹살 is the product working, and it is not
+            our decision to make on somebody else's behalf. */}
+        {/* Only to somebody deciding. A host counting their own guests, and a
+            guest who already said yes, are both reading their table rather
+            than choosing it — for them the count is on the "Who is going"
+            list a screen below, with names on it. */}
+        {!isHost && !mySignup && (
+          <p className={`detail-headcount${signups.length === 0 ? ' is-pair' : ''}`}>
+            {signups.length === 0
+              ? 'Nobody else has taken a seat yet, so if you sit down it is the two of you.'
+              : `Take a seat and there would be ${signups.length + 2} of you.`}
+          </p>
+        )}
       </div>
 
       {/* What the host said they would explain. Above "Who is going" because
@@ -354,6 +381,15 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   ten words of Korean, running late. It was being written to
                   storage and shown to nobody, which is worse than never
                   asking. */}
+              {/* The thing a host most needs to know before they pick the
+                  shop, in the guest's own word for it. The app makes no claim
+                  about the dish — this is one person telling another. */}
+              {(s.diets ?? []).length > 0 && (
+                <span className="who-row__diet">
+                  {s.diets.map(d => dietById(d)).filter(Boolean)
+                    .map(d => `${d.kr} · ${d.en}`).join(', ')}
+                </span>
+              )}
               {s.note && <span className="who-row__note">“{s.note}”</span>}
             </li>
           ))}

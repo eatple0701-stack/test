@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LANGUAGES } from '../domain/catalog/languages.js';
-import { RESTRICTIONS, restrictionLabel } from '../data/profile';
+import { RESTRICTIONS, restrictionLabel, DIETS } from '../data/profile';
 
 // Profile — the four things the app actually does something with.
 //
@@ -40,6 +40,7 @@ function ProfileTab({ profile, onProfileChange, onNavigate }) {
   const [nationality, setNationality] = useState(profile?.nationality ?? '');
   const languages = profile?.languages ?? [];
   const avoids = profile?.avoids ?? [];
+  const diets = profile?.diets ?? [];
 
   const save = (patch) => onProfileChange?.({ ...profile, ...patch });
 
@@ -116,6 +117,29 @@ function ProfileTab({ profile, onProfileChange, onNavigate }) {
                 onClick={() => save({ avoids: toggle(avoids, r) })}
               >
                 {restrictionLabel(r)}
+              </button>
+            ))}
+          </div>
+        </Field>
+
+        {/* Deliberately a separate question from the one above, and worded so
+            the difference is visible. The boxes above change what the app
+            says about a dish; this one changes what the *host* is told. The
+            app cannot rule on whether a 한상 is halal and does not try — it
+            passes the word to somebody who can ask the kitchen. */}
+        <Field
+          label="How you eat"
+          hint="Sent to the host with your seat request. The app does not judge dishes by this — it tells the person who can ask."
+        >
+          <div className="chip-row">
+            {DIETS.map(d => (
+              <button
+                key={d.id}
+                className={`chip${diets.includes(d.id) ? ' active' : ''}`}
+                aria-pressed={diets.includes(d.id)}
+                onClick={() => save({ diets: toggle(diets, d.id) })}
+              >
+                {d.kr} · {d.en}
               </button>
             ))}
           </div>

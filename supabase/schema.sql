@@ -84,6 +84,10 @@ alter table public.tables add column if not exists guides text[] not null defaul
 alter table public.tables add column if not exists languages text[] not null default '{}';
 alter table public.signups add column if not exists languages text[] not null default '{}';
 
+-- How a guest describes their own eating, in their own word. Not a claim the
+-- app makes about a dish — a message to the host, who can ask the kitchen.
+alter table public.signups add column if not exists diets text[] not null default '{}';
+
 alter table public.tables drop constraint if exists tables_guides_known;
 alter table public.tables add constraint tables_guides_known
   check (guides <@ array['order', 'eat', 'manners', 'origin']::text[]);

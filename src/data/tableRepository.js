@@ -14,6 +14,7 @@
 
 import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
+import { cleanDiets } from './profile.js';
 
 const TABLES_KEY = 'bapchingu-tables';
 const SIGNUPS_KEY = 'bapchingu-signups';
@@ -136,6 +137,8 @@ async function local_createSignup(input) {
     name: input.name,
     nationality: input.nationality ?? '',
     languages: input.languages ?? [],
+    // How they eat, in their own word, on its way to the host.
+    diets: cleanDiets(input.diets),
     note: input.note ?? '',
     createdAt: Date.now(),
   };

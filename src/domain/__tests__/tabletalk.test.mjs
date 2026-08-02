@@ -19,7 +19,7 @@ import {
 import { menus } from '../catalog/menus.js';
 import { RESTRICTIONS } from '../../data/profile.js';
 import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../catalog/languages.js';
-import { tableToRow, tableFromRow } from '../../data/tableMapping.js';
+import { tableToRow, tableFromRow, signupToRow, signupFromRow } from '../../data/tableMapping.js';
 
 const everyCard = [...tableQuestions, ...Object.values(dishQuestions).flat()];
 
@@ -190,4 +190,36 @@ test('a traveller sees their own rules first, and loses nothing', () => {
     mine.map(p => p.id).slice().sort(),
     'personalising the list dropped a phrase',
   );
+});
+
+// ---------------------------------------------------------------------------
+// 비건·할랄 — a message to the host, never a verdict from the app.
+// ---------------------------------------------------------------------------
+
+test('a diet is carried to the host and never used to judge a dish', () => {
+  // Three sources asked for this — the plan names 비건 and 할랄, the reviewing
+  // 부장 asked for 맞춤형, and a tester looking at the shipped ingredient boxes
+  // wrote "add vegan, vegetarian". The principle that kept them out was about
+  // the *app* asserting halal, which this does not do.
+  const row = signupToRow(
+    { tableId: 't', name: 'Amina', diets: ['halal', 'vegan', 'paleo'] },
+    { userId: 'u-1' },
+  );
+  assert.deepEqual(row.diets, ['vegan', 'halal'], 'unknown ids or ordering leaked through');
+  assert.deepEqual(signupFromRow({ ...row, id: 's' }).diets, ['vegan', 'halal']);
+
+  // A signup written before the column existed is not a crash and not a claim.
+  assert.deepEqual(signupFromRow({ id: 's', table_id: 't', name: 'A' }).diets, []);
+});
+
+test('nothing in the catalog answers a diet, because nothing can', () => {
+  // The guard on the whole design: if a dish ever grew a `halal` or `vegan`
+  // field, the app would be ruling on somebody else's rules with a plate of
+  // pork on the line. Ingredients are what it may state; diets are what a
+  // person states.
+  for (const m of menus) {
+    for (const banned of ['halal', 'vegan', 'vegetarian', 'kosher']) {
+      assert.ok(!(banned in m), `${m.id} claims to answer ${banned}`);
+    }
+  }
 });

@@ -7975,3 +7975,31 @@ body {
 }
 .kind-preview__tag.is-hosted { background: var(--accent-tint); color: var(--accent-ink); }
 .kind-preview__tag.is-mates  { background: var(--fill); color: var(--ink); }
+
+/* What a guest told the table about how they eat. Green rather than orange:
+   it is information the host asked for, not a problem with the booking. */
+.who-row__diet {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-strong);
+}
+
+/* The headcount, said before somebody commits an evening. Neutral by default;
+   the two-person case is the one worth a second look, so it gets a frame
+   rather than a colour that would read as a warning about the host. */
+.detail-headcount {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.detail-headcount.is-pair {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--fill);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+}

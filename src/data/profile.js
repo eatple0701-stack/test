@@ -34,6 +34,38 @@ export const RESTRICTIONS = ['pork', 'beef', 'chicken', 'fish', 'shellfish'];
 export const restrictionLabel = (r) => `No ${r}`;
 
 /**
+ * How somebody describes their own eating, in their own word for it.
+ *
+ * The list above is ingredients on purpose, and that reasoning still holds
+ * for anything the *app* asserts: this catalog cannot look at 한정식 and rule
+ * on whether it is halal, and pretending otherwise puts a plate of pork on
+ * the line. What the reasoning never justified was refusing to carry the word
+ * at all — and refusing is what the app did.
+ *
+ * Three sources asked for the same thing. The business plan names 비건, 할랄,
+ * 알레르기 as matching conditions. The reviewing 부장 asked for 사용자의 취향을
+ * 입력받아 맞춤형. And a foreign tester, looking at the five ingredient boxes
+ * that shipped this morning, wrote "Profile → add vegan, vegetarian".
+ *
+ * So this is a message, not a verdict. Nothing here filters a dish or clears
+ * one. It travels with a seat request and is shown to the host, who is a
+ * person who can answer a question the catalog cannot — which is exactly the
+ * 문화 큐레이터 role the plan wrote for them.
+ */
+export const DIETS = [
+  { id: 'vegetarian', kr: '베지테리언', en: 'Vegetarian' },
+  { id: 'vegan', kr: '비건', en: 'Vegan' },
+  { id: 'halal', kr: '할랄', en: 'Halal' },
+  { id: 'kosher', kr: '코셔', en: 'Kosher' },
+];
+
+export const dietById = (id) => DIETS.find(d => d.id === id) ?? null;
+
+/** Only ids this list knows, in list order so two profiles read alike. */
+export const cleanDiets = (ids) =>
+  Array.isArray(ids) ? DIETS.filter(d => ids.includes(d.id)).map(d => d.id) : [];
+
+/**
  * The ingredients in this dish that the traveller has ruled out.
  * Empty means nothing to warn about.
  */
