@@ -304,6 +304,12 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           {tableKindLabel(table).kr} · {tableKindLabel(table).en}
         </span>
         <p className="detail-kind__blurb">{tableKindLabel(table).blurb}</p>
+        {/* Only on a Hosted table — Task 1 in the feedback-response plan.
+            This is the professor's "어떻게, 무엇이 아니라" note, answered where
+            a guest is actually choosing this table over a 테이블 메이트 one. */}
+        {tableKindLabel(table).why && (
+          <p className="detail-kind__why">{tableKindLabel(table).why}</p>
+        )}
 
         {/* The shape of the evening, said as a fact rather than as a rule.
             The professor's review suggested a hard floor — 3인 이상만 매칭
