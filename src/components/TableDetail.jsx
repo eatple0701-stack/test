@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, joinBlocker, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
-import { getTable, listSignups, createSignup, cancelSignup, deleteTable } from '../data/tableRepository.js';
+import {
+  getTable, listSignups, createSignup, cancelSignup, deleteTable, createBlock,
+} from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
 import { conflictsFor, dietById } from '../data/profile';
@@ -41,6 +43,16 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const [editingIdentity, setEditingIdentity] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [shared, setShared] = useState(false);
+  // { id, name } of whoever a Block click is asking to confirm, or null.
+  // One piece of state serving both directions (host blocking a guest, a
+  // guest blocking the host) rather than two, because only one confirm can
+  // ever be open at a time regardless of which row it came from.
+  const [confirmBlock, setConfirmBlock] = useState(null);
+  const [blocking, setBlocking] = useState(false);
+  // Blocked this session, so the row can say so immediately rather than
+  // waiting on a refetch of a list this screen has no other reason to hold —
+  // createBlock is idempotent, so there is nothing to reconcile later.
+  const [justBlocked, setJustBlocked] = useState(() => new Set());
   // Set once in Profile, so the seat form has nothing left to ask.
   const profileKnown = Boolean(profile?.name?.trim());
 
@@ -156,6 +168,22 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     await refresh();
     setBusy(false);
     setJoined(false);
+  };
+
+  // Not retroactive on purpose — see the comment on the blocks table in
+  // schema.sql. This only ever changes whether the two of them can end up at
+  // a table together again; it does not touch this one.
+  const confirmedBlock = async () => {
+    if (blocking || !confirmBlock) return;
+    setBlocking(true);
+    try {
+      await createBlock({ blockedId: confirmBlock.id, blockedName: confirmBlock.name });
+      setJustBlocked(prev => new Set(prev).add(confirmBlock.id));
+    } catch (e) {
+      setError(e.message);
+    }
+    setBlocking(false);
+    setConfirmBlock(null);
   };
 
   return (
@@ -382,6 +410,21 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 {hostKindLabel(table.hostKind) && ` · ${hostKindLabel(table.hostKind).en}`}
               </span>
             )}
+            {/* Only a guest sees this — a host cannot block themselves, and
+                blocking is only ever about not sitting with somebody again,
+                so it has no meaning on your own table. */}
+            {!isHost && (
+              justBlocked.has(table.hostId) ? (
+                <span className="who-row__blocked">Blocked</span>
+              ) : (
+                <button
+                  className="who-row__block"
+                  onClick={() => setConfirmBlock({ id: table.hostId, name: table.hostName, role: 'host' })}
+                >
+                  Block
+                </button>
+              )
+            )}
           </li>
           {signups.map(s => (
             <li key={s.id} className="who-row who-row--stacked">
@@ -397,6 +440,22 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   <span className="who-row__role">
                     {[s.nationality, s.gender].filter(Boolean).join(' · ')}
                   </span>
+                )}
+                {/* Only the host sees this — signups_insert_own in
+                    schema.sql is what actually keeps a blocked guest out of
+                    this host's future tables, but only the host can decide
+                    who that should be. */}
+                {isHost && (
+                  justBlocked.has(s.userId) ? (
+                    <span className="who-row__blocked">Blocked</span>
+                  ) : (
+                    <button
+                      className="who-row__block"
+                      onClick={() => setConfirmBlock({ id: s.userId, name: s.name, role: 'guest' })}
+                    >
+                      Block
+                    </button>
+                  )
                 )}
               </span>
               {/* The seat form asks "anything the table should know?" and
@@ -422,6 +481,25 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           ))}
         </ul>
         {table.note && <p className="detail-note">“{table.note}”</p>}
+
+        {confirmBlock && (
+          <div className="cancel-confirm">
+            <p className="cancel-confirm__title">Block {confirmBlock.name}?</p>
+            <p className="cancel-confirm__body">
+              {confirmBlock.role === 'host'
+                ? "Their tables stop showing up on your Tables list. This does not change your seat here if you already have one, and does not tell them."
+                : "They will no longer be able to take a seat at any table you host. This does not remove them from this table, and does not tell them."}
+            </p>
+            <div className="cancel-confirm__row">
+              <button className="cancel-confirm__no" onClick={() => setConfirmBlock(null)}>
+                Keep as is
+              </button>
+              <button className="cancel-confirm__yes" onClick={confirmedBlock} disabled={blocking}>
+                {blocking ? 'Blocking…' : 'Block'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* The host badge is deliberately not here. The plan promises verified

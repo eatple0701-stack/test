@@ -4,7 +4,8 @@ import {
   matchRequest, requestAsTable, isEmptyRequest, shouldOfferToHost, MATCH,
 } from '../domain/policy/matching.js';
 import { seatsRemaining } from '../domain/policy/table.js';
-import { listTables, listAllSignups } from '../data/tableRepository.js';
+import { listTables, listAllSignups, listBlocks } from '../data/tableRepository.js';
+import { visibleTables } from '../domain/policy/blocking.js';
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons';
 
 // Asking for a meal that may not exist.
@@ -39,8 +40,14 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
   useEffect(() => {
     let alive = true;
     (async () => {
+      // Same rule as Tables (src/components/TablesTab.jsx): a want should
+      // never be answered by matching it to a table this traveller has
+      // already said they do not want to sit at — and listBlocks() is caught
+      // on its own for the same reason it is there: a project whose schema
+      // has not caught up yet must not turn matching off entirely.
       const [t, s] = await Promise.all([listTables(), listAllSignups()]);
-      if (alive) { setTables(t); setSignups(s); }
+      const b = await listBlocks().catch(() => []);
+      if (alive) { setTables(visibleTables(t, b.map(x => x.blockedId))); setSignups(s); }
     })();
     return () => { alive = false; };
   }, []);

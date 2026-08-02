@@ -36,6 +36,9 @@
   --orange-tint: #FFF7ED;   /* saved state */
   --orange-line: #FED7AA;
   --danger: #D92D20;        /* closed status */
+  --danger-tint: #FEF2F2;   /* destructive-confirm background */
+  --danger-line: #FECACA;   /* destructive-confirm border */
+  --danger-ink: #991B1B;    /* destructive-confirm text */
 
   /* Radius scale — grows with the size of the element it wraps */
   --radius-sm: 8px;         /* tag chips */
@@ -4274,6 +4277,42 @@ button {
   color: var(--muted);
 }
 
+/* Deliberately plainer than .companion-card — this list exists to be
+   corrected, not admired, so nothing here competes for attention with the
+   one button that matters. */
+.blocked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 20px;
+}
+.blocked-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.blocked-row__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.blocked-row__undo {
+  padding: 5px 12px;
+  border: 1px solid var(--line-hover);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 /* ---------- Passport: the record ---------- */
 
 /* A day of the trip, read back. The date leads, the things done sit under
@@ -6575,20 +6614,20 @@ button {
 .cancel-confirm {
   margin-top: 14px;
   padding: 14px;
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
+  background: var(--danger-tint);
+  border: 1px solid var(--danger-line);
   border-radius: var(--radius);
 }
 .cancel-confirm__title {
   font-size: 14px;
   font-weight: 700;
-  color: #991B1B;
+  color: var(--danger-ink);
 }
 .cancel-confirm__body {
   margin-top: 6px;
   font-size: 13px;
   line-height: 1.55;
-  color: #7F1D1D;
+  color: var(--danger-ink);
 }
 .cancel-confirm__row {
   display: flex;
@@ -7633,6 +7672,33 @@ body {
   white-space: nowrap;
 }
 
+/* Quiet on purpose — this sits next to a stranger's name, not a call to
+   action the row is trying to sell. Tinted red only once it is pressed and
+   asking for confirmation (.cancel-confirm), not while it is just sitting
+   here as an option. */
+.who-row__block {
+  margin-left: auto;
+  padding: 3px 9px;
+  border: 1px solid var(--line-hover);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted-strong);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.who-row__blocked {
+  margin-left: auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* ---------------------------------------------------------------------------
    문화교류 질문 카드 — one question, in both languages
    ---------------------------------------------------------------------------
@@ -8249,6 +8315,14 @@ body {
      `color`, never a fill, so there is no white-label role to trade
      off against. */
   --danger: #FF6B5E;
+  /* The destructive-confirm dialog (cancelling a table, blocking somebody)
+     was still hardcoding its light-mode hex values directly until this pass
+     — found while adding blocking, which was about to reuse the same
+     markup and would have shipped a second copy of the bug. --danger-ink
+     measures 8.24:1 on --danger-tint. */
+  --danger-tint: #331515;
+  --danger-line: #5A2424;
+  --danger-ink: #FF9B94;
 
   /* Explore editorial layer. --ex-field was already the one dark
      object on a light page (#12211B) — lifted slightly so it still

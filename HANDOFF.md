@@ -159,6 +159,7 @@ npm run build
 | 다크 모드 | 외국인("앱 쓸 때 중요하게 본다") | `index.css` `:root[data-theme="dark"]` — 토큰 값만 분기, 실기기에서 2건 추가로 발견·수정(백-패널 흰색 하드코딩, 마켓 카드 제목 파란 글씨) |
 | 라이트/다크/시스템 직접 선택 | 사용자(폰으로 확인 후 요청) | `src/data/theme.js`, Profile의 Appearance 칩 3개 |
 | 알러지 직접 입력 | 외국인("what if ur allergic to prawns") | Profile의 자유 텍스트 필드, `signups.allergy_note` — 5종 고정 목록은 그대로 두고 그 위에 얹은 탈출구 |
+| 차단 | 부장님(`NOT_YET_BUILT`) | `supabase/blocks` 테이블 + RLS, TableDetail·Passport — RLS는 실 프로젝트 미검증 |
 
 ### 아직 없는 것 — 코드에서 확인함
 
@@ -166,7 +167,7 @@ npm run build
 | --- | --- | --- |
 | **이메일·전화번호** | 8/2 회의, 외국인 | 일부러 보류 — 개인정보 처리 근거 확인 전까지는 안 만듦. 프로필 필드는 `name`/`nationality`/`languages`/`gender`/`allergyNote`뿐 |
 | **프로필 사진 / 랜덤 프사** | 8/2 회의 | 일부러 보류 — 저장 위치·용량 제한 등 결정 필요. 없음 (`avatar`는 다른 곳의 CSS 클래스명) |
-| **신고·차단·후기** | 부장님 | `NOT_YET_BUILT`에 이름만 적혀 있음 |
+| **신고·후기** | 부장님 | `NOT_YET_BUILT`에 이름만 적혀 있음 (차단은 완료 — 위 표 참고) |
 | **관리자 승인 절차** | 부장님 | 화면에 "승인 절차는 아직 없습니다"라고 표시만 |
 | **노쇼 처리** | 교수님 | 없음 |
 | **약관 동의** | 교수님 | 아래 참고 |
@@ -302,21 +303,45 @@ Supabase 익명 인증), 구글 지도 API, AI API 다국어.
 등록했습니다. `src/content/quiz.js` 맨 위 주석의 두 규칙은 그대로 지켰고,
 `quiz.test.mjs`가 소스 등록·중복 id·하지 매칭 전부 통과.
 
-### ⑥ 안전 기능 · 서버 작업 필요, 부장님이 세 번 짚음
+### ⑥ 안전 기능 · 차단은 완료, 나머지는 여전히 정책/서버 작업 대기
 
-`src/content/safety.js`의 `NOT_YET_BUILT`에 이름이 적혀 있습니다. 숨긴 게
-아니라 **화면에 "아직 없다"고 표시**하고 있는 항목입니다.
+`src/content/safety.js`의 `NOT_YET_BUILT`에 세 개가 적혀 있었습니다. 숨긴 게
+아니라 **화면에 "아직 없다"고 표시**하고 있던 항목이고, 그중 하나만 순수
+코드+스키마 작업이라 진행했습니다 — 나머지 둘은 결정이 먼저 필요하다고
+판단해 그대로 뒀습니다.
 
-- 차단 (상대가 내 상을 못 보게)
-- 당근마켓 매너온도 같은 평판 신호
-- 앱 안에서 신고 (지금은 오픈채팅으로 나감)
+**완료 — 차단.** `supabase/blocks` 테이블 + RLS 두 겹으로 구현했습니다:
 
-여기에 부장님이 요구한 **관리자 승인 절차**와 교수님이 물은 **노쇼 처리**가
-더 붙습니다. 둘 다 파일럿 전에 답이 있어야 하는 것들이고, 승인 절차는
+1. **내 화면에서 안 보이게** (`src/domain/policy/blocking.js`) — 순수
+   클라이언트 필터. 내가 누굴 차단했는지는 RLS로 나만 읽을 수 있고
+   (`blocks_select_own`), Tables·찾는 밥상 목록에서 그 호스트 상이 사라집니다.
+2. **상대가 내 상에 못 들어오게** — `signups_insert_own` RLS를 확장해서,
+   `blocked_id = auth.uid() and blocker_id = (그 상의 host_id)`인 경우 좌석
+   INSERT 자체를 막습니다. 클라이언트가 아니라 DB가 막는 이유: 막히는
+   당사자의 브라우저가 그 검사를 실행 안 할 수도 있으니까요.
+
+**일부러 안 한 것**: 이미 잡은 좌석은 안 건드림(소급 안 함), "차단당했다"는
+사실 자체를 상대에게 알 방법이 없게 함(RLS select가 blocker_id=본인만 —
+차단 사실을 알리는 게 오히려 위험을 키울 수 있다는 판단, 대부분의 플랫폼도
+이렇게 함). TableDetail의 "Who is going"에서 호스트는 각 게스트를,
+게스트는 호스트를 차단할 수 있고(둘 다 확인창 있음), Passport에 "Blocked"
+목록 + 해제 버튼도 있습니다. 테스트 8개 추가(`blocking.test.mjs` 5개,
+`tableMapping.test.mjs` 블록 매핑 3개) — 로컬(localStorage) 백엔드는
+tableRepository.js 전체가 그렇듯 직접 테스트가 없어서 수동 스모크 스크립트로
+create/list/idempotent/delete/필터링을 확인했습니다. 실 Supabase 프로젝트에
+이번 배치까지의 스키마를 재적용해야 실제로 작동합니다 (배포 순서는 README
+참고) — RLS 정책(특히 `signups_insert_own` 확장)은 실제 프로젝트에서
+아직 검증 못 했습니다, 재적용 후 두 계정으로 직접 확인하세요.
+
+**여전히 보류 — 평판(매너온도류), 인앱 신고.** 어뷰징 방지 설계와 "누가
+감시하냐"는 결정이 먼저 필요합니다.
+
+여기에 부장님이 요구한 **관리자 승인 절차**와 교수님이 물은 **노쇼 처리**도
+여전히 없습니다. 둘 다 파일럿 전에 답이 있어야 하는 것들이고, 승인 절차는
 "초기에는" 있어야 한다고 못박혔습니다.
 
-신고는 `https://open.kakao.com/o/g4hMZTGi`로 갑니다. **파일럿이 도는 동안
-사람이 그 방을 봐야 한다는 약속이 코드 주석에 적혀 있습니다.**
+신고는 여전히 `https://open.kakao.com/o/g4hMZTGi`로 갑니다. **파일럿이 도는
+동안 사람이 그 방을 봐야 한다는 약속이 코드 주석에 적혀 있습니다.**
 
 ---
 
@@ -352,7 +377,10 @@ delete from public.signups; delete from public.tables; delete from public.profil
 `kfm-bookmarks`, `kfm-markets`, `kfm-experiences`, `kfm-prologue`
 (`kfm-` 접두사는 K-Food Map 시절 이름이 남은 것입니다).
 
-**테스트:** Node 24 내장 러너, 의존성 0. `src/**/*.test.mjs`, 17개 파일 200개.
+**테스트:** Node 24 내장 러너, 의존성 0. `src/**/*.test.mjs`, 21개 파일 232개.
+로컬(localStorage) 백엔드인 `tableRepository.js`는 직접 테스트가 없습니다 —
+도메인 계층(순수 함수)을 통해서만 검증하고, 백엔드 자체는 필요할 때 수동
+스모크 스크립트로 확인하는 게 이 저장소의 방식입니다.
 
 ### 함정 두 개 — 둘 다 실제로 당했습니다
 

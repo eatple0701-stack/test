@@ -144,6 +144,41 @@ alter table public.signups add column if not exists gender text;
 alter table public.signups add column if not exists allergy_note text default '';
 
 -- ---------------------------------------------------------------------------
+-- Blocks — one person deciding not to sit with another again.
+-- ---------------------------------------------------------------------------
+-- Named in NOT_YET_BUILT (src/content/safety.js) since the pilot's first
+-- draft: "Blocking somebody so they cannot see your tables". Two independent
+-- effects come out of the same row —
+--
+--   1. The blocker's own screens stop showing the blocked person's tables.
+--      Pure client-side filtering (src/domain/policy/blocking.js), reading
+--      only the blocker's own rows — nobody needs a database rule to decide
+--      what they personally would rather not see.
+--   2. The blocked person can no longer take a seat at a table the blocker
+--      hosts. That one has to be a database rule (see signups_insert_own
+--      below) — a client-side check is a check the blocked person's own
+--      browser could simply not run.
+--
+-- Deliberately NOT retroactive: blocking does not remove an existing signup.
+-- A host who wants a specific person gone from a table already happening has
+-- signups_delete_own_or_host for that, which is a different decision with
+-- different stakes than not sitting with them again.
+create table if not exists public.blocks (
+  id          uuid primary key default gen_random_uuid(),
+  blocker_id  uuid not null references public.profiles(id) on delete cascade,
+  blocked_id  uuid not null references public.profiles(id) on delete cascade,
+  -- The name at the moment of blocking, so an "unblock" list can read like
+  -- one without a join back through profiles — the same reason tables.host_name
+  -- is copied rather than looked up.
+  blocked_name text not null default '',
+  created_at  timestamptz not null default now(),
+  unique (blocker_id, blocked_id),
+  check (blocker_id <> blocked_id)
+);
+
+create index if not exists blocks_blocker_idx on public.blocks (blocker_id);
+
+-- ---------------------------------------------------------------------------
 -- Overbooking guard
 -- ---------------------------------------------------------------------------
 -- The client checks seats before offering the button, and that check cannot
@@ -214,6 +249,7 @@ create trigger signups_seat_guard
 alter table public.profiles enable row level security;
 alter table public.tables   enable row level security;
 alter table public.signups  enable row level security;
+alter table public.blocks   enable row level security;
 
 drop policy if exists profiles_read on public.profiles;
 create policy profiles_read on public.profiles
@@ -255,9 +291,26 @@ drop policy if exists signups_read on public.signups;
 create policy signups_read on public.signups
   for select to authenticated using (true);
 
+-- A blocked person cannot take a seat at a table the blocker hosts. This is
+-- the half of blocking that has to live here rather than in the client: the
+-- person being kept out is exactly the person whose browser cannot be
+-- trusted to enforce it on itself.
+--
+-- Deliberately does not also check the reverse (blocker joining a table the
+-- blocked person hosts) — the blocker already filters that host's tables out
+-- of their own screens (src/domain/policy/blocking.js), so they would need a
+-- direct link to even attempt it, and blocking someone was never a promise
+-- that the app would police where the blocker chooses to go.
 drop policy if exists signups_insert_own on public.signups;
 create policy signups_insert_own on public.signups
-  for insert to authenticated with check (user_id = auth.uid());
+  for insert to authenticated with check (
+    user_id = auth.uid()
+    and not exists (
+      select 1 from public.blocks b
+      join public.tables t on t.id = table_id
+      where b.blocker_id = t.host_id and b.blocked_id = auth.uid()
+    )
+  );
 
 -- Giving up your seat is yours to do; so is removing somebody from a table
 -- you are hosting, because a host who cannot manage their own table has to
@@ -268,6 +321,25 @@ create policy signups_delete_own_or_host on public.signups
     user_id = auth.uid()
     or exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
   );
+
+-- Select is deliberately narrower than every other table in this file: a
+-- blocker can read their own outgoing blocks (to build an unblock list) and
+-- nothing else. Nobody can query whether they themselves have been blocked —
+-- most platforms keep this ambiguous on purpose, since telling a person they
+-- were blocked is information that can escalate exactly the situation
+-- blocking exists to defuse. The join-prevention in signups_insert_own above
+-- enforces the effect without ever exposing the fact.
+drop policy if exists blocks_select_own on public.blocks;
+create policy blocks_select_own on public.blocks
+  for select to authenticated using (blocker_id = auth.uid());
+
+drop policy if exists blocks_insert_own on public.blocks;
+create policy blocks_insert_own on public.blocks
+  for insert to authenticated with check (blocker_id = auth.uid());
+
+drop policy if exists blocks_delete_own on public.blocks;
+create policy blocks_delete_own on public.blocks
+  for delete to authenticated using (blocker_id = auth.uid());
 
 -- Verification is granted by an administrator in the Supabase dashboard:
 --   update public.profiles set is_verified_host = true where id = '<uuid>';

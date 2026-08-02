@@ -56,18 +56,31 @@ app at it.
 
 **Deploying this bundle to an *existing* Supabase project (not a fresh one)?**
 Re-run `supabase/schema.sql` in the Supabase SQL editor first — it is
-idempotent (`add column if not exists` throughout), so re-running it is safe
-even if part of it was already applied. This batch added three nullable
-columns (`profiles.gender`, `tables.host_gender`, `signups.gender`); if the
-new app bundle reaches a live project before the schema is re-applied, every
-table-open, seat-join, and profile edit that touches those columns fails
-against the stale schema. The profile-sync failure is the dangerous one —
-`saveProfileFields`'s caller in `src/App.jsx` swallows the error
-(`.catch(() => {})`) so a profile edit can look saved on-screen while the
-database never received it.
+idempotent (`add column if not exists` / `create table if not exists`
+throughout), so re-running it is safe even if part of it was already
+applied. Every app update since the schema was first written has added a
+column or a table (most recently: `signups.allergy_note`, and the whole
+`public.blocks` table + its extension to `signups_insert_own`) — if the app
+bundle reaches a live project before the schema catches up, whatever touches
+the new column or table fails against the stale one.
+
+Two different failure shapes, both real, both worth knowing apart:
+
+- **Silent.** `saveProfileFields`'s caller in `src/App.jsx` swallows the
+  error (`.catch(() => {})`), so a profile edit can look saved on-screen
+  while the database never received it.
+- **Whole-screen.** `src/components/TablesTab.jsx` and `TableRequest.jsx`
+  used to fetch tables, signups and blocks in one `Promise.all` — a missing
+  `blocks` table would reject the whole thing and leave the Tables tab on
+  "Loading tables…" forever, not just fail to filter. Both call sites now
+  catch `listBlocks()` on its own, so a schema that has not caught up yet
+  degrades to "blocking does nothing" rather than breaking the tab — but
+  that fix does not generalise to a *future* addition without the same
+  care, so treat re-running the schema first as the actual fix, not this
+  one call site's defence.
 
 ```bash
-npm test          # 210 tests, node's built-in runner, no test-framework dependency
+npm test          # 232 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 ```

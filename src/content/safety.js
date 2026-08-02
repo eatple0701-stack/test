@@ -100,7 +100,6 @@ export const SAFETY_STEPS = [
 
 /** Still owed, and named here so nobody mistakes this screen for enough. */
 export const NOT_YET_BUILT = [
-  'Blocking somebody so they cannot see your tables',
   'A reputation signal like 당근마켓’s 매너온도',
   'Reporting from inside the app rather than through a channel',
 ];

@@ -101,6 +101,31 @@ export function signupToRow(input, { userId } = {}) {
 }
 
 /**
+ * A `blocks` row → the shape the screens read.
+ *
+ * Only ever the blocker's own rows reach this — see blocks_select_own in
+ * schema.sql — so `blockedId`/`blockedName` here always mean "somebody I
+ * blocked", never the reverse.
+ */
+export function blockFromRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    blockedId: row.blocked_id,
+    blockedName: row.blocked_name ?? '',
+    createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
+  };
+}
+
+export function blockToRow(input, { blockerId } = {}) {
+  return {
+    blocker_id: blockerId,
+    blocked_id: input.blockedId,
+    blocked_name: input.blockedName ?? '',
+  };
+}
+
+/**
  * Turn a Postgres error into something a person at a table can act on.
  *
  * The two that matter both come from the seat guard and the unique index —

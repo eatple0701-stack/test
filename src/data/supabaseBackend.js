@@ -6,7 +6,7 @@
 // driver to do it.
 
 import {
-  tableFromRow, tableToRow, signupFromRow, signupToRow, friendlyError,
+  tableFromRow, tableToRow, signupFromRow, signupToRow, blockFromRow, blockToRow, friendlyError,
 } from './tableMapping.js';
 import { cleanGender } from '../domain/catalog/genders.js';
 
@@ -214,6 +214,49 @@ export async function cancelSignup(signupId) {
   const sb = await client();
   await currentUser();
   const { error } = await sb.from('signups').delete().eq('id', signupId);
+  if (error) throw new Error(friendlyError(error));
+}
+
+/** My own outgoing blocks — blocks_select_own in schema.sql permits nothing else. */
+export async function listBlocks() {
+  const sb = await client();
+  const user = await currentUser();
+  const { data, error } = await sb
+    .from('blocks').select('*').eq('blocker_id', user.id).order('created_at');
+  if (error) throw new Error(friendlyError(error));
+  return (data ?? []).map(blockFromRow);
+}
+
+/**
+ * Idempotent: blocking somebody twice is not an error a person pressing a
+ * button a second time should ever see. `23505` is Postgres's own code for
+ * "unique_violation", which is exactly what blocks' `unique (blocker_id,
+ * blocked_id)` raises here — checked by code rather than by sniffing the
+ * message text friendlyError parses, because a constraint's error code does
+ * not change if somebody later rewords the message.
+ */
+export async function createBlock(input) {
+  const sb = await client();
+  const user = await currentUser();
+  const { data, error } = await sb
+    .from('blocks').insert(blockToRow(input, { blockerId: user.id })).select().single();
+  if (error) {
+    if (error.code === '23505') {
+      const { data: existing } = await sb
+        .from('blocks').select('*')
+        .eq('blocker_id', user.id).eq('blocked_id', input.blockedId).maybeSingle();
+      if (existing) return blockFromRow(existing);
+    }
+    throw new Error(friendlyError(error));
+  }
+  return blockFromRow(data);
+}
+
+export async function deleteBlock(blockedId) {
+  const sb = await client();
+  const user = await currentUser();
+  const { error } = await sb
+    .from('blocks').delete().eq('blocker_id', user.id).eq('blocked_id', blockedId);
   if (error) throw new Error(friendlyError(error));
 }
 

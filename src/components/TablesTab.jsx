@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, isPast } from '../domain/policy/table.js';
-import { listTables, listAllSignups, seedSampleTables, isLocalOnly } from '../data/tableRepository.js';
+import {
+  listTables, listAllSignups, listBlocks, seedSampleTables, isLocalOnly,
+} from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { tableIncludesGender } from '../domain/catalog/genders.js';
+import { visibleTables } from '../domain/policy/blocking.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon } from './Icons';
 
 // 밥친구 — the tables you can ask to sit at.
@@ -26,6 +29,7 @@ const dayLabel = (date) => {
 export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile }) {
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
+  const [blockedIds, setBlockedIds] = useState([]);
   const [menuFilter, setMenuFilter] = useState(null);
   // A personal view preference, not a rule the app enforces on who may sit
   // where — like menuFilter, it changes what this one screen shows and
@@ -37,8 +41,15 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     let alive = true;
     (async () => {
       await seedSampleTables();
+      // listBlocks() caught on its own: a deploy that reaches a project
+      // before supabase/schema.sql's blocks table exists must not turn into
+      // the whole tab stuck on "Loading tables…" forever — Promise.all
+      // rejects as one unit, and this effect has nothing downstream to catch
+      // it. Blocking silently doing nothing is the correct degraded state
+      // until the schema catches up; a blank Tables tab is not.
       const [t, s] = await Promise.all([listTables(), listAllSignups()]);
-      if (alive) { setTables(t); setSignups(s); }
+      const b = await listBlocks().catch(() => []);
+      if (alive) { setTables(t); setSignups(s); setBlockedIds(b.map(x => x.blockedId)); }
     })();
     return () => { alive = false; };
   }, []);
@@ -51,10 +62,12 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
   // Past meals drop off the list rather than being greyed out: this screen
   // answers "where can I eat", and a dinner that already happened is not an
-  // answer to it.
+  // answer to it. Blocked hosts drop off the same way and at the same step —
+  // before the menu/gender filters derive from this list, so a dish whose
+  // only table is from somebody blocked does not show up as choosable either.
   const open = useMemo(
-    () => (tables ?? []).filter(t => !isPast(t)),
-    [tables],
+    () => visibleTables((tables ?? []).filter(t => !isPast(t)), blockedIds),
+    [tables, blockedIds],
   );
 
   const shown = useMemo(() => {

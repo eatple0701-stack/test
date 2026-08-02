@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  tableFromRow, tableToRow, signupFromRow, signupToRow, friendlyError,
+  tableFromRow, tableToRow, signupFromRow, signupToRow, blockFromRow, blockToRow, friendlyError,
 } from '../../data/tableMapping.js';
 import { tableKind, TABLE_KIND, TABLE_KIND_LABEL } from '../catalog/hosts.js';
 import { seatsRemaining, isPast } from '../policy/table.js';
@@ -275,4 +275,36 @@ test('the hosted label states the exchange, not just the mechanics', () => {
   // exchange-framing for it would be the app claiming a curated moment that
   // did not happen.
   assert.equal(TABLE_KIND_LABEL[TABLE_KIND.MATES].why, undefined);
+});
+
+// ---------------------------------------------------------------------------
+// Blocks
+// ---------------------------------------------------------------------------
+
+test('a block row maps both ways', () => {
+  const b = blockFromRow({
+    id: 'uuid-b', blocked_id: 'uuid-target', blocked_name: 'Someone',
+    created_at: '2026-08-03T10:00:00Z',
+  });
+  assert.equal(b.blockedId, 'uuid-target');
+  assert.equal(b.blockedName, 'Someone');
+  assert.ok(b.createdAt > 0);
+
+  const out = blockToRow({ blockedId: 'uuid-target', blockedName: 'Someone' }, { blockerId: 'uuid-me' });
+  assert.equal(out.blocker_id, 'uuid-me');
+  assert.equal(out.blocked_id, 'uuid-target');
+  assert.equal(out.blocked_name, 'Someone');
+});
+
+test('a block row never surfaces undefined where the screen expects a string', () => {
+  const b = blockFromRow({ id: 'uuid-b', blocked_id: 'uuid-target', created_at: '2026-08-03T10:00:00Z' });
+  assert.equal(b.blockedName, '');
+
+  const out = blockToRow({ blockedId: 'uuid-target' }, { blockerId: 'uuid-me' });
+  assert.equal(out.blocked_name, '');
+});
+
+test('a missing block row maps to null, matching every other *FromRow', () => {
+  assert.equal(blockFromRow(null), null);
+  assert.equal(blockFromRow(undefined), null);
 });

@@ -18,6 +18,7 @@ import { cleanDiets } from './profile.js';
 
 const TABLES_KEY = 'bapchingu-tables';
 const SIGNUPS_KEY = 'bapchingu-signups';
+const BLOCKS_KEY = 'bapchingu-blocks';
 
 const read = (key) => {
   try {
@@ -154,6 +155,37 @@ async function local_cancelSignup(signupId) {
   write(SIGNUPS_KEY, read(SIGNUPS_KEY).filter(s => s.id !== signupId));
 }
 
+/** My own outgoing blocks — never anyone else's, same rule as the remote RLS. */
+async function local_listBlocks() {
+  return read(BLOCKS_KEY);
+}
+
+/**
+ * @param {object} input { blockedId, blockedName }
+ *
+ * Idempotent rather than throwing on a repeat block: the button that calls
+ * this has no reason to know it was already pressed once, and "you already
+ * blocked them" is not information worth surfacing as an error.
+ */
+async function local_createBlock(input) {
+  const existing = read(BLOCKS_KEY);
+  const already = existing.find(b => b.blockedId === input.blockedId);
+  if (already) return already;
+
+  const row = {
+    id: newId(),
+    blockedId: input.blockedId,
+    blockedName: input.blockedName ?? '',
+    createdAt: Date.now(),
+  };
+  write(BLOCKS_KEY, [...existing, row]);
+  return row;
+}
+
+async function local_deleteBlock(blockedId) {
+  write(BLOCKS_KEY, read(BLOCKS_KEY).filter(b => b.blockedId !== blockedId));
+}
+
 /**
  * Example tables, written once so the first run is not an empty screen.
  *
@@ -222,6 +254,10 @@ export const listSignups = useRemote ? remote.listSignups : local_listSignups;
 export const listAllSignups = useRemote ? remote.listAllSignups : local_listAllSignups;
 export const createSignup = useRemote ? remote.createSignup : local_createSignup;
 export const cancelSignup = useRemote ? remote.cancelSignup : local_cancelSignup;
+
+export const listBlocks = useRemote ? remote.listBlocks : local_listBlocks;
+export const createBlock = useRemote ? remote.createBlock : local_createBlock;
+export const deleteBlock = useRemote ? remote.deleteBlock : local_deleteBlock;
 
 // Seeded example rows exist to keep the first run from being an empty screen.
 // A shared database has other people's real tables in it, so seeding there

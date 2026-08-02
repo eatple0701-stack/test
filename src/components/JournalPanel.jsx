@@ -4,7 +4,7 @@ import { isQuarantined } from '../data/verification';
 import { traditionalMarkets } from '../data/experiences';
 import { menuById } from '../domain/catalog/menus.js';
 import { isPast } from '../domain/policy/table.js';
-import { listTables, listAllSignups } from '../data/tableRepository.js';
+import { listTables, listAllSignups, listBlocks, deleteBlock } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById, themes } from '../domain/catalog/index.js';
 import { themeCompletionKind, COMPLETION_KIND } from '../domain/policy/completion.js';
 import { ChevronRightIcon } from './Icons';
@@ -38,6 +38,7 @@ export default function JournalPanel({
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
   const [myTables, setMyTables] = useState([]);
+  const [blocks, setBlocks] = useState([]);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
 
@@ -72,6 +73,24 @@ export default function JournalPanel({
     })();
     return () => { alive = false; };
   }, [profile]);
+
+  useEffect(() => {
+    let alive = true;
+    // Caught rather than left to reject uncaught: a project whose schema
+    // has not picked up the blocks table yet should show an empty "Blocked"
+    // section (i.e. none, since it's only rendered when non-empty), not an
+    // unhandled rejection in the console.
+    (async () => { const b = await listBlocks().catch(() => []); if (alive) setBlocks(b); })();
+    return () => { alive = false; };
+  }, []);
+
+  const unblock = async (blockedId) => {
+    // Optimistic: the row disappearing is the confirmation, and there is
+    // nothing more specific to say if the delete fails than what refetching
+    // would already tell the next time this screen opens.
+    setBlocks(prev => prev.filter(b => b.blockedId !== blockedId));
+    await deleteBlock(blockedId);
+  };
 
   // A meal you have not eaten yet is a plan, not a memory. The record below
   // is what happened; a table on Sunday belongs above it as something still
@@ -559,6 +578,29 @@ export default function JournalPanel({
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Only appears once there is something to undo — an empty "Blocked"
+          section would be a screen explaining a feature nobody has used yet.
+          Reversible on purpose: a block made in a bad moment, or the wrong
+          row tapped by mistake, should not need the team to fix it. */}
+      {blocks.length > 0 && (
+        <div className="journal-section">
+          <div className="journal-section-header">
+            <h3>Blocked</h3>
+            <span className="journal-badge-count">{blocks.length}</span>
+          </div>
+          <ul className="blocked-list">
+            {blocks.map(b => (
+              <li key={b.blockedId} className="blocked-row">
+                <span className="blocked-row__name">{b.blockedName || 'Someone'}</span>
+                <button className="blocked-row__undo" onClick={() => unblock(b.blockedId)}>
+                  Unblock
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
