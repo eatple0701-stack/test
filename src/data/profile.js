@@ -85,7 +85,7 @@ export function getProfile() {
   } catch {
     // fall through to a fresh identity
   }
-  const fresh = { userId: newUserId(), name: '', nationality: '', languages: [] };
+  const fresh = { userId: newUserId(), name: '', nationality: '', languages: [], gender: null };
   saveProfile(fresh);
   return fresh;
 }
