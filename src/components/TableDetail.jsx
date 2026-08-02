@@ -365,6 +365,12 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             <span className="who-row__dot" aria-hidden="true" />
             <span className="who-row__name">{table.hostName}</span>
             <span className="who-row__role">host</span>
+            {/* The single most common case the gender filter produces is a
+                solo woman host with no guests yet — without this, that table
+                would show no declared gender anywhere on the screen despite
+                being exactly what the filter matched. Same tag weight as a
+                guest's declared gender, only shown when set. */}
+            {table.hostGender && <span className="who-row__role">{table.hostGender}</span>}
             {/* Only ever on a table the team checked. An unverified host gets
                 no mark at all rather than a lesser one — a scale of trust
                 invites reading its bottom rung as "checked, and found
