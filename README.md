@@ -59,10 +59,16 @@ Re-run `supabase/schema.sql` in the Supabase SQL editor first — it is
 idempotent (`add column if not exists` / `create table if not exists`
 throughout), so re-running it is safe even if part of it was already
 applied. Every app update since the schema was first written has added a
-column or a table (most recently: `signups.allergy_note`, and the whole
-`public.blocks` table + its extension to `signups_insert_own`) — if the app
+column or a table (most recently `signups.status` and `signups.attendance`,
+with `signups_decide_by_host` and a column-scoped `grant update`) — if the app
 bundle reaches a live project before the schema catches up, whatever touches
 the new column or table fails against the stale one.
+
+One ordering detail worth copying rather than repeating: `signups.status` is
+added with a default of `accepted` and only *then* switched to `pending`. Rows
+that already existed were confirmed seats under the rules of the day they were
+written, so they backfill as confirmed; doing it the other way round would
+retroactively un-invite everybody currently going to a table.
 
 Three different failure shapes, all real, all worth knowing apart:
 
@@ -89,7 +95,7 @@ Three different failure shapes, all real, all worth knowing apart:
   everything else; it stops being a landmine for this one.
 
 ```bash
-npm test          # 262 tests, node's built-in runner, no test-framework dependency
+npm test          # 271 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 ```
