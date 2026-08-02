@@ -14,6 +14,10 @@ import TableCreate from './components/TableCreate';
 import TableDetail from './components/TableDetail';
 import TableRequest from './components/TableRequest';
 import { getProfile, saveProfile } from './data/profile';
+// From the repository, not the profile module: it is the seam that knows
+// whether there is a database to write to at all. On localStorage it is a
+// no-op, so this code path is identical either way.
+import { saveProfileFields } from './data/tableRepository.js';
 import { MAP_CENTER } from './utils';
 import { pathFor, stateFromPath } from './routes.js';
 import { matchesDietary, isQuarantined } from './data/verification';
@@ -168,7 +172,29 @@ export default function App() {
   // stay stable for "this is your table" to mean anything, so it is read once
   // and only the name and nationality are ever written back.
   const [profile, setProfile] = useState(getProfile);
-  const updateProfile = (next) => setProfile(saveProfile(next));
+
+  // Written to this device first, then to the database.
+  //
+  // Only the first half existed. saveProfileFields was implemented in the
+  // Supabase backend, re-exported through the repository for both backends,
+  // and called by nothing — the same shape of gap as ensureProfile. So the
+  // Passport's settings looked like they saved, and did save, into a browser.
+  // The profiles row stayed blank.
+  //
+  // Local first because the screen must not wait on a network round trip to
+  // echo a keystroke back. The remote write is fire-and-forget for the same
+  // reason: a failed sync should not throw away what somebody just typed, and
+  // the next successful save carries the whole object anyway.
+  const updateProfile = (next) => {
+    const saved = saveProfile(next);
+    setProfile(saved);
+    saveProfileFields({
+      name: saved.name ?? '',
+      nationality: saved.nationality ?? '',
+      languages: saved.languages ?? [],
+    }).catch(() => { /* stays on the device; the next save tries again */ });
+    return saved;
+  };
 
   // The map is a tool now, not the backdrop. `mapScope` records what the user
   // was looking at when they opened it, so the overlay can say which question
