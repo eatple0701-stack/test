@@ -7,13 +7,20 @@ import ThemeStoryCard from './ThemeStoryCard';
 import TablesLead from './TablesLead';
 import TodayTable from './TodayTable';
 import FirstRun from './FirstRun';
-import { ChevronRightIcon } from './Icons';
 import FoodRoulette from './FoodRoulette';
-import CultureCards, { CULTURE_CARDS } from './CultureCards';
+import CultureCards from './CultureCards';
 
+// Eight props were still declared here that this component stopped reading
+// when Explore was rebuilt around themes: onOpenRestaurant, onOpenStory,
+// onExploreZone, bookmarkedIds, onToggleBookmark, visitedMarkets,
+// onToggleMarket, onOpenMap. App.jsx still passes them, which costs nothing,
+// but a signature listing eight handlers it never calls describes a component
+// that no longer exists. Removed from the signature, not from the call site —
+// deleting them there would mean deciding whether the handlers themselves are
+// dead, which is a bigger question than this cleanup.
 export default function HomeTab({
-  onNavigate, onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
-  journey, visitedMarkets = [], onToggleMarket, onOpenSummary, onOpenMap,
+  onNavigate,
+  journey, onOpenSummary,
   onOpenTheme, continueTheme, nextExperience, suggestedTheme, suggestedReason,
   themeProgress, profile, onOpenTodayTable, onOpenTable,
 }) {

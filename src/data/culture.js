@@ -119,7 +119,12 @@ export const cultureByCategory = {
   },
   'zero-waste': {
     didYouKnow:
-      'Korea recycles about 95% of its food waste by law — every household separates it into dedicated bins. Zero-waste cafes take the next step: nothing disposable crosses the counter in the first place.',
+      // The one hard number in this file. Checked against
+      // wikipedia-recycling-kr in src/content/sources.js: 95%, and separating
+      // food waste has been mandatory since 2013. That source documents
+      // biodegradable bags, with RFID bins in Seoul, so the sentence no longer
+      // says every household uses bins.
+      'Korea recycles about 95% of its food waste, and separating it has been mandatory since 2013 — households pay by weight, through designated bags or a card-operated bin. Zero-waste cafes take the next step: nothing disposable crosses the counter in the first place.',
     diningTips: [
       'Bring your own tumbler or container — most zero-waste shops offer a small discount for it.',
       'Root-to-leaf cooking means unfamiliar parts of vegetables may appear on your plate. Trust the kitchen.',

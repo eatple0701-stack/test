@@ -91,6 +91,31 @@
 여행자가 알아야 할 종류의 사실이라 출처를 각주가 아니라 출처 목록에 넣고,
 날짜가 드러나게 발행처에 적었습니다.
 
+## 퀴즈 밖에서 찾은 것 — 문화 산문 전수 점검
+
+퀴즈만 출처 게이트가 있고 `src/data/culture.js`의 산문에는 없어서, 214줄
+전체를 훑어 **검증 가능한 주장**을 찾았습니다. 딱 하나 있었습니다.
+
+- **zero-waste** — "Korea recycles about 95% of its food waste by law —
+  every household separates it into dedicated bins."
+  - 위키백과 · Recycling in South Korea
+    https://en.wikipedia.org/wiki/Recycling_in_South_Korea
+  - 95%와 "2013년부터 의무"는 확인됨. 다만 출처가 말하는 것은 **생분해성
+    종량제 봉투**(서울은 RFID 수거함)라서, "every household separates it
+    into dedicated bins"는 사실보다 좁았습니다. 문장을 봉투와 수거함을 함께
+    말하도록 고쳤습니다.
+
+같은 점검에서 **삭제한 것 하나**: Places 목록 카드의
+"✨ 98% Match: Fits your budget, dietary needs, and schedule!" —
+조건이 `distanceKm < 3` 하나뿐이었습니다. 거리 계산을 궁합 점수로 포장한
+것이고, 앱은 예산도 일정도 물어본 적이 없습니다. **지어낸 숫자에는 정직한
+표현이 없어서** 문구 수정이 아니라 삭제했습니다.
+
+`CULTURE_CARDS` 8장도 같이 봤습니다. 수치·연도·최상급이 없는 정성적 문장뿐이라
+출처가 필요 없고, 다만 "Jeonju for Bibimbap"이 퀴즈의 `bibimbap-jeonju`
+(정답: 아니다)와 충돌해 보일 수 있어 **"Jeonju for its bibimbap"**으로
+고쳤습니다 — 기원이 아니라 그 지역 판본을 먹으러 가는 곳이라는 뜻이 되게.
+
 ## 아직 열려 있는 것
 
 퀴즈가 아니라 메뉴 카탈로그의 편집 산문입니다. 검증 가능한 주장을 포함하지만

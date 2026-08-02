@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, joinBlocker, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
 import {
@@ -58,13 +58,18 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // Set once in Profile, so the seat form has nothing left to ask.
   const profileKnown = Boolean(profile?.name?.trim());
 
-  const refresh = async () => {
+  // useCallback keyed on tableId, so the effect below can depend on refresh
+  // itself rather than on the id it happens to close over. The behaviour is
+  // the same either way — refresh's identity changes exactly when tableId
+  // does — but the dependency is now the thing the effect actually uses, so
+  // it cannot go stale if this function later closes over something else.
+  const refresh = useCallback(async () => {
     const [t, s] = await Promise.all([getTable(tableId), listSignups(tableId)]);
     setTable(t);
     setSignups(s);
-  };
+  }, [tableId]);
 
-  useEffect(() => { refresh(); }, [tableId]);
+  useEffect(() => { refresh(); }, [refresh]);
 
   const menu = table ? menuById(table.menuId) : null;
   const theme = menu?.themeId ? themeById(menu.themeId) : null;

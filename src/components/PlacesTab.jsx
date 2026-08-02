@@ -7,7 +7,8 @@ import {
 } from '../data/experiences';
 import PlaceImage from './PlaceImage';
 import PlaceCard from './PlaceCard';
-import CultureCards, { CULTURE_CARDS } from './CultureCards';
+import CultureCards from './CultureCards';
+import { CULTURE_CARDS } from '../content/cultureCards.js';
 import { ChevronRightIcon, MapPinIcon, SparkleIcon, CheckIcon } from './Icons';
 
 // The index: places, markets and neighbourhoods.

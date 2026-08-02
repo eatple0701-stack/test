@@ -43,13 +43,10 @@ const write = (key, rows) => {
 // Sortable and unique enough for one device. Supabase will issue real ids.
 const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-/**
- * True while tables live in this browser only.
- *
- * The UI reads this to tell the truth on screen rather than letting a host
- * believe strangers can already see what they just opened.
- */
-const local_isLocalOnly = () => true;
+// No local_isLocalOnly here, unlike every other name in this file. The
+// question it answers is about which backend is wired, not about what a
+// backend can do, so it is answered once at the export below rather than
+// twice and picked between.
 
 /** Every table, soonest meal first. */
 async function local_listTables() {
@@ -241,6 +238,12 @@ import * as remote from './supabaseBackend.js';
 
 const useRemote = remote.isConfigured();
 
+/**
+ * True while tables live in this browser only.
+ *
+ * The UI reads this to tell the truth on screen rather than letting a host
+ * believe strangers can already see what they just opened.
+ */
 export const isLocalOnly = () => !useRemote;
 
 /** True once tables are shared between devices. Read by the Tables screen. */

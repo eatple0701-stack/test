@@ -189,6 +189,21 @@ export const SOURCES = {
     // at the top of quiz.js explains.
     supports: 'Gamjatang is eaten as 해장국 as well as a meal, late-night food and drinking food, and its broth is made by simmering pork spine for roughly two hours.',
   },
+  'wikipedia-recycling-kr': {
+    title: 'Recycling in South Korea',
+    publisher: 'Wikipedia',
+    url: 'https://en.wikipedia.org/wiki/Recycling_in_South_Korea',
+    // Read directly: "South Korea's food waste recycling rate grew to 95%",
+    // food waste collection was separated from households from 1995, and
+    // "Since 2013 food waste recycled through biodegradable bags has been
+    // mandatory".
+    //
+    // Not a quiz source. It backs the one hard number in the culture prose
+    // (src/data/culture.js), which had none — see docs/sources-status.md.
+    // The prose said "dedicated bins"; what is documented is biodegradable
+    // bags, with RFID bins in Seoul, so the sentence now says both.
+    supports: 'South Korea recycles about 95% of its food waste, and separating it has been mandatory since 2013.',
+  },
   'koreatimes-banchan': {
     title: 'Inflation, hygiene woes hit Korean banchan culture',
     publisher: 'The Korea Times · 7 February 2026',

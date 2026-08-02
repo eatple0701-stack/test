@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PlaceImage from './PlaceImage';
-import { HeartIcon, CompassIcon, MapPinIcon } from './Icons';
+import { HeartIcon, CompassIcon } from './Icons';
 import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf } from '../utils';
 import { dietaryBadges } from '../data/verification';
 

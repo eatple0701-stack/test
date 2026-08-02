@@ -139,7 +139,10 @@ export default function App() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(
     () => activeRestaurants.find(r => r.id === opening.restaurantId) ?? null);
   const [bookmarks, setBookmarks] = useState(loadBookmarks);
-  const [companions, setCompanions] = useState(loadCompanions);
+  // No setter: nothing in the app has written companions since the pivot, so
+  // this is read-once from storage. Left in place rather than deleted because
+  // journeyFromLegacy still reads it and old devices still have the key.
+  const [companions] = useState(loadCompanions);
   const [visitedMarkets, setVisitedMarkets] = useState(loadMarkets);
   const [attestations, setAttestations] = useState(loadAttestations);
   const [activeTab, setActiveTab] = useState(opening.activeTab);

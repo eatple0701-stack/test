@@ -8,7 +8,7 @@ import {
   HeartIcon, CompassIcon, XIcon, ClockIcon, MapPinIcon, CrescentIcon,
   MildIcon, FermentIcon, SproutIcon, RecycleIcon, LeafIcon,
   BookIcon, BowlIcon, MenuIcon, TrainIcon, PhoneIcon, LinkIcon, CheckIcon, ShareIcon,
-  ChevronLeftIcon, ChevronRightIcon, SparkleIcon
+  ChevronRightIcon, SparkleIcon
 } from './Icons';
 import CulturalRoute from './CulturalRoute';
 import { getCulture } from '../data/culture';
@@ -75,7 +75,7 @@ export default class RestaurantDetail extends React.Component {
 
 function RestaurantDetailInner({
   restaurant, onClose, isBookmarked, onToggleBookmark, isVisited, onToggleVisited,
-  mapCenter, focusStory, onOpenRestaurant, onExploreZone, bookmarkedIds = [], onNavigate,
+  mapCenter, focusStory, onOpenRestaurant, onExploreZone, bookmarkedIds = [],
   onOpenTableHere, onOpenTable,
 }) {
   // Tables already happening at this restaurant. Read the same way every
@@ -101,16 +101,13 @@ function RestaurantDetailInner({
 
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
-  const [showDirections, setShowDirections] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const [galleryIdx, setGalleryIdx] = useState(0);
   const storyRef = useRef(null);
   const sheetRef = useRef(null);
 
   useEffect(() => {
     setCopied(false);
     setShared(false);
-    setShowDirections(false);
     if (!restaurant) return;
     if (focusStory && storyRef.current) {
       storyRef.current.scrollIntoView({ block: 'start' });
@@ -135,15 +132,12 @@ function RestaurantDetailInner({
     return () => window.removeEventListener('keydown', onKey, true);
   }, [restaurant, onClose, galleryOpen]);
 
-  useEffect(() => {
-    if (!galleryOpen) return;
-    const onKey = (e) => {
-      if (e.key === 'ArrowRight') setGalleryIdx(i => i === 0 ? 0 : 0);
-      if (e.key === 'ArrowLeft') setGalleryIdx(i => i === 0 ? 0 : 0);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [galleryOpen]);
+  // An arrow-key listener used to live here, left over from when the gallery
+  // was a carousel. Both handlers read `setGalleryIdx(i => i === 0 ? 0 : 0)`
+  // — every branch returning the same index — so pressing left or right did
+  // nothing except re-render, and galleryIdx was never read to choose an
+  // image. The gallery is a single-image lightbox now; Escape still closes
+  // it, in the effect above.
 
   if (!restaurant) return null;
 

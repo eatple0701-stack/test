@@ -1,17 +1,6 @@
 import React, { useState } from 'react';
 
-// Shared with HomeTab's "Korean Dining Culture" teaser row, so the two
-// surfaces never drift into duplicate/contradicting card copy.
-export const CULTURE_CARDS = [
-  { title: 'Kimchi', desc: 'A staple in Korean cuisine, is a traditional side dish of salted and fermented vegetables.' },
-  { title: 'Hanjeongsik', desc: 'A full-course Korean meal with an array of savory side dishes.' },
-  { title: 'Temple Cuisine', desc: 'Buddhist temple food that is vegan and avoids five pungent vegetables.' },
-  { title: 'Makgeolli', desc: 'A traditional slightly sweet and milky Korean rice wine.' },
-  { title: 'Korean BBQ Etiquette', desc: 'Usually the youngest grills. Pour drinks with two hands.' },
-  { title: 'Drinking Culture', desc: 'When clinking glasses, the younger person keeps their glass slightly lower.' },
-  { title: 'Street Food', desc: 'Tteokbokki, Hotteok, Odeng - perfect for late night snacks.' },
-  { title: 'Regional Foods', desc: 'Jeonju for Bibimbap, Jeju for Black Pork, Busan for Seafood.' }
-];
+import { CULTURE_CARDS } from '../content/cultureCards.js';
 
 export default function CultureCards({ onClose, startIndex = 0 }) {
   const [index, setIndex] = useState(startIndex);

@@ -27,12 +27,13 @@ function formatDayHeading(ts) {
 
 const dayKey = (ts) => new Date(ts).toDateString();
 
-const activeCount = restaurants.filter(r => !isQuarantined(r)).length;
-
 export default function JournalPanel({
-  bookmarks, companions = [], mapCenter, onRestaurantClick, onNavigate, journey,
+  // companions, mapCenter and onOpenTables were declared here and never read.
+  // App.jsx still passes companions, and journeyFromLegacy still reads it, so
+  // the value is not dead everywhere — it is just dead on this screen.
+  bookmarks, onRestaurantClick, onNavigate, journey,
   attestations = [], visitedMarkets = [], profile, onProfileChange,
-  onOpenSummary, onOpenTables, onOpenTheme, domainJourney,
+  onOpenSummary, onOpenTheme, domainJourney,
 }) {
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that

@@ -149,7 +149,10 @@ export function naverMapUrl(place, origin = null) {
   return `https://map.naver.com/p/search/${name}?c=15,0,0,0,dh`;
 }
 
-export function kakaoMapUrl(place, origin = null) {
+// `_origin` is accepted and ignored, unlike the two above, so all three can be
+// called the same way. Kakao's link/to/ format has no origin parameter — the
+// app works the starting point out itself — so there is nothing to pass on.
+export function kakaoMapUrl(place, _origin = null) {
   const { lat, lng } = coordsOf(place);
   const name = encodeURIComponent(place.name);
   return `https://map.kakao.com/link/to/${name},${lat},${lng}`;
