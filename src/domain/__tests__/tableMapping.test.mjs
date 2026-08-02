@@ -198,3 +198,18 @@ test('both kinds read as something a traveller would choose on purpose', () => {
       `${kind} is worded as a lack rather than a choice`);
   }
 });
+
+test('the hosted label states the exchange, not just the mechanics', () => {
+  // The professor's review named this gap precisely: the feature existed and
+  // the screen never said what it was for. `blurb` already describes the
+  // mechanics ("the host walks you through it"); `why` is the missing half —
+  // this is where the app is supposed to answer "어떻게" rather than "무엇".
+  const hosted = TABLE_KIND_LABEL[TABLE_KIND.HOSTED];
+  assert.ok(hosted.why, 'HOSTED needs a stated reason, not just a mechanic');
+  assert.match(hosted.why, /host|Korean/i);
+
+  // Table mates is honestly just people splitting a dish — inventing an
+  // exchange-framing for it would be the app claiming a curated moment that
+  // did not happen.
+  assert.equal(TABLE_KIND_LABEL[TABLE_KIND.MATES].why, undefined);
+});

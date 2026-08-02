@@ -108,6 +108,13 @@ export const TABLE_KIND_LABEL = {
     kr: '호스트 테이블',
     en: 'Hosted table',
     blurb: 'The host walks the table through it.',
+    // The professor's review, answered in one sentence where a guest is
+    // actually deciding whether to choose this table over a 테이블 메이트
+    // one. Not a slogan for the front door — the front door already tried
+    // that and the professor's note was that it read as decoration there.
+    // This is the specific claim the exchange rests on: a Korean host,
+    // teaching their own food, in the guest's language.
+    why: 'A Korean host explaining their own food, in your language — this is the exchange the app exists for.',
   },
   [TABLE_KIND.MATES]: {
     kr: '테이블 메이트',
