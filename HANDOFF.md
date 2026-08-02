@@ -227,17 +227,11 @@ Supabase 익명 인증), 구글 지도 API, AI API 다국어.
 `src/data/verification.js`가 아직 살아서 쓰고 있으니 **지우지 말고** 어디까지
 유효한지만 확인하세요.
 
-### ② 죽은 파일 정리 · 막힌 것 없음
+### ② 죽은 파일 정리 · 완료
 
-참조가 0인 K-Food Map 잔재입니다.
-
-| 파일 | 상태 |
-| --- | --- |
-| `temp.js` | 빈 파일 (0줄) |
-| `geocode_and_build.cjs` | 349줄, 참조 0 |
-| `verify.cjs` | 25줄, 참조 0 |
-
-`data/evidence/`(2개)는 `verification.js`가 쓰므로 **남겨두세요.**
+참조 0건을 확인하고 `temp.js`, `geocode_and_build.cjs`, `verify.cjs`를
+삭제했습니다. `data/evidence/`(2개)는 `verification.js`가 아직 쓰므로
+남겨뒀습니다.
 
 ### ③ 다크 모드 · 막힌 것 없음
 
