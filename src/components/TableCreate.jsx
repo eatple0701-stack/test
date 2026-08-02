@@ -248,6 +248,21 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             ? ' — you are offering to walk the table through it.'
             : ' — tick nothing and yours is a table where everyone works it out together. That is a real table too.'}
         </p>
+        {/* The professor's note, answered to the person who can actually act
+            on it: a host deciding whether to tick a box. Everything above
+            this point in the form is a booking; ticking one guide is what
+            turns it into the exchange the plan is actually funded to make
+            happen. Only shown once they have ticked something — telling a
+            host who ticked nothing that they are doing public diplomacy
+            wrong would be exactly the "lesser table" framing the codebase
+            has deliberately avoided elsewhere (see TABLE_KIND_LABEL.mates). */}
+        {guides.length > 0 && (
+          <p className="host-why">
+            이게 이 앱이 하는 일입니다 · This is the part of 밥친구 that is not
+            just a group booking — a Korean host teaching a stranger their
+            own food, in a language the stranger understands.
+          </p>
+        )}
         <div className="guide-picks">
           {GUIDES.map(g => {
             const on = guides.includes(g.id);

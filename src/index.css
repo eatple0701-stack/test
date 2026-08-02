@@ -7983,6 +7983,14 @@ body {
 .kind-preview__tag.is-hosted { background: var(--accent-tint); color: var(--accent-ink); }
 .kind-preview__tag.is-mates  { background: var(--fill); color: var(--ink); }
 
+.host-why {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--ink);
+}
+
 /* What a guest told the table about how they eat. Green rather than orange:
    it is information the host asked for, not a problem with the booking. */
 .who-row__diet {
