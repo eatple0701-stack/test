@@ -143,6 +143,32 @@ alter table public.signups add column if not exists diets text[] not null defaul
 -- counts a table's host and every current signup.
 alter table public.signups add column if not exists gender text;
 
+-- Where a seat request is between asking and eating.
+--
+-- The two-step add is the whole point and the order matters. Rows that
+-- already existed were confirmed seats under the rules of the day they were
+-- written, so they backfill to 'accepted'; only then does the default flip,
+-- so everything asked for from now on arrives 'pending' and waits for the
+-- host. Doing it the other way round would retroactively un-invite everyone
+-- currently going to a table.
+--
+-- Both statements are safe to re-run: `add column if not exists` skips, and
+-- setting a default that is already set is a no-op.
+alter table public.signups add column if not exists status text not null default 'accepted';
+alter table public.signups alter column status set default 'pending';
+
+-- 'lapsed' is deliberately absent. A request that ran out of time is computed
+-- from the meal's own clock (src/domain/policy/seatRequest.js), not written
+-- here, because a pilot has nowhere to run the scheduled job that would set
+-- it — and a status nothing updates would go stale and lie.
+do $$ begin
+  alter table public.signups
+    add constraint signups_status_known check (status in ('pending', 'accepted', 'declined'));
+exception when duplicate_object then null;
+end $$;
+
+create index if not exists signups_status_idx on public.signups (table_id, status);
+
 -- Free text, unlike the five fixed booleans this repo also carries as
 -- request-level flags — a guest hits the edge of a fixed list eventually
 -- ("what if ur allergic to prawns" covered shellfish; a nut or sesame
@@ -313,12 +339,43 @@ drop policy if exists signups_insert_own on public.signups;
 create policy signups_insert_own on public.signups
   for insert to authenticated with check (
     user_id = auth.uid()
+    -- Asking is not the same as being let in. Without this a guest could
+    -- insert themselves already accepted and walk straight past the host,
+    -- which would make the whole approval step decorative.
+    and status = 'pending'
     and not exists (
       select 1 from public.blocks b
       join public.tables t on t.id = table_id
       where b.blocker_id = t.host_id and b.blocked_id = auth.uid()
     )
   );
+
+-- Answering a request belongs to the host of the table it is for, and to
+-- nobody else — not even to the person who asked.
+--
+-- `using` picks the rows a host may touch; `with check` governs the row they
+-- leave behind, so a host cannot answer and then answer differently, and
+-- cannot park a request back in 'pending' after deciding.
+drop policy if exists signups_decide_by_host on public.signups;
+create policy signups_decide_by_host on public.signups
+  for update to authenticated
+  using (
+    status = 'pending'
+    and exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
+  )
+  with check (
+    status in ('accepted', 'declined')
+    and exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
+  );
+
+-- RLS decides which rows may be updated, not which columns, so on its own the
+-- policy above would also let a host rewrite a guest's name, nationality or
+-- allergy note. Column privileges are the part of Postgres that does answer
+-- that question, so update is granted on exactly one column and taken away
+-- everywhere else. Without this a host could quietly edit what a guest told
+-- the table they cannot eat.
+revoke update on public.signups from authenticated;
+grant update (status) on public.signups to authenticated;
 
 -- Giving up your seat is yours to do; so is removing somebody from a table
 -- you are hosting, because a host who cannot manage their own table has to

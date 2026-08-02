@@ -230,6 +230,34 @@ export async function cancelSignup(signupId) {
   if (error) throw new Error(friendlyError(error));
 }
 
+/**
+ * A host's answer to one seat request.
+ *
+ * Deliberately thin. Whether this host may answer at all, and whether there
+ * is still a seat to give, are SeatRequestPolicy's questions and are asked
+ * before the button is offered — but the answer that counts is the one
+ * signups_decide_by_host gives in the database, which is why the update is
+ * scoped by id and status rather than trusting what the screen believed.
+ *
+ * `.eq('status', 'pending')` matters for two hosts on two devices: the second
+ * update matches no row and returns nothing, so the caller learns the request
+ * was already answered instead of silently overwriting the first answer.
+ */
+export async function decideSignup(signupId, status) {
+  const sb = await client();
+  await currentUser();
+  const { data, error } = await sb
+    .from('signups')
+    .update({ status })
+    .eq('id', signupId)
+    .eq('status', 'pending')
+    .select()
+    .maybeSingle();
+  if (error) throw new Error(friendlyError(error));
+  if (!data) throw new Error('That request was already answered.');
+  return signupFromRow(data);
+}
+
 /** My own outgoing blocks — blocks_select_own in schema.sql permits nothing else. */
 export async function listBlocks() {
   const sb = await client();

@@ -142,6 +142,9 @@ async function local_createSignup(input) {
     // The escape valve for RESTRICTIONS's fixed five, carried the same way.
     allergyNote: input.allergyNote ?? '',
     note: input.note ?? '',
+    // Matches the database's default rather than the column's original one:
+    // asking for a seat is asking, on both backends.
+    status: 'pending',
     createdAt: Date.now(),
   };
   write(SIGNUPS_KEY, [...read(SIGNUPS_KEY), row]);
@@ -150,6 +153,27 @@ async function local_createSignup(input) {
 
 async function local_cancelSignup(signupId) {
   write(SIGNUPS_KEY, read(SIGNUPS_KEY).filter(s => s.id !== signupId));
+}
+
+/**
+ * A host's answer, on the device-only backend.
+ *
+ * The `pending` check mirrors `.eq('status', 'pending')` in the Supabase
+ * version, and for the same reason rather than out of symmetry: two open tabs
+ * on one device are two callers, and the second must be told the request was
+ * already answered instead of quietly replacing the first answer. The parity
+ * that matters between these two backends is the errors they raise, not just
+ * the rows they return.
+ */
+async function local_decideSignup(signupId, status) {
+  const rows = read(SIGNUPS_KEY);
+  const found = rows.find(s => s.id === signupId);
+  if (!found || (found.status ?? 'accepted') !== 'pending') {
+    throw new Error('That request was already answered.');
+  }
+  const next = rows.map(s => (s.id === signupId ? { ...s, status } : s));
+  write(SIGNUPS_KEY, next);
+  return next.find(s => s.id === signupId);
 }
 
 /** My own outgoing blocks — never anyone else's, same rule as the remote RLS. */
@@ -257,6 +281,7 @@ export const listSignups = useRemote ? remote.listSignups : local_listSignups;
 export const listAllSignups = useRemote ? remote.listAllSignups : local_listAllSignups;
 export const createSignup = useRemote ? remote.createSignup : local_createSignup;
 export const cancelSignup = useRemote ? remote.cancelSignup : local_cancelSignup;
+export const decideSignup = useRemote ? remote.decideSignup : local_decideSignup;
 
 export const listBlocks = useRemote ? remote.listBlocks : local_listBlocks;
 export const createBlock = useRemote ? remote.createBlock : local_createBlock;

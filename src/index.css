@@ -926,6 +926,75 @@ button {
   transform: scale(0.98);
 }
 
+/* Seat requests waiting on a host, and the host's answer to them.
+   Colours come from the tokens rather than from hex, so both themes and the
+   contrast sweep reach them — the empty-state cards that shipped with #fff
+   inline are the reason that is worth saying out loud. */
+.who-row__pending,
+.who-row__declined {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.who-row__pending {
+  color: var(--accent-ink);
+  background: var(--accent-tint);
+}
+.who-row__declined {
+  color: var(--muted);
+  background: var(--fill);
+}
+.decide-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.decide-row__yes,
+.decide-row__no {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.decide-row__yes {
+  background: var(--green-strong);
+  color: #fff;
+  border: none;
+}
+.decide-row__no {
+  background: transparent;
+  color: var(--ink-body);
+  border: 1px solid var(--line);
+}
+.decide-row__yes:disabled,
+.decide-row__no:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.decide-row__why {
+  font-size: 12px;
+  color: var(--muted);
+  flex-basis: 100%;
+}
+.join-waiting {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--accent-ink);
+  margin: 0 0 10px;
+}
+.join-block--pending .join-next,
+.join-block--lapsed .join-next,
+.join-block--declined .join-next {
+  color: var(--ink-body);
+}
+
 /* The three "open this place in a map app" buttons.
    Naver and Kakao carry their own brand colours so a visitor recognises which
    app they are about to be handed to — the reviewers on 1 August singled out

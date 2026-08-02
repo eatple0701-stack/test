@@ -2,7 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, joinBlocker, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
 import {
-  getTable, listSignups, createSignup, cancelSignup, deleteTable, createBlock,
+  SEAT_STATUS, isPending, isDeclined, hasLapsed, pendingSignups,
+  canAccept, acceptBlocker, DECIDE_BLOCK_TEXT, requestState,
+} from '../domain/policy/seatRequest.js';
+import {
+  getTable, listSignups, createSignup, cancelSignup, decideSignup, deleteTable, createBlock,
 } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
@@ -51,6 +55,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // ever be open at a time regardless of which row it came from.
   const [confirmBlock, setConfirmBlock] = useState(null);
   const [blocking, setBlocking] = useState(false);
+  // The id of the request whose buttons are mid-flight, so only that row
+  // disables rather than every pending row on the table at once.
+  const [deciding, setDeciding] = useState(null);
   // Blocked this session, so the row can say so immediately rather than
   // waiting on a refetch of a list this screen has no other reason to hold —
   // createBlock is idempotent, so there is nothing to reconcile later.
@@ -136,6 +143,30 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     await refresh();
     setBusy(false);
     setJoined(true);
+  };
+
+  /**
+   * The host's answer to one request.
+   *
+   * Refetches instead of patching the row in place, because accepting changes
+   * more than the row: it moves a seat, which changes what every other pending
+   * request on this table is allowed to become. A local edit would leave the
+   * other rows' buttons reasoning from a seat count that is one out of date.
+   */
+  const decide = async (signup, status) => {
+    if (deciding) return;
+    setDeciding(signup.id);
+    setError(null);
+    try {
+      await decideSignup(signup.id, status);
+    } catch (e) {
+      // Two hosts on two devices, or the same host on two tabs. The backends
+      // refuse the second answer rather than overwrite the first, and the
+      // person holding the losing tab is told so.
+      setError(e.message);
+    }
+    await refresh();
+    setDeciding(null);
   };
 
   // Native share where the phone has it — that is the sheet with KakaoTalk in
@@ -438,6 +469,16 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               <span className="who-row__dot" aria-hidden="true" />
               <span className="who-row__line">
                 <span className="who-row__name">{s.name}</span>
+                {/* Whether this person is actually coming. Only shown once
+                    there is something to say — a confirmed seat is the normal
+                    case and does not need a badge announcing it, and every row
+                    written before approval existed reads as confirmed. */}
+                {isPending(s) && (
+                  <span className="who-row__pending">
+                    {hasLapsed(s, table) ? 'no answer in time' : 'asked to join'}
+                  </span>
+                )}
+                {isDeclined(s) && <span className="who-row__declined">not this time</span>}
                 {/* Self-declared, shown as one line with nationality rather
                     than as a separate row — neither is verified, and
                     stacking two unverified facts under two different visual
@@ -484,6 +525,36 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   claiming a check that never happened. */}
               {s.allergyNote && <span className="who-row__allergy">{s.allergyNote}</span>}
               {s.note && <span className="who-row__note">“{s.note}”</span>}
+              {/* The host's answer, under everything they need to answer it —
+                  the name, the diets, the allergy note and whatever the guest
+                  wrote. Deciding above that would mean deciding before
+                  reading it. */}
+              {isHost && isPending(s) && !hasLapsed(s, table) && (
+                <span className="decide-row">
+                  <button
+                    className="decide-row__yes"
+                    disabled={deciding === s.id || !canAccept({ signup: s, signups, table, userId: profile?.userId })}
+                    onClick={() => decide(s, SEAT_STATUS.ACCEPTED)}
+                  >
+                    자리 드리기 · Give the seat
+                  </button>
+                  <button
+                    className="decide-row__no"
+                    disabled={deciding === s.id}
+                    onClick={() => decide(s, SEAT_STATUS.DECLINED)}
+                  >
+                    Not this time
+                  </button>
+                  {/* Says why the accept is unavailable rather than leaving a
+                      dead button — almost always "no seat left", which a host
+                      reaches by accepting others first. */}
+                  {!canAccept({ signup: s, signups, table, userId: profile?.userId }) && (
+                    <span className="decide-row__why">
+                      {DECIDE_BLOCK_TEXT[acceptBlocker({ signup: s, signups, table, userId: profile?.userId })]}
+                    </span>
+                  )}
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -515,19 +586,39 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           checked. It appears when verification does. */}
 
       {mySignup ? (
-        <div className="join-block join-block--in">
-          <p className="join-confirmed">
-            <CheckIcon size={16} /> You have a seat at this table.
-          </p>
-          {joined && (
-            <p className="join-next">
-              Meet at {table.place}, {fullDate(table.date)} at {table.time}.
-            </p>
-          )}
-          <button className="join-leave" onClick={leave} disabled={busy}>
-            Give up my seat
-          </button>
-        </div>
+        /* Asking is no longer the same as being in, so this cannot say "you
+           have a seat" any more — it said that to everyone, including people
+           the host had not answered and people the host had turned down.
+           requestState decides what is true; this only lays it out. */
+        (() => {
+          const state = requestState(mySignup, table);
+          return (
+            <div className={`join-block join-block--${state.kind === SEAT_STATUS.ACCEPTED ? 'in' : state.kind}`}>
+              <p className={state.kind === SEAT_STATUS.ACCEPTED ? 'join-confirmed' : 'join-waiting'}>
+                {state.kind === SEAT_STATUS.ACCEPTED && <CheckIcon size={16} />} {state.title}
+              </p>
+              <p className="join-next">{state.body}</p>
+              {joined && state.kind === SEAT_STATUS.PENDING && (
+                <p className="join-next">
+                  If it is yes: {table.place}, {fullDate(table.date)} at {table.time}.
+                </p>
+              )}
+              {joined && state.kind === SEAT_STATUS.ACCEPTED && (
+                <p className="join-next">
+                  Meet at {table.place}, {fullDate(table.date)} at {table.time}.
+                </p>
+              )}
+              {/* Withdrawing stays available while a seat is still being held
+                  for you — including while you are waiting, because a request
+                  you no longer want is a seat somebody else could have. */}
+              {state.seatHeld && (
+                <button className="join-leave" onClick={leave} disabled={busy}>
+                  {state.kind === SEAT_STATUS.PENDING ? 'Withdraw my request' : 'Give up my seat'}
+                </button>
+              )}
+            </div>
+          );
+        })()
       ) : isHost ? (
         /* The host's own table. Everything they can do about it is here,
            because there was previously nowhere at all — a host who could not
@@ -535,6 +626,23 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
            have found out by standing outside a restaurant. */
         <div className="join-block">
           <p className="join-blocked">{BLOCKER_TEXT[JOIN_BLOCK.OWN_TABLE]}</p>
+
+          {/* A host who does not answer freezes the table — a pending request
+              holds its seat. So the count is stated here, at the bottom where
+              a host manages their table, and the answering itself is up in
+              "Who is going" where the names and the allergy notes are. */}
+          {(() => {
+            const waiting = pendingSignups(signups).filter(s => !hasLapsed(s, table));
+            if (waiting.length === 0) return null;
+            return (
+              <p className="join-waiting">
+                {waiting.length === 1
+                  ? '1 person is waiting on your answer.'
+                  : `${waiting.length} people are waiting on your answer.`}
+                {' '}Their seats are held until you decide. Scroll up to “Who is going”.
+              </p>
+            );
+          })()}
 
           {!confirmCancel ? (
             <button className="join-leave" onClick={() => setConfirmCancel(true)}>

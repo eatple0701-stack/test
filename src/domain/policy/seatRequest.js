@@ -1,0 +1,177 @@
+// SeatRequestPolicy — what happens between asking for a seat and having one.
+//
+// Until now there was no between. Asking for a seat put you at the table,
+// finally, immediately, and the host found out afterwards. HostBrief said so
+// out loud — "승인 절차는 아직 없습니다" — which was honest and is not a
+// design anyone chose.
+//
+// Two reviews landed on the same gap from opposite directions. 김훈 부장님:
+// 초기에는 호스팅, 매칭 관련 관리자의 승인 절차 기능을 구현하여 해당 서비스의
+// 안정성을 확보할 필요가 있음. 신보람 교수님 asked the traveller's version of
+// it: 매칭 확정은 얼마나 걸리며, 혹 상대가 No-Show일때는 어떻게 해야할까요?
+//
+// The approver is the host, not staff. A pilot has no moderation desk, and a
+// host who is about to share a grill with three strangers is the person with
+// both the standing and the motive to look at who is coming. Saying "admin
+// approval" and meaning "an inbox nobody reads" would be worse than the
+// instant seat it replaces.
+//
+// The seat-arithmetic decision, which is the one that can put somebody on a
+// pavement in Jongno: a PENDING request holds its seat. A host sitting on
+// four requests for two seats cannot accept them all, and nobody else can
+// queue behind a table that is already spoken for. The cost is that a silent
+// host freezes a table; that is why requests lapse — see hasLapsed below —
+// and it is the cheaper failure. Overbooking sends a real person to a
+// restaurant that has no room for them.
+
+/** Where a request is between asking and eating. */
+export const SEAT_STATUS = {
+  PENDING: 'pending',
+  ACCEPTED: 'accepted',
+  DECLINED: 'declined',
+};
+
+/**
+ * Statuses that occupy one of the host's seats.
+ *
+ * Pending is in here deliberately. See the note at the top: a held seat that
+ * later frees up is recoverable, a seat promised twice is not.
+ */
+export const SEAT_HOLDING = [SEAT_STATUS.PENDING, SEAT_STATUS.ACCEPTED];
+
+/**
+ * A row written before this policy existed has no status, and it was a
+ * confirmed seat under the rules of its own day. Reading it as pending would
+ * retroactively un-invite people who were already going.
+ */
+export const statusOf = (signup) =>
+  signup?.status && Object.values(SEAT_STATUS).includes(signup.status)
+    ? signup.status
+    : SEAT_STATUS.ACCEPTED;
+
+export const isHolding = (signup) => SEAT_HOLDING.includes(statusOf(signup));
+export const isPending = (signup) => statusOf(signup) === SEAT_STATUS.PENDING;
+export const isAccepted = (signup) => statusOf(signup) === SEAT_STATUS.ACCEPTED;
+export const isDeclined = (signup) => statusOf(signup) === SEAT_STATUS.DECLINED;
+
+/** Only the requests that still count against capacity. */
+export const holdingSignups = (signups = []) => signups.filter(isHolding);
+
+/** What the host has to answer, oldest first — the order they arrived. */
+export const pendingSignups = (signups = []) =>
+  signups
+    .filter(isPending)
+    .slice()
+    .sort((a, b) => String(a.createdAt ?? '').localeCompare(String(b.createdAt ?? '')));
+
+/**
+ * How long before the meal an unanswered request gives up.
+ *
+ * Twelve hours, so somebody who asked for a Friday dinner knows by Friday
+ * morning whether to make other plans. Shorter would punish a host who works
+ * a day job; longer leaves a traveller with a whole evening and nothing
+ * arranged, which is the exact position this app exists to fix.
+ */
+export const LAPSE_HOURS_BEFORE_MEAL = 12;
+
+/** When a request stops waiting, or null if the meal has no time yet. */
+export function lapseAt(table) {
+  if (!table?.date) return null;
+  const at = new Date(`${table.date}T${table.time || '00:00'}`);
+  if (!Number.isFinite(at.getTime())) return null;
+  return new Date(at.getTime() - LAPSE_HOURS_BEFORE_MEAL * 60 * 60 * 1000);
+}
+
+/**
+ * Has this request run out of time?
+ *
+ * Computed rather than stored. A lapsed request is not a fourth status and
+ * nothing writes to the database when the clock passes — the row stays
+ * pending and simply stops being treated as one. That way a host who opens
+ * the app late still sees what was asked of them, and there is no scheduled
+ * job this pilot has nowhere to run.
+ */
+export function hasLapsed(signup, table, now = new Date()) {
+  if (!isPending(signup)) return false;
+  const at = lapseAt(table);
+  return Boolean(at) && at.getTime() <= now.getTime();
+}
+
+/** Still waiting on the host, and still worth waiting. */
+export const isWaiting = (signup, table, now = new Date()) =>
+  isPending(signup) && !hasLapsed(signup, table, now);
+
+/**
+ * Seats a lapsed request gives back.
+ *
+ * Capacity has to agree with hasLapsed or a table can sit frozen forever
+ * behind a request nobody will ever answer.
+ */
+export const stillHolding = (signups = [], table, now = new Date()) =>
+  signups.filter(s => isHolding(s) && !hasLapsed(s, table, now));
+
+/** Reasons a host cannot answer a request, so the button can say which. */
+export const DECIDE_BLOCK = {
+  NOT_HOST: 'not-host',
+  ALREADY_DECIDED: 'already-decided',
+  PAST: 'past',
+  NO_SEATS: 'no-seats',
+};
+
+/**
+ * Why this host cannot accept this request, or null if they can.
+ *
+ * NO_SEATS can happen even though pending holds a seat: a host may accept
+ * two of three requests and then find the third has nowhere to go. Declining
+ * is deliberately never blocked by capacity — a host must always be able to
+ * clear a request, and refusing somebody is the one answer that cannot make
+ * a table more crowded than it was.
+ */
+export function acceptBlocker({ signup, signups = [], table, userId, seatsLeft, now = new Date() }) {
+  if (!table || !userId || table.hostId !== userId) return DECIDE_BLOCK.NOT_HOST;
+  if (!isPending(signup)) return DECIDE_BLOCK.ALREADY_DECIDED;
+  const at = new Date(`${table.date}T${table.time || '00:00'}`);
+  if (Number.isFinite(at.getTime()) && at.getTime() < now.getTime()) return DECIDE_BLOCK.PAST;
+  // The requester's own seat is one of the held ones, so it is already
+  // counted; what matters is whether accepting takes the table past capacity.
+  const held = seatsLeft ?? stillHolding(signups, table, now).length;
+  if (typeof table.seats === 'number' && 1 + held > table.seats) return DECIDE_BLOCK.NO_SEATS;
+  return null;
+}
+
+export const canAccept = (args) => acceptBlocker(args) === null;
+
+/** Declining needs the host and an undecided request, and nothing else. */
+export function canDecline({ signup, table, userId }) {
+  if (!table || !userId || table.hostId !== userId) return false;
+  return isPending(signup);
+}
+
+export const DECIDE_BLOCK_TEXT = {
+  [DECIDE_BLOCK.NOT_HOST]: 'Only the host can answer this',
+  [DECIDE_BLOCK.ALREADY_DECIDED]: 'You already answered this request',
+  [DECIDE_BLOCK.PAST]: 'This meal has already happened',
+  [DECIDE_BLOCK.NO_SEATS]: 'There is no seat left to give',
+};
+
+/**
+ * What a traveller is told about their own request.
+ *
+ * One sentence each, written to be read by somebody deciding whether to keep
+ * the evening free. The pending line names the deadline rather than saying
+ * "soon", because 교수님's question — 매칭 확정은 얼마나 걸리며 — is a question
+ * about planning, and "soon" does not let anybody plan.
+ */
+export function requestState(signup, table, now = new Date()) {
+  const status = statusOf(signup);
+  if (status === SEAT_STATUS.DECLINED) {
+    return { kind: SEAT_STATUS.DECLINED, seatHeld: false, title: 'Not this table', body: 'The host could not fit you in. Nothing stops you asking at another table — most hosts are answering a few people at once.' };
+  }
+  if (status === SEAT_STATUS.ACCEPTED) {
+    return { kind: SEAT_STATUS.ACCEPTED, seatHeld: true, title: 'Your seat is confirmed', body: 'The host is expecting you. If anything changes, cancel here rather than not turning up — somebody else can still take the seat.' };
+  }
+  if (hasLapsed(signup, table, now)) {
+    return { kind: 'lapsed', seatHeld: false, title: 'No answer in time', body: 'The host did not answer before the cut-off, so the seat is free again. Make other plans for this evening.' };
+  }
+  return { kind: SEAT_STATUS.PENDING, seatHeld: true, title: 'Waiting for the host', body: `The host has until ${LAPSE_HOURS_BEFORE_MEAL} hours before the meal to answer. If they do not, this lapses and the seat goes back — you will not be left guessing on the night.` };
+}

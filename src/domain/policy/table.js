@@ -6,17 +6,31 @@
 // occupies one of the seats they opened, so a four-seat table has three to
 // give away — off-by-one here is somebody standing on a pavement in Jongno.
 
+import { stillHolding, isDeclined } from './seatRequest.js';
+
 export const JOIN_BLOCK = {
   FULL: 'full',
   OWN_TABLE: 'own-table',
   ALREADY_IN: 'already-in',
+  DECLINED: 'declined',
   PAST: 'past',
 };
 
-/** Seats a host still has to give, never below zero. */
-export function seatsRemaining(table, signups = []) {
+/**
+ * Seats a host still has to give, never below zero.
+ *
+ * Counts requests that are still holding a seat rather than every row: a
+ * declined request gave its seat back, and a pending one that ran out of time
+ * gave it back too. Both of those are SeatRequestPolicy's judgement, not this
+ * file's — see src/domain/policy/seatRequest.js, which explains why a pending
+ * request holds a seat at all.
+ *
+ * `now` is threaded through because lapsing is computed from the clock rather
+ * than stored, so "how many seats are left" is a question with a time in it.
+ */
+export function seatsRemaining(table, signups = [], now = new Date()) {
   if (!table) return 0;
-  const taken = 1 + signups.length; // the host is at their own table
+  const taken = 1 + stillHolding(signups, table, now).length; // the host is at their own table
   return Math.max(0, table.seats - taken);
 }
 
@@ -39,8 +53,15 @@ export function joinBlocker(table, signups, userId, now = new Date()) {
   if (!table) return JOIN_BLOCK.FULL;
   if (isPast(table, now)) return JOIN_BLOCK.PAST;
   if (userId && table.hostId === userId) return JOIN_BLOCK.OWN_TABLE;
-  if (userId && signups.some(s => s.userId === userId)) return JOIN_BLOCK.ALREADY_IN;
-  if (seatsRemaining(table, signups) <= 0) return JOIN_BLOCK.FULL;
+  const mine = userId ? signups.find(s => s.userId === userId) : null;
+  // Declined is its own answer, not a variant of "already in". Saying "you
+  // are already at this table" to somebody the host turned down would be a
+  // lie, and a cheerful one. The row stays — the database allows one per
+  // person per table — so asking again is not a way around a no. That is the
+  // point of there being an answer at all.
+  if (mine && isDeclined(mine)) return JOIN_BLOCK.DECLINED;
+  if (mine) return JOIN_BLOCK.ALREADY_IN;
+  if (seatsRemaining(table, signups, now) <= 0) return JOIN_BLOCK.FULL;
   return null;
 }
 
@@ -52,6 +73,7 @@ export const BLOCKER_TEXT = {
   [JOIN_BLOCK.FULL]: 'This table is full',
   [JOIN_BLOCK.OWN_TABLE]: 'This is your table',
   [JOIN_BLOCK.ALREADY_IN]: 'You are already at this table',
+  [JOIN_BLOCK.DECLINED]: 'The host could not fit you in',
   [JOIN_BLOCK.PAST]: 'This meal has already happened',
 };
 

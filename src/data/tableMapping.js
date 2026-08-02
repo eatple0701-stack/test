@@ -82,6 +82,10 @@ export function signupFromRow(row) {
     diets: Array.isArray(row.diets) ? row.diets : [],
     allergyNote: row.allergy_note ?? '',
     note: row.note ?? '',
+    // Left undefined rather than defaulted when the column is missing, so
+    // statusOf() in seatRequest.js is the single place that decides what an
+    // old row means. Two defaults would eventually disagree.
+    status: row.status ?? undefined,
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
   };
 }
