@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LANGUAGES } from '../domain/catalog/languages.js';
+import { GENDERS } from '../domain/catalog/genders.js';
 import { RESTRICTIONS, restrictionLabel, DIETS } from '../data/profile';
 
 // The four things the app actually does something with about you.
@@ -35,6 +36,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
   const languages = profile?.languages ?? [];
   const avoids = profile?.avoids ?? [];
   const diets = profile?.diets ?? [];
+  const gender = profile?.gender ?? null;
 
   const save = (patch) => onProfileChange?.({ ...profile, ...patch });
 
@@ -79,6 +81,28 @@ export default function ProfileFields({ profile, onProfileChange }) {
                 onClick={() => save({ languages: toggle(languages, l) })}
               >
                 {l}
+              </button>
+            ))}
+          </div>
+        </Field>
+
+        {/* Optional and self-declared, exactly like nationality — never
+            verified, never used by the app to decide anything about a dish.
+            The one place it changes another screen: the Tables filter
+            (TablesTab.jsx), which is the feature this field exists for. */}
+        <Field
+          label="Gender (optional)"
+          hint="Not verified — just what you tell the table. Used only for the 'tables with another woman' filter on Tables."
+        >
+          <div className="chip-row">
+            {GENDERS.map(g => (
+              <button
+                key={g}
+                className={`chip${gender === g ? ' active' : ''}`}
+                aria-pressed={gender === g}
+                onClick={() => save({ gender: gender === g ? null : g })}
+              >
+                {g}
               </button>
             ))}
           </div>
