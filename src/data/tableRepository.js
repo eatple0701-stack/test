@@ -98,6 +98,7 @@ async function local_createTable(input) {
     // station exit and then had nothing more to say; this is the last
     // hundred metres.
     meetingNote: cleanMeetingNote(input.meetingNote),
+    cancelledAt: null,
     seats: Number(input.seats),
     note: input.note ?? '',
     createdAt: Date.now(),
@@ -107,16 +108,22 @@ async function local_createTable(input) {
 }
 
 /**
- * Called off the table, and everybody's seats with it.
+ * Called off the table — and nothing else.
  *
- * There was no way to do this at all, which meant a host who could not make
- * their own dinner had no way to say so. The signups go too: a seat at a
- * table that no longer exists is worse than no seat, because it still shows
- * up in a Passport as something that is going to happen.
+ * This used to delete the row and every seat on it, on the reasoning that a
+ * seat at a table which no longer exists is worse than no seat. Half right:
+ * what is worse still is the evening vanishing from a Passport with no
+ * sentence attached, in an app that has no way to notify anybody. The guest
+ * finds out by opening the table, so the table has to still be there to be
+ * opened. See src/domain/policy/cancellation.js.
  */
 async function local_deleteTable(tableId) {
-  write(TABLES_KEY, read(TABLES_KEY).filter(t => t.id !== tableId));
-  write(SIGNUPS_KEY, read(SIGNUPS_KEY).filter(s => s.tableId !== tableId));
+  const rows = read(TABLES_KEY);
+  const found = rows.find(t => t.id === tableId);
+  if (!found || found.cancelledAt) throw new Error('That table was already called off.');
+  // The signups are deliberately left alone. They are what lets the host see
+  // who still needs telling, and the app cannot tell them.
+  write(TABLES_KEY, rows.map(t => (t.id === tableId ? { ...t, cancelledAt: Date.now() } : t)));
 }
 
 async function local_listSignups(tableId) {

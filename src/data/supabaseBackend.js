@@ -188,11 +188,33 @@ export async function createTable(input) {
  * Row level security already restricts this to the host: `tables_delete_own`
  * checks `host_id = auth.uid()`, so a guest cannot cancel somebody's dinner.
  */
+/**
+ * Call a table off without erasing it.
+ *
+ * Was a delete, which cascaded the signups and left a guest's Passport one
+ * line shorter with nothing said. The row and its seats stay so that the
+ * people who were going can still open it and read that it was cancelled —
+ * which, with no notifications anywhere in this app, is the only way they
+ * will ever find out.
+ *
+ * `.is('cancelled_at', null)` matches tables_cancel_own's own `using`: a
+ * second press, or a second device, matches no row and is told so rather than
+ * silently rewriting the timestamp on a cancellation somebody has already
+ * seen.
+ */
 export async function deleteTable(tableId) {
   const sb = await client();
   await currentUser();
-  const { error } = await sb.from('tables').delete().eq('id', tableId);
+  const { data, error } = await sb
+    .from('tables')
+    .update({ cancelled_at: new Date().toISOString() })
+    .eq('id', tableId)
+    .is('cancelled_at', null)
+    .select()
+    .maybeSingle();
   if (error) throw new Error(friendlyError(error));
+  if (!data) throw new Error('That table was already called off.');
+  return tableFromRow(data);
 }
 
 export async function listSignups(tableId) {

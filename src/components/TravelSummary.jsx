@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { menuById } from '../domain/catalog/menus.js';
-import { isPast } from '../domain/policy/table.js';
+import { didHappen } from '../domain/policy/table.js';
 import { listTables, listAllSignups } from '../data/tableRepository.js';
 import { XIcon, CheckIcon } from './Icons';
 
@@ -38,7 +38,7 @@ export default function TravelSummary({ journey, profile, onClose }) {
     (async () => {
       const [tables, signups] = await Promise.all([listTables(), listAllSignups()]);
       const mine = tables.filter(t =>
-        isPast(t) && (
+        didHappen(t) && (
           t.hostId === profile?.userId ||
           signups.some(s => s.tableId === t.id && s.userId === profile?.userId)));
       const names = new Set();

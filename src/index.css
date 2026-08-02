@@ -8567,3 +8567,31 @@ body {
 .meeting-note--none {
   color: var(--muted);
 }
+
+/* A table that was called off. Kept visible on purpose — with no
+   notifications, opening it is the only way anybody finds out. */
+.cancelled-block {
+  border: 1px solid var(--danger-line);
+  background: var(--danger-tint);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+}
+.cancelled-note {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+
+/* On "Coming up": the row a cancelled table keeps, which is the whole reason
+   cancelling stopped deleting. */
+.upcoming-row__cancelled {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-left: 6px;
+  white-space: nowrap;
+  color: var(--danger);
+  background: var(--danger-tint);
+}

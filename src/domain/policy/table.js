@@ -7,12 +7,14 @@
 // give away — off-by-one here is somebody standing on a pavement in Jongno.
 
 import { stillHolding, isDeclined } from './seatRequest.js';
+import { isCancelled } from './cancellation.js';
 
 export const JOIN_BLOCK = {
   FULL: 'full',
   OWN_TABLE: 'own-table',
   ALREADY_IN: 'already-in',
   DECLINED: 'declined',
+  CANCELLED: 'cancelled',
   PAST: 'past',
 };
 
@@ -44,6 +46,18 @@ export function isPast(table, now = new Date()) {
 }
 
 /**
+ * Did this meal actually take place?
+ *
+ * isPast() only asks whether the clock has gone past it, which was the same
+ * question while a cancelled table was a deleted row. It is not any more. A
+ * table called off on Tuesday for a Thursday dinner is past by Friday and
+ * nobody ate anything, so the Passport must not file it under meals eaten or
+ * count the guest list as people met.
+ */
+export const didHappen = (table, now = new Date()) =>
+  isPast(table, now) && !isCancelled(table);
+
+/**
  * Why this person cannot join, or null if they can.
  *
  * Returns the reason rather than a boolean so the button can say what is
@@ -51,6 +65,12 @@ export function isPast(table, now = new Date()) {
  */
 export function joinBlocker(table, signups, userId, now = new Date()) {
   if (!table) return JOIN_BLOCK.FULL;
+  // Before every other reason, including "this is your table": a meal that is
+  // not happening cannot be joined by anybody, and answering it or recording
+  // against it is equally meaningless. Checked here rather than at each screen
+  // so a surface that forgets cannot offer a seat at a cancelled dinner —
+  // matchRequest and TablesLead both reach this through canJoin.
+  if (isCancelled(table)) return JOIN_BLOCK.CANCELLED;
   if (isPast(table, now)) return JOIN_BLOCK.PAST;
   if (userId && table.hostId === userId) return JOIN_BLOCK.OWN_TABLE;
   const mine = userId ? signups.find(s => s.userId === userId) : null;
@@ -74,6 +94,7 @@ export const BLOCKER_TEXT = {
   [JOIN_BLOCK.OWN_TABLE]: 'This is your table',
   [JOIN_BLOCK.ALREADY_IN]: 'You are already at this table',
   [JOIN_BLOCK.DECLINED]: 'The host could not fit you in',
+  [JOIN_BLOCK.CANCELLED]: 'This table was called off',
   [JOIN_BLOCK.PAST]: 'This meal has already happened',
 };
 

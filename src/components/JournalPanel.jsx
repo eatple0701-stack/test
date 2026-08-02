@@ -3,9 +3,10 @@ import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
 import { traditionalMarkets } from '../data/experiences';
 import { menuById } from '../domain/catalog/menus.js';
-import { isPast } from '../domain/policy/table.js';
+import { isPast, didHappen } from '../domain/policy/table.js';
 import { isAccepted, isPending, hasLapsed } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
+import { isCancelled } from '../domain/policy/cancellation.js';
 import { listTables, listAllSignups, listBlocks, deleteBlock } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById, themes } from '../domain/catalog/index.js';
 import { themeCompletionKind, COMPLETION_KIND } from '../domain/policy/completion.js';
@@ -150,7 +151,7 @@ export default function JournalPanel({
   const metPeople = useMemo(() => {
     const seen = new Map();
     for (const t of myTables) {
-      if (!isPast(t)) continue;                 // a booking is not a meeting
+      if (!didHappen(t)) continue;              // a booking is not a meeting, and a cancelled one is not either
       const at = new Date(`${t.date}T${t.time || '00:00'}`).getTime();
       for (const person of t.people) {
         // First shared meal wins, so a regular does not appear twice.
@@ -184,7 +185,7 @@ export default function JournalPanel({
     // when it was booked — the record is a diary, and the day that matters is
     // the day you sat down.
     const tableItems = myTables
-      .filter(t => isPast(t))
+      .filter(t => didHappen(t))
       .map(t => {
         const menu = menuById(t.menuId);
         if (!menu) return null;
@@ -268,7 +269,7 @@ export default function JournalPanel({
   );
   // Meals that have actually happened, and how many different dishes they
   // covered — the two numbers this product is about.
-  const eaten = useMemo(() => myTables.filter(t => isPast(t)), [myTables]);
+  const eaten = useMemo(() => myTables.filter(t => didHappen(t)), [myTables]);
   const dishesShared = useMemo(
     () => new Set(eaten.map(t => t.menuId)).size,
     [eaten],
@@ -404,10 +405,17 @@ export default function JournalPanel({
                       {t.myRequest && hasLapsed(t.myRequest, t) && (
                         <span className="upcoming-row__lapsed">no answer — seat released</span>
                       )}
-                      {t.waiting > 0 && (
+                      {t.waiting > 0 && !isCancelled(t) && (
                         <span className="upcoming-row__pending">
                           {t.waiting === 1 ? '1 waiting on you' : `${t.waiting} waiting on you`}
                         </span>
+                      )}
+                      {/* The row stays in "Coming up" rather than vanishing,
+                          which is the entire reason cancelling stopped
+                          deleting. A line that disappears tells nobody
+                          anything; this one is the only warning there is. */}
+                      {isCancelled(t) && (
+                        <span className="upcoming-row__cancelled">called off — do not go</span>
                       )}
                     </span>
                     <span className="upcoming-row__when">

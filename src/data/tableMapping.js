@@ -40,6 +40,8 @@ export function tableFromRow(row) {
     // How to recognise the host on the night. Gated in the UI rather than by
     // RLS — see canSeeMeetingNote in src/domain/policy/meeting.js.
     meetingNote: row.meeting_note ?? '',
+    // Called off, kept rather than deleted — see policy/cancellation.js.
+    cancelledAt: row.cancelled_at ?? null,
     seats: row.seats,
     note: row.note ?? '',
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,

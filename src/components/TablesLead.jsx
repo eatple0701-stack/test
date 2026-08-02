@@ -3,6 +3,7 @@ import { menuById } from '../domain/catalog/menus.js';
 import { seatsRemaining, isPast, canJoin } from '../domain/policy/table.js';
 import { listTables, listAllSignups, seedSampleTables } from '../data/tableRepository.js';
 import { ChevronRightIcon } from './Icons';
+import { bookable } from '../domain/policy/cancellation.js';
 
 // Open tables, on the Explore screen.
 //
@@ -31,7 +32,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
     (async () => {
       await seedSampleTables();
       const [t, s] = await Promise.all([listTables(), listAllSignups()]);
-      if (alive) { setTables(t); setSignups(s); }
+      if (alive) { setTables(bookable(t)); setSignups(s); }
     })();
     return () => { alive = false; };
   }, []);

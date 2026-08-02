@@ -10,6 +10,7 @@ import {
   ATTENDANCE, ATTENDANCE_PROMPT, attendanceOf, isNoShow, attendanceNote,
 } from '../domain/policy/attendance.js';
 import { canSeeMeetingNote, meetingGuidance } from '../domain/policy/meeting.js';
+import { isCancelled, cancellationNotice } from '../domain/policy/cancellation.js';
 import {
   getTable, listSignups, createSignup, cancelSignup, decideSignup, recordAttendance,
   deleteTable, createBlock,
@@ -99,6 +100,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const confirmed = useMemo(() => acceptedSignups(signups), [signups]);
   const affected = useMemo(() => affectedByCancellation(signups, table), [signups, table]);
   const meeting = useMemo(() => meetingGuidance(table, { isHost }), [table, isHost]);
+  const cancelNotice = useMemo(() => cancellationNotice(table, { isHost }), [table, isHost]);
   const blocker = useMemo(
     () => (table ? joinBlocker(table, signups, profile?.userId) : null),
     [table, signups, profile],
@@ -465,11 +467,22 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         </div>
       )}
 
+      {/* Above everything, because it changes what every line below it means.
+          There are no notifications in this app, so opening the table is the
+          only way anybody learns — which is why cancelling keeps the row
+          rather than deleting it. */}
+      {cancelNotice && (
+        <div className="detail-block cancelled-block">
+          <h3 className="detail-block__label">{cancelNotice.title}</h3>
+          <p className="cancelled-note">{cancelNotice.body}</p>
+        </div>
+      )}
+
       {/* The last hundred metres. Only for people who are actually going —
           "green jacket by the CU" is where a specific person will physically
           be at a specific time, and on a public page that is available to
           anybody browsing, including somebody this host turned down. */}
-      {canSeeMeetingNote({ isHost, mySignupAccepted: Boolean(mySignup) && isAccepted(mySignup) }) && (
+      {canSeeMeetingNote({ isHost, mySignupAccepted: Boolean(mySignup) && isAccepted(mySignup), table }) && (
         <div className="detail-block meeting-block">
           <h3 className="detail-block__label">{meeting.title}</h3>
           <p className={meeting.kind === 'written' ? 'meeting-note' : 'meeting-note meeting-note--none'}>
@@ -585,7 +598,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               {/* After the meal, the same row asks the other question. Only
                   for seats the host actually gave — marking somebody they
                   turned away absent would be a statement about nothing. */}
-              {isHost && isPast(table) && isAccepted(s) && (
+              {isHost && !isCancelled(table) && isPast(table) && isAccepted(s) && (
                 <span className="decide-row">
                   <button
                     className={attendanceOf(s) === ATTENDANCE.CAME ? 'decide-row__yes' : 'decide-row__no'}
@@ -603,7 +616,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   </button>
                 </span>
               )}
-              {isHost && isPending(s) && !hasLapsed(s, table) && (
+              {isHost && !isCancelled(table) && isPending(s) && !hasLapsed(s, table) && (
                 <span className="decide-row">
                   <button
                     className="decide-row__yes"
@@ -723,7 +736,10 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             );
           })()}
 
-          {!confirmCancel ? (
+          {/* Nothing left to call off. The notice at the top of the page has
+              already said what happened, and a second cancel button would
+              only ever produce the backend's "already called off" error. */}
+          {isCancelled(table) ? null : !confirmCancel ? (
             <button className="join-leave" onClick={() => setConfirmCancel(true)}>
               이 상 취소 · Call off this table
             </button>

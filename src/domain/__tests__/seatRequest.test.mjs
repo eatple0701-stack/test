@@ -181,3 +181,26 @@ test('canAccept agrees with acceptBlocker', () => {
   assert.equal(canAccept({ signup: req, signups: [req], table: t, userId: HOST, now }), true);
   assert.equal(canAccept({ signup: req, signups: [req], table: t, userId: 'x', now }), false);
 });
+
+test('a cancelled table overrules whatever the seat says', () => {
+  // "Your seat is confirmed — the host is expecting you" stayed true of the
+  // row and false of the evening, and rendered directly under a notice
+  // saying the table had been called off.
+  const off = table({ cancelledAt: '2026-08-03T10:00:00Z' });
+  const now = at('2026-08-05T10:00:00Z');
+  for (const status of [SEAT_STATUS.ACCEPTED, SEAT_STATUS.PENDING, SEAT_STATUS.DECLINED]) {
+    const state = requestState(sign({ status }), off, now);
+    assert.equal(state.kind, 'cancelled', `${status} should read as cancelled`);
+    // Nothing left to hold a seat at, so no withdraw button either.
+    assert.equal(state.seatHeld, false);
+  }
+});
+
+test('a host cannot give away a seat at a meal that is not happening', () => {
+  const off = table({ cancelledAt: '2026-08-03T10:00:00Z' });
+  const req = sign();
+  assert.equal(
+    acceptBlocker({ signup: req, signups: [req], table: off, userId: HOST, now: at('2026-08-05T10:00:00Z') }),
+    DECIDE_BLOCK.CANCELLED,
+  );
+});

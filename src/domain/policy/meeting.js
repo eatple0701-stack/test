@@ -1,3 +1,5 @@
+import { isCancelled } from './cancellation.js';
+
 // MeetingPolicy — how strangers find each other at Exit 4.
 //
 // The app arranges a meal between people who have never met, tells them a
@@ -36,7 +38,12 @@ export const cleanMeetingNote = (text) =>
  * deliberately on that side of the line: the note is for people who are
  * going, and until the host answers, nobody knows whether they are.
  */
-export function canSeeMeetingNote({ isHost, mySignupAccepted }) {
+export function canSeeMeetingNote({ isHost, mySignupAccepted, table }) {
+  // A cancelled table has no meeting point to describe. Telling somebody what
+  // jacket to look for at a meal that is not happening is the kind of
+  // contradiction one screen can produce when two features are added a day
+  // apart — this is the second one asking the first whether it still applies.
+  if (table && isCancelled(table)) return false;
   return Boolean(isHost || mySignupAccepted);
 }
 

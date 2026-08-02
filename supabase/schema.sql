@@ -349,9 +349,43 @@ create policy tables_insert_own on public.tables
     and host_kind is null
   );
 
+-- Delete stays permitted, and is no longer what the app does.
+--
+-- Calling a table off used to delete the row, which cascaded the signups with
+-- it. The host's screen looked tidy; the guest's Passport lost the evening
+-- with no sentence attached, and there are no notifications, so the next thing
+-- that happened was somebody standing at a station exit for a meal nobody was
+-- coming to. Cancelling now writes cancelled_at and keeps everything — see
+-- src/domain/policy/cancellation.js.
+--
+-- The policy is left in place because a row somebody genuinely needs removed
+-- (a mistake, a request from a person in it) should still be removable by its
+-- host without a migration.
 drop policy if exists tables_delete_own on public.tables;
 create policy tables_delete_own on public.tables
   for delete to authenticated using (host_id = auth.uid());
+
+-- Called off, and when. Null on every table that is still happening.
+alter table public.tables add column if not exists cancelled_at timestamptz;
+
+-- The host, and only the host, may call their own table off.
+--
+-- `using` refuses a table that is already cancelled, so this cannot be used to
+-- un-cancel one: a guest who has been told the meal is off must not have that
+-- reversed under them by the same button that told them. Reopening is opening
+-- a new table, which is honest about what it is.
+--
+-- Column privileges do the rest, exactly as they do on signups: without them
+-- an update policy on tables would also let a host rewrite the date, the place
+-- or the seat count of a table people had already committed an evening to.
+drop policy if exists tables_cancel_own on public.tables;
+create policy tables_cancel_own on public.tables
+  for update to authenticated
+  using (host_id = auth.uid() and cancelled_at is null)
+  with check (host_id = auth.uid() and cancelled_at is not null);
+
+revoke update on public.tables from authenticated;
+grant update (cancelled_at) on public.tables to authenticated;
 
 drop policy if exists signups_read on public.signups;
 create policy signups_read on public.signups

@@ -9,6 +9,7 @@ import { tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon } from './Icons';
+import { bookable } from '../domain/policy/cancellation.js';
 
 // 밥친구 — the tables you can ask to sit at.
 //
@@ -49,7 +50,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       // until the schema catches up; a blank Tables tab is not.
       const [t, s] = await Promise.all([listTables(), listAllSignups()]);
       const b = await listBlocks().catch(() => []);
-      if (alive) { setTables(t); setSignups(s); setBlockedIds(b.map(x => x.blockedId)); }
+      if (alive) { setTables(bookable(t)); setSignups(s); setBlockedIds(b.map(x => x.blockedId)); }
     })();
     return () => { alive = false; };
   }, []);

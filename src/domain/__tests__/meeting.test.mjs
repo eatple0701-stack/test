@@ -60,3 +60,17 @@ test('whitespace alone is not a note', () => {
   // fallback guidance with an empty box.
   assert.equal(meetingGuidance(table({ meetingNote: '   ' }), { isHost: false }).kind, 'ask-host');
 });
+
+test('a cancelled table has no meeting point to describe', () => {
+  // Two features added a day apart, on one screen: "what to look for at the
+  // meeting point" sitting directly under "this table was called off". The
+  // second has to ask the first whether it still applies.
+  const off = { id: 't1', hostId: 'h1', cancelledAt: '2026-08-03T10:00:00Z' };
+  assert.equal(canSeeMeetingNote({ isHost: true, mySignupAccepted: false, table: off }), false);
+  assert.equal(canSeeMeetingNote({ isHost: false, mySignupAccepted: true, table: off }), false);
+  // Still shown on a table that is going ahead, and when no table is passed
+  // at all the answer is unchanged — the gate is about cancellation, not a
+  // new required argument.
+  assert.equal(canSeeMeetingNote({ isHost: true, mySignupAccepted: false, table: table() }), true);
+  assert.equal(canSeeMeetingNote({ isHost: true, mySignupAccepted: false }), true);
+});

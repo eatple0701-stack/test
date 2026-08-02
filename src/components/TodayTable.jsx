@@ -1,3 +1,4 @@
+import { bookable } from '../domain/policy/cancellation.js';
 import React, { useEffect, useState } from 'react';
 import { menuById } from '../domain/catalog/menus.js';
 import { listTables, listAllSignups } from '../data/tableRepository.js';
@@ -25,7 +26,7 @@ export default function TodayTable({ profile, onOpenTable }) {
       const now = new Date();
       const todayKey = now.toDateString();
 
-      const rows = tables
+      const rows = bookable(tables)
         .filter(t =>
           t.hostId === profile?.userId ||
           signups.some(s => s.tableId === t.id && s.userId === profile?.userId))

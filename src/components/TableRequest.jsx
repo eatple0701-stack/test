@@ -7,6 +7,7 @@ import { seatsRemaining } from '../domain/policy/table.js';
 import { listTables, listAllSignups, listBlocks } from '../data/tableRepository.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons';
+import { bookable } from '../domain/policy/cancellation.js';
 
 // Asking for a meal that may not exist.
 //
@@ -47,7 +48,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
       // has not caught up yet must not turn matching off entirely.
       const [t, s] = await Promise.all([listTables(), listAllSignups()]);
       const b = await listBlocks().catch(() => []);
-      if (alive) { setTables(visibleTables(t, b.map(x => x.blockedId))); setSignups(s); }
+      if (alive) { setTables(visibleTables(bookable(t), b.map(x => x.blockedId))); setSignups(s); }
     })();
     return () => { alive = false; };
   }, []);

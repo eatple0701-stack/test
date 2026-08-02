@@ -1,3 +1,5 @@
+import { isCancelled } from './cancellation.js';
+
 // SeatRequestPolicy — what happens between asking for a seat and having one.
 //
 // Until now there was no between. Asking for a seat put you at the table,
@@ -137,6 +139,7 @@ export const DECIDE_BLOCK = {
   ALREADY_DECIDED: 'already-decided',
   PAST: 'past',
   NO_SEATS: 'no-seats',
+  CANCELLED: 'cancelled',
 };
 
 /**
@@ -150,6 +153,11 @@ export const DECIDE_BLOCK = {
  */
 export function acceptBlocker({ signup, signups = [], table, userId, seatsLeft, now = new Date() }) {
   if (!table || !userId || table.hostId !== userId) return DECIDE_BLOCK.NOT_HOST;
+  // Giving somebody a seat at a meal that is not happening. Checked here
+  // rather than only hidden on screen, because CancellationPolicy's whole
+  // point is that a cancelled table stays reachable — so every action on it
+  // has to refuse on its own rather than rely on never being reached.
+  if (isCancelled(table)) return DECIDE_BLOCK.CANCELLED;
   if (!isPending(signup)) return DECIDE_BLOCK.ALREADY_DECIDED;
   const at = new Date(`${table.date}T${table.time || '00:00'}`);
   if (Number.isFinite(at.getTime()) && at.getTime() < now.getTime()) return DECIDE_BLOCK.PAST;
@@ -173,6 +181,7 @@ export const DECIDE_BLOCK_TEXT = {
   [DECIDE_BLOCK.ALREADY_DECIDED]: 'You already answered this request',
   [DECIDE_BLOCK.PAST]: 'This meal has already happened',
   [DECIDE_BLOCK.NO_SEATS]: 'There is no seat left to give',
+  [DECIDE_BLOCK.CANCELLED]: 'This table was called off',
 };
 
 /**
@@ -185,6 +194,19 @@ export const DECIDE_BLOCK_TEXT = {
  */
 export function requestState(signup, table, now = new Date()) {
   const status = statusOf(signup);
+  // Before the status, because cancellation overrules it. "Your seat is
+  // confirmed — the host is expecting you" is still technically true of the
+  // row and completely false of the evening, and it was rendering directly
+  // beneath a notice saying the table had been called off. The seat is not
+  // held either: there is nothing left to hold it at.
+  if (isCancelled(table)) {
+    return {
+      kind: 'cancelled',
+      seatHeld: false,
+      title: 'This meal is not happening',
+      body: 'The host called the table off. Your seat went with it — there is nothing to cancel and nowhere to turn up to.',
+    };
+  }
   if (status === SEAT_STATUS.DECLINED) {
     return { kind: SEAT_STATUS.DECLINED, seatHeld: false, title: 'Not this table', body: 'The host could not fit you in. Nothing stops you asking at another table — most hosts are answering a few people at once.' };
   }

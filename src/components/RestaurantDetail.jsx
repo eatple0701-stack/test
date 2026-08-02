@@ -19,6 +19,7 @@ import { haversineKm, formatDistance, getOpenStatus, todaysHours, directionsUrl,
 import {
   dietaryBadges, isKnown, needsCheck, trustBadge, dietaryConfidence, CONFIDENCE, isQuarantined,
 } from '../data/verification';
+import { bookable } from '../domain/policy/cancellation.js';
 
 const TRAIT_META = {
   'Mild Taste': { Icon: MildIcon, label: 'Mild taste' },
@@ -91,7 +92,7 @@ function RestaurantDetailInner({
     let alive = true;
     const key = restaurantName.split('(')[0].trim().toLowerCase();
     (async () => {
-      const all = await listTables();
+      const all = bookable(await listTables());
       const here = all.filter(t =>
         !isPast(t) && t.restaurant && t.restaurant.trim().toLowerCase() === key);
       if (alive) setTablesHere(here);
