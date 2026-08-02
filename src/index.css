@@ -8534,3 +8534,24 @@ body {
   color: var(--danger);
   font-weight: 600;
 }
+
+/* On the Passport's "Coming up": a seat you asked for is not a seat you have,
+   and a host who never answers freezes their own table. Both need saying on
+   the row, because the date and place beneath it read as a plan either way. */
+.upcoming-row__pending,
+.upcoming-row__lapsed {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+.upcoming-row__pending {
+  color: var(--accent-ink);
+  background: var(--accent-tint);
+}
+.upcoming-row__lapsed {
+  color: var(--muted);
+  background: var(--fill);
+}

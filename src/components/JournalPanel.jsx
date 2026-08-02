@@ -4,7 +4,7 @@ import { isQuarantined } from '../data/verification';
 import { traditionalMarkets } from '../data/experiences';
 import { menuById } from '../domain/catalog/menus.js';
 import { isPast } from '../domain/policy/table.js';
-import { isAccepted } from '../domain/policy/seatRequest.js';
+import { isAccepted, isPending, hasLapsed } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
 import { listTables, listAllSignups, listBlocks, deleteBlock } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById, themes } from '../domain/catalog/index.js';
@@ -83,6 +83,20 @@ export default function JournalPanel({
               .filter(s => isAccepted(s) && countsAsMet(s))
               .map(s => ({ key: s.userId || s.id, name: s.name, nationality: s.nationality || '' })),
           ].filter(p => p.name),
+          // My own seat at this table, or null if I am its host. Carried so
+          // "Coming up" can tell a booking from a request — approval created
+          // a waiting state, and a screen that lists both as the same thing
+          // has a traveller keeping an evening free for a seat nobody gave
+          // them yet.
+          myRequest: t.hostId === profile?.userId
+            ? null
+            : signups.find(s => s.tableId === t.id && s.userId === profile?.userId) ?? null,
+          // What this host still owes an answer to. A pending request holds a
+          // seat, so a host who never looks freezes their own table; the
+          // Passport is where they will look.
+          waiting: t.hostId === profile?.userId
+            ? signups.filter(s => s.tableId === t.id && isPending(s) && !hasLapsed(s, t)).length
+            : 0,
         }));
       if (alive) setMyTables(mine);
     })();
@@ -381,6 +395,20 @@ export default function JournalPanel({
                     <span className="upcoming-row__dish">
                       {menu.name}
                       {t.hosted && <span className="upcoming-row__badge">you host</span>}
+                      {/* A seat you asked for is not a seat you have. Said
+                          on the row itself, because the date and place sit
+                          right beneath it and read as a plan either way. */}
+                      {t.myRequest && isPending(t.myRequest) && !hasLapsed(t.myRequest, t) && (
+                        <span className="upcoming-row__pending">waiting on the host</span>
+                      )}
+                      {t.myRequest && hasLapsed(t.myRequest, t) && (
+                        <span className="upcoming-row__lapsed">no answer — seat released</span>
+                      )}
+                      {t.waiting > 0 && (
+                        <span className="upcoming-row__pending">
+                          {t.waiting === 1 ? '1 waiting on you' : `${t.waiting} waiting on you`}
+                        </span>
+                      )}
                     </span>
                     <span className="upcoming-row__when">
                       {new Date(`${t.date}T00:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
