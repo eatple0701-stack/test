@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  SEAT_STATUS, statusOf, isHolding, pendingSignups,
+  SEAT_STATUS, statusOf, isHolding, pendingSignups, acceptedSignups, affectedByCancellation,
   LAPSE_HOURS_BEFORE_MEAL, lapseAt, hasLapsed, isWaiting, stillHolding,
   DECIDE_BLOCK, acceptBlocker, canAccept, canDecline, requestState,
 } from '../policy/seatRequest.js';
@@ -107,6 +107,37 @@ test('a lapsed request gives its seat back so the table cannot freeze', () => {
   const afterCut = at('2026-08-10T12:00:00');
   assert.equal(stillHolding([stale, live], t, afterCut).length, 1);
   assert.equal(stillHolding([stale, live], t, at('2026-08-05T12:00:00')).length, 2);
+});
+
+test('a table advertises the seats it gave, not the times it was asked', () => {
+  // signups.length was the count on screen, so "take a seat and there would
+  // be N of you" grew every time somebody asked — including the people the
+  // host had turned down.
+  const rows = [
+    sign({ id: 'a', status: SEAT_STATUS.ACCEPTED }),
+    sign({ id: 'b', status: SEAT_STATUS.DECLINED }),
+    sign({ id: 'c', status: SEAT_STATUS.PENDING }),
+    // Written before this policy existed: no status at all, which statusOf
+    // reads as a confirmed seat. The helper defaults to pending, so this one
+    // has to clear it explicitly or it is not testing the legacy case.
+    sign({ id: 'old', status: undefined }),
+  ];
+  assert.deepEqual(acceptedSignups(rows).map(s => s.id), ['a', 'old']);
+});
+
+test('calling a table off affects the seated and the still-waiting, nobody else', () => {
+  const t = table();
+  const early = at('2026-08-05T10:00:00Z');
+  const rows = [
+    sign({ id: 'seated', status: SEAT_STATUS.ACCEPTED }),
+    sign({ id: 'waiting', status: SEAT_STATUS.PENDING }),
+    sign({ id: 'refused', status: SEAT_STATUS.DECLINED }),
+  ];
+  assert.deepEqual(affectedByCancellation(rows, t, early).map(s => s.id), ['seated', 'waiting']);
+  // Once a request has lapsed its seat is already back and the person has
+  // already been told to make other plans.
+  const late = at('2026-08-10T12:00:00');
+  assert.deepEqual(affectedByCancellation(rows, t, late).map(s => s.id), ['seated']);
 });
 
 test('the host answers requests in the order they arrived', () => {

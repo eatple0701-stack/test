@@ -57,6 +57,27 @@ export const isDeclined = (signup) => statusOf(signup) === SEAT_STATUS.DECLINED;
 /** Only the requests that still count against capacity. */
 export const holdingSignups = (signups = []) => signups.filter(isHolding);
 
+/**
+ * Seats actually given.
+ *
+ * The count a stranger deciding whether to sit down is really asking for.
+ * Screens used to read `signups.length`, which climbed every time anybody
+ * asked — so a table where the host had turned two people away advertised
+ * them as company.
+ */
+export const acceptedSignups = (signups = []) => signups.filter(isAccepted);
+
+/**
+ * Everybody a cancelled table lands on.
+ *
+ * Confirmed seats, plus requests still waiting for an answer that will now
+ * never come. Not the people already declined: telling a host they are about
+ * to inconvenience somebody they refused last week is noise, and it used to
+ * inflate the number they were shown before calling a table off.
+ */
+export const affectedByCancellation = (signups = [], table, now = new Date()) =>
+  signups.filter(s => isAccepted(s) || (isPending(s) && !hasLapsed(s, table, now)));
+
 /** What the host has to answer, oldest first — the order they arrived. */
 export const pendingSignups = (signups = []) =>
   signups

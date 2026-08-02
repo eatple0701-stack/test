@@ -3,6 +3,7 @@ import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, joinBlocker, isPast, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
 import {
   SEAT_STATUS, isPending, isAccepted, isDeclined, hasLapsed, pendingSignups,
+  acceptedSignups, affectedByCancellation,
   canAccept, acceptBlocker, DECIDE_BLOCK_TEXT, requestState,
 } from '../domain/policy/seatRequest.js';
 import {
@@ -92,6 +93,10 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const { fit, shared: sharedLangs } = languageFit(tableLanguages, profile?.languages);
   const isHost = Boolean(profile?.userId) && table?.hostId === profile.userId;
   const left = useMemo(() => seatsRemaining(table, signups), [table, signups]);
+  // Both of these are judgements about who counts, so they live in the policy
+  // where a test can hold them, not in this file where only my eye could.
+  const confirmed = useMemo(() => acceptedSignups(signups), [signups]);
+  const affected = useMemo(() => affectedByCancellation(signups, table), [signups, table]);
   const blocker = useMemo(
     () => (table ? joinBlocker(table, signups, profile?.userId) : null),
     [table, signups, profile],
@@ -421,11 +426,18 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             guest who already said yes, are both reading their table rather
             than choosing it — for them the count is on the "Who is going"
             list a screen below, with names on it. */}
+        {/* Counted from confirmed seats, not from rows. signups.length treated
+            a request the host had turned down as somebody at the meal, and a
+            request nobody had answered yet as a certainty — so the number
+            climbed every time anyone asked, whatever the answer was. Pending
+            people are deliberately left out rather than added as a maybe: the
+            question this line answers is whether you would be sitting down to
+            a proper table, and only a given seat answers it. */}
         {!isHost && !mySignup && (
-          <p className={`detail-headcount${signups.length === 0 ? ' is-pair' : ''}`}>
-            {signups.length === 0
+          <p className={`detail-headcount${confirmed.length === 0 ? ' is-pair' : ''}`}>
+            {confirmed.length === 0
               ? 'Nobody else has taken a seat yet, so if you sit down it is the two of you.'
-              : `Take a seat and there would be ${signups.length + 2} of you.`}
+              : `Take a seat and there would be ${confirmed.length + 2} of you.`}
           </p>
         )}
       </div>
@@ -703,12 +715,17 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           ) : (
             <div className="cancel-confirm">
               <p className="cancel-confirm__title">Call this table off?</p>
-              {signups.length > 0 ? (
+              {/* Everybody this cancellation lands on: seats given, and
+                  requests still waiting on an answer that will now never
+                  come. Not the people already turned down — telling a host
+                  they are about to inconvenience somebody they refused a week
+                  ago is noise, and it used to pad this number. */}
+              {affected.length > 0 ? (
                 <p className="cancel-confirm__body">
-                  {signups.length === 1 ? '1 person has' : `${signups.length} people have`} a seat
-                  {signups.length > 0 && `: ${signups.map(s => s.name).join(', ')}`}. The app cannot
-                  message them yet — if you have another way to reach them, tell them before you
-                  cancel. Their seats disappear when you do.
+                  {affected.length === 1 ? '1 person is' : `${affected.length} people are`} counting on
+                  this table: {affected.map(s => s.name).join(', ')}. The app cannot message them yet —
+                  if you have another way to reach them, tell them before you cancel. Their seats and
+                  any requests still open disappear when you do.
                 </p>
               ) : (
                 <p className="cancel-confirm__body">Nobody has taken a seat, so nobody is affected.</p>
