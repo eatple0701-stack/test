@@ -107,18 +107,25 @@ export async function ensureProfile(local = {}) {
       nationality: existing.nationality ?? '',
       languages: existing.languages ?? [],
       gender: existing.gender ?? null,
+      // Postgres hands back an ISO string; the app compares numbers.
+      rulesVersion: existing.rules_version ?? null,
+      rulesAgreedAt: existing.rules_agreed_at
+        ? new Date(existing.rules_agreed_at).getTime() : null,
       isVerifiedHost: existing.is_verified_host ?? false,
     };
   }
 
   // Carries across whatever the traveller already typed while the app was
-  // running on localStorage, so signing in does not blank their own name.
+  // running on localStorage, so signing in does not blank their own name —
+  // or make somebody agree to the rules a second time.
   const row = {
     id: user.id,
     name: local.name ?? '',
     nationality: local.nationality ?? '',
     languages: local.languages ?? [],
     gender: cleanGender(local.gender),
+    rules_version: local.rulesVersion ?? null,
+    rules_agreed_at: local.rulesAgreedAt ? new Date(local.rulesAgreedAt).toISOString() : null,
   };
   const { error } = await sb.from('profiles').insert(row);
   if (error) throw new Error(friendlyError(error));
@@ -126,11 +133,17 @@ export async function ensureProfile(local = {}) {
   return { userId: user.id, ...local, isVerifiedHost: false };
 }
 
-export async function saveProfileFields({ name, nationality, languages, gender }) {
+export async function saveProfileFields({
+  name, nationality, languages, gender, rulesVersion, rulesAgreedAt,
+}) {
   const sb = await client();
   const user = await currentUser();
   const { error } = await sb.from('profiles')
-    .update({ name, nationality, languages, gender: cleanGender(gender) })
+    .update({
+      name, nationality, languages, gender: cleanGender(gender),
+      rules_version: rulesVersion ?? null,
+      rules_agreed_at: rulesAgreedAt ? new Date(rulesAgreedAt).toISOString() : null,
+    })
     .eq('id', user.id);
   if (error) throw new Error(friendlyError(error));
 }

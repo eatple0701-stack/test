@@ -95,6 +95,12 @@ export function getProfile() {
     // to the host exactly like diets — a message, never a verdict the app
     // renders about a dish it cannot check.
     allergyNote: '',
+    // The rules agreement (src/domain/policy/consent.js). null rather than
+    // 0/false: "never asked" and "asked and said yes at the epoch" are
+    // different states, and only one of them should let somebody past the
+    // consent step.
+    rulesVersion: null,
+    rulesAgreedAt: null,
   };
   saveProfile(fresh);
   return fresh;

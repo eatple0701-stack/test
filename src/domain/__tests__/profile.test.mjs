@@ -31,3 +31,14 @@ test('a fresh profile has an empty allergy note, not a missing key', () => {
   assert.equal(p.allergyNote, '');
   assert.ok('allergyNote' in p, 'the key must exist so ?? defaults are never needed downstream');
 });
+
+test('a fresh profile has not agreed to the rules', () => {
+  // null rather than 0: "never asked" must not read as "agreed at the epoch",
+  // and agreedToRules() is what stands between a stranger and their first
+  // table — it has to fail closed on a profile nobody has answered for.
+  globalThis.localStorage.clear();
+  const p = getProfile();
+  assert.equal(p.rulesVersion, null);
+  assert.equal(p.rulesAgreedAt, null);
+  assert.ok('rulesVersion' in p && 'rulesAgreedAt' in p);
+});

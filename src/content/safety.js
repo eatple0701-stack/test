@@ -50,14 +50,24 @@ export const reportingConfigured = () =>
  *
  * Deliberately not promising enforcement we do not have. A comparable pilot
  * in this same team's plan advertises immediate permanent bans; there is no
- * moderation queue here, no blocking, and no reporting channel wired up yet
- * — all three are named in NOT_YET_BUILT below. So this says what the rule
- * is and what a person can actually do, which is leave and tell the team,
- * rather than implying a system is watching.
+ * moderation queue here and no reporting channel wired up yet — both named
+ * in NOT_YET_BUILT below. So this says what the rule is and what a person
+ * can actually do, which is leave, block, and tell the team, rather than
+ * implying a system is watching.
  */
 export const PURPOSE = {
   kr: '목적형 밥친구',
   en: 'Here for the food',
+  /**
+   * Bump when the rules below change in a way somebody who already agreed
+   * would want to know about. `agreedToRules` (src/domain/policy/consent.js)
+   * compares against this, so a bump asks everyone again rather than letting
+   * an old agreement stand in for a rule nobody consented to. Wording fixes
+   * that do not change what is being agreed to should NOT bump it — asking
+   * a traveller to re-agree to a comma is how a consent step turns into
+   * something people click through without reading.
+   */
+  version: 1,
   rule:
     '밥친구 seats people who want to eat a dish nobody can order alone. It is ' +
     'not a dating app, and a seat at a table is not an opening to ask somebody out.',
@@ -68,6 +78,24 @@ export const PURPOSE = {
   /** One line, for places where a paragraph would be too much. */
   short: 'For eating together — not a dating app.',
 };
+
+/**
+ * What somebody is actually agreeing to, as the list they see above the
+ * button — 교수님's ask was that the no-dating rule live in 사용자 조항 with
+ * 동의 받기, not only as a line on a screen.
+ *
+ * Kept to what this app can actually stand behind. Each line is either a
+ * rule the reader is agreeing to keep, or a fact about what happens if
+ * somebody else does not — nothing here promises moderation that does not
+ * exist (see NOT_YET_BUILT), because a consent screen is exactly the wrong
+ * place to overstate what is watching.
+ */
+export const RULES = [
+  'This is a meal, not a date. A seat at a table is not an opening to ask somebody out.',
+  'People at your table may have told the host what they cannot eat. Take it seriously.',
+  'You can leave any meal at any point, and you owe nobody an explanation.',
+  'If somebody makes you uncomfortable you can block them, and you can tell the team.',
+];
 
 /**
  * What to do now, in order of who can help fastest.

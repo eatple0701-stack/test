@@ -8,6 +8,9 @@ import { LANGUAGES, cleanLanguages } from '../domain/catalog/languages.js';
 import { createTable } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import HostBrief from './HostBrief';
+import RulesConsent from './RulesConsent';
+import { PURPOSE } from '../content/safety.js';
+import { agreedToRules } from '../domain/policy/consent.js';
 import { ChevronLeftIcon } from './Icons';
 
 // Opening a table.
@@ -67,6 +70,31 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     onProfileChange?.({ ...profile, name: hostName.trim() });
     onCreated(row.id);
   };
+
+  // A host agrees to the same rules a guest does, and for a stronger reason:
+  // they are the one setting the terms of the evening. Gating the whole form
+  // rather than the submit button keeps somebody from filling in a dish, a
+  // date and a place before finding out there was a condition.
+  if (!agreedToRules(profile, PURPOSE.version)) {
+    return (
+      <section className="sheet-page" aria-label="Open a table">
+        <header className="sheet-page__head">
+          <button className="sheet-page__back" onClick={onBack} aria-label="Back">
+            <ChevronLeftIcon size={20} />
+          </button>
+          <h1>상 차리기 · Open a table</h1>
+        </header>
+        <div className="form-block">
+          <h2 className="form-label">Before your first table</h2>
+          <RulesConsent
+            profile={profile}
+            onProfileChange={onProfileChange}
+            action="open a table"
+          />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="sheet-page" aria-label="Open a table">

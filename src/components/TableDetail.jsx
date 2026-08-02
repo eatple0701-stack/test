@@ -6,8 +6,10 @@ import {
 } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
+import RulesConsent from './RulesConsent';
 import { conflictsFor, dietById } from '../data/profile';
 import { PURPOSE } from '../content/safety.js';
+import { agreedToRules } from '../domain/policy/consent.js';
 import { shareUrlFor } from '../routes.js';
 import { guideById, hostKindLabel, tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../domain/catalog/languages.js';
@@ -563,6 +565,20 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           {blocker === JOIN_BLOCK.FULL && (
             <p className="join-next">Open the same dish yourself and fill your own table.</p>
           )}
+        </div>
+      ) : !agreedToRules(profile, PURPOSE.version) ? (
+        /* 교수님's ask, in the one place it is genuinely read: nobody has
+           committed to anything yet, and the next tap is the commitment.
+           Replaces the seat form rather than sitting above it, so there is
+           no half-filled form to lose and no way to reach the button
+           without having passed this. */
+        <div className="join-block">
+          <h3 className="detail-block__label">Before your first seat</h3>
+          <RulesConsent
+            profile={profile}
+            onProfileChange={onProfileChange}
+            action="ask for a seat"
+          />
         </div>
       ) : (
         <div className="join-block">

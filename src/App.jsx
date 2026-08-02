@@ -194,6 +194,8 @@ export default function App() {
       nationality: saved.nationality ?? '',
       languages: saved.languages ?? [],
       gender: saved.gender ?? null,
+      rulesVersion: saved.rulesVersion ?? null,
+      rulesAgreedAt: saved.rulesAgreedAt ?? null,
     }).catch(() => { /* stays on the device; the next save tries again */ });
     return saved;
   };

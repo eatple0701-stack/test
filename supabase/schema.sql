@@ -33,6 +33,14 @@ create table if not exists public.profiles (
 -- for existing before it did.
 alter table public.profiles add column if not exists gender text;
 
+-- The rules agreement 교수님's review asked for (src/domain/policy/consent.js).
+-- Two columns rather than a boolean: the version says *what* was agreed to,
+-- so bumping PURPOSE.version asks everyone again instead of letting an old
+-- yes stand for a rule nobody saw, and the timestamp is the only part that
+-- is answerable after the fact.
+alter table public.profiles add column if not exists rules_version integer;
+alter table public.profiles add column if not exists rules_agreed_at timestamptz;
+
 -- ---------------------------------------------------------------------------
 -- Tables — a meal somebody is opening seats at.
 -- ---------------------------------------------------------------------------

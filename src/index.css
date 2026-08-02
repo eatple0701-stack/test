@@ -7545,6 +7545,54 @@ body {
   color: var(--ink);
 }
 
+/* The rules somebody agrees to, once, before their first seat or first
+   table. Sits on a tinted ground rather than the page: this is the one
+   block on the screen that is asking for something rather than describing
+   something, and it should not read as more body copy. */
+.rules-consent {
+  margin-top: 4px;
+  padding: 16px;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-lg);
+}
+.rules-consent__head {
+  margin: 0 0 10px;
+}
+.rules-consent__kr {
+  display: block;
+  font-family: var(--ex-kr);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.rules-consent__en {
+  display: block;
+  margin-top: 1px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.rules-consent__list {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.rules-consent__list li {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+.rules-consent__note {
+  margin: 9px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted-strong);
+}
+
 /* On the safety sheet it is the headline, so it carries weight the inline
    versions do not. */
 .safety-purpose {

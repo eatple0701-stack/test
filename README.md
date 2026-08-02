@@ -80,7 +80,7 @@ Two different failure shapes, both real, both worth knowing apart:
   one call site's defence.
 
 ```bash
-npm test          # 232 tests, node's built-in runner, no test-framework dependency
+npm test          # 243 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 ```
