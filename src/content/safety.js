@@ -13,16 +13,23 @@
 /**
  * Where a report actually goes.
  *
- * DELIBERATELY EMPTY. Fill this in with the channel the 밥친구 team will be
- * watching during the pilot — an open KakaoTalk room, a monitored email, a
- * phone number somebody answers. Until it is set the app says reporting is
- * not wired up yet, which is true, instead of showing a button that quietly
- * goes nowhere. A report that vanishes is worse than no report button,
- * because somebody trusted it in the moment they needed it most.
+ * Empty until the pilot had somewhere real to send one. The rule this file
+ * was written around still holds: a report that vanishes is worse than no
+ * report button, because somebody trusted it in the moment they needed it
+ * most — so the screen said reporting was not connected rather than showing
+ * a control that went nowhere.
+ *
+ * An open KakaoTalk room, because it is the one channel a traveller in Korea
+ * can open without an account, an app store, or a phone number — and because
+ * somebody on the team can watch it from their own phone during the pilot.
+ *
+ * What this now commits the team to: a person reading that room while tables
+ * are running. The button says the message reaches somebody, and on the
+ * evening it gets used that has to be true.
  */
 export const REPORT_CHANNEL = {
-  label: '',   // e.g. '밥친구 운영팀 오픈채팅'
-  href: '',    // e.g. 'https://open.kakao.com/o/...' or 'mailto:...'
+  label: '밥친구 운영팀 오픈채팅',
+  href: 'https://open.kakao.com/o/g4hMZTGi',
 };
 
 export const reportingConfigured = () =>
