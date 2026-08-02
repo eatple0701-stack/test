@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  phrases, questionsFor, ASK_WHO_LABEL, PHRASE_GROUP, GROUP_LABEL,
+  phrasesFor, questionsFor, ASK_WHO_LABEL, PHRASE_GROUP, GROUP_LABEL,
 } from '../content/phrases.js';
 import QuizDeck from './QuizDeck';
 import { ChevronLeftIcon } from './Icons';
@@ -45,12 +45,14 @@ function useKoreanVoice() {
   return voice;
 }
 
-export default function PhraseSheet({ onClose, dish, menuId }) {
+export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
   const [group, setGroup] = useState(PHRASE_GROUP.ORDER);
   const [spokenId, setSpokenId] = useState(null);
   const voice = useKoreanVoice();
 
-  const shown = useMemo(() => phrases.filter(p => p.group === group), [group]);
+  // Their own dietary rules first. A waiter is waiting and the sentence they
+  // need is the one they already told us about.
+  const shown = useMemo(() => phrasesFor(group, avoids), [group, avoids]);
 
   // The conversation deck, with this dish's own openers first. Held as an
   // index rather than shuffled, so pressing Another walks the whole deck

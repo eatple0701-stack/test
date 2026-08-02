@@ -14,8 +14,10 @@ import assert from 'node:assert/strict';
 
 import {
   tableQuestions, dishQuestions, questionsFor, ASK_WHO, ASK_WHO_LABEL,
+  phrases, phrasesFor, PHRASE_GROUP,
 } from '../../content/phrases.js';
 import { menus } from '../catalog/menus.js';
+import { RESTRICTIONS } from '../../data/profile.js';
 import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../catalog/languages.js';
 import { tableToRow, tableFromRow } from '../../data/tableMapping.js';
 
@@ -124,4 +126,51 @@ test('a table row carries its languages through the database and back', () => {
   assert.deepEqual(tableFromRow({ ...row, id: 't', seats: 4 }).languages, ['English', '한국어']);
   // A row written before the column existed reads as "did not say".
   assert.deepEqual(tableFromRow({ id: 't', menu_id: 'bossam', seats: 4 }).languages, []);
+});
+
+// ---------------------------------------------------------------------------
+// 상황별 표현 — the sentences the plan names, and the ones the Profile implies.
+// ---------------------------------------------------------------------------
+
+test('the four sentences the business plan writes out are all in the app', () => {
+  // Quoted from 핵심기능 4. Checked as exact strings rather than trusted to a
+  // comment, because a comment two lists away claimed the conversation cards
+  // were two-way while half of them were not.
+  const fromPlan = [
+    '덜 맵게 해주세요.',
+    '육수에 고기가 들어가나요?',
+    '이 음식은 몇 명이 먹을 수 있나요?',
+    '알레르기가 있는 재료가 들어가나요?',
+  ];
+  const spoken = phrases.map(p => p.ko);
+  for (const line of fromPlan) {
+    assert.ok(spoken.includes(line), `the plan writes "${line}" and the app cannot say it`);
+  }
+});
+
+test('every rule a traveller can declare is one they can say out loud', () => {
+  // The hole this closes: the Profile offered five restrictions and the
+  // phrasebook covered two. Somebody who ticked "no beef" was warned which
+  // tables conflicted and handed no way to tell a waiter — the app answering
+  // the question it invented instead of the one they actually had.
+  for (const r of RESTRICTIONS) {
+    const said = phrases.find(p => p.restriction === r);
+    assert.ok(said, `a traveller can declare ${r} and has no sentence for it`);
+    assert.match(said.ko, /[가-힣]/, `the ${r} sentence has no Korean`);
+    assert.ok(said.read?.length > 5, `the ${r} sentence has no way to read it aloud`);
+  }
+});
+
+test('a traveller sees their own rules first, and loses nothing', () => {
+  const all = phrasesFor(PHRASE_GROUP.DIETARY, []);
+  const mine = phrasesFor(PHRASE_GROUP.DIETARY, ['fish']);
+  assert.equal(mine[0].restriction, 'fish', 'the declared rule is not at the top');
+  // Reordered, never filtered: somebody may still need a sentence they never
+  // declared, and a phrasebook that quietly shortened itself would be worse
+  // than one that is merely long.
+  assert.deepEqual(
+    all.map(p => p.id).slice().sort(),
+    mine.map(p => p.id).slice().sort(),
+    'personalising the list dropped a phrase',
+  );
 });

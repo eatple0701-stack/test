@@ -446,7 +446,12 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       </button>
 
       {phrasesOpen && (
-        <PhraseSheet dish={menu.name} menuId={menu.id} onClose={() => setPhrasesOpen(false)} />
+        <PhraseSheet
+          dish={menu.name}
+          menuId={menu.id}
+          avoids={profile?.avoids}
+          onClose={() => setPhrasesOpen(false)}
+        />
       )}
       {safetyOpen && <SafetySheet onClose={() => setSafetyOpen(false)} />}
     </section>

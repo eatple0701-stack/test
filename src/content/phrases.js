@@ -86,13 +86,48 @@ export const phrases = [
     read: 'i-go ha-na do ju-se-yo',
   },
 
-  // Dietary
+  // Dietary.
+  //
+  // `restriction` ties a sentence to the box a traveller ticks in the Profile,
+  // and three of the five boxes had no sentence at all. The app would warn
+  // somebody who avoids beef that a table conflicted, and then hand them no
+  // way to say so to a waiter — answering the question it had invented and
+  // not the one they actually had to ask. The link is a field rather than a
+  // string match so a test can hold the two lists together.
   {
     id: 'no-pork',
     group: PHRASE_GROUP.DIETARY,
+    restriction: 'pork',
     en: 'I cannot eat pork.',
     ko: '돼지고기를 못 먹어요.',
     read: 'dwae-ji-go-gi-reul mot mo-go-yo',
+  },
+  {
+    id: 'no-beef',
+    group: PHRASE_GROUP.DIETARY,
+    restriction: 'beef',
+    en: 'I cannot eat beef.',
+    ko: '소고기를 못 먹어요.',
+    read: 'so-go-gi-reul mot mo-go-yo',
+  },
+  {
+    id: 'no-chicken',
+    group: PHRASE_GROUP.DIETARY,
+    restriction: 'chicken',
+    en: 'I cannot eat chicken.',
+    ko: '닭고기를 못 먹어요.',
+    read: 'dak-go-gi-reul mot mo-go-yo',
+  },
+  {
+    id: 'no-fish',
+    group: PHRASE_GROUP.DIETARY,
+    restriction: 'fish',
+    en: 'I cannot eat fish.',
+    ko: '생선을 못 먹어요.',
+    read: 'saeng-son-eul mot mo-go-yo',
+    // No note here on purpose. The anchovy-stock warning already sits on
+    // 육수에 고기가 들어가나요, three cards away in this same tab, and saying it
+    // twice in one list is noise rather than emphasis.
   },
   {
     id: 'no-meat',
@@ -104,6 +139,7 @@ export const phrases = [
   {
     id: 'no-seafood',
     group: PHRASE_GROUP.DIETARY,
+    restriction: 'shellfish',
     en: 'I am allergic to shellfish.',
     ko: '갑각류 알레르기가 있어요.',
     read: 'gap-gang-nyu al-le-reu-gi-ga i-sso-yo',
@@ -328,3 +364,20 @@ export const questionsFor = (menuId) => [
 ];
 
 export const phrasesInGroup = (group) => phrases.filter(p => p.group === group);
+
+/**
+ * The group, with this traveller's own rules lifted to the top.
+ *
+ * The plan asks for 개인 조건에 적합한 한식 메뉴 우선 제시, and the same logic
+ * belongs on the phrases: somebody who ticked "no pork" should not have to
+ * scroll past four sentences that are not theirs while a waiter waits. Only
+ * the order changes — nothing is hidden, because a traveller may need to say
+ * something they never declared, and a phrasebook that quietly shortened
+ * itself would be worse than one that is merely long.
+ */
+export function phrasesFor(group, avoids = []) {
+  const inGroup = phrasesInGroup(group);
+  if (!Array.isArray(avoids) || avoids.length === 0) return inGroup;
+  const mine = (p) => (p.restriction && avoids.includes(p.restriction) ? 0 : 1);
+  return inGroup.slice().sort((a, b) => mine(a) - mine(b));
+}
