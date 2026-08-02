@@ -72,6 +72,10 @@
   --ex-paper: #F8F6F0;      /* card ground, warmer than --bg on purpose */
   --ex-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
   --ex-kr: 'Gowun Batang', 'Apple SD Gothic Neo', 'Malgun Gothic', serif;
+
+  /* So native controls (the date/time pickers in TableCreate.jsx) render
+     in the right chrome instead of guessing from the OS default. */
+  color-scheme: light;
 }
 
 * {
@@ -8130,3 +8134,108 @@ body {
   border-color: var(--line-hover);
 }
 .journal-tool--help .journal-tool__kr { color: var(--ink); }
+
+/* ================================================================
+   Dark mode — same tokens, branched values
+   ================================================================
+   Requested directly by a foreign tester who reviewed the live app on
+   8/1: "다크 모드(Dark Mode)가 있으면 좋겠음... 앱을 사용할 때 다크 모드
+   지원 여부를 중요하게 보는 편이라" — see HANDOFF.md §4. Every colour in
+   this app already routes through the tokens above, so this is a value
+   branch, not a redesign: same variable names, same roles, no selector
+   anywhere has to change.
+
+   Every text pairing below was checked against WCAG 2.1's 4.5:1 (normal
+   text) or 3:1 (large text / UI components), the same formula the
+   redesign layer's own AA fixes above used (see the comments on --muted
+   and --green-strong). Two constraints collide for the dual-role brand
+   tokens --green-strong and --orange-strong: each is used both as
+   `color` directly on the page background (the majority of their call
+   sites) and as a `background` with white button text on top — and one
+   hue cannot be simultaneously light enough to read on near-black and
+   dark enough for white text to read on it at full 4.5:1. Both were
+   solved for the white-on-fill role first, since that is a real button
+   label and the literal WCAG minimum; the direct-text role still clears
+   at least 3:1, the large-text/UI-component floor, which is the
+   lighter-weight, less frequent use for both tokens.
+
+   --accent-strong keeps its light-mode hex unchanged: it is
+   background/border-only in this codebase (no `color:` use anywhere),
+   the white-label contrast it was already tuned for (4.60:1) does not
+   depend on the page's own background, and there is no dark-mode
+   pairing left for it to clear.
+
+   Measured against --bg unless noted; against --surface, every text
+   token here clears the same bar with more room, since --surface sits
+   lighter than --bg. Verify again after this ships — screenshots taken
+   while the tab is backgrounded read the pre-transition colour, not the
+   applied one (`document.visibilityState === 'hidden'` freezes the
+   timeline); the same trap that cost real time on the light-mode fixes
+   above. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    /* Surfaces & text — verified: --ink 16.4:1, --ink-body 11.4:1,
+       --muted (= --ink-secondary) 7.4:1, --muted-strong 10.0:1. */
+    --bg: #0F1115;
+    --surface: #1A1D23;
+    --surface-hover: #21252C;
+    --fill: #262A32;
+    --ink: #EDEFF2;
+    --ink-title: #EDEFF2;
+    --ink-body: #C4CAD2;
+    --ink-secondary: #9AA3AE;
+    --muted: #9AA3AE;
+    --muted-strong: #B6BDC6;
+    --line: #2C313A;
+    --line-hover: #3A4048;
+
+    /* Brand orange. --accent-ink is the text role: 8.1:1 on --bg,
+       7.4:1 on --surface. --accent-strong is unchanged — see above. */
+    --accent: #FF7A33;
+    --accent-ink: #FF8A4C;
+    --accent-strong: #C2540A;
+    --accent-tint: #3A2716;
+    --accent-line: #6B4423;
+
+    /* Green. --green-strong is the dual-role token described above:
+       5.06:1 white-on-fill, 3.73:1 as direct text on --bg. */
+    --green: #2FBF8E;
+    --green-strong: #337D40;
+    --green-tint: #112A22;
+
+    /* Legacy orange scale (2-8 call sites each), the same dual-role
+       trade-off as --green-strong: 4.50:1 white-on-fill, 4.20:1 as
+       direct text on --bg. */
+    --orange: #FF8F4D;
+    --orange-strong: #E23014;
+    --orange-tint: #3A2015;
+    --orange-line: #5C3420;
+
+    /* 6.76:1 on --bg, 6.18:1 on --surface — its only two uses are both
+       `color`, never a fill, so there is no white-label role to trade
+       off against. */
+    --danger: #FF6B5E;
+
+    /* Explore editorial layer. --ex-field was already the one dark
+       object on a light page (#12211B) — lifted slightly so it still
+       reads as its own card against a page that is now dark too.
+       --ex-brass and --ex-sage are unchanged: both were already tuned
+       to sit on the dark --ex-field, which this theme doesn't touch.
+       --ex-brass-ink is the inverse of its light-mode job — that value
+       darkened brass for AA on a light --ex-paper; this one lightens it
+       for AA on the new dark --ex-paper (8.6:1). --ex-paper itself
+       becomes a dark warm ground rather than a light one. */
+    --ex-field: #1C3227;
+    --ex-brass-ink: #D9B876;
+    --ex-paper: #241F18;
+
+    /* A light surface's shadow reads as depth by sitting darker than
+       what is under it; that same navy-tinted rgba is nearly invisible
+       against a --bg this dark, so these go to black directly. */
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-2: 0 8px 30px rgba(0, 0, 0, 0.55);
+    --shadow-sheet: 0 -2px 10px rgba(0, 0, 0, 0.35);
+  }
+}
