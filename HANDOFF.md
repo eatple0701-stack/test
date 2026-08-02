@@ -1,6 +1,6 @@
 # 밥친구 / Eatple — 인수인계
 
-**HEAD:** `bf7a55d` · 2026-08-03 · 워킹트리 깨끗
+**HEAD:** `cea3b25` · 2026-08-03 · 워킹트리 깨끗
 **테스트:** 224개 전부 통과 (`npm test`, 약 12초)
 **배포:** https://test-umber-phi-78.vercel.app
 
