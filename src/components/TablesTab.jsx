@@ -119,7 +119,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </div>
       )}
 
-      <div className="menu-chips" role="group" aria-label="Gender preference">
+      <div className="menu-chips" role="group" aria-label="Filter by who is going">
         <button
           className={`menu-chip${womenFilter ? ' is-on' : ''}`}
           aria-pressed={womenFilter}
@@ -131,7 +131,24 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
       {tables === null && <p className="tables-empty">Loading tables…</p>}
 
-      {tables !== null && shown.length === 0 && (
+      {/* Gender is new and nothing has it seeded yet, so this filter empties
+          the list on every existing install — the honest reason is "nobody
+          has said yet", not "no table like this exists", and the way out is
+          the filter itself, not a table the reader has to go open. */}
+      {tables !== null && shown.length === 0 && womenFilter && (
+        <div className="tables-empty">
+          <p className="tables-empty__title">Nobody has said yet.</p>
+          <p>
+            Gender is new here — no host or guest has declared one yet. That
+            is not the same as no table like this existing.
+          </p>
+          <button className="tables-empty__cta" onClick={() => setWomenFilter(false)}>
+            필터 끄기 · Turn this filter off
+          </button>
+        </div>
+      )}
+
+      {tables !== null && shown.length === 0 && !womenFilter && (
         <div className="tables-empty">
           <p className="tables-empty__title">No table for this one yet.</p>
           <p>Open it yourself and the seats are yours to fill.</p>
