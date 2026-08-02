@@ -4,6 +4,7 @@ import { seatsRemaining, isPast } from '../domain/policy/table.js';
 import { listTables, listAllSignups, seedSampleTables, isLocalOnly } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
+import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon } from './Icons';
 
 // 밥친구 — the tables you can ask to sit at.
@@ -26,6 +27,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
   const [menuFilter, setMenuFilter] = useState(null);
+  // A personal view preference, not a rule the app enforces on who may sit
+  // where — like menuFilter, it changes what this one screen shows and
+  // nothing else. See HANDOFF.md §4: praised by a reviewer for existing
+  // before it did.
+  const [womenFilter, setWomenFilter] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -51,10 +57,13 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     [tables],
   );
 
-  const shown = useMemo(
-    () => (menuFilter ? open.filter(t => t.menuId === menuFilter) : open),
-    [open, menuFilter],
-  );
+  const shown = useMemo(() => {
+    let list = menuFilter ? open.filter(t => t.menuId === menuFilter) : open;
+    if (womenFilter) {
+      list = list.filter(t => tableIncludesGender(t, signupsFor[t.id] ?? [], 'Woman'));
+    }
+    return list;
+  }, [open, menuFilter, womenFilter, signupsFor]);
 
   // Only offer a filter for dishes somebody is actually eating — a chip that
   // always returns nothing is a dead end dressed as a choice.
@@ -109,6 +118,16 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           })}
         </div>
       )}
+
+      <div className="menu-chips" role="group" aria-label="Gender preference">
+        <button
+          className={`menu-chip${womenFilter ? ' is-on' : ''}`}
+          aria-pressed={womenFilter}
+          onClick={() => setWomenFilter(w => !w)}
+        >
+          여성 동석 · Tables with another woman going
+        </button>
+      </div>
 
       {tables === null && <p className="tables-empty">Loading tables…</p>}
 
