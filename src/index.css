@@ -8105,3 +8105,13 @@ body {
    nine sweeps of Explore never surfaced it. The state that rewards a
    traveller should not be the one they cannot read. Same hue, enough depth. */
 .story-card.is-complete .story-card__foot { color: var(--green-strong); }
+
+/* Getting help, alongside the phrasebook. Neutral rather than orange: it sits
+   on a screen somebody opens for ordinary reasons, and a red panel on the
+   Passport would make checking Sunday's dinner feel like an emergency. The
+   emergency colouring lives inside the sheet, where it is warranted. */
+.journal-tool--help {
+  background: var(--surface);
+  border-color: var(--line-hover);
+}
+.journal-tool--help .journal-tool__kr { color: var(--ink); }

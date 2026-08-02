@@ -10,6 +10,7 @@ import { themeCompletionKind, COMPLETION_KIND } from '../domain/policy/completio
 import { ChevronRightIcon } from './Icons';
 import ProfileFields from './ProfileFields';
 import PhraseSheet from './PhraseSheet';
+import SafetySheet from './SafetySheet';
 
 function formatStampDate(ts) {
   if (!ts) return null;
@@ -38,6 +39,7 @@ export default function JournalPanel({
   // repository becomes Supabase this call does not change.
   const [myTables, setMyTables] = useState([]);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
+  const [safetyOpen, setSafetyOpen] = useState(false);
 
   // Every culture this traveller finished, with what backed each one.
   // Computed from the same policy the stamp uses, so the two cannot drift.
@@ -309,6 +311,22 @@ export default function JournalPanel({
         </span>
       </button>
 
+      {/* Getting help, from a screen that is always two taps away.
+          Its only entry point used to be the bottom of a table page, which
+          meant it could be reached solely by somebody browsing a specific
+          dinner — not by somebody sitting at one, walking away from one, or
+          opening the app afterwards. If the host had called the table off it
+          was gone altogether. The emergency numbers, the leave-at-any-point
+          line and the report channel are all no use behind a door you can
+          only find while shopping. */}
+      <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
+        <span className="journal-tool__kr">도움이 필요하면</span>
+        <span className="journal-tool__body">
+          112, 119, the 24-hour travel helpline, and how to reach the 밥친구
+          team. You can leave any meal at any point.
+        </span>
+      </button>
+
       {/* Above the record, because it has not happened yet. This is also the
           only place a traveller can check what they agreed to — a seat taken
           three days ago is easy to forget and expensive to miss. */}
@@ -560,6 +578,7 @@ export default function JournalPanel({
       </div>
 
       {phrasesOpen && <PhraseSheet avoids={profile?.avoids} onClose={() => setPhrasesOpen(false)} />}
+      {safetyOpen && <SafetySheet onClose={() => setSafetyOpen(false)} />}
     </section>
   );
 }
