@@ -13,10 +13,16 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Was a hardcoded #ffffff. This file loads after index.css, so it silently
+   beat the dark-mode branch in index.css the same way the font-family bug
+   above it once beat the font token — every section on Explore, Places and
+   Passport stayed a white card no matter what --surface was set to. Routing
+   through the token is the actual fix; the token is what changes value
+   under @media (prefers-color-scheme: dark). */
 .home-section, .detail-section, .journal-section {
   padding: calc(var(--spacing-unit) * 3);
   margin-bottom: calc(var(--spacing-unit) * 3);
-  background: #ffffff;
+  background: var(--surface);
   border-radius: var(--panel-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform var(--transition-speed) ease;

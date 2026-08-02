@@ -3584,6 +3584,14 @@ button {
   cursor: pointer;
   overflow: hidden;
 }
+/* The bare <h3>{m.name}</h3> here never got a colour rule of its own, so it
+   fell through to Safari's native unstyled-button text colour instead of
+   inheriting --ink — readable-enough-by-accident on a white card, and a
+   blue, near-illegible title on a dark one. Found on a phone, not in code:
+   nothing in this file's cascade math would have surfaced it. */
+.market-card__hit h3 {
+  color: var(--ink);
+}
 /* The Korean name, oversized and faint, gives these text-only cards a visual
    anchor without inventing photography we don't have rights to. */
 .market-card__hit::before {
