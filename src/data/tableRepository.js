@@ -61,7 +61,7 @@ async function local_getTable(id) {
 }
 
 /**
- * @param {object} input { menuId, hostName, hostNationality, date, time, place, seats, note }
+ * @param {object} input { menuId, hostName, hostNationality, hostGender, date, time, place, seats, note }
  */
 async function local_createTable(input) {
   const row = {
@@ -70,6 +70,7 @@ async function local_createTable(input) {
     hostId: input.hostId ?? 'local-host',
     hostName: input.hostName,
     hostNationality: input.hostNationality ?? '',
+    hostGender: input.hostGender ?? null,
     // A host is a verified Korean in the plan. Nothing here can verify
     // anyone yet, so the field exists and stays false — the badge must never
     // appear until something real backs it.
@@ -127,7 +128,7 @@ async function local_listAllSignups() {
 }
 
 /**
- * @param {object} input { tableId, userId, name, nationality, languages, note }
+ * @param {object} input { tableId, userId, name, nationality, gender, languages, note }
  */
 async function local_createSignup(input) {
   const row = {
@@ -136,6 +137,7 @@ async function local_createSignup(input) {
     userId: input.userId,
     name: input.name,
     nationality: input.nationality ?? '',
+    gender: input.gender ?? null,
     languages: input.languages ?? [],
     // How they eat, in their own word, on its way to the host.
     diets: cleanDiets(input.diets),
