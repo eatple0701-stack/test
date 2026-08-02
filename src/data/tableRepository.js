@@ -176,6 +176,24 @@ async function local_decideSignup(signupId, status) {
   return next.find(s => s.id === signupId);
 }
 
+/**
+ * Who turned up, on the device-only backend.
+ *
+ * The accepted-only check mirrors the remote's `.eq('status', 'accepted')`
+ * and the RLS behind it: attendance on a seat that was never given is a
+ * statement about nothing.
+ */
+async function local_recordAttendance(signupId, attendance) {
+  const rows = read(SIGNUPS_KEY);
+  const found = rows.find(s => s.id === signupId);
+  if (!found || (found.status ?? 'accepted') !== 'accepted') {
+    throw new Error('That seat is not one you can record attendance for.');
+  }
+  const next = rows.map(s => (s.id === signupId ? { ...s, attendance } : s));
+  write(SIGNUPS_KEY, next);
+  return next.find(s => s.id === signupId);
+}
+
 /** My own outgoing blocks — never anyone else's, same rule as the remote RLS. */
 async function local_listBlocks() {
   return read(BLOCKS_KEY);
@@ -282,6 +300,7 @@ export const listAllSignups = useRemote ? remote.listAllSignups : local_listAllS
 export const createSignup = useRemote ? remote.createSignup : local_createSignup;
 export const cancelSignup = useRemote ? remote.cancelSignup : local_cancelSignup;
 export const decideSignup = useRemote ? remote.decideSignup : local_decideSignup;
+export const recordAttendance = useRemote ? remote.recordAttendance : local_recordAttendance;
 
 export const listBlocks = useRemote ? remote.listBlocks : local_listBlocks;
 export const createBlock = useRemote ? remote.createBlock : local_createBlock;

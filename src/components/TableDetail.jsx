@@ -1,12 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
-import { seatsRemaining, joinBlocker, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
+import { seatsRemaining, joinBlocker, isPast, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
 import {
-  SEAT_STATUS, isPending, isDeclined, hasLapsed, pendingSignups,
+  SEAT_STATUS, isPending, isAccepted, isDeclined, hasLapsed, pendingSignups,
   canAccept, acceptBlocker, DECIDE_BLOCK_TEXT, requestState,
 } from '../domain/policy/seatRequest.js';
 import {
-  getTable, listSignups, createSignup, cancelSignup, decideSignup, deleteTable, createBlock,
+  ATTENDANCE, ATTENDANCE_PROMPT, attendanceOf, isNoShow, attendanceNote,
+} from '../domain/policy/attendance.js';
+import {
+  getTable, listSignups, createSignup, cancelSignup, decideSignup, recordAttendance,
+  deleteTable, createBlock,
 } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
@@ -163,6 +167,28 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       // Two hosts on two devices, or the same host on two tabs. The backends
       // refuse the second answer rather than overwrite the first, and the
       // person holding the losing tab is told so.
+      setError(e.message);
+    }
+    await refresh();
+    setDeciding(null);
+  };
+
+  /**
+   * Who turned up. Same shape as decide, and the same reason for refetching:
+   * the Passport reads attendance to decide who a traveller met, so the
+   * source of truth has to be the stored row rather than this screen's guess.
+   *
+   * Passing null clears a mark, which is how a mis-tap is undone — the
+   * buttons toggle rather than latch, because a correction that is harder
+   * than the original answer is how records stay wrong.
+   */
+  const mark = async (signup, attendance) => {
+    if (deciding) return;
+    setDeciding(signup.id);
+    setError(null);
+    try {
+      await recordAttendance(signup.id, attendance);
+    } catch (e) {
       setError(e.message);
     }
     await refresh();
@@ -529,6 +555,27 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   the name, the diets, the allergy note and whatever the guest
                   wrote. Deciding above that would mean deciding before
                   reading it. */}
+              {/* After the meal, the same row asks the other question. Only
+                  for seats the host actually gave — marking somebody they
+                  turned away absent would be a statement about nothing. */}
+              {isHost && isPast(table) && isAccepted(s) && (
+                <span className="decide-row">
+                  <button
+                    className={attendanceOf(s) === ATTENDANCE.CAME ? 'decide-row__yes' : 'decide-row__no'}
+                    disabled={deciding === s.id}
+                    onClick={() => mark(s, attendanceOf(s) === ATTENDANCE.CAME ? null : ATTENDANCE.CAME)}
+                  >
+                    {ATTENDANCE_PROMPT.came}
+                  </button>
+                  <button
+                    className={isNoShow(s) ? 'decide-row__yes' : 'decide-row__no'}
+                    disabled={deciding === s.id}
+                    onClick={() => mark(s, isNoShow(s) ? null : ATTENDANCE.NO_SHOW)}
+                  >
+                    {ATTENDANCE_PROMPT.noShow}
+                  </button>
+                </span>
+              )}
               {isHost && isPending(s) && !hasLapsed(s, table) && (
                 <span className="decide-row">
                   <button
@@ -598,6 +645,11 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 {state.kind === SEAT_STATUS.ACCEPTED && <CheckIcon size={16} />} {state.title}
               </p>
               <p className="join-next">{state.body}</p>
+              {/* Said to the one person who can explain it. A record its own
+                  subject cannot see is not a record, it is a rumour. */}
+              {attendanceNote(mySignup) && (
+                <p className="join-next join-noshow">{attendanceNote(mySignup)}</p>
+              )}
               {joined && state.kind === SEAT_STATUS.PENDING && (
                 <p className="join-next">
                   If it is yes: {table.place}, {fullDate(table.date)} at {table.time}.

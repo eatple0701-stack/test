@@ -169,6 +169,22 @@ end $$;
 
 create index if not exists signups_status_idx on public.signups (table_id, status);
 
+-- Who actually turned up, recorded by the host after the meal.
+--
+-- Nullable with no default on purpose, and the null is the whole design: it
+-- means nobody said anything, which is what will be true of almost every
+-- meal. src/domain/policy/attendance.js reads that as "they came", because
+-- the alternative — nothing counts until confirmed — would empty most
+-- Passports to be technically careful and be wrong more often than the
+-- version it replaced.
+alter table public.signups add column if not exists attendance text;
+
+do $$ begin
+  alter table public.signups
+    add constraint signups_attendance_known check (attendance is null or attendance in ('came', 'no_show'));
+exception when duplicate_object then null;
+end $$;
+
 -- Free text, unlike the five fixed booleans this repo also carries as
 -- request-level flags — a guest hits the edge of a fixed list eventually
 -- ("what if ur allergic to prawns" covered shellfish; a nut or sesame
@@ -356,15 +372,35 @@ create policy signups_insert_own on public.signups
 -- `using` picks the rows a host may touch; `with check` governs the row they
 -- leave behind, so a host cannot answer and then answer differently, and
 -- cannot park a request back in 'pending' after deciding.
+-- One policy for both writes a host makes to a signup, because they are the
+-- same permission: the host of this table, and nobody else, may change these
+-- two fields. Which of the two is being written is settled by the column
+-- grant below and by the check constraints, not by having two policies that
+-- would drift apart.
+--
+-- `using` no longer says status = 'pending' on its own, because attendance is
+-- written long after a seat was accepted. What it can still refuse is a
+-- declined row: once a host has said no, that row is finished, and nothing —
+-- not a second answer, not an attendance mark — may touch it again.
+--
+-- What this does NOT stop, stated plainly rather than implied away: a host
+-- can flip an already-accepted seat to declined. RLS compares the row it is
+-- handed, not the row against its previous self, so refusing that would need
+-- a trigger. It is left alone because the same host can already delete the
+-- signup outright under signups_delete_own_or_host, which is strictly more
+-- destructive — and because the app never offers it: SeatRequestPolicy gates
+-- the buttons on isPending and decideSignup narrows its update to
+-- status = 'pending' on both backends. This is the floor, not the design.
 drop policy if exists signups_decide_by_host on public.signups;
 create policy signups_decide_by_host on public.signups
   for update to authenticated
   using (
-    status = 'pending'
+    status <> 'declined'
     and exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
   )
   with check (
     status in ('accepted', 'declined')
+    and (attendance is null or status = 'accepted')
     and exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
   );
 
@@ -375,7 +411,7 @@ create policy signups_decide_by_host on public.signups
 -- everywhere else. Without this a host could quietly edit what a guest told
 -- the table they cannot eat.
 revoke update on public.signups from authenticated;
-grant update (status) on public.signups to authenticated;
+grant update (status, attendance) on public.signups to authenticated;
 
 -- Giving up your seat is yours to do; so is removing somebody from a table
 -- you are hosting, because a host who cannot manage their own table has to

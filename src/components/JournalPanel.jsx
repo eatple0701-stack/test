@@ -4,6 +4,8 @@ import { isQuarantined } from '../data/verification';
 import { traditionalMarkets } from '../data/experiences';
 import { menuById } from '../domain/catalog/menus.js';
 import { isPast } from '../domain/policy/table.js';
+import { isAccepted } from '../domain/policy/seatRequest.js';
+import { countsAsMet } from '../domain/policy/attendance.js';
 import { listTables, listAllSignups, listBlocks, deleteBlock } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById, themes } from '../domain/catalog/index.js';
 import { themeCompletionKind, COMPLETION_KIND } from '../domain/policy/completion.js';
@@ -60,13 +62,25 @@ export default function JournalPanel({
         .map(t => ({
           ...t,
           hosted: t.hostId === profile?.userId,
-          // Everyone at the table except the person reading this page.
+          // Everyone who actually shared the table, except the person reading
+          // this page.
+          //
+          // This used to be every signup row, which meant the Passport filed
+          // three kinds of people under "you met them": somebody still waiting
+          // on the host, somebody the host turned down, and somebody who
+          // confirmed and then never came. None of them were at the meal. The
+          // record is the one part of this app that is supposed to be a memory
+          // rather than a claim, and it was inventing all three.
+          //
+          // isAccepted reads a row written before approval existed as
+          // accepted, so nobody's real dinner disappears from their Passport.
           people: [
             ...(t.hostId === profile?.userId
               ? []
               : [{ key: `host-${t.id}`, name: t.hostName, nationality: t.hostNationality || '' }]),
             ...signups
               .filter(s => s.tableId === t.id && s.userId !== profile?.userId)
+              .filter(s => isAccepted(s) && countsAsMet(s))
               .map(s => ({ key: s.userId || s.id, name: s.name, nationality: s.nationality || '' })),
           ].filter(p => p.name),
         }));

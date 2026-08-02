@@ -258,6 +258,33 @@ export async function decideSignup(signupId, status) {
   return signupFromRow(data);
 }
 
+/**
+ * Who turned up, recorded by the host after the meal.
+ *
+ * Scoped to `status = 'accepted'` for the same reason the policy is: marking
+ * somebody absent who was never given a seat says nothing about them, and
+ * would put a no-show on a record that only ever held a refusal.
+ *
+ * Passing null clears the mark, which is how a host undoes a mis-tap. There
+ * is no separate "unmark" path because a correction and a first answer are
+ * the same act, and one of them being harder than the other is how records
+ * stay wrong.
+ */
+export async function recordAttendance(signupId, attendance) {
+  const sb = await client();
+  await currentUser();
+  const { data, error } = await sb
+    .from('signups')
+    .update({ attendance })
+    .eq('id', signupId)
+    .eq('status', 'accepted')
+    .select()
+    .maybeSingle();
+  if (error) throw new Error(friendlyError(error));
+  if (!data) throw new Error('That seat is not one you can record attendance for.');
+  return signupFromRow(data);
+}
+
 /** My own outgoing blocks — blocks_select_own in schema.sql permits nothing else. */
 export async function listBlocks() {
   const sb = await client();

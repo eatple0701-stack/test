@@ -95,6 +95,10 @@ export function signupFromRow(row) {
     // schema.sql and the feature switches itself on, in that order or the
     // other one.
     status: row.status ?? undefined,
+    // Same treatment, same reason — and here the null is not just tolerated
+    // but is the ordinary case: nobody recorded anything, which attendance.js
+    // reads as "they came".
+    attendance: row.attendance ?? null,
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
   };
 }

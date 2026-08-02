@@ -8528,3 +8528,9 @@ body {
   --shadow-2: 0 8px 30px rgba(0, 0, 0, 0.55);
   --shadow-sheet: 0 -2px 10px rgba(0, 0, 0, 0.35);
 }
+
+/* Told to the person the record is about, not just to the host who wrote it. */
+.join-noshow {
+  color: var(--danger);
+  font-weight: 600;
+}
