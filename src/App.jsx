@@ -18,7 +18,7 @@ import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 // From the repository, not the profile module: it is the seam that knows
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
-import { saveProfileFields } from './data/tableRepository.js';
+import { saveProfileFields, ensureProfile } from './data/tableRepository.js';
 import { MAP_CENTER } from './utils';
 import { pathFor, stateFromPath } from './routes.js';
 import { matchesDietary, isQuarantined } from './data/verification';
@@ -176,6 +176,44 @@ export default function App() {
   // stay stable for "this is your table" to mean anything, so it is read once
   // and only the name and nationality are ever written back.
   const [profile, setProfile] = useState(getProfile);
+
+  // Adopt the signed-in identity, once, on the way in.
+  //
+  // getProfile() invents `u-<random>` for a browser that has never had one.
+  // That was right while everything lived in localStorage and wrong the moment
+  // it did not: every row the Supabase backend writes carries auth.uid(), so
+  // the device kept comparing its own invented id against the real one and
+  // never matched. Nothing crashed, which is why it survived — it just made
+  // the app quietly unable to recognise anybody as themselves.
+  //
+  // What that actually looked like: a traveller could not see, cancel or
+  // withdraw their own seat after a reload, because mySignup is found by
+  // userId. joinBlocker never reached ALREADY_IN, so the seat form came back
+  // and the second attempt died on the database's own unique constraint. And
+  // a host was never the host of their own table — no cancel, no guest list
+  // controls, and as of today no way to answer a seat request at all.
+  //
+  // ensureProfile was written for exactly this, exported through the
+  // repository, and called from nowhere. Third time in this codebase: the
+  // same shape as saveProfileFields above, and as ensureProfile's own note in
+  // supabaseBackend.js. The parity test added with the seat requests counted
+  // it as wired because tableRepository re-exports it — mentioned is not
+  // called, and that test now knows the difference.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const merged = await ensureProfile(getProfile());
+        // Keep whatever this device knows and let the server settle identity.
+        // A name typed before signing in must survive; the id must not.
+        if (alive && merged?.userId) setProfile(saveProfile({ ...getProfile(), ...merged }));
+      } catch {
+        // No keys, or offline. The app stays on its local id, which is
+        // exactly the single-device behaviour it had before Supabase.
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
 
   // Written to this device first, then to the database.
   //

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import * as remote from '../../data/supabaseBackend.js';
 
 // Backend parity, locked by a test instead of by remembering.
@@ -54,24 +54,26 @@ test('every capability the repository offers exists in the localStorage backend'
   assert.deepEqual(missing, [], 'exported by the repository, absent from tableRepository.js');
 });
 
-test('nothing is written in the Supabase backend and then left unreachable', () => {
-  // The other direction, and the one that actually bit: a function can exist,
-  // be exported, and have no route to a screen. Anything callable from remote
-  // must either be picked between in the seam or be a helper the seam itself
-  // uses by name.
-  const helpers = new Set([
-    // Read straight from App.jsx and the screens rather than picked between,
-    // because there is no localStorage equivalent to pick.
-    'isConfigured',
-  ]);
-  const wired = new Set(picks.map(p => p.remoteName));
-  const orphans = Object.keys(remote)
-    .filter(name => typeof remote[name] === 'function')
-    .filter(name => !wired.has(name) && !helpers.has(name))
-    // A name the repository mentions at all is wired, even if not through the
-    // ternary — saveProfileFields and ensureProfile are re-exported directly.
-    .filter(name => !new RegExp(`\\b${name}\\b`).test(source));
-  assert.deepEqual(orphans, [], 'exported from supabaseBackend.js and reachable from nowhere');
+test('nothing the repository exports is called by no screen', () => {
+  // The direction that actually bites, and the one this test got wrong the
+  // first time. It used to accept "the repository mentions this name" as
+  // proof of wiring — but re-exporting a function is not calling it, and
+  // ensureProfile was re-exported and called from nowhere for weeks. The
+  // symptom was not a crash: the app simply never recognised anybody as
+  // themselves, because the device kept its invented `u-<random>` id while
+  // every row carried auth.uid().
+  //
+  // So the question is now asked of the app, not of the seam: does anything
+  // outside src/data actually invoke this?
+  const appFiles = readdirSync(new URL('../../', import.meta.url), { recursive: true })
+    .filter(f => typeof f === 'string' && /\.(js|jsx)$/.test(f))
+    .filter(f => !f.includes('data') && !f.includes('__tests__'))
+    .map(f => readFileSync(new URL(`../../${f}`, import.meta.url), 'utf8'))
+    .join('\n');
+
+  const exported = [...source.matchAll(/export const (\w+)\s*=/g)].map(m => m[1]);
+  const uncalled = exported.filter(name => !new RegExp(`\\b${name}\\s*\\(`).test(appFiles));
+  assert.deepEqual(uncalled, [], 'exported by tableRepository.js and never called by a screen');
 });
 
 test('the seam covers seat requests, which is where this batch added a capability', () => {

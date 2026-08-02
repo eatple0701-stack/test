@@ -288,8 +288,10 @@ const useRemote = remote.isConfigured();
  */
 export const isLocalOnly = () => !useRemote;
 
-/** True once tables are shared between devices. Read by the Tables screen. */
-export const isShared = () => useRemote;
+// No isShared here. It existed as the negation of the line above, documented
+// as "read by the Tables screen", and no screen ever read it — the Tables
+// screen asks isLocalOnly() because the only thing it has to say is the
+// warning, and there is nothing to announce about the ordinary case.
 
 export const listTables = useRemote ? remote.listTables : local_listTables;
 export const getTable = useRemote ? remote.getTable : local_getTable;
