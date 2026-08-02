@@ -131,9 +131,28 @@ alter table public.signups add column if not exists diets text[] not null defaul
 -- The host occupies one of the seats they opened, so a signup is allowed only
 -- while (1 host + existing signups) is still under capacity.
 
+-- security definer, and it is not optional.
+--
+-- The lock above is `select … for update`, and a locking read needs a policy
+-- that permits UPDATE on the row — a SELECT policy is not enough. There is
+-- deliberately no update policy on public.tables, because nobody should be
+-- editing somebody else's dinner. So under the caller's own permissions RLS
+-- filtered the row out of the locking read, capacity came back null, and the
+-- guard raised table_not_found on a table that was plainly there.
+--
+-- The app rendered that as "This table is no longer here." Every signup in
+-- the pilot would have failed that way: not a rare race, the ordinary path,
+-- for everybody. Found by taking a seat from a second browser rather than by
+-- reading this file.
+--
+-- search_path is pinned because a security definer function that resolves
+-- names through the caller's path is a privilege escalation waiting to be
+-- found.
 create or replace function public.assert_seat_available()
 returns trigger
 language plpgsql
+security definer
+set search_path = public, pg_temp
 as $$
 declare
   capacity integer;

@@ -39,7 +39,7 @@ async function client() {
  *
  * Enable it once in the dashboard: Authentication → Providers → Anonymous.
  */
-async function currentUser() {
+async function signedInUser() {
   const sb = await client();
   const { data: { session } } = await sb.auth.getSession();
   if (session?.user) return session.user;
@@ -49,10 +49,52 @@ async function currentUser() {
   return data.user;
 }
 
+/**
+ * Signed in, and holding the profile row every foreign key points at.
+ *
+ * Both `tables.host_id` and `signups.user_id` reference `profiles(id)`, so a
+ * signed-in user with no profile row cannot open a table or take a seat —
+ * the insert fails on the foreign key and the screen says "That did not
+ * save". ensureProfile() existed to create that row and nothing ever called
+ * it: it was exported from the repository, re-exported for both backends, and
+ * invoked by no screen in the app.
+ *
+ * So the guarantee belongs here rather than in a screen somebody has to
+ * remember. This is the single choke point every read and write already goes
+ * through, which makes forgetting it impossible rather than unlikely.
+ *
+ * Once per user, not once per session — keyed by the id rather than a bare
+ * boolean. A flag would go stale the moment the signed-in user changes, which
+ * happens on sign-out and on any session the browser did not restore, and the
+ * next person would skip the write and hit the same foreign key this exists
+ * to satisfy.
+ *
+ * The row is written with no name on purpose: naming is ensureProfile's job,
+ * and blanking a returning traveller's name on every visit would be worse
+ * than the bug this fixes.
+ */
+let profileEnsuredFor = null;
+
+async function currentUser() {
+  const user = await signedInUser();
+  if (profileEnsuredFor === user.id) return user;
+
+  const sb = await client();
+  const { error } = await sb
+    .from('profiles')
+    .upsert({ id: user.id }, { onConflict: 'id', ignoreDuplicates: true });
+  if (error) throw new Error(friendlyError(error));
+
+  profileEnsuredFor = user.id;
+  return user;
+}
+
 /** The signed-in user's profile row, created on first use. */
 export async function ensureProfile(local = {}) {
   const sb = await client();
-  const user = await currentUser();
+  // signedInUser, not currentUser: currentUser writes a nameless row, and
+  // this function exists to carry a name the traveller already typed.
+  const user = await signedInUser();
 
   const { data: existing } = await sb
     .from('profiles').select('*').eq('id', user.id).maybeSingle();
