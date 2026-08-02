@@ -192,6 +192,7 @@ export default function App() {
       name: saved.name ?? '',
       nationality: saved.nationality ?? '',
       languages: saved.languages ?? [],
+      gender: saved.gender ?? null,
     }).catch(() => { /* stays on the device; the next save tries again */ });
     return saved;
   };

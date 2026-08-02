@@ -8,6 +8,7 @@
 import {
   tableFromRow, tableToRow, signupFromRow, signupToRow, friendlyError,
 } from './tableMapping.js';
+import { cleanGender } from '../domain/catalog/genders.js';
 
 const URL = import.meta.env?.VITE_SUPABASE_URL;
 const KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY;
@@ -105,6 +106,7 @@ export async function ensureProfile(local = {}) {
       name: existing.name ?? '',
       nationality: existing.nationality ?? '',
       languages: existing.languages ?? [],
+      gender: existing.gender ?? null,
       isVerifiedHost: existing.is_verified_host ?? false,
     };
   }
@@ -116,6 +118,7 @@ export async function ensureProfile(local = {}) {
     name: local.name ?? '',
     nationality: local.nationality ?? '',
     languages: local.languages ?? [],
+    gender: cleanGender(local.gender),
   };
   const { error } = await sb.from('profiles').insert(row);
   if (error) throw new Error(friendlyError(error));
@@ -123,11 +126,11 @@ export async function ensureProfile(local = {}) {
   return { userId: user.id, ...local, isVerifiedHost: false };
 }
 
-export async function saveProfileFields({ name, nationality, languages }) {
+export async function saveProfileFields({ name, nationality, languages, gender }) {
   const sb = await client();
   const user = await currentUser();
   const { error } = await sb.from('profiles')
-    .update({ name, nationality, languages })
+    .update({ name, nationality, languages, gender: cleanGender(gender) })
     .eq('id', user.id);
   if (error) throw new Error(friendlyError(error));
 }
