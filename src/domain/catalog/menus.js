@@ -121,7 +121,7 @@ export const menus = [
       'Marinated chicken, cabbage and rice cake are fried in front of you. When the meat is gone, rice is fried in what is left in the pan — that second course is the part regulars come for.',
     themeId: null,
     culture:
-      "It comes from Chuncheon in the 1960s, where it was cheap enough that students called it 대학생 갈비 — student ribs. When the meat is gone the staff fry rice in what is left in the pan, and leaving before that second course is considered a waste of a good dinner.",
+      "It comes from Chuncheon, where it started in the bars in the late 1960s and filled the back alleys through the 1970s — cheap enough by then that students called it 대학생갈비, student ribs. When the meat is gone the staff fry rice in what is left in the pan, and leaving before that second course is considered a waste of a good dinner.",
     contains: ['chicken'],
     // 'a waste of a good dinner', in its own culture note.
     eatenAt: ['evening'],

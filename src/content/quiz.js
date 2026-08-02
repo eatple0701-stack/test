@@ -29,21 +29,21 @@ export const quiz = [
   // ---- Tied to a dish -----------------------------------------------------
   {
     id: 'samgyeopsal-name',
-    sources: [],
+    sources: ['encykorea-samgyeopsal'],
     menuId: 'samgyeopsal',
     prompt: 'Samgyeopsal literally means "three-layer meat".',
     answer: true,
     reveal:
-      '삼 (three) 겹 (layer) 살 (flesh). The name describes the banded fat and meat you can see in the raw slice before it hits the grill.',
+      '삼 (three) 겹 (layer) 살 (flesh) — lean and fat banded together, which you can see in the raw slice before it hits the grill. Korean called it 세겹살 first, using the native word for three.',
   },
   {
     id: 'budae-origin',
-    sources: [],
+    sources: ['encykorea-budae'],
     menuId: 'budae-jjigae',
     prompt: 'Budae jjigae was invented using surplus food from American army bases after the Korean War.',
     answer: true,
     reveal:
-      '부대 means "military unit". Spam, hot dogs and baked beans came out of the bases around Uijeongbu and went into a Korean broth. A dish assembled out of scarcity is now ordered by choice.',
+      '부대 means "military unit". Ham, sausage and bacon came out of the bases around Uijeongbu and went into a Korean broth. A dish assembled out of scarcity is now ordered by choice.',
   },
   {
     id: 'bossam-kimjang',
@@ -56,66 +56,66 @@ export const quiz = [
   },
   {
     id: 'gejang-nickname',
-    sources: [],
+    sources: ['wikipedia-gejang-ko'],
     menuId: 'ganjang-gejang',
     prompt: 'Ganjang gejang is nicknamed "the rice thief".',
     answer: true,
     reveal:
-      '밥도둑 — it steals your rice. The salt in the soy-cured crab makes you eat far more rice than you meant to, and the last step is mixing rice into the empty shell.',
+      '밥도둑 — it steals your rice, meaning it is good enough to make you eat far more than you meant to. The last step is mixing rice into the empty shell.',
   },
   {
     id: 'jokbal-what',
-    sources: [],
+    sources: ['encykorea-jokbal'],
     menuId: 'jokbal',
     prompt: 'Jokbal is made from pig trotters.',
     answer: true,
     reveal:
-      '족 (foot) 발 (foot again, in plain Korean). Braised in soy, cinnamon and ginger until the skin turns to gelatin. The Jangchung-dong alley that made it famous was built by families displaced by the war.',
+      '족 is the Sino-Korean word for foot and 발 is the plain Korean one, so the name says it twice. Boiled with garlic and ginger, then braised in soy until the skin turns to gelatin. The Jangchung-dong alley that made it famous was built by refugees from the North after the war.',
   },
   {
     id: 'dakgalbi-chuncheon',
-    sources: [],
+    sources: ['encykorea-dakgalbi'],
     menuId: 'dakgalbi',
     prompt: 'Dakgalbi comes from Chuncheon, not Seoul.',
     answer: true,
     reveal:
-      'Chuncheon in the 1960s, where it was cheap enough that students called it 대학생 갈비 — student ribs.',
+      'Chuncheon, from the late 1960s. By the 1970s the back alleys were full of it and it was cheap enough that students called it 대학생갈비 — student ribs.',
   },
   {
     id: 'gamjatang-haejang',
-    sources: [],
+    sources: ['wikipedia-gamjatang-ko', 'encykorea-haejangguk'],
     menuId: 'gamjatang',
     prompt: 'Gamjatang is often eaten the morning after drinking.',
     answer: true,
     reveal:
-      '해장 is its own recognised category of food here — what you eat to undo last night. Gamjatang, with its long-simmered broth, is one of the classics.',
+      '해장 is its own recognised category of food here — from 해정(解酲), undoing the drink. Gamjatang, with its long-simmered broth, is one of the ones people reach for.',
   },
   {
     id: 'gopchang-what',
-    sources: [],
+    sources: ['wikipedia-gopchang-ko'],
     menuId: 'gopchang',
     prompt: 'Gopchang is a cut of grilled intestine.',
     answer: true,
     reveal:
-      'Offal was poverty food within living memory and is now among the more expensive things on a Korean grill — a change most people eating it can remember happening.',
+      'The small intestine, of beef or pork. The 곱 inside it is the point — that is where the name comes from and what people order it for.',
   },
   {
     id: 'hanjeongsik-count',
-    sources: [],
+    sources: ['encykorea-bansang', 'encykorea-surasang'],
     menuId: 'hanjeongsik',
     prompt: 'A traditional Korean table was counted in sets of three, five, seven or nine dishes.',
     answer: true,
     reveal:
-      'The 반상 system. The number of 첩 — side dishes beyond the rice and soup — marked the household, and only the royal table went to twelve.',
+      'The 반상 system, counted in 첩 — the side dishes beyond the rice, soup and kimchi, which are never counted. It ran from three to twelve, and the king’s 수라상 was set at twelve.',
   },
   {
     id: 'baekban-refill',
-    sources: [],
+    sources: ['koreatimes-banchan'],
     menuId: 'baekban',
     prompt: 'At a baekban restaurant you pay extra for more side dishes.',
     answer: false,
     reveal:
-      'Refills are free and expected. Asking for more kimchi is closer to a compliment than an imposition — the banchan belong to the table, not to your plate.',
+      'Refills are free and expected. Asking for more kimchi is closer to a compliment than an imposition — the banchan belong to the table, not to your plate. Worth knowing that this is being argued about: with food prices up, some owners have started saying out loud that endless refills cannot last.',
   },
 
   {
@@ -171,12 +171,12 @@ export const quiz = [
   },
   {
     id: 'kimchi-red',
-    sources: [],
+    sources: ['encykorea-kimchi'],
     menuId: null,
     prompt: 'All kimchi is red and spicy.',
     answer: false,
     reveal:
-      '백김치 has no chilli at all, and 동치미 is a cold watery radish kimchi eaten in winter. Chilli only reached Korea in the 16th century — kimchi is older than the colour everyone associates with it.',
+      '백김치 has no chilli at all, and 동치미 is a cold watery radish kimchi eaten in winter. Chilli only reached Korea partway through the Joseon dynasty — kimchi is older than the colour everyone associates with it.',
   },
 ];
 
