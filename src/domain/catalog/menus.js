@@ -28,6 +28,44 @@
 // advance, ask before you sit down. The two dishes carrying it say so in
 // their own descriptions, which is where the contradiction was found.
 
+/**
+ * When a dish is actually eaten.
+ *
+ * Korean food has a clock. 감자탕 is a night-shift meal and a hangover
+ * breakfast; 삼겹살 is the first round of a 회식 after work. The app showed
+ * the same thing at three in the afternoon and three in the morning, and
+ * defaulted every table anybody opened to 19:00 regardless of the dish.
+ *
+ * Set on three dishes out of ten, and deliberately not on the other seven.
+ * The rule is the one this catalog already lives under: a field here may only
+ * say what the dish's own prose says. 백반's record mentions a morning, but it
+ * is the morning the kitchen cooked in — not a claim about when anybody eats
+ * it — so 백반 has no time. Guessing the remaining seven would be inventing
+ * facts about how a country eats, which is the one thing a public-diplomacy
+ * app cannot afford to get casually wrong. A test enforces it.
+ */
+export const EATEN_AT = {
+  MORNING: 'morning',
+  LUNCH: 'lunch',
+  EVENING: 'evening',
+  LATE: 'late',
+};
+
+/** The hour a host opening this dish most likely means. */
+export const DEFAULT_HOUR = {
+  [EATEN_AT.MORNING]: '09:00',
+  [EATEN_AT.LUNCH]: '12:30',
+  [EATEN_AT.EVENING]: '19:00',
+  [EATEN_AT.LATE]: '21:30',
+};
+
+export const EATEN_AT_LABEL = {
+  [EATEN_AT.MORNING]: { kr: '아침', en: 'morning' },
+  [EATEN_AT.LUNCH]: { kr: '점심', en: 'lunch' },
+  [EATEN_AT.EVENING]: { kr: '저녁', en: 'evening' },
+  [EATEN_AT.LATE]: { kr: '늦은 밤', en: 'late night' },
+};
+
 export const MENU_CATEGORY = {
   GRILL: 'grill',       // 구이 — cooked at the table
   STEW: 'stew',         // 찌개·전골 — one pot, many spoons
@@ -53,6 +91,8 @@ export const menus = [
     culture:
       "The grill in the middle is a job, not a decoration: somebody turns the meat, somebody cuts it, and wrapping a piece in lettuce and handing it to the person beside you is a small act of care Koreans do without mentioning it. This is the first round of a 회식 — the after-work dinner that built most Korean working relationships.",
     contains: ['pork'],
+    // 'the first round of a 회식 — the after-work dinner', in its culture note.
+    eatenAt: ['evening'],
     spice: 0,
     zones: ['Jongno, Seoul', 'Mapo, Seoul', 'Gangnam, Seoul'],
   },
@@ -71,6 +111,8 @@ export const menus = [
     culture:
       "It comes from Chuncheon in the 1960s, where it was cheap enough that students called it 대학생 갈비 — student ribs. When the meat is gone the staff fry rice in what is left in the pan, and leaving before that second course is considered a waste of a good dinner.",
     contains: ['chicken'],
+    // 'a waste of a good dinner', in its own culture note.
+    eatenAt: ['evening'],
     spice: 3,
     zones: ['Sinchon, Seoul', 'Hongdae, Seoul'],
   },
@@ -89,6 +131,9 @@ export const menus = [
     culture:
       "Long a night-shift and market-worker meal, eaten late and slowly because the meat has to be worked off the bone by hand. It doubles as 해장 — the food Koreans eat the morning after drinking, which is its own recognised category here.",
     contains: ['pork'],
+    // Both stated in its culture note: 'eaten late and slowly', and it
+    // 'doubles as 해장 — the food Koreans eat the morning after drinking'.
+    eatenAt: ['late', 'morning'],
     spice: 3,
     zones: ['Jongno, Seoul', 'Dongdaemun, Seoul'],
   },
@@ -241,6 +286,21 @@ export const menuById = (id) => byId.get(id);
 
 /** Dishes that genuinely cannot be ordered by one person. */
 export const sharedOnlyMenus = () => menus.filter(m => m.minPeople > 1);
+
+/**
+ * The hour a host opening this dish most likely means, or null when the
+ * catalog has no business guessing. Null keeps the form's own 19:00 rather
+ * than inventing a time for a dish nobody said anything about.
+ */
+export function defaultHourFor(menuId) {
+  const when = menuById(menuId)?.eatenAt?.[0];
+  return when ? DEFAULT_HOUR[when] ?? null : null;
+}
+
+/** Every slot this dish is eaten in, resolved to labels. Empty when unknown. */
+export function eatenAtLabels(menuId) {
+  return (menuById(menuId)?.eatenAt ?? []).map(w => EATEN_AT_LABEL[w]).filter(Boolean);
+}
 
 /** Category label for a chip, in both languages the app speaks. */
 export const CATEGORY_LABEL = {

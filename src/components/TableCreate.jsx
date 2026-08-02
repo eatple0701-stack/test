@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
+import {
+  menus, menuById, CATEGORY_LABEL, defaultHourFor, eatenAtLabels,
+} from '../domain/catalog/menus.js';
 import { validateNewTable } from '../domain/policy/table.js';
 import { GUIDES } from '../domain/catalog/hosts.js';
 import { LANGUAGES, cleanLanguages } from '../domain/catalog/languages.js';
@@ -22,7 +24,12 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   // A request arriving from 찾는 밥상 already named the dish and the day.
   const [menuId, setMenuId] = useState(prefill?.menuId ?? null);
   const [date, setDate] = useState(prefill?.date ?? '');
-  const [time, setTime] = useState('19:00');
+  const [time, setTime] = useState(() => defaultHourFor(prefill?.menuId) ?? '19:00');
+  // Whether the host has set the time themselves. Without this, an hour the
+  // app moved for 감자탕 survived a switch to 백반 — a dish with no recorded
+  // time inheriting one from the dish before it, which is the app treating
+  // its own guess as somebody's decision.
+  const [timeTouched, setTimeTouched] = useState(false);
   // Arriving from a restaurant fills in the two things that place already
   // knows. The dish is still asked, because a restaurant's category is not a
   // menu and guessing one would put the wrong word on somebody's table.
@@ -84,6 +91,10 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
                 setMenuId(m.id);
                 // Never leave a seat count below the dish's own minimum.
                 setSeats(s => Math.max(Number(s) || 0, m.minPeople, 2));
+                // 감자탕 at 19:00 was the form's guess, not the dish's. Only
+                // moved where the catalog actually knows — a dish with no
+                // recorded time keeps whatever the host already set.
+                if (!timeTouched) setTime(defaultHourFor(m.id) ?? '19:00');
               }}
             >
               <span className="dish-option__kr">{m.nameKo}</span>
@@ -101,6 +112,12 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           <div className="dish-brief">
             <span className="dish-brief__cat">{CATEGORY_LABEL[menu.category]?.en}</span>
             <p className="dish-brief__how">{menu.howItWorks}</p>
+            {eatenAtLabels(menu.id).length > 0 && (
+              <p className="dish-brief__when">
+                주로 {eatenAtLabels(menu.id).map(l => l.kr).join(' · ')} ·
+                {' '}Usually eaten in the {eatenAtLabels(menu.id).map(l => l.en).join(' or ')}
+              </p>
+            )}
             {menu.contains.length > 0 && (
               <p className="dish-brief__contains">Contains {menu.contains.join(', ')}</p>
             )}
@@ -123,7 +140,11 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           </label>
           <label className="field">
             <span className="field__label">Time</span>
-            <input type="time" value={time} onChange={e => setTime(e.target.value)} />
+            <input
+              type="time"
+              value={time}
+              onChange={e => { setTime(e.target.value); setTimeTouched(true); }}
+            />
           </label>
         </div>
         <label className="field">

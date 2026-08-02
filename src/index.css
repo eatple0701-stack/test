@@ -7868,3 +7868,12 @@ body {
    ground at 4.60:1. */
 .dish-option.is-on .dish-option__name { color: #fff; }
 .dish-option.is-on .dish-option__min { color: rgba(255, 255, 255, 0.88); }
+
+/* When a dish is actually eaten, on the create brief — so a time the form
+   just moved on the host's behalf is explained rather than surprising. */
+.dish-brief__when {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--accent-ink);
+}

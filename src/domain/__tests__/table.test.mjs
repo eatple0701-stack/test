@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import {
   seatsRemaining, isPast, joinBlocker, canJoin, validateNewTable, JOIN_BLOCK,
 } from '../policy/table.js';
-import { menuById, menus, sharedOnlyMenus } from '../catalog/menus.js';
+import { menuById, menus, sharedOnlyMenus, defaultHourFor } from '../catalog/menus.js';
 import { RESTRICTIONS } from '../../data/profile.js';
 import { themeById } from '../catalog/index.js';
 
@@ -160,4 +160,35 @@ test('most dishes are deliberately linked to no theme at all', () => {
   const linked = menus.filter(m => m.themeId);
   assert.ok(linked.length >= 1, 'no menu is linked to any theme');
   assert.ok(linked.length < menus.length / 2, 'suspiciously many dishes claim a theme');
+});
+
+test('a dish may only claim a time its own words support', () => {
+  // The rule this catalog lives under, applied to the clock. Inventing when a
+  // country eats is exactly the kind of casual wrongness a public-diplomacy
+  // app cannot afford, so the field is allowed only where the prose already
+  // says it — and 백반's "made that morning" is the kitchen's morning, not the
+  // eater's, which is why 백반 carries no time.
+  const cue = {
+    morning: /morning|아침|해장/i,
+    lunch: /lunch|noon|점심/i,
+    evening: /evening|dinner|after-work|회식|저녁/i,
+    late: /late|night|밤/i,
+  };
+  for (const m of menus) {
+    for (const when of m.eatenAt ?? []) {
+      const prose = `${m.whyShared} ${m.howItWorks} ${m.culture}`;
+      assert.match(prose, cue[when],
+        `${m.id} claims to be eaten at ${when} and never says so`);
+    }
+  }
+});
+
+test('an untimed dish keeps the form default rather than getting a guess', () => {
+  assert.equal(defaultHourFor('samgyeopsal'), '19:00');
+  assert.equal(defaultHourFor('gamjatang'), '21:30', 'the first slot is the primary one');
+  assert.equal(defaultHourFor('baekban'), null);
+  assert.equal(defaultHourFor('nonsense'), null);
+  // Most of the catalog is deliberately untimed; if that ever flips, somebody
+  // has started guessing.
+  assert.ok(menus.filter(m => m.eatenAt).length <= 5, 'suspiciously many dishes claim a time');
 });
