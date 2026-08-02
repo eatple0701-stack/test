@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LANGUAGES } from '../domain/catalog/languages.js';
 import { GENDERS } from '../domain/catalog/genders.js';
 import { RESTRICTIONS, restrictionLabel, DIETS } from '../data/profile';
+import { THEMES, getStoredTheme, setTheme } from '../data/theme.js';
 
 // The four things the app actually does something with about you.
 //
@@ -37,6 +38,10 @@ export default function ProfileFields({ profile, onProfileChange }) {
   const avoids = profile?.avoids ?? [];
   const diets = profile?.diets ?? [];
   const gender = profile?.gender ?? null;
+  // Not profile data — it never reaches a host or the database, so it does
+  // not go through save()/onProfileChange like everything else on this
+  // screen. This device's own state, kept in this device's own storage.
+  const [theme, setThemeState] = useState(getStoredTheme);
 
   const save = (patch) => onProfileChange?.({ ...profile, ...patch });
 
@@ -149,6 +154,29 @@ export default function ProfileFields({ profile, onProfileChange }) {
                 onClick={() => save({ diets: toggle(diets, d.id) })}
               >
                 {d.kr} · {d.en}
+              </button>
+            ))}
+          </div>
+        </Field>
+
+        {/* The odd one out on this screen — every field above changes what a
+            host learns about you; this one only changes what your own
+            screen looks like, and never leaves this device. System is the
+            default so nobody who has not thought about it gets opted into
+            either fixed mode by accident. */}
+        <Field
+          label="Appearance"
+          hint="System follows your phone's own setting."
+        >
+          <div className="chip-row">
+            {THEMES.map(t => (
+              <button
+                key={t}
+                className={`chip${theme === t ? ' active' : ''}`}
+                aria-pressed={theme === t}
+                onClick={() => setThemeState(setTheme(t))}
+              >
+                {t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
             ))}
           </div>

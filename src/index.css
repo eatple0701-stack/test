@@ -8153,6 +8153,18 @@ body {
    branch, not a redesign: same variable names, same roles, no selector
    anywhere has to change.
 
+   Gated on `[data-theme="dark"]` rather than a bare
+   `@media (prefers-color-scheme: dark)`, because the follow-up ask was a
+   traveller-facing System/Light/Dark switch, not just OS-following — see
+   `src/data/theme.js`, the only file that writes this attribute. It
+   always writes something (never leaves the attribute unset): on load it
+   resolves 'system' to whatever the OS says at that moment and writes the
+   result, so this selector is the single source of truth for dark styling
+   and there is no second, media-query-only path to keep in sync with it.
+   No `<noscript>` fallback: this is a client-rendered SPA with nothing in
+   `index.html` but a mount point, so "CSS loaded, JS did not run" is
+   already a blank page regardless of theme.
+
    Every text pairing below was checked against WCAG 2.1's 4.5:1 (normal
    text) or 3:1 (large text / UI components), the same formula the
    redesign layer's own AA fixes above used (see the comments on --muted
@@ -8180,70 +8192,68 @@ body {
    applied one (`document.visibilityState === 'hidden'` freezes the
    timeline); the same trap that cost real time on the light-mode fixes
    above. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+:root[data-theme="dark"] {
+  color-scheme: dark;
 
-    /* Surfaces & text — verified: --ink 16.4:1, --ink-body 11.4:1,
-       --muted (= --ink-secondary) 7.4:1, --muted-strong 10.0:1. */
-    --bg: #0F1115;
-    --surface: #1A1D23;
-    --surface-hover: #21252C;
-    --fill: #262A32;
-    --ink: #EDEFF2;
-    --ink-title: #EDEFF2;
-    --ink-body: #C4CAD2;
-    --ink-secondary: #9AA3AE;
-    --muted: #9AA3AE;
-    --muted-strong: #B6BDC6;
-    --line: #2C313A;
-    --line-hover: #3A4048;
+  /* Surfaces & text — verified: --ink 16.4:1, --ink-body 11.4:1,
+     --muted (= --ink-secondary) 7.4:1, --muted-strong 10.0:1. */
+  --bg: #0F1115;
+  --surface: #1A1D23;
+  --surface-hover: #21252C;
+  --fill: #262A32;
+  --ink: #EDEFF2;
+  --ink-title: #EDEFF2;
+  --ink-body: #C4CAD2;
+  --ink-secondary: #9AA3AE;
+  --muted: #9AA3AE;
+  --muted-strong: #B6BDC6;
+  --line: #2C313A;
+  --line-hover: #3A4048;
 
-    /* Brand orange. --accent-ink is the text role: 8.1:1 on --bg,
-       7.4:1 on --surface. --accent-strong is unchanged — see above. */
-    --accent: #FF7A33;
-    --accent-ink: #FF8A4C;
-    --accent-strong: #C2540A;
-    --accent-tint: #3A2716;
-    --accent-line: #6B4423;
+  /* Brand orange. --accent-ink is the text role: 8.1:1 on --bg,
+     7.4:1 on --surface. --accent-strong is unchanged — see above. */
+  --accent: #FF7A33;
+  --accent-ink: #FF8A4C;
+  --accent-strong: #C2540A;
+  --accent-tint: #3A2716;
+  --accent-line: #6B4423;
 
-    /* Green. --green-strong is the dual-role token described above:
-       5.06:1 white-on-fill, 3.73:1 as direct text on --bg. */
-    --green: #2FBF8E;
-    --green-strong: #337D40;
-    --green-tint: #112A22;
+  /* Green. --green-strong is the dual-role token described above:
+     5.06:1 white-on-fill, 3.73:1 as direct text on --bg. */
+  --green: #2FBF8E;
+  --green-strong: #337D40;
+  --green-tint: #112A22;
 
-    /* Legacy orange scale (2-8 call sites each), the same dual-role
-       trade-off as --green-strong: 4.50:1 white-on-fill, 4.20:1 as
-       direct text on --bg. */
-    --orange: #FF8F4D;
-    --orange-strong: #E23014;
-    --orange-tint: #3A2015;
-    --orange-line: #5C3420;
+  /* Legacy orange scale (2-8 call sites each), the same dual-role
+     trade-off as --green-strong: 4.50:1 white-on-fill, 4.20:1 as
+     direct text on --bg. */
+  --orange: #FF8F4D;
+  --orange-strong: #E23014;
+  --orange-tint: #3A2015;
+  --orange-line: #5C3420;
 
-    /* 6.76:1 on --bg, 6.18:1 on --surface — its only two uses are both
-       `color`, never a fill, so there is no white-label role to trade
-       off against. */
-    --danger: #FF6B5E;
+  /* 6.76:1 on --bg, 6.18:1 on --surface — its only two uses are both
+     `color`, never a fill, so there is no white-label role to trade
+     off against. */
+  --danger: #FF6B5E;
 
-    /* Explore editorial layer. --ex-field was already the one dark
-       object on a light page (#12211B) — lifted slightly so it still
-       reads as its own card against a page that is now dark too.
-       --ex-brass and --ex-sage are unchanged: both were already tuned
-       to sit on the dark --ex-field, which this theme doesn't touch.
-       --ex-brass-ink is the inverse of its light-mode job — that value
-       darkened brass for AA on a light --ex-paper; this one lightens it
-       for AA on the new dark --ex-paper (8.6:1). --ex-paper itself
-       becomes a dark warm ground rather than a light one. */
-    --ex-field: #1C3227;
-    --ex-brass-ink: #D9B876;
-    --ex-paper: #241F18;
+  /* Explore editorial layer. --ex-field was already the one dark
+     object on a light page (#12211B) — lifted slightly so it still
+     reads as its own card against a page that is now dark too.
+     --ex-brass and --ex-sage are unchanged: both were already tuned
+     to sit on the dark --ex-field, which this theme doesn't touch.
+     --ex-brass-ink is the inverse of its light-mode job — that value
+     darkened brass for AA on a light --ex-paper; this one lightens it
+     for AA on the new dark --ex-paper (8.6:1). --ex-paper itself
+     becomes a dark warm ground rather than a light one. */
+  --ex-field: #1C3227;
+  --ex-brass-ink: #D9B876;
+  --ex-paper: #241F18;
 
-    /* A light surface's shadow reads as depth by sitting darker than
-       what is under it; that same navy-tinted rgba is nearly invisible
-       against a --bg this dark, so these go to black directly. */
-    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4);
-    --shadow-2: 0 8px 30px rgba(0, 0, 0, 0.55);
-    --shadow-sheet: 0 -2px 10px rgba(0, 0, 0, 0.35);
-  }
+  /* A light surface's shadow reads as depth by sitting darker than
+     what is under it; that same navy-tinted rgba is nearly invisible
+     against a --bg this dark, so these go to black directly. */
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 8px 30px rgba(0, 0, 0, 0.55);
+  --shadow-sheet: 0 -2px 10px rgba(0, 0, 0, 0.35);
 }

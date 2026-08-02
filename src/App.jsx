@@ -14,6 +14,7 @@ import TableCreate from './components/TableCreate';
 import TableDetail from './components/TableDetail';
 import TableRequest from './components/TableRequest';
 import { getProfile, saveProfile } from './data/profile';
+import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 // From the repository, not the profile module: it is the seam that knows
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
@@ -196,6 +197,17 @@ export default function App() {
     }).catch(() => { /* stays on the device; the next save tries again */ });
     return saved;
   };
+
+  // index.html already resolved and wrote the theme once, synchronously,
+  // before this ever ran — the app boots on the right theme without needing
+  // this effect. What this effect is for is keeping 'system' *live*: if the
+  // OS switches at sunset while the tab stays open, nothing else re-runs
+  // that resolution. A no-op for an explicit Light/Dark choice, see
+  // watchSystemTheme's own guard.
+  useEffect(() => {
+    applyTheme(getStoredTheme());
+    return watchSystemTheme();
+  }, []);
 
   // The map is a tool now, not the backdrop. `mapScope` records what the user
   // was looking at when they opened it, so the overlay can say which question
