@@ -85,6 +85,15 @@ export function signupFromRow(row) {
     // Left undefined rather than defaulted when the column is missing, so
     // statusOf() in seatRequest.js is the single place that decides what an
     // old row means. Two defaults would eventually disagree.
+    //
+    // This is also what makes the approval step survive arriving before its
+    // own schema. A bundle deployed against a project where signups.status
+    // does not exist yet reads undefined here, statusOf calls that accepted,
+    // and every seat behaves exactly as it did before approval existed — no
+    // pending badges, no decide buttons, nothing to break. signupToRow does
+    // not write the column either, so the insert is equally happy. Run
+    // schema.sql and the feature switches itself on, in that order or the
+    // other one.
     status: row.status ?? undefined,
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
   };

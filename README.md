@@ -64,7 +64,7 @@ column or a table (most recently: `signups.allergy_note`, and the whole
 bundle reaches a live project before the schema catches up, whatever touches
 the new column or table fails against the stale one.
 
-Two different failure shapes, both real, both worth knowing apart:
+Three different failure shapes, all real, all worth knowing apart:
 
 - **Silent.** `saveProfileFields`'s caller in `src/App.jsx` swallows the
   error (`.catch(() => {})`), so a profile edit can look saved on-screen
@@ -78,9 +78,18 @@ Two different failure shapes, both real, both worth knowing apart:
   that fix does not generalise to a *future* addition without the same
   care, so treat re-running the schema first as the actual fix, not this
   one call site's defence.
+- **Dormant, and this is the one to copy.** `signups.status` — the seat
+  approval step — is written so a bundle can land before its own schema
+  without anybody noticing. Nothing writes the column on insert, and a row
+  read without one is treated as an accepted seat (`signupFromRow` in
+  `src/data/tableMapping.js`, `statusOf` in
+  `src/domain/policy/seatRequest.js`), which is exactly what every seat was
+  before approval existed. So the old behaviour continues, no screen breaks,
+  and running the schema switches the feature on. Ordering still matters for
+  everything else; it stops being a landmine for this one.
 
 ```bash
-npm test          # 243 tests, node's built-in runner, no test-framework dependency
+npm test          # 262 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 ```
