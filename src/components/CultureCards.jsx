@@ -23,7 +23,7 @@ export default function CultureCards({ onClose, startIndex = 0 }) {
     <div className="match-modal-backdrop" role="dialog" onClick={onClose} style={{ zIndex: 9999 }}>
       <div className="match-modal" onClick={e => e.stopPropagation()} style={{ padding: '40px 20px', minHeight: 300, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <h2 style={{ fontSize: 28, marginBottom: 16 }}>{CULTURE_CARDS[index].title}</h2>
-        <p style={{ fontSize: 16, color: '#555', flex: 1 }}>{CULTURE_CARDS[index].desc}</p>
+        <p style={{ fontSize: 16, color: 'var(--ink-body)', flex: 1 }}>{CULTURE_CARDS[index].desc}</p>
         <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
           <button className="btn-secondary" onClick={prev} style={{flex: 1}}>Previous</button>
           <button className="btn-primary" onClick={next} style={{flex: 1}}>Next Card</button>

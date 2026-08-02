@@ -530,10 +530,10 @@ export default function JournalPanel({
       )}
 
       {isEmpty && (
-        <div className="journal-empty" style={{ textAlign: 'center', padding: '40px 20px', background: '#fff', borderRadius: '16px', marginTop: '20px' }}>
+        <div className="journal-empty" style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '16px', marginTop: '20px' }}>
           <img src="https://images.unsplash.com/photo-1580651315530-69c8e0026377?auto=format&fit=crop&q=80&w=200&h=200" alt="Empty Passport" style={{ width: 150, height: 150, borderRadius: '50%', objectFit: 'cover', marginBottom: '20px' }} />
           <h3 style={{ fontSize: '20px', marginBottom: '8px' }}>Your Travel Memories are Waiting</h3>
-          <p style={{ color: '#666', marginBottom: '24px', lineHeight: '1.5' }}>
+          <p style={{ color: 'var(--muted)', marginBottom: '24px', lineHeight: '1.5' }}>
             Ask for a seat at a table, or explore a culture — whatever you do lands here.
           </p>
           {onNavigate && (

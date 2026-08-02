@@ -33,6 +33,8 @@
   --green-tint: #ECF8F2;    /* icon roundels, tag chips, callouts, active nav pill */
   --orange: #F97316;        /* favorites, rating, warm accents */
   --orange-strong: #C2410C; /* filled CTAs; AA contrast with white text */
+  --orange-ink: #C2410C;    /* the text role, split out for dark mode; same
+                               colour here, so light mode is unchanged */
   --orange-tint: #FFF7ED;   /* saved state */
   --orange-line: #FED7AA;
   --danger: #D92D20;        /* closed status */
@@ -177,7 +179,7 @@ button {
 }
 .search-field:focus-within {
   background: var(--surface);
-  border-color: var(--green-strong);
+  border-color: var(--green-ink);
 }
 .search-field svg {
   color: var(--muted);
@@ -238,7 +240,7 @@ button {
 }
 .chip.active {
   background: var(--green-strong);
-  border-color: var(--green-strong);
+  border-color: var(--green-ink);
   color: #fff;
 }
 
@@ -359,13 +361,20 @@ button {
 }
 .place-list__hint {
   font-size: 12px;
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-weight: 500;
 }
 .place-list__empty {
   padding: 32px 16px;
   text-align: center;
   color: var(--muted);
+  /* Was an inline background: #fff on the element, which is why the card
+     stayed white in dark mode with near-white text on it — 1.15:1, measured.
+     An inline style cannot see a theme variable, so the colour had to move
+     here to be themeable at all. Matches .journal-empty, the other empty
+     state that had the same bug. */
+  background: var(--surface);
+  border: 1px solid var(--line);
 }
 .place-list__empty strong {
   color: var(--ink);
@@ -437,7 +446,7 @@ button {
   line-height: 1.4;
 }
 .is-open {
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-weight: 600;
 }
 .is-closed {
@@ -467,7 +476,7 @@ button {
   align-items: center;
   gap: 5px;
   font-size: 12px;
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-weight: 500;
   line-height: 1;
 }
@@ -528,7 +537,7 @@ button {
   margin: -12px 0;
   font-size: 13px;
   font-weight: 600;
-  color: var(--green-strong);
+  color: var(--green-ink);
   cursor: pointer;
 }
 .place-card__story-btn:hover {
@@ -568,7 +577,7 @@ button {
 /* Saved uses the same warm tone as the primary CTA, and keeps the filled
    heart readable against its tint (4.9:1) */
 .icon-btn--saved {
-  color: var(--orange-strong);
+  color: var(--orange-ink);
   border-color: var(--orange-line);
   background: var(--orange-tint);
 }
@@ -578,7 +587,7 @@ button {
 /* Visited mirrors the saved treatment in the green family — a place you have
    been, rather than one you mean to go to */
 .icon-btn--visited {
-  color: var(--green-strong);
+  color: var(--green-ink);
   border-color: var(--green);
   background: var(--green-tint);
 }
@@ -800,7 +809,7 @@ button {
   border-radius: var(--radius);
   font-size: 13px;
   line-height: 1.55;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .trust-banner svg {
   flex-shrink: 0;
@@ -829,7 +838,7 @@ button {
   color: var(--ink);
 }
 .fact svg {
-  color: var(--green-strong);
+  color: var(--green-ink);
   flex-shrink: 0;
 }
 
@@ -856,7 +865,7 @@ button {
   margin-top: 2px;
 }
 .practical-link {
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-weight: 500;
   text-decoration: none;
 }
@@ -878,7 +887,7 @@ button {
   padding: 0 4px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--green-strong);
+  color: var(--green-ink);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -917,7 +926,7 @@ button {
   border: 1.5px solid var(--green-strong);
   border-radius: var(--radius);
   background: var(--surface);
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-size: 15px;
   font-weight: 700;
   display: inline-flex;
@@ -962,7 +971,7 @@ button {
   height: 32px;
   border-radius: var(--radius);
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1005,7 +1014,7 @@ button {
   min-width: 42px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-variant-numeric: tabular-nums;
 }
 .timeline__event {
@@ -1028,7 +1037,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .detail-hook__quote {
   padding-left: 16px;
@@ -1058,7 +1067,7 @@ button {
 }
 .trust--strong {
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .trust--medium,
 .trust--none {
@@ -1067,7 +1076,7 @@ button {
 }
 .trust--weak {
   background: var(--orange-tint);
-  color: var(--orange-strong);
+  color: var(--orange-ink);
 }
 
 .diet-note {
@@ -1145,7 +1154,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--green-strong);
+  color: var(--green-ink);
   margin-bottom: 4px;
 }
 
@@ -1231,7 +1240,7 @@ button {
 }
 .mission-status--done {
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 
 .menu-rows {
@@ -1380,7 +1389,7 @@ button {
 .tag-chip {
   padding: 3px 9px;
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 500;
@@ -1417,7 +1426,7 @@ button {
   transition: color 0.15s ease;
 }
 .tab-item.active {
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-weight: 600;
 }
 .tab-item svg {
@@ -1477,7 +1486,7 @@ button {
   border: none;
   font-size: 14px;
   font-weight: 600;
-  color: var(--green-strong);
+  color: var(--green-ink);
   cursor: pointer;
 }
 .panel-link:hover {
@@ -1496,7 +1505,7 @@ button {
   gap: 7px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .panel-highlight svg {
   flex-shrink: 0;
@@ -1597,7 +1606,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .next-stop__name {
   font-size: 16px;
@@ -1673,7 +1682,7 @@ button {
   height: 24px;
   border-radius: 50%;
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-size: 12px;
   font-weight: 700;
   display: flex;
@@ -1739,14 +1748,14 @@ button {
 .stamp-date {
   font-size: 11px;
   letter-spacing: 0.03em;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .stamp-visited-label {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--green-strong);
+  color: var(--green-ink);
   padding: 1px 7px;
   background: var(--green-tint);
   border-radius: 999px;
@@ -2004,7 +2013,7 @@ button {
   gap: 4px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--green-strong);
+  color: var(--green-ink);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -2112,7 +2121,7 @@ button {
   justify-content: space-between;
   font-size: 13px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .passport-progress__bar {
   height: 6px;
@@ -2150,7 +2159,7 @@ button {
 }
 .journal-badge-count {
   font-size: 14px;
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-weight: 600;
 }
 
@@ -2440,7 +2449,7 @@ button {
   align-self: flex-start;
   font-size: 12px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
   background: var(--green-tint);
   padding: 3px 10px;
   border-radius: 999px;
@@ -2473,7 +2482,7 @@ button {
 .gather-card__spots {
   font-size: 12px;
   font-weight: 600;
-  color: var(--orange-strong);
+  color: var(--orange-ink);
 }
 
 .course-card {
@@ -2573,7 +2582,7 @@ button {
 .zone-card h3 {
   font-size: 15px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .zone-card p {
   font-size: 12px;
@@ -2618,7 +2627,7 @@ button {
   background: var(--green-tint);
 }
 .gather-card--kr.is-highlighted::before {
-  color: var(--green-strong);
+  color: var(--green-ink);
   opacity: 0.09;
 }
 .gather-card--kr > * {
@@ -2673,7 +2682,7 @@ button {
   margin-top: 4px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 
 /* PlaceCard — shared card for Popular / Hidden Gems / Weekend Picks /
@@ -2781,7 +2790,7 @@ button {
   margin-left: auto;
   font-size: 13px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 
 /* Story-first entry points. */
@@ -2961,7 +2970,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .todays-pick__title {
   font-size: 17px;
@@ -2987,7 +2996,7 @@ button {
   margin-top: 4px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 
 /* ---------- Theme page ----------
@@ -3169,7 +3178,7 @@ button {
   font-weight: 800;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .next-step__mission p {
   font-size: 13.5px;
@@ -3227,7 +3236,7 @@ button {
 .theme-complete h3 {
   font-size: 19px;
   font-weight: 800;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .theme-complete p {
   font-size: 13.5px;
@@ -3335,8 +3344,8 @@ button {
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 .step-row__check:hover {
-  border-color: var(--green-strong);
-  color: var(--green-strong);
+  border-color: var(--green-ink);
+  color: var(--green-ink);
   background: var(--green-tint);
 }
 .step-row__undo {
@@ -3373,7 +3382,7 @@ button {
 .alt-path__meta {
   font-size: 12px;
   font-weight: 600;
-  color: var(--green-strong);
+  color: var(--green-ink);
   text-transform: capitalize;
 }
 
@@ -3470,13 +3479,13 @@ button {
   padding: 1px 7px;
   border-radius: 999px;
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
 }
 .theme-step.is-done .theme-step__head h4 {
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .theme-step__body {
   display: flex;
@@ -3605,7 +3614,7 @@ button {
   font-size: 46px;
   font-weight: 800;
   line-height: 1;
-  color: var(--green-strong);
+  color: var(--green-ink);
   opacity: 0.07;
   pointer-events: none;
   white-space: nowrap;
@@ -3630,7 +3639,7 @@ button {
 }
 .market-card__check.is-visited {
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   border-top-color: #C6F1DA;
 }
 
@@ -3687,10 +3696,10 @@ button {
   color: var(--ink);
 }
 .route-step__body--tappable:hover .route-step__label {
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .route-step--current .route-step__label {
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .route-step__note {
   font-size: 12.5px;
@@ -3716,7 +3725,7 @@ button {
 .tip-card__tag {
   font-size: 13px;
   font-weight: 700;
-  color: var(--orange-strong);
+  color: var(--orange-ink);
 }
 .tip-card__detail {
   font-size: 13px;
@@ -3758,7 +3767,7 @@ button {
   border: 1.5px solid var(--green-strong);
   border-radius: 999px;
   background: var(--surface);
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -4049,7 +4058,7 @@ button {
   left: 14px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
   background: #fff;
   padding: 4px 10px;
   border-radius: 999px;
@@ -4068,7 +4077,7 @@ button {
 }
 .match-card__stamp--like {
   right: 16px;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .match-card__stamp--pass {
   left: 16px;
@@ -4103,7 +4112,7 @@ button {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-weight: 600;
 }
 .match-card__bio {
@@ -4350,7 +4359,7 @@ button {
 .record-item__mark {
   flex: none;
   font-size: 13px;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 /* Saved is a wish, not a memory — it is in the record but not a tick. */
 .record-item--save .record-item__mark {
@@ -4495,7 +4504,7 @@ button {
   justify-content: center;
   border: 3px solid var(--green-strong);
   border-radius: 50%;
-  color: var(--green-strong);
+  color: var(--green-ink);
   animation: completeStampIn 0.42s cubic-bezier(0.2, 1.3, 0.4, 1) 0.12s both;
 }
 @keyframes completeStampIn {
@@ -4513,7 +4522,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .complete-title {
   margin-top: 6px;
@@ -5150,7 +5159,7 @@ button {
   border-radius: 999px;
   font-size: 10px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 
 .table-card__dish {
@@ -5211,7 +5220,7 @@ button {
   gap: 3px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .table-card__seats.is-full { color: var(--muted); }
 
@@ -5369,7 +5378,7 @@ button {
   margin-top: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--orange-strong);
+  color: var(--orange-ink);
 }
 
 .field-row {
@@ -5542,7 +5551,7 @@ button {
   margin-top: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--orange-strong);
+  color: var(--orange-ink);
 }
 .detail-block--facts {
   display: flex;
@@ -5558,7 +5567,7 @@ button {
 }
 .detail-seats {
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .detail-seats.is-full { color: var(--muted); }
 
@@ -5621,7 +5630,7 @@ button {
   gap: 7px;
   font-size: 15px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .join-next {
   margin-top: 6px;
@@ -5888,7 +5897,7 @@ button {
   font-family: var(--font);
   font-size: 10px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .upcoming-row__when {
   font-size: 12px;
@@ -5953,7 +5962,7 @@ button {
   border: none;
   font-size: 13px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
   cursor: pointer;
 }
 .tables-lead__row {
@@ -6008,7 +6017,7 @@ button {
   margin-top: 5px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .tables-lead__empty {
   display: block;
@@ -6275,7 +6284,7 @@ button {
   white-space: nowrap;
 }
 .screen-head:not(.screen-head--dark) .screen-head__link {
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 
 /* ---------- Section headings, shared ----------
@@ -6425,7 +6434,7 @@ button {
   border-radius: 999px;
   font-size: 9px;
   letter-spacing: 0.08em;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 
 .quiz__card {
@@ -6480,7 +6489,7 @@ button {
   font-weight: 700;
   color: var(--muted-strong);
 }
-.quiz__verdict.is-right { color: var(--green-strong); }
+.quiz__verdict.is-right { color: var(--green-ink); }
 
 /* The part worth reading out, so it gets the room. */
 .quiz__reveal {
@@ -6793,7 +6802,7 @@ button {
   border: none;
   font-size: 13px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
   cursor: pointer;
 }
 .join-note-open {
@@ -6899,6 +6908,16 @@ button {
      one. Same hue, enough depth to be read outdoors. */
   --green-strong: #0B7355;
   --green-tint: #E7F7F1;
+
+  /* The text role, split out from --green-strong.
+     On a light page one value can be both a fill behind white text and text
+     on white, because "dark enough for white on it" and "dark enough to read
+     on white" want the same thing. On a dark page they want opposite things,
+     and --green-strong cannot be both — measured in the browser it reached
+     only 3.0-3.7:1 as text, against a 4.5 requirement, on every screen.
+     So the fill keeps --green-strong and the text gets this. Here it is the
+     same colour the token already was, so light mode is unchanged. */
+  --green-ink: #0B7355;
 
   /* Softer and larger than before — Toss rounds generously and never uses a
      hard edge on a touch target. */
@@ -7180,7 +7199,7 @@ body {
 /* Record marks pick up the warm accent instead of brass. */
 .record-item--table .record-item__mark,
 .story-card__rule-fill { color: var(--accent-ink); background: var(--accent); }
-.record-item__mark { color: var(--green-strong); }
+.record-item__mark { color: var(--green-ink); }
 
 /* White on #FF6F0F measures 2.79:1 — below AA for 16px text, which is what
    a primary button is. The bright orange stays for tints and marks where it
@@ -7254,7 +7273,7 @@ body {
   cursor: pointer;
 }
 .place-table-cta__title { font-size: 17px; font-weight: 700; color: #fff; }
-.place-table-cta__sub { font-size: 13px; line-height: 1.45; color: rgba(255,255,255,0.88); }
+.place-table-cta__sub { font-size: 13px; line-height: 1.45; color: #fff; }
 
 .place-tables { margin-top: 14px; }
 .place-tables__label {
@@ -7306,7 +7325,7 @@ body {
 }
 .goal.is-done .goal__mark {
   background: var(--green-strong);
-  border-color: var(--green-strong);
+  border-color: var(--green-ink);
   color: #fff;
 }
 .goal__body { display: flex; flex-direction: column; gap: 2px; }
@@ -7713,7 +7732,7 @@ body {
   padding: 1px 7px;
   border-radius: 999px;
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -7848,7 +7867,7 @@ body {
 }
 /* Green for a match, orange for none — and never red: no shared language is
    a thing to know before you go, not a thing that has gone wrong. */
-.lang-note--good { color: var(--green-strong); font-weight: 600; }
+.lang-note--good { color: var(--green-ink); font-weight: 600; }
 .lang-note--warn {
   padding: 10px 12px;
   border-radius: var(--radius);
@@ -7952,7 +7971,7 @@ body {
   margin-top: 3px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .req-row__seats {
   flex: none;
@@ -8124,7 +8143,7 @@ body {
   margin-top: 3px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 
 /* Free text, unlike .who-row__diet's fixed vocabulary above — the app
@@ -8137,7 +8156,7 @@ body {
   margin-top: 3px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--orange-strong);
+  color: var(--orange-ink);
 }
 
 /* The headcount, said before somebody commits an evening. Neutral by default;
@@ -8258,7 +8277,7 @@ body {
    and only ever visible to somebody who has finished a culture, which is why
    nine sweeps of Explore never surfaced it. The state that rewards a
    traveller should not be the one they cannot read. Same hue, enough depth. */
-.story-card.is-complete .story-card__foot { color: var(--green-strong); }
+.story-card.is-complete .story-card__foot { color: var(--green-ink); }
 
 /* Getting help, alongside the phrasebook. Neutral rather than orange: it sits
    on a screen somebody opens for ordinary reasons, and a red panel on the
@@ -8345,17 +8364,27 @@ body {
   --accent-tint: #3A2716;
   --accent-line: #6B4423;
 
-  /* Green. --green-strong is the dual-role token described above:
-     5.06:1 white-on-fill, 3.73:1 as direct text on --bg. */
+  /* Green. --green-strong stays the fill: 5.06:1 with white text on it.
+     Its text role moved to --green-ink, because on a dark page one value
+     cannot do both — as direct text this reached 3.73:1 on --bg, 3.33:1 on
+     --surface and 3.01:1 on --green-tint, all short of 4.5.
+     --green-ink reuses --green, which measures 8.1:1 on --bg, 7.1:1 on
+     --surface and 6.5:1 on --green-tint. Measured in the browser at 375x812
+     with transitions disabled, not computed from the palette. */
   --green: #2FBF8E;
   --green-strong: #337D40;
+  --green-ink: #2FBF8E;
   --green-tint: #112A22;
 
-  /* Legacy orange scale (2-8 call sites each), the same dual-role
-     trade-off as --green-strong: 4.50:1 white-on-fill, 4.20:1 as
-     direct text on --bg. */
+  /* Legacy orange scale. --orange-strong had the same dual-role problem as
+     --green-strong and gets the same fix: the fill keeps it, the text role
+     moves to --orange-ink. Measured, this was 3.34:1 as text on
+     --orange-tint, where it is actually used — an orange chip with orange
+     text on the restaurant detail. --orange-ink reuses --orange, which
+     measures 7.4:1 there. */
   --orange: #FF8F4D;
   --orange-strong: #E23014;
+  --orange-ink: #FF8F4D;
   --orange-tint: #3A2015;
   --orange-line: #5C3420;
 
