@@ -82,11 +82,6 @@ alter table public.tables add column if not exists guides text[] not null defaul
 -- since it was built, and its own hint promises it is so a host knows what the
 -- table will run in — while nothing anywhere showed it to anyone.
 alter table public.tables add column if not exists languages text[] not null default '{}';
-alter table public.signups add column if not exists languages text[] not null default '{}';
-
--- How a guest describes their own eating, in their own word. Not a claim the
--- app makes about a dish — a message to the host, who can ask the kitchen.
-alter table public.signups add column if not exists diets text[] not null default '{}';
 
 alter table public.tables drop constraint if exists tables_guides_known;
 alter table public.tables add constraint tables_guides_known
@@ -110,6 +105,19 @@ create table if not exists public.signups (
 );
 
 create index if not exists signups_table_idx on public.signups (table_id);
+
+-- Added after the table exists, which is the whole reason these two live down
+-- here and not up with the `tables` columns they were written beside. On a
+-- fresh project the file runs top to bottom, so an ALTER above its own CREATE
+-- fails on the first line it reaches — "relation public.signups does not
+-- exist" — and takes the rest of the file with it.
+
+-- What a guest speaks, so a table can be matched to somebody who can follow it.
+alter table public.signups add column if not exists languages text[] not null default '{}';
+
+-- How a guest describes their own eating, in their own word. Not a claim the
+-- app makes about a dish — a message to the host, who can ask the kitchen.
+alter table public.signups add column if not exists diets text[] not null default '{}';
 
 -- ---------------------------------------------------------------------------
 -- Overbooking guard
