@@ -32,7 +32,6 @@ export function pathFor({ activeTab, tableView, openThemeId, restaurantId }) {
       return '/tables';
     case 'places': return '/places';
     case 'journal': return '/passport';
-    case 'profile': return '/profile';
     default: return '/';
   }
 }
@@ -57,8 +56,11 @@ export function stateFromPath(pathname) {
       return { ...base, activeTab: 'match', tableView: { screen: 'detail', tableId: tail } };
     case 'places':
       return { ...base, activeTab: 'places', restaurantId: tail || null };
-    case 'passport': return { ...base, activeTab: 'journal' };
-    case 'profile': return { ...base, activeTab: 'profile' };
+    // /profile is an alias rather than a dead path: it was its own tab until
+    // the 8/2 merge, and a link somebody saved should land on the screen that
+    // absorbed it instead of silently falling through to Explore.
+    case 'passport':
+    case 'profile': return { ...base, activeTab: 'journal' };
     case 'culture':
       return tail ? { ...base, openThemeId: tail } : base;
     default:

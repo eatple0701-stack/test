@@ -2,24 +2,18 @@ import React, { useState } from 'react';
 import { LANGUAGES } from '../domain/catalog/languages.js';
 import { RESTRICTIONS, restrictionLabel, DIETS } from '../data/profile';
 
-// Profile — the four things the app actually does something with.
+// The four things the app actually does something with about you.
 //
-// What was here before was a settings screen in the shape of a settings
-// screen and nothing else. "Countries Visited: 3" was the literal number 3,
-// typed in; "Interests: Photography, History, Cafe Hopping" was a sentence
-// about a person nobody had asked. Travel Style and Availability opened
-// pickers wired to `onChange={() => {}}`. Match Preferences configured a
-// swipe deck that no longer exists, and Notifications toggled alerts the app
-// has no way to send.
+// This was its own tab. The 8/2 meeting decided to merge it into the Passport,
+// and a foreign tester wrote the same thing independently — "merge passport
+// and profile" — so it is a section now rather than a destination.
 //
-// That is the same failure as the eighty generated travellers, pointed at
-// the user instead of at strangers: the screen was describing somebody it
-// had never met. Everything below is either typed by the person reading it
-// or not shown at all — and each field changes something visible elsewhere,
-// which is the only reason a setting deserves a row.
-
-// The list lives in the catalog now: a table declares languages too, and two
-// copies of this array is how the Profile and the table stop agreeing.
+// It was never a settings screen in the usual sense. What was here originally
+// was: "Countries Visited: 3" as a typed-in literal, interests nobody had been
+// asked about, and pickers wired to onChange={() => {}}. Everything below is
+// either typed by the person reading it or not shown at all, and each field
+// changes something visible on another screen — which is the only reason a
+// setting deserves a row.
 
 function Field({ label, hint, children }) {
   return (
@@ -34,8 +28,8 @@ function Field({ label, hint, children }) {
 // Saved on every keystroke rather than on blur. Blur never fires if somebody
 // types their name and taps straight to Tables, and losing it there means
 // being asked for it again at the next table — which is the exact thing this
-// screen exists to stop.
-function ProfileTab({ profile, onProfileChange, onNavigate }) {
+// exists to stop.
+export default function ProfileFields({ profile, onProfileChange }) {
   const [name, setName] = useState(profile?.name ?? '');
   const [nationality, setNationality] = useState(profile?.nationality ?? '');
   const languages = profile?.languages ?? [];
@@ -48,16 +42,7 @@ function ProfileTab({ profile, onProfileChange, onNavigate }) {
     list.includes(value) ? list.filter(v => v !== value) : [...list, value];
 
   return (
-    <section className="tab-panel profile-panel">
-      <header className="screen-head">
-        <span className="screen-head__kr">설정</span>
-        <h1 className="screen-head__title">How the app should treat you.</h1>
-        <p className="screen-head__sub">
-          Set once here and no table asks you again.
-        </p>
-      </header>
-
-      <div className="profile-body">
+    <div className="profile-body">
         <Field
           label="Your name"
           hint="What the table looks for when you arrive."
@@ -144,21 +129,6 @@ function ProfileTab({ profile, onProfileChange, onNavigate }) {
             ))}
           </div>
         </Field>
-
-        <button className="profile-link" onClick={() => onNavigate('journal')}>
-          Everything you have done →
-        </button>
-
-        {/* Version and policy, and nothing that pretends to be a feature. */}
-        <p className="profile-foot">밥친구 Eatple · pilot build</p>
-      </div>
-    </section>
+    </div>
   );
-}
-
-export default function TabPanel({ tab, profile, onProfileChange, onNavigate }) {
-  if (tab === 'profile') {
-    return <ProfileTab profile={profile} onProfileChange={onProfileChange} onNavigate={onNavigate} />;
-  }
-  return null;
 }

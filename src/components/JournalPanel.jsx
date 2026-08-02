@@ -6,6 +6,8 @@ import { menuById } from '../domain/catalog/menus.js';
 import { isPast } from '../domain/policy/table.js';
 import { listTables, listAllSignups } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById } from '../domain/catalog/index.js';
+import ProfileFields from './ProfileFields';
+import PhraseSheet from './PhraseSheet';
 
 function formatStampDate(ts) {
   if (!ts) return null;
@@ -26,12 +28,14 @@ const activeCount = restaurants.filter(r => !isQuarantined(r)).length;
 
 export default function JournalPanel({
   bookmarks, companions = [], mapCenter, onRestaurantClick, onNavigate, journey,
-  attestations = [], visitedMarkets = [], profile, onOpenSummary, onOpenTables,
+  attestations = [], visitedMarkets = [], profile, onProfileChange,
+  onOpenSummary, onOpenTables,
 }) {
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
   const [myTables, setMyTables] = useState([]);
+  const [phrasesOpen, setPhrasesOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -284,6 +288,19 @@ export default function JournalPanel({
         </p>
       </header>
 
+      {/* The phrasebook, reachable without a table. It lived only inside a
+          table you had already joined, which is the wrong place for the thing
+          a traveller wants at a counter, in a shop, at somebody else's dinner
+          — a tester asked for exactly this: "have menu for translations/what
+          to say". High on the screen because it is a tool, not a record. */}
+      <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
+        <span className="journal-tool__kr">식탁에서</span>
+        <span className="journal-tool__body">
+          What to say — ordering, what you cannot eat, and something to ask the
+          table. Works with or without a meal booked.
+        </span>
+      </button>
+
       {/* Above the record, because it has not happened yet. This is also the
           only place a traveller can check what they agreed to — a seat taken
           three days ago is easy to forget and expensive to miss. */}
@@ -482,6 +499,23 @@ export default function JournalPanel({
           )}
         </div>
       )}
+
+      {/* Settings, at the bottom of the same screen rather than behind a fifth
+          tab. The 8/2 meeting decided to merge Profile into the Passport, and
+          a tester wrote the same thing on their own. Below the record because
+          of what people come here for: checking Sunday's table many times,
+          changing a language once. */}
+      <div className="journal-settings">
+        <div className="journal-section-header">
+          <h3>설정 · Settings</h3>
+        </div>
+        <p className="journal-settings__hint">
+          Set once here and no table asks you again.
+        </p>
+        <ProfileFields profile={profile} onProfileChange={onProfileChange} />
+      </div>
+
+      {phrasesOpen && <PhraseSheet avoids={profile?.avoids} onClose={() => setPhrasesOpen(false)} />}
     </section>
   );
 }

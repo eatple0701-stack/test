@@ -3,7 +3,6 @@ import { restaurants } from './data/restaurants';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
-import TabPanel from './components/TabPanel';
 import JournalPanel from './components/JournalPanel';
 import HomeTab from './components/HomeTab';
 import Prologue from './components/Prologue';
@@ -601,14 +600,15 @@ export default function App() {
             onNavigate={goToTab}
             journey={journey}
             profile={profile}
+            onProfileChange={updateProfile}
             attestations={attestations}
             visitedMarkets={visitedMarkets}
             onOpenSummary={() => setShowSummary(true)}
           />
         )}
-        {!openThemeId && activeTab === 'profile' && (
-          <TabPanel tab={activeTab} profile={profile} onProfileChange={updateProfile} onNavigate={goToTab} />
-        )}
+        {/* The Profile tab used to render here. It is a section at the bottom
+            of the Passport now — the 8/2 meeting's decision, and the same
+            thing a foreign tester asked for independently. */}
 
       </div>
 

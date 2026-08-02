@@ -19,7 +19,6 @@ test('every screen has an address', () => {
   assert.equal(pathFor(screen({ activeTab: 'match' })), '/tables');
   assert.equal(pathFor(screen({ activeTab: 'places' })), '/places');
   assert.equal(pathFor(screen({ activeTab: 'journal' })), '/passport');
-  assert.equal(pathFor(screen({ activeTab: 'profile' })), '/profile');
   assert.equal(
     pathFor(screen({ activeTab: 'match', tableView: { screen: 'create' } })),
     '/tables/new',
@@ -59,13 +58,21 @@ test('every path round-trips back to the screen it came from', () => {
     screen({ activeTab: 'places' }),
     screen({ activeTab: 'places', restaurantId: 'r-4' }),
     screen({ activeTab: 'journal' }),
-    screen({ activeTab: 'profile' }),
     screen({ openThemeId: 'street-food' }),
   ];
   for (const s of screens) {
     const path = pathFor(s);
     assert.equal(pathFor(stateFromPath(path)), path, `${path} did not survive the round trip`);
   }
+});
+
+test('the old /profile link still lands on the screen that absorbed it', () => {
+  // Profile was a tab until the 8/2 merge. Somebody who bookmarked it should
+  // reach the Passport, not fall through to Explore.
+  assert.equal(stateFromPath('/profile').activeTab, 'journal');
+  assert.equal(stateFromPath('/passport').activeTab, 'journal');
+  // It is an alias, so it is not what the app writes back.
+  assert.equal(pathFor(screen({ activeTab: 'journal' })), '/passport');
 });
 
 test('a link that no longer means anything opens the app rather than breaking it', () => {

@@ -47,8 +47,10 @@ const tabs = [
   { id: 'home', label: 'Explore' },
   { id: 'match', label: 'Tables' },
   { id: 'places', label: 'Places' },
+  // Profile was a fifth tab and is now a section at the bottom of the
+  // Passport. Both the 8/2 meeting and a foreign tester asked for the merge,
+  // independently — and four labels fit a 375px bar without crowding.
   { id: 'journal', label: 'Passport' },
-  { id: 'profile', label: 'Profile' },
 ];
 
 export default function TabBar({ activeTab, onSelect, isCollapsed }) {
