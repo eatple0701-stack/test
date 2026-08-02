@@ -212,6 +212,22 @@ export async function deleteTable(tableId) {
     .is('cancelled_at', null)
     .select()
     .maybeSingle();
+
+  // A bundle can reach a project whose schema has not caught up, and this is
+  // the one action where failing would be worse than doing the old thing: a
+  // host trying to call off a meal they cannot attend, and being shown an
+  // error, leaves guests expecting a dinner nobody is coming to. So when the
+  // column is genuinely absent — 42703, Postgres's own undefined_column —
+  // fall back to the delete this used to be.
+  //
+  // Narrow on purpose. Any other error still surfaces, because "cancelling
+  // quietly deleted everything" must not become the answer to a network
+  // blip or a policy refusal.
+  if (error?.code === '42703') {
+    const { error: delError } = await sb.from('tables').delete().eq('id', tableId);
+    if (delError) throw new Error(friendlyError(delError));
+    return null;
+  }
   if (error) throw new Error(friendlyError(error));
   if (!data) throw new Error('That table was already called off.');
   return tableFromRow(data);

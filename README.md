@@ -59,7 +59,7 @@ Re-run `supabase/schema.sql` in the Supabase SQL editor first — it is
 idempotent (`add column if not exists` / `create table if not exists`
 throughout), so re-running it is safe even if part of it was already
 applied. Every app update since the schema was first written has added a
-column or a table (most recently `signups.status` and `signups.attendance`,
+column or a table (most recently `signups.status`, `signups.attendance`, `tables.meeting_note` and `tables.cancelled_at`,
 with `signups_decide_by_host` and a column-scoped `grant update`) — if the app
 bundle reaches a live project before the schema catches up, whatever touches
 the new column or table fails against the stale one.
@@ -93,6 +93,16 @@ Three different failure shapes, all real, all worth knowing apart:
   before approval existed. So the old behaviour continues, no screen breaks,
   and running the schema switches the feature on. Ordering still matters for
   everything else; it stops being a landmine for this one.
+
+  `tables.cancelled_at` follows the same rule but had to earn it: cancelling
+  is an *update*, so a missing column is a hard error rather than a null, and
+  the first version of it simply failed. `deleteTable` now catches Postgres's
+  `42703` (undefined_column) specifically and falls back to the delete this
+  used to be. Narrow on purpose — any other error still surfaces, because
+  "cancelling quietly deleted everything" must not become the answer to a
+  network blip. Worth copying the shape, and worth remembering that a write
+  cannot be made dormant by reading carefully; it needs the fallback written
+  out.
 
 ```bash
 npm test          # 271 tests, node's built-in runner, no test-framework dependency
