@@ -58,11 +58,16 @@ function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, l
             detail page shows. Nothing is written or summarised for the list. */}
         {lens && <p className="place-card__esg">{place.esg_point}</p>}
 
-        {place.distanceKm < 3 && (
-          <div style={{ background: '#e8f5e9', padding: '6px 10px', borderRadius: '4px', marginTop: '10px', fontSize: '12px', color: '#2e7d32' }}>
-            ✨ <strong>98% Match:</strong> Fits your budget, dietary needs, and schedule!
-          </div>
-        )}
+        {/* A "✨ 98% Match: Fits your budget, dietary needs, and schedule!"
+            banner used to render here whenever distanceKm < 3. It was a
+            distance check wearing a compatibility score: the number was
+            invented, and the app has never asked anyone their budget or their
+            schedule, so two of the three things it claimed to have matched
+            are not data this app holds. Shown to foreign visitors, by a
+            publicly funded project, directly under a comment promising that
+            nothing in this list is written or summarised for them. Removed
+            rather than reworded — there is no honest version of a number
+            nobody computed. */}
       </div>
 
       <PlaceImage place={place} variant="thumb" className="place-card__media" />

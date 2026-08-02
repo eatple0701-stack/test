@@ -37,7 +37,12 @@
                                colour here, so light mode is unchanged */
   --orange-tint: #FFF7ED;   /* saved state */
   --orange-line: #FED7AA;
-  --danger: #D92D20;        /* closed status */
+  /* Closed status. Was #D92D20, which measured 4.38:1 against --bg — the
+     page a place list actually sits on — and so missed AA by a hair on the
+     one word a traveller most needs to catch before walking somewhere. Only
+     ever used as text (2 call sites, never a fill), so it could simply go
+     darker: 4.8:1 on --bg, 5.3:1 on --surface. */
+  --danger: #D02718;
   --danger-tint: #FEF2F2;   /* destructive-confirm background */
   --danger-line: #FECACA;   /* destructive-confirm border */
   --danger-ink: #991B1B;    /* destructive-confirm text */
@@ -919,6 +924,39 @@ button {
 }
 .btn-primary:active {
   transform: scale(0.98);
+}
+
+/* The three "open this place in a map app" buttons.
+   Naver and Kakao carry their own brand colours so a visitor recognises which
+   app they are about to be handed to — the reviewers on 1 August singled out
+   having all three as the reassuring part, so the pattern stays.
+
+   These were written inline in the JSX, which put them out of reach of both
+   the theme and the contrast audit. They belong here.
+
+   Kakao's own pairing is dark text on #FEE500 and measures 12.2:1, so it is
+   untouched. Naver's own pairing is white text on #03C75A, which measures
+   2.25:1 — brand-faithful and unreadable, and this is a button a traveller
+   may be looking for outdoors in daylight. Darkened to Naver's deeper green,
+   which keeps the hue and reaches 4.8:1. Contrast wins over an exact hex when
+   the two disagree; a button nobody can read is not on brand either. */
+.btn-map--naver {
+  background: #00843C;
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 132, 60, 0.25);
+}
+.btn-map--naver:hover {
+  box-shadow: 0 6px 16px rgba(0, 132, 60, 0.3);
+}
+.btn-map--kakao {
+  background: #FEE500;
+  border: none;
+  color: #191919;
+  box-shadow: 0 4px 12px rgba(254, 229, 0, 0.3);
+}
+.btn-map--kakao:hover {
+  box-shadow: 0 6px 16px rgba(254, 229, 0, 0.36);
 }
 .btn-secondary {
   height: 52px;
