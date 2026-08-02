@@ -5,7 +5,9 @@ import { traditionalMarkets } from '../data/experiences';
 import { menuById } from '../domain/catalog/menus.js';
 import { isPast } from '../domain/policy/table.js';
 import { listTables, listAllSignups } from '../data/tableRepository.js';
-import { experienceById, themeIdsOfExperience, themeById } from '../domain/catalog/index.js';
+import { experienceById, themeIdsOfExperience, themeById, themes } from '../domain/catalog/index.js';
+import { themeCompletionKind, COMPLETION_KIND } from '../domain/policy/completion.js';
+import { ChevronRightIcon } from './Icons';
 import ProfileFields from './ProfileFields';
 import PhraseSheet from './PhraseSheet';
 
@@ -29,13 +31,19 @@ const activeCount = restaurants.filter(r => !isQuarantined(r)).length;
 export default function JournalPanel({
   bookmarks, companions = [], mapCenter, onRestaurantClick, onNavigate, journey,
   attestations = [], visitedMarkets = [], profile, onProfileChange,
-  onOpenSummary, onOpenTables,
+  onOpenSummary, onOpenTables, onOpenTheme, domainJourney,
 }) {
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
   const [myTables, setMyTables] = useState([]);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
+
+  // Every culture this traveller finished, with what backed each one.
+  // Computed from the same policy the stamp uses, so the two cannot drift.
+  const walkedThemes = useMemo(() => (domainJourney ? themes
+    .map(theme => ({ theme, kind: themeCompletionKind(theme.id, domainJourney) }))
+    .filter(w => w.kind !== null) : []), [domainJourney]);
 
   useEffect(() => {
     let alive = true;
@@ -497,6 +505,42 @@ export default function JournalPanel({
               <button className="btn-secondary" onClick={() => onNavigate('home')} style={{ width: '100%' }}>Explore cultures</button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* "cannot review cultures i read through in passport" — a tester's
+          note, and they were right: a theme you finished disappeared from
+          this screen entirely. Finishing something and then having no way
+          back to it is the shape of a reward that is not one.
+
+          Each row says what backed it, using the same three words the stamp
+          uses, so the record and the moment agree. */}
+      {walkedThemes.length > 0 && (
+        <div className="journal-section">
+          <div className="journal-section-header">
+            <h3>Cultures you walked</h3>
+            <span className="journal-badge-count">{walkedThemes.length}</span>
+          </div>
+          <div className="walked-list">
+            {walkedThemes.map(w => (
+              <button
+                key={w.theme.id}
+                className="walked-row"
+                onClick={() => onOpenTheme?.(w.theme.id)}
+              >
+                <span className="walked-row__body">
+                  <span className="walked-row__title">{w.theme.title}</span>
+                  {w.theme.titleKo && <span className="walked-row__ko">{w.theme.titleKo}</span>}
+                  <span className="walked-row__basis">
+                    {w.kind === COMPLETION_KIND.VISITED ? 'Visited'
+                      : w.kind === COMPLETION_KIND.MIXED ? 'Part visited, part on your word'
+                        : 'On your own word'}
+                  </span>
+                </span>
+                <ChevronRightIcon size={14} />
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

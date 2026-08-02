@@ -3,9 +3,12 @@ import assert from 'node:assert/strict';
 import { isSurfaceableEntity, admissiblePlaceIds } from '../policy/visibility.js';
 import {
   completionSources, experienceDone, narrativeDone, themeDone, themeExplored,
+  themeCompletionKind, COMPLETION_KIND,
 } from '../policy/completion.js';
 import { canEnterDirectly, ancestryOfRestaurant } from '../policy/navigation.js';
-import { experienceById } from '../catalog/index.js';
+import {
+  experienceById, themes, experienceIdsOfTheme, narrativesOfTheme, hasAnchor,
+} from '../catalog/index.js';
 import { emptyJourney, STATUS } from '../types.js';
 
 test('quarantined restaurants are never admissible', () => {
@@ -146,4 +149,74 @@ test('a restaurant in no experience has no ancestry', () => {
   // camouflage used to serve this role until the late-night-table experience
   // claimed it.
   assert.equal(ancestryOfRestaurant('plant-cafe'), null);
+});
+
+// ---------------------------------------------------------------------------
+// How a theme was finished — not the same question as whether it was.
+// ---------------------------------------------------------------------------
+
+test('a theme finished on somebody\'s own word says so', () => {
+  // The tester's note — "I can just check through culture (skimming through)"
+  // — is true of any theme still in preview, because nothing in it has a
+  // verified venue and every experience therefore falls to attestation. The
+  // answer is not to disbelieve them; it is to stop describing four taps in
+  // the same words as four meals.
+  const theme = themes.find(t => narrativesOfTheme(t.id).length > 0);
+  const ids = experienceIdsOfTheme(theme.id).map(experienceById).filter(Boolean);
+  const attestable = ids.filter(e => e.acceptsSelfAttest && !hasAnchor(e));
+
+  if (attestable.length === 0) return; // nothing to assert on this catalog
+  const journey = {
+    visitedRestaurantIds: new Set(),
+    visitedMarketIds: new Set(),
+    attestedExperienceIds: new Set(attestable.map(e => e.id)),
+  };
+  if (!themeDone(theme.id, journey)) return;
+  assert.equal(themeCompletionKind(theme.id, journey), COMPLETION_KIND.DECLARED);
+});
+
+test('a theme nobody finished has no kind at all', () => {
+  const empty = {
+    visitedRestaurantIds: new Set(), visitedMarketIds: new Set(),
+    attestedExperienceIds: new Set(),
+  };
+  for (const t of themes) {
+    assert.equal(themeCompletionKind(t.id, empty), null, `${t.id} claims a completion kind`);
+  }
+});
+
+test('reaching a real place is never described as a declaration', () => {
+  // The other direction, and the one that matters for anybody who actually
+  // went: their evening must not be filed under "you said so".
+  const withAnchor = themes
+    .map(t => ({ t, anchored: experienceIdsOfTheme(t.id).map(experienceById)
+      .filter(e => e && hasAnchor(e)) }))
+    .find(x => x.anchored.length > 0);
+  if (!withAnchor) return;
+
+  const e = withAnchor.anchored[0];
+  const journey = {
+    visitedRestaurantIds: new Set(e.restaurantIds),
+    visitedMarketIds: new Set(e.marketIds),
+    attestedExperienceIds: new Set(),
+  };
+  if (!themeDone(withAnchor.t.id, journey)) return;
+  assert.notEqual(themeCompletionKind(withAnchor.t.id, journey), COMPLETION_KIND.DECLARED);
+});
+
+test('the wrong journey shape reads as nothing done, not a crash', () => {
+  // This app carries two things called "journey": the domain one with Sets,
+  // and a legacy projection with counts. Handing the second to this policy
+  // threw from inside .some() and took a whole tab down behind an error
+  // boundary — which is how I broke the Passport while building the list of
+  // finished cultures. Being wrong on one section beats being blank.
+  const legacyShaped = { foodCount: 3, districtCount: 2, challenges: [], doneCount: 1 };
+  for (const bad of [legacyShaped, {}, null, undefined, { visitedRestaurantIds: [] }]) {
+    assert.doesNotThrow(() => experienceDone(experienceById('temple-tea'), bad));
+    assert.equal(experienceDone(experienceById('temple-tea'), bad), false);
+    for (const t of themes) {
+      assert.doesNotThrow(() => themeCompletionKind(t.id, bad));
+      assert.equal(themeCompletionKind(t.id, bad), null);
+    }
+  }
 });

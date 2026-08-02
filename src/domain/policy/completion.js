@@ -65,9 +65,29 @@ export const completionSources = [
   },
 ];
 
+/**
+ * A journey this policy can actually read.
+ *
+ * Every source above reaches straight into a Set. The app carries two shapes
+ * under the same word — the domain journey with those Sets, and a legacy
+ * projection with counts on it — and handing the wrong one in threw a
+ * TypeError from inside `.some()`, which React turned into a blank screen
+ * with an error boundary on it. That happened here, to me, wiring the
+ * Passport's list of finished cultures.
+ *
+ * Reading it as "nothing done" is the right failure. It is wrong quietly, on
+ * one section, instead of wrong loudly across a whole tab — and a traveller
+ * who lost their record to a crash has no way to tell those apart anyway.
+ */
+const readable = (j) =>
+  Boolean(j)
+  && j.visitedRestaurantIds instanceof Set
+  && j.visitedMarketIds instanceof Set
+  && j.attestedExperienceIds instanceof Set;
+
 /** Done when any applicable source is satisfied. */
 export function experienceDone(experience, journey) {
-  if (!experience) return false;
+  if (!experience || !readable(journey)) return false;
   return completionSources
     .filter(s => s.appliesTo(experience))
     .some(s => s.isSatisfied(experience, journey));
@@ -94,4 +114,42 @@ export function themeDone(themeId, journey) {
 /** Partial progress: any one experience in the theme is done. */
 export function themeExplored(themeId, journey) {
   return experienceIdsOfTheme(themeId).some(id => experienceDone(experienceById(id), journey));
+}
+
+/**
+ * How a theme was finished, which is not the same question as whether it was.
+ *
+ * A tester wrote "I can just check through culture (skimming through)" and
+ * they were right, though not for the reason it looks. The rule above is
+ * sound: self-attestation applies only where there is nothing to visit. But a
+ * theme still in `preview` has no verified venue anywhere in it, so *every*
+ * experience falls to attestation and the whole theme is four taps — and the
+ * app then congratulated that in the same words it used for somebody who had
+ * eaten at four places.
+ *
+ * The fix is not to make attestation harder. A traveller who genuinely walked
+ * a market has no way to prove it to us, and demanding proof we cannot check
+ * is how an app starts calling honest people liars. The fix is to stop
+ * flattening the two into one sentence.
+ */
+export const COMPLETION_KIND = {
+  VISITED: 'visited',   // at least one anchor actually reached
+  MIXED: 'mixed',
+  DECLARED: 'declared', // finished entirely on the traveller's own word
+};
+
+export function themeCompletionKind(themeId, journey) {
+  if (!themeDone(themeId, journey)) return null;
+
+  const done = experienceIdsOfTheme(themeId)
+    .map(experienceById)
+    .filter(e => e && experienceDone(e, journey));
+
+  // Which route actually satisfied each one. An experience with an anchor can
+  // only have been completed by reaching it, because attestation does not
+  // apply to anchored experiences at all.
+  const anchored = done.filter(e => hasAnchor(e));
+  if (anchored.length === 0) return COMPLETION_KIND.DECLARED;
+  if (anchored.length === done.length) return COMPLETION_KIND.VISITED;
+  return COMPLETION_KIND.MIXED;
 }

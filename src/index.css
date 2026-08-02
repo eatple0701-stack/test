@@ -8050,3 +8050,58 @@ body {
   font-size: 13px;
   color: var(--ink-secondary);
 }
+
+/* What backed a completion, on the stamp. Quiet — it qualifies the moment
+   rather than deflating it, and somebody who walked a market on their own
+   word did still walk it. */
+.complete-basis {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+
+/* Cultures you finished, and a way back into each. A reward you cannot
+   revisit is not one — the tester's note was that a completed theme vanished
+   from this screen entirely. */
+.walked-list { display: grid; gap: 8px; }
+.walked-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 15px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink-secondary);
+  cursor: pointer;
+}
+.walked-row__body { flex: 1; min-width: 0; }
+.walked-row__title {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.walked-row__ko {
+  display: block;
+  margin-top: 1px;
+  font-family: var(--ex-kr);
+  font-size: 12.5px;
+  color: var(--ink-secondary);
+}
+.walked-row__basis {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--ink-secondary);
+}
+
+/* "You have walked this one", made readable.
+   --ex-sage is #7A917C, which measures 3.40:1 on white at 12px — under AA,
+   and only ever visible to somebody who has finished a culture, which is why
+   nine sweeps of Explore never surfaced it. The state that rewards a
+   traveller should not be the one they cannot read. Same hue, enough depth. */
+.story-card.is-complete .story-card__foot { color: var(--green-strong); }

@@ -21,7 +21,7 @@ import { journeyFromLegacy } from './domain/bridge/legacyJourney.js';
 import { journeyProgress } from './domain/projection/journeyProgress.js';
 import { passportRecord } from './domain/projection/passportRecord.js';
 import { themeById, experienceById, experienceIdsOfTheme } from './domain/catalog/index.js';
-import { experienceDone } from './domain/policy/completion.js';
+import { experienceDone, themeCompletionKind } from './domain/policy/completion.js';
 import { reasonFor, themeOfTheDay } from './domain/policy/recommendation.js';
 import ThemePage from './components/ThemePage';
 import './index.css';
@@ -604,6 +604,10 @@ export default function App() {
             attestations={attestations}
             visitedMarkets={visitedMarkets}
             onOpenSummary={() => setShowSummary(true)}
+            onOpenTheme={setOpenThemeId}
+            /* The Set-shaped journey the completion policy reads. The other
+               `journey` prop above is the legacy projection the stats use. */
+            domainJourney={domainJourney}
           />
         )}
         {/* The Profile tab used to render here. It is a section at the bottom
@@ -681,6 +685,9 @@ export default function App() {
             const t = themeProgress.themes.find(x => x.themeId === celebrateThemeId);
             return t ? t.total - t.done : 0;
           })()}
+          /* What actually backed the completion, so the stamp does not
+             describe four taps and four meals with one sentence. */
+          kind={themeCompletionKind(celebrateThemeId, domainJourney)}
           next={suggestedTheme}
           nextReason={suggestedReason}
           onClose={() => setCelebrateThemeId(null)}

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { COMPLETION_KIND } from '../domain/policy/completion.js';
 
 // The moment a culture is finished.
 //
@@ -11,7 +12,9 @@ import React, { useEffect } from 'react';
 // Deliberately restrained. It is a stamp pressed into a page, not confetti:
 // one animation, under a second, and it never blocks — tapping anywhere or
 // pressing Escape closes it, and it closes itself if left alone.
-export default function ThemeComplete({ theme, remaining = 0, next, nextReason, onClose, onOpenNext }) {
+export default function ThemeComplete({
+  theme, remaining = 0, kind = null, next, nextReason, onClose, onOpenNext,
+}) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
@@ -46,6 +49,24 @@ export default function ThemeComplete({ theme, remaining = 0, next, nextReason, 
             ? `Stamped into your passport. There ${remaining === 1 ? 'is 1 experience' : `are ${remaining} experiences`} left in this one if you want more of it.`
             : 'Stamped into your passport.'}
         </p>
+
+        {/* Said on the stamp itself, because this is the moment the claim is
+            made. A theme still in preview has no verified venue anywhere in
+            it, so every step falls to the traveller's own word — which a
+            tester noticed and called skimming. Their word is accepted; it is
+            simply not the same sentence as having eaten at four places, and
+            the app was printing one sentence for both. */}
+        {kind === COMPLETION_KIND.DECLARED && (
+          <p className="complete-basis">
+            Recorded on your word — none of these had a verified place to visit
+            yet.
+          </p>
+        )}
+        {kind === COMPLETION_KIND.MIXED && (
+          <p className="complete-basis">
+            Part visited, part on your own word.
+          </p>
+        )}
 
         {next && (
           <div className="complete-next">
