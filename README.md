@@ -1,127 +1,112 @@
-# K-Food Map
+# 밥친구 / Eatple
 
-A map-first web app that helps international visitors find Korean restaurants
-matching their dietary needs — vegan, halal, mild, fermented, zero-waste,
-local sourcing — and understand the food culture behind each place, built so
-that every claim it makes is either checked or honestly marked unknown.
+**Solo trip, shared table.** A foreign traveller alone in Korea is blocked
+from most of the menu — not by language, not by price, but because
+samgyeopsal starts at two servings, gamjatang comes by the pot, and a
+한정식 set is a two-person reservation. This app does not find you a
+restaurant. It finds you a table: a meal somebody else already opened seats
+at, or the seats you open yourself.
 
-## Overview
+Part of a **digital public diplomacy** initiative, and that shapes the
+product more than any other fact about it. A group-booking app that gets a
+detail wrong is annoying. A state-adjacent cultural exchange that seats
+strangers together and says nothing about what it is or is not — is a
+different category of risk. See `src/content/safety.js`'s `PURPOSE` for the
+one rule every table states before anyone commits to an evening.
 
-K-Food Map is part of a **digital public diplomacy** initiative, and that
-single fact drives most of the project's design decisions. A restaurant
-finder that gets a detail wrong is annoying. A state-adjacent cultural
-project that tells a Muslim traveller a restaurant is halal when nobody
-checked, or presents a contested commercial claim as national heritage, is a
-different category of failure. Restaurant discovery is the entry point;
-cultural storytelling — and being trustworthy about it — is the product.
+## What it actually does
 
-The primary audience is first-time international visitors to Seoul and
-Incheon with a dietary constraint and no Korean.
+Two shapes of table, and neither is the lesser one:
 
-## Features
+- **호스트 테이블 (Hosted table)** — a host has ticked at least one 문화 가이드
+  (order / eat / manners / origin) and is offering to walk the table through
+  it. This is where the public diplomacy happens — a Korean host teaching a
+  stranger their own food, in a language the stranger understands.
+- **테이블 메이트 (Table mates)** — people splitting a dish none of them could
+  order alone. A real table on its own terms, not a fallback.
 
-- **Map** — Leaflet-based discovery view, search, and list
-- **Filter** — dietary chips (vegan, halal, mild, fermented, zero-waste, local sourcing)
-- **Detail** — practical info, menu, food story, sustainability, dining tips
-- **Story** — the cultural narrative behind each restaurant
-- **Journal / Passport** — bookmarked places as dated stamps, with a "next stop" suggestion
-- **Bookmark** — persisted locally, no account required
-- **Responsive** — mobile / tablet / desktop, AA contrast
-- **Evidence Layer** — sourced, versioned, tamper-evident provenance for facts
-- **Confidence Model** — every field is graded, not just stated
-- **Lifecycle** — restaurants that can't be confirmed to exist or to still be open are quarantined out of every discovery surface, not deleted
+The label is never typed in by a host — it is derived from the guides they
+actually ticked (`src/domain/catalog/hosts.js`), so "Hosted table" cannot be
+claimed by anyone who did not commit to it.
 
-## Trust Model
+### Four screens
 
-This is the part of the project that matters most. Three primitives work
-together so that nothing in the UI can claim more certainty than its sourcing
-supports:
+`Explore` · `Tables` · `Places` · `Passport` (Passport absorbed what used to
+be a separate Profile tab; `/profile` still resolves as an alias).
 
-- **`fact()` / `unknownFact()`** — every field a user might act on is wrapped
-  in a fact carrying its own confidence, source, and evidence. The wrapper
-  enforces one invariant: a fact with no value is always `unknown`, and an
-  `unknown` fact can never carry a value. There is no code path where the UI
-  has to guess whether a field is trustworthy.
-- **Confidence Model** — `CONFIRMED / SUPPORTED / INFERRED / UNKNOWN`, kept
-  orthogonal to *where* a fact came from (`SOURCE`) and *how* it was checked
-  (`METHOD`). A fact can be "community-reported and independently confirmed"
-  or "official but stale" — collapsing those into one flattened label would
-  lose exactly the distinction a traveller needs.
-- **Evidence Layer** — sourced facts pin to versioned, SHA-256-sealed
-  evidence records (`Restaurant → Fact → EvidenceRef → EvidenceRecord →
-  EvidenceVersion → Source`). A version's confidence is a **ceiling**, not an
-  opinion — a fact can never claim more certainty than its strongest evidence
-  supports, and that ceiling is enforced mechanically, not by habit.
-- **Lifecycle** — separate from field-level confidence: a restaurant can have
-  well-sourced facts and still need excluding from the live app, because its
-  existence itself is unconfirmed or it has since closed. `ACTIVE` /
-  `QUARANTINE` are enforced end-to-end, from data through every discovery
-  surface to bookmark navigation.
-
-`unknown` always beats a plausible guess. Nothing is invented to fill a gap —
-not a certification, not a price, not a menu item.
-
-## Project Status
-
-| Phase | State |
-|---|---|
-| 1 — Foundation | ✅ Done |
-| 2 — Production Infrastructure | ✅ Done |
-| 3 — Production Data | ✅ Done |
-| 4 — Final QA | ✅ Done |
-| 5 — Version 1.0 | ⏭ Next: Release Candidate |
-
-## Development Roadmap
-
-The repository's `HANDOFF.md` (§10) is the authoritative roadmap; this is a
-summary. Six phases, each gating the next:
-
-1. **Foundation** — core UI/UX, discovery, detail, story, journal
-2. **Production Infrastructure** — Confidence Model, Evidence Layer, Lifecycle, validation
-3. **Production Data** — every active restaurant brought to production quality
-4. **Final QA** — one full sweep of every gate before release
-5. **Version 1.0** — every visible claim is verified or honestly unknown
-6. **Feature Phase 2** — multilingual support, nearby route, passport expansion, and more
-
-**Feature Phase 2 begins only after v1.0 ships.** No new feature work happens
-before then.
-
-## Technology
-
-- [Vite](https://vite.dev/) — build tooling and dev server
-- [React](https://react.dev/) 19 — UI, `useState` only, no state library
-- JavaScript — no TypeScript
-- [Leaflet](https://leafletjs.com/) / [react-leaflet](https://react-leaflet.js.org/) — the map
-- [oxlint](https://oxc.rs/) — linting
-- Node.js — authoring-time verification and validation scripts
-
-No backend, no router, no build-time framework beyond Vite. Data is authored
-and validated in Node, then ships as static data.
+No router library — nine paths on the History API (`src/routes.js`).
+`/tables/<id>` is the share link a host sends to fill empty seats.
 
 ## Development
 
 ```bash
 npm install
+cp .env.example .env.local     # optional — the app runs on localStorage without it
 npm run dev
+```
+
+Leave `.env.local` empty and the app still runs, on localStorage, shared only
+within one browser. Fill in `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
+(from the Supabase dashboard → Project Settings → API) to switch to shared
+storage — read `.env.example`'s own comments first, the dashboard's key names
+are easy to mix up (`sb_publishable_` is the one that belongs here;
+`sb_secret_` bypasses row-level security and must never ship to a browser).
+Run `supabase/schema.sql` once against a fresh project before pointing the
+app at it.
+
+```bash
+npm test          # 200 tests, node's built-in runner, no test-framework dependency
+npm run lint       # oxlint
 npm run build
 ```
 
-## Repository Rules
+Verify UI changes at **375×812** — desktop-width verification has missed real
+regressions before.
 
-The full rules live in `HANDOFF.md` (§11); in short:
+## Trust and honesty rules — enforced by tests, not just documentation
 
-- **Repository First** — the repository is the only authoritative project
-  state. A decision that isn't written here isn't real project state.
-- **One Production Unit per Commit** — one restaurant, one change, one
-  commit. No batching.
-- **Evidence before claim** — no fact ships without a source and a method to
-  re-check it.
-- **No fabricated data** — unknown beats a fabricated certainty, always. A
-  disagreement between sources stays unknown; it is never averaged or
-  guessed.
-- **Architecture Freeze** — the Confidence Model, Evidence Layer, and
-  Lifecycle are frozen. New work extends these primitives; it does not
-  redesign them.
+This is a government-adjacent cultural project, so the honesty rules are
+structural rather than a style guide:
 
-See `HANDOFF.md` for the full engineering handoff — architecture, data
-model, technical debt, known risks, and the next recommended task.
+- **No prices anywhere.** There is no way to verify them.
+- **Every quiz question needs a source.** `quizFor` filters out anything
+  unsourced before it can reach a traveller — see `src/content/sources.js`,
+  where every entry is a source somebody on the team actually opened and
+  read, quoted inline.
+- **The app never rules on a dish's dietary status.** Vegan and halal are not
+  verdicts this app renders — they are a message a traveller sends to the
+  host, who is the person who can actually ask the kitchen
+  (`src/data/profile.js`).
+- **Sample data says so.** Seeded example tables are marked `isSample`; a
+  demo that quietly passes off invented strangers as real users is the one
+  thing this screen must not do.
+
+## Architecture
+
+`Policy → Projection → Capability → Entity → Value Object`
+(`src/domain/`). Judgment calls belong in `policy/`, not inside a component —
+a rule once lived in a component, was wrong, and moved to
+`src/domain/policy/matching.js`; that is the shape every new rule should
+take.
+
+`src/data/tableRepository.js` is the single seam between localStorage and
+Supabase — every screen calls through it and neither knows nor needs to know
+which backend is live. The switch is automatic: set the two `VITE_SUPABASE_*`
+keys and the app is on shared storage; leave them unset and it runs on one
+device.
+
+## This repository shares history with another app
+
+This folder grew out of **K-Food Map**, a different, map-first restaurant
+finder, and the two repositories still share early git history. They are
+separate products with separate production URLs — see
+`docs/where-this-deploys.md` for exactly which folder deploys where, and read
+it before ever touching `git push` or `git remote` in this repo. A mix-up
+here took the other team's live site down for a few hours on 2 August 2026.
+
+`docs/DATA.md` and `docs/EVIDENCE.md` also date from the K-Food Map era, but
+`src/data/verification.js` still uses parts of that model — do not delete
+them; check what still applies before relying on them.
+
+For the full engineering handoff — what's built, what isn't, what's blocked
+on a human decision, and the current priority order — see `HANDOFF.md`.
