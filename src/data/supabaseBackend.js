@@ -651,6 +651,52 @@ export async function signOutMember() {
 }
 
 /**
+ * Close the account and take the data with it.
+ *
+ * Calls the delete-account Edge Function, which holds the service role key —
+ * a browser cannot delete an auth user, and should not be able to. The
+ * session token travels as proof of identity; the function decides nothing
+ * from what the client says about itself.
+ *
+ * Signs out locally afterwards whatever the server said, because a token for
+ * a deleted account is exactly the ghost session currentUser() now has to
+ * recover from. Better to end it here than to leave it in the browser.
+ */
+export async function deleteAccount() {
+  const sb = await client();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user || session.user.is_anonymous) {
+    throw new Error('Sign in before closing your account.');
+  }
+  // The undeployed case does not arrive as a 404 you can read: the edge
+  // runtime answers an unknown function without CORS headers, so the browser
+  // blocks the response and fetch rejects with a bare "Failed to fetch".
+  // Verified on 2026-08-04, which is why this is a catch and not a status
+  // check — somebody asking to be deleted must never meet a stack-trace
+  // sentence with no way forward in it.
+  const OUT_OF_BAND = 'Account deletion is not switched on for this project yet. Mail eatple0701@gmail.com and the team will close your account and delete your details.';
+  let res;
+  try {
+    res = await fetch(`${URL}/functions/v1/delete-account`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch {
+    throw new Error(OUT_OF_BAND);
+  }
+  if (!res.ok) {
+    if (res.status === 404) throw new Error(OUT_OF_BAND);
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? 'That did not work. Try again, or mail eatple0701@gmail.com.');
+  }
+  await sb.auth.signOut();
+}
+
+/**
  * The contact row, upserted so the Google completion step and the signup form
  * are the same write. Email is stored here as well as in auth so the team
  * reads one table in the dashboard, not a join.

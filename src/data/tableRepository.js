@@ -510,6 +510,26 @@ async function local_saveMemberDetails({ email, phone, birthdate }) {
   });
 }
 
+/**
+ * Closing the account, on the device-only backend: forget everything this
+ * browser knows about the person. There is no server to tell, which is the
+ * whole difference — but the effect a person asked for (my data is gone) is
+ * the same one they get, so the two backends do not diverge in meaning.
+ */
+async function local_deleteAccount() {
+  const acc = readAccount();
+  if (!acc || !acc.signedIn) throw new Error('Sign in before closing your account.');
+  try {
+    localStorage.removeItem(ACCOUNT_KEY);
+    // Their tables, seats, reviews and blocks go with them, same cascade the
+    // database performs through profiles.
+    write(TABLES_KEY, read(TABLES_KEY).filter(t => t.hostId !== acc.userId));
+    write(SIGNUPS_KEY, read(SIGNUPS_KEY).filter(s => s.userId !== acc.userId));
+    write(REVIEWS_KEY, []);
+    write(BLOCKS_KEY, []);
+  } catch { /* private mode; the account key is already gone */ }
+}
+
 async function local_saveAvatar(dataUrl) {
   const acc = readAccount();
   if (!acc || !acc.signedIn) throw new Error('Sign in before adding a photo.');
@@ -529,3 +549,6 @@ export const signInWithGoogle = useRemote ? remote.signInWithGoogle : local_sign
 export const signOutMember = useRemote ? remote.signOutMember : local_signOutMember;
 export const saveMemberDetails = useRemote ? remote.saveMemberDetails : local_saveMemberDetails;
 export const saveAvatar = useRemote ? remote.saveAvatar : local_saveAvatar;
+// The door out, as available as the door in — required of anything holding
+// a phone number, and the thing a privacy policy has to be able to point at.
+export const deleteAccount = useRemote ? remote.deleteAccount : local_deleteAccount;

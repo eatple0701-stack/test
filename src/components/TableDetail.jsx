@@ -389,16 +389,61 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       </header>
 
       <div className="detail-hero">
-        <span className="detail-hero__word" aria-hidden="true">{menu.nameKo}</span>
+        {/* The dish's own name, in the script it is written in on the shop
+            sign. A browser translating 감자탕 to "potato soup" takes away the
+            one string a traveller can point at. */}
+        <span className="detail-hero__word" aria-hidden="true" translate="no">{menu.nameKo}</span>
         <span className="detail-hero__cat">{CATEGORY_LABEL[menu.category]?.en}</span>
         <h2 className="detail-hero__dish">
           {menu.name}
-          <span className="detail-hero__rom">{menu.romanization}</span>
+          <span className="detail-hero__rom" translate="no">{menu.romanization}</span>
         </h2>
         {/* Under the name, above the reason. Somebody who arrived on a shared
             link may be meeting this word for the first time. */}
         <p className="detail-hero__gloss">{menu.gloss}</p>
         <p className="detail-hero__why">{menu.whyShared}</p>
+      </div>
+
+      {/* When, where, how many — moved directly under the dish on 8/4.
+          It used to sit below two blocks of prose, which is the wrong order
+          for the person this page is mostly for: somebody who followed a
+          shared link and is deciding, in about four seconds, whether this is
+          a day they are even in the city. The prose earns their evening; the
+          facts decide whether there is an evening to earn. */}
+      <div className="detail-block detail-block--facts">
+        <p className="detail-fact"><ClockIcon size={15} /> {fullDate(table.date)} at {table.time}</p>
+        <p className="detail-fact"><MapPinIcon size={15} /> Meet at {table.place}</p>
+        {/* Named or honestly unnamed — a blank line here had guests assuming
+            the meeting point was the restaurant. */}
+        <p className="detail-fact detail-fact--muted">
+          {table.restaurant
+            ? <>Eating at {table.restaurant}</>
+            : <>Restaurant not decided yet — the table picks one together</>}
+        </p>
+        <p className="detail-fact">
+          <span className={`detail-seats${left === 0 ? ' is-full' : ''}`}>
+            {left === 0 ? 'Full' : `${left} seat${left === 1 ? '' : 's'} left`}
+          </span>
+          of {table.seats}
+        </p>
+
+        {/* The URL existed and nothing offered it. A host with empty seats has
+            no other way to fill them — there is no messaging, no notification
+            and no feed — so the link is the only reach this app gives them.
+            핵심기능 5 is SNS 확산, and this is the object that spreads. */}
+        <button className="detail-share" onClick={share}>
+          {shared ? <><CheckIcon size={15} /> Link copied</> : '링크 보내기 · Send this table to someone'}
+        </button>
+
+        {/* A traveller's day is their phone calendar. The promise this page
+            makes — this exit, this time — is exactly an event, and copying
+            it over by hand is where typos put people an hour late. Gone once
+            the meal is past or called off: there is nothing left to book. */}
+        {!isCancelled(table) && !isPast(table) && (
+          <button className="detail-share detail-calendar" onClick={addToCalendar}>
+            캘린더에 추가 · Add to your calendar
+          </button>
+        )}
       </div>
 
       <div className="detail-block">
@@ -465,42 +510,6 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           )}
         </details>
       )}
-
-      <div className="detail-block detail-block--facts">
-        <p className="detail-fact"><ClockIcon size={15} /> {fullDate(table.date)} at {table.time}</p>
-        <p className="detail-fact"><MapPinIcon size={15} /> Meet at {table.place}</p>
-        {/* Named or honestly unnamed — a blank line here had guests assuming
-            the meeting point was the restaurant. */}
-        <p className="detail-fact detail-fact--muted">
-          {table.restaurant
-            ? <>Eating at {table.restaurant}</>
-            : <>Restaurant not decided yet — the table picks one together</>}
-        </p>
-        <p className="detail-fact">
-          <span className={`detail-seats${left === 0 ? ' is-full' : ''}`}>
-            {left === 0 ? 'Full' : `${left} seat${left === 1 ? '' : 's'} left`}
-          </span>
-          of {table.seats}
-        </p>
-
-        {/* The URL existed and nothing offered it. A host with empty seats has
-            no other way to fill them — there is no messaging, no notification
-            and no feed — so the link is the only reach this app gives them.
-            핵심기능 5 is SNS 확산, and this is the object that spreads. */}
-        <button className="detail-share" onClick={share}>
-          {shared ? <><CheckIcon size={15} /> Link copied</> : '링크 보내기 · Send this table to someone'}
-        </button>
-
-        {/* A traveller's day is their phone calendar. The promise this page
-            makes — this exit, this time — is exactly an event, and copying
-            it over by hand is where typos put people an hour late. Gone once
-            the meal is past or called off: there is nothing left to book. */}
-        {!isCancelled(table) && !isPast(table) && (
-          <button className="detail-share detail-calendar" onClick={addToCalendar}>
-            캘린더에 추가 · Add to your calendar
-          </button>
-        )}
-      </div>
 
       {/* Language, said plainly, in all four of its states. Somebody weighing
           an evening with four strangers is mostly weighing whether they will

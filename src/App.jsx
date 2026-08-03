@@ -791,7 +791,18 @@ export default function App() {
         {/* The fifth tab: device settings. Not the old Profile tab returning
             — profile stays inside the Passport — but the appearance mode,
             which was hiding in the profile form where it never belonged. */}
-        {!openThemeId && activeTab === 'settings' && <SettingsTab />}
+        {!openThemeId && activeTab === 'settings' && (
+          <SettingsTab
+            auth={auth}
+            /* Closing an account ends the session inside deleteAccount, so
+               this only has to catch the app up — and send them somewhere
+               that still exists, since the Passport they were near is gone. */
+            onSignedOut={async () => {
+              await refreshAuth();
+              setActiveTab('match');
+            }}
+          />
+        )}
 
       </div>
 

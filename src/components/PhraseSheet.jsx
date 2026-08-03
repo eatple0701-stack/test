@@ -129,7 +129,12 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
             {/* Korean largest, exactly as the phrase cards do it, because this
                 is the card most likely to be turned around and read by
                 somebody else at the table. */}
-            <p className="ask-card__ko" lang="ko">{ask.ko}</p>
+            {/* translate="no" is load-bearing, not cosmetic: this line exists
+                to be turned around and read by a Korean waiter. A browser
+                that helpfully translates it back into the traveller's own
+                language produces a phone held up to somebody who cannot read
+                it — the exact failure the sheet was built to prevent. */}
+            <p className="ask-card__ko" lang="ko" translate="no">{ask.ko}</p>
             <p className="ask-card__en">{ask.en}</p>
           </div>
 
@@ -145,8 +150,11 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
               <p className="phrase-card__en">{p.en}</p>
               {/* The largest thing on the card, because holding it up is the
                   fastest way through the gap. */}
-              <p className="phrase-card__ko" lang="ko">{p.ko}</p>
-              <p className="phrase-card__read">{p.read}</p>
+              <p className="phrase-card__ko" lang="ko" translate="no">{p.ko}</p>
+              {/* The romanisation is a pronunciation guide, so translating it
+                  would be nonsense in the literal sense — there is nothing to
+                  translate, only letters to mangle. */}
+              <p className="phrase-card__read" translate="no">{p.read}</p>
               {p.note && <p className="phrase-card__note">{p.note}</p>}
 
               {voice && (

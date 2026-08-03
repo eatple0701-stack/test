@@ -9161,3 +9161,19 @@ body {
 .culture-fold[open] .culture-fold__summary svg { transform: rotate(90deg); }
 .culture-fold .detail-culture { margin-top: 10px; }
 .culture-fold .detail-theme { margin-top: 10px; }
+
+/* The door out, in Settings. Quiet until opened — a destructive control that
+   shouts is a control people tap by accident. */
+.danger-zone { margin-top: 8px; }
+.danger-open {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: 1px solid var(--danger-line);
+  border-radius: var(--radius);
+  color: var(--danger-ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.danger-open:hover { background: var(--danger-tint); }

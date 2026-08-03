@@ -121,7 +121,9 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           in the doorway. A member sees themselves here instead — the same
           corner, answering "am I signed in" at a glance. */}
       <div className="app-topbar">
-        <span className="app-topbar__mark" aria-hidden="true">밥친구</span>
+        {/* The wordmark is a name, not a phrase. Chrome rendering it as
+            "rice friend" is the app losing its own signage. */}
+        <span className="app-topbar__mark" aria-hidden="true" translate="no">밥친구</span>
         {isMember(auth) ? (
           <button className="app-topbar__me" onClick={onOpenPassport}>
             {profile?.avatarUrl
@@ -217,7 +219,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 className={`menu-chip${menuFilter === id ? ' is-on' : ''}`}
                 onClick={() => setMenuFilter(menuFilter === id ? null : id)}
               >
-                <span className="menu-chip__kr">{m.nameKo}</span> {m.name}
+                <span className="menu-chip__kr" translate="no">{m.nameKo}</span> {m.name}
               </button>
             );
           })}
@@ -311,7 +313,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
           return (
             <button key={t.id} className="table-card" onClick={() => onOpenTable(t.id)}>
-              <span className="table-card__word" aria-hidden="true">{menu.nameKo}</span>
+              <span className="table-card__word" aria-hidden="true" translate="no">{menu.nameKo}</span>
 
               <span className="table-card__top">
                 <span className="table-card__cat">
