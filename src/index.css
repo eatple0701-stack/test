@@ -8821,3 +8821,286 @@ body {
     width: 100%;
   }
 }
+
+/* ---------- Meetup-study batch (2026-08-03) ---------- */
+/* 신고 · 후기 · 호스트 카드 · 아바타 스택 · 3단계 · 고정 CTA · 캘린더 ·
+   비슷한 밥상 · 요일 칩 · PC 그리드 — trust surfaces and discovery. */
+
+/* How it works — three numbered steps for a first visit. */
+.how-strip {
+  margin: 12px 16px 0;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.how-strip__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.how-strip__step {
+  display: grid;
+  grid-template-columns: 24px auto 1fr;
+  align-items: baseline;
+  gap: 8px;
+}
+.how-strip__num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--green-tint);
+  color: var(--green-strong);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+.how-strip__kr { font-weight: 700; font-size: 13px; color: var(--ink); white-space: nowrap; }
+.how-strip__en { font-size: 12.5px; color: var(--ink-body); }
+.how-strip__why {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Confirmed faces on a card. Overlapping circles, initials when no photo. */
+.table-card__right { display: inline-flex; align-items: center; gap: 8px; }
+.avatar-stack { display: inline-flex; align-items: center; }
+.avatar-stack__face {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  object-fit: cover;
+  margin-left: -6px;
+  background: var(--fill);
+}
+.avatar-stack__face:first-child { margin-left: 0; }
+.avatar-stack__face--initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted-strong);
+  background: var(--green-tint);
+}
+.avatar-stack__more { margin-left: 3px; font-size: 11px; color: var(--muted); font-weight: 600; }
+
+/* The host as a person with a record. */
+.host-card__row { display: flex; align-items: center; gap: 12px; }
+.host-card__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--fill);
+  flex: 0 0 auto;
+}
+.host-card__initial {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--green-tint);
+  color: var(--green-strong);
+  font-size: 18px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.host-card__facts { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.host-card__name { font-weight: 700; font-size: 14px; color: var(--ink); }
+.host-card__langs { font-size: 12px; color: var(--muted); }
+.host-card__record { font-size: 12px; color: var(--green-strong); font-weight: 600; }
+
+/* Lines from people who went. */
+.review-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.review-line { display: flex; flex-direction: column; gap: 2px; }
+.review-line__body { font-size: 13.5px; color: var(--ink-body); line-height: 1.55; }
+.review-line__name { font-size: 12px; color: var(--muted); }
+
+/* Writing your line, inside your own seat block. */
+.review-write { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.review-write__title { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
+.review-write textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: var(--surface);
+  resize: vertical;
+}
+.review-write__save {
+  align-self: flex-start;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--green-strong);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 9px 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.review-write__save:disabled { opacity: 0.5; cursor: default; }
+
+/* The report door. Same quiet register as .safety-open above it. */
+.report-open {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 4px 16px 0;
+  padding: 12px;
+  background: none;
+  border: 1px dashed var(--line-hover);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+}
+.report-panel {
+  margin: 4px 16px 0;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.report-panel__title { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--ink); }
+.report-panel__hint { margin: 0 0 10px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.report-panel__reasons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.report-reason {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--ink-body);
+  cursor: pointer;
+}
+.report-reason.is-on {
+  border-color: var(--green-strong);
+  background: var(--green-tint);
+  color: var(--green-strong);
+  font-weight: 600;
+}
+.report-panel__note {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+  resize: vertical;
+}
+.report-panel__row { display: flex; gap: 8px; margin-top: 10px; }
+.report-receipt {
+  margin: 4px 16px 0;
+  padding: 14px;
+  background: var(--green-tint);
+  border-radius: var(--radius-lg);
+}
+.report-receipt__title {
+  margin: 0 0 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--green-strong);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.report-receipt__body { margin: 0; font-size: 12.5px; color: var(--ink-body); line-height: 1.55; }
+
+/* The calendar file, styled as the share button's sibling. */
+.detail-calendar { margin-top: 8px; }
+
+/* Other tables open now. */
+.similar-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.similar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  color: var(--ink);
+}
+.similar-row:hover { background: var(--surface-hover); }
+.similar-row__word { font-weight: 800; font-size: 15px; flex: 0 0 auto; }
+.similar-row__facts { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.similar-row__dish { font-weight: 600; font-size: 13px; }
+.similar-row__when { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* The decision within a thumb's reach. Mobile only — desktop has the whole
+   page on screen and a floating bar there is furniture. */
+.detail-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--tab-h);
+  z-index: 14;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  box-shadow: var(--shadow-sheet);
+}
+.detail-cta__when {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-body);
+  white-space: nowrap;
+}
+.detail-cta__btn {
+  flex: 1;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--orange-strong);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px;
+  cursor: pointer;
+}
+/* The page needs room to scroll past the bar, or the join form hides under it. */
+.table-detail { padding-bottom: 76px; }
+
+@media (min-width: 768px) {
+  .detail-cta { display: none; }
+  .table-detail { padding-bottom: 0; }
+
+  /* Meetup lays cards in a grid the moment the viewport allows one; a phone
+     column stretched to 720px was the 8/1 PC complaint wearing new clothes. */
+  .table-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+  .table-card { height: 100%; }
+}

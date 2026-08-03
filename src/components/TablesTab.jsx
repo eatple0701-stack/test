@@ -8,6 +8,7 @@ import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { visibleTables } from '../domain/policy/blocking.js';
+import { acceptedSignups } from '../domain/policy/seatRequest.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
 import { isMember } from '../domain/policy/access.js';
@@ -28,6 +29,28 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
+// Local wall-clock dates for the day chips. Not toISOString(), which is UTC —
+// a Seoul evening is already tomorrow in UTC, and "오늘" filtering to
+// yesterday's tables is exactly the off-by-one a traveller would hit at 9pm.
+const localYmd = (offset = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+const isWeekendDate = (date) => {
+  const d = new Date(`${date}T00:00`);
+  if (!Number.isFinite(d.getTime())) return false;
+  return d.getDay() === 6 || d.getDay() === 0;
+};
+
+/** The three ways a traveller actually thinks about when. */
+const DAY_CHIPS = [
+  { id: 'today', label: '오늘 · Today', match: (date) => date === localYmd(0) },
+  { id: 'tomorrow', label: '내일 · Tomorrow', match: (date) => date === localYmd(1) },
+  { id: 'weekend', label: '주말 · Weekend', match: isWeekendDate },
+];
+
 export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, onOpenPassport }) {
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
@@ -38,6 +61,8 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // nothing else. See HANDOFF.md §4: praised by a reviewer for existing
   // before it did.
   const [womenFilter, setWomenFilter] = useState(false);
+  // 오늘/내일/주말 — one at a time, second tap turns it off, like menuFilter.
+  const [dayFilter, setDayFilter] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -77,8 +102,10 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     if (womenFilter) {
       list = list.filter(t => tableIncludesGender(t, signupsFor[t.id] ?? [], 'Woman'));
     }
+    const day = DAY_CHIPS.find(c => c.id === dayFilter);
+    if (day) list = list.filter(t => day.match(t.date));
     return list;
-  }, [open, menuFilter, womenFilter, signupsFor]);
+  }, [open, menuFilter, womenFilter, dayFilter, signupsFor]);
 
   // Only offer a filter for dishes somebody is actually eating — a chip that
   // always returns nothing is a dead end dressed as a choice.
@@ -131,6 +158,38 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         )}
       </header>
 
+      {/* The 8/1 tester's exact words: 첫 방문 시 무엇을 해야 하는지
+          직관적으로 이해하기 어려움. Meetup answers it with a numbered
+          "how it works" on the front page, and so does this — three steps
+          and the one cultural fact that makes the app make sense. Guests
+          only: a member has done all three. */}
+      {!isMember(auth) && (
+        <div className="how-strip" aria-label="How 밥친구 works">
+          <ol className="how-strip__steps">
+            <li className="how-strip__step">
+              <span className="how-strip__num" aria-hidden="true">1</span>
+              <span className="how-strip__kr">밥상 찾기</span>
+              <span className="how-strip__en">Find a table serving a dish no one can order alone.</span>
+            </li>
+            <li className="how-strip__step">
+              <span className="how-strip__num" aria-hidden="true">2</span>
+              <span className="how-strip__kr">자리 요청</span>
+              <span className="how-strip__en">Ask for the seat. The host says yes to you by name.</span>
+            </li>
+            <li className="how-strip__step">
+              <span className="how-strip__num" aria-hidden="true">3</span>
+              <span className="how-strip__kr">나눠 먹기</span>
+              <span className="how-strip__en">Meet, share the food, split the bill, keep the evening.</span>
+            </li>
+          </ol>
+          <p className="how-strip__why">
+            한국 밥상은 나눠 먹도록 차려집니다 — a Korean table is laid to be
+            shared. Browsing every dish and tip is free; the seat is what an
+            account is for.
+          </p>
+        </div>
+      )}
+
       {/* Said plainly rather than discovered later. A host who believes
           strangers can already see this would be misled by silence — and once
           they genuinely can, the notice has to stop appearing rather than
@@ -165,6 +224,19 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </div>
       )}
 
+      <div className="menu-chips" role="group" aria-label="Filter by day">
+        {DAY_CHIPS.map(c => (
+          <button
+            key={c.id}
+            className={`menu-chip${dayFilter === c.id ? ' is-on' : ''}`}
+            aria-pressed={dayFilter === c.id}
+            onClick={() => setDayFilter(dayFilter === c.id ? null : c.id)}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
       <div className="menu-chips" role="group" aria-label="Filter by who is going">
         <button
           className={`menu-chip${womenFilter ? ' is-on' : ''}`}
@@ -194,7 +266,22 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </div>
       )}
 
-      {tables !== null && shown.length === 0 && !womenFilter && (
+      {/* A day with nothing on it is an honest answer with an obvious next
+          move — widen the day, or be the table that day gets. */}
+      {tables !== null && shown.length === 0 && !womenFilter && dayFilter && (
+        <div className="tables-empty">
+          <p className="tables-empty__title">Nothing on that day yet.</p>
+          <p>Other days have tables — or open one and own the evening.</p>
+          <button className="tables-empty__cta" onClick={() => setDayFilter(null)}>
+            다른 날 보기 · Show every day
+          </button>
+          <button className="tables-empty__ask" onClick={onCreateTable}>
+            상 차리기 · Open a table
+          </button>
+        </div>
+      )}
+
+      {tables !== null && shown.length === 0 && !womenFilter && !dayFilter && (
         <div className="tables-empty">
           <p className="tables-empty__title">No table for this one yet.</p>
           <p>Open it yourself and the seats are yours to fill.</p>
@@ -266,9 +353,33 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   )}
                   {t.isSample && <span className="table-card__sample">sample</span>}
                 </span>
-                <span className={`table-card__seats${left === 0 ? ' is-full' : ''}`}>
-                  {left === 0 ? 'Full' : `${left} seat${left === 1 ? '' : 's'} left`}
-                  <ChevronRightIcon size={14} />
+                <span className="table-card__right">
+                  {/* Confirmed faces, Meetup's oldest trick told honestly:
+                      only seats the host actually gave, never pending ones.
+                      An empty stack renders nothing — zero avatars is not a
+                      fact worth a badge. */}
+                  {(() => {
+                    const going = acceptedSignups(rows);
+                    if (going.length === 0) return null;
+                    return (
+                      <span className="avatar-stack" aria-label={`${going.length} going`}>
+                        {going.slice(0, 3).map(s => (
+                          s.avatarUrl
+                            ? <img key={s.id} className="avatar-stack__face" src={s.avatarUrl} alt="" />
+                            : (
+                              <span key={s.id} className="avatar-stack__face avatar-stack__face--initial" aria-hidden="true">
+                                {(s.name || '?').trim().charAt(0) || '?'}
+                              </span>
+                            )
+                        ))}
+                        {going.length > 3 && <span className="avatar-stack__more">+{going.length - 3}</span>}
+                      </span>
+                    );
+                  })()}
+                  <span className={`table-card__seats${left === 0 ? ' is-full' : ''}`}>
+                    {left === 0 ? 'Full' : `${left} seat${left === 1 ? '' : 's'} left`}
+                    <ChevronRightIcon size={14} />
+                  </span>
                 </span>
               </span>
             </button>

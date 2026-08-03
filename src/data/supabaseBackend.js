@@ -6,9 +6,14 @@
 // driver to do it.
 
 import {
-  tableFromRow, tableToRow, signupFromRow, signupToRow, blockFromRow, blockToRow, friendlyError,
+  tableFromRow, tableToRow, signupFromRow, signupToRow, blockFromRow, blockToRow,
+  reportToRow, reviewFromRow, reviewToRow, friendlyError,
 } from './tableMapping.js';
 import { cleanGender } from '../domain/catalog/genders.js';
+import { acceptedSignups } from '../domain/policy/seatRequest.js';
+import { countsAsMet } from '../domain/policy/attendance.js';
+import { isCancelled } from '../domain/policy/cancellation.js';
+import { isPast } from '../domain/policy/table.js';
 
 const URL = import.meta.env?.VITE_SUPABASE_URL;
 const KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY;
@@ -233,11 +238,21 @@ export async function deleteTable(tableId) {
   return tableFromRow(data);
 }
 
+// The embed rides the signups.user_id → profiles foreign key, and exists for
+// one column: the face on the avatar stack. Falls back to a plain select when
+// the join is refused — a schema mid-migration must degrade to "no faces",
+// never to "no signups", because seat counts and approval flow both read this.
+const SIGNUP_COLUMNS = '*, profiles (avatar_url)';
+
 export async function listSignups(tableId) {
   const sb = await client();
   await currentUser();
-  const { data, error } = await sb
-    .from('signups').select('*').eq('table_id', tableId).order('created_at');
+  let { data, error } = await sb
+    .from('signups').select(SIGNUP_COLUMNS).eq('table_id', tableId).order('created_at');
+  if (error) {
+    ({ data, error } = await sb
+      .from('signups').select('*').eq('table_id', tableId).order('created_at'));
+  }
   if (error) throw new Error(friendlyError(error));
   return (data ?? []).map(signupFromRow);
 }
@@ -245,7 +260,10 @@ export async function listSignups(tableId) {
 export async function listAllSignups() {
   const sb = await client();
   await currentUser();
-  const { data, error } = await sb.from('signups').select('*');
+  let { data, error } = await sb.from('signups').select(SIGNUP_COLUMNS);
+  if (error) {
+    ({ data, error } = await sb.from('signups').select('*'));
+  }
   if (error) throw new Error(friendlyError(error));
   return (data ?? []).map(signupFromRow);
 }
@@ -368,6 +386,107 @@ export async function deleteBlock(blockedId) {
 
 /** Nothing to seed: a shared database already has everybody else's tables. */
 export async function seedSampleTables() {}
+
+/**
+ * A table that is not there yet, in either of the dialects that mean it.
+ * Postgres itself says 42P01 (undefined_table); PostgREST answers for a
+ * missing relation from its schema cache with PGRST205 before Postgres is
+ * ever asked — verified against this project on 2026-08-03, where the
+ * pre-schema reports insert came back PGRST205, not 42P01.
+ */
+const isMissingTable = (error) =>
+  error?.code === '42P01' || error?.code === 'PGRST205';
+
+/**
+ * A report on its way to the team's dashboard. Insert-only: reports_insert_own
+ * is the table's whole policy surface, and there is deliberately no read.
+ *
+ * The missing-table case gets its own sentence because this feature can
+ * reach a project before its schema does, and a safety door that fails with
+ * "did not save" reads as the app shrugging at the person least able to
+ * shrug back.
+ */
+export async function createReport(input) {
+  const sb = await client();
+  const user = await currentUser();
+  const { error } = await sb.from('reports').insert(reportToRow(input, { reporterId: user.id }));
+  if (isMissingTable(error)) {
+    throw new Error('Reporting is not switched on for this project yet — run the latest schema.sql, then try again.');
+  }
+  if (error) throw new Error(friendlyError(error));
+}
+
+/**
+ * The lines people left on one table. Tolerant of a missing reviews table —
+ * a page must render without its reviews long before it may fail because of
+ * them, same dormant-schema rule as signups.status.
+ */
+export async function listReviews(tableId) {
+  const sb = await client();
+  await currentUser();
+  const { data, error } = await sb
+    .from('reviews').select('*').eq('table_id', tableId).order('created_at');
+  if (error) return [];
+  return (data ?? []).map(reviewFromRow);
+}
+
+/**
+ * Write — or rewrite — your one line about a meal. The upsert on the signup
+ * primary key is what makes those the same act, and reviews_insert_own holds
+ * the floor: only the accepted seat's own holder passes.
+ */
+export async function saveReview(input) {
+  const sb = await client();
+  const user = await currentUser();
+  const { data, error } = await sb
+    .from('reviews')
+    .upsert(reviewToRow(input, { userId: user.id }), { onConflict: 'signup_id' })
+    .select()
+    .single();
+  if (isMissingTable(error)) {
+    throw new Error('Reviews are not switched on for this project yet — run the latest schema.sql.');
+  }
+  if (error) throw new Error(friendlyError(error));
+  return reviewFromRow(data);
+}
+
+/**
+ * A host's track record, computed from rows anybody at the table could read
+ * one by one — this only aggregates what tables_read and signups_read already
+ * expose, so it grants nothing new.
+ *
+ * The judgements are the policies': a meal counts once it is past and was not
+ * called off, a guest counts on an accepted seat unless recorded a no-show.
+ * Returns null rather than zeros when the profile itself cannot be read, so
+ * the screen can tell "new host" apart from "could not look".
+ */
+export async function hostRecord(hostId) {
+  if (!hostId) return null;
+  const sb = await client();
+  await currentUser();
+
+  const [{ data: prof, error: profErr }, { data: tableRows }] = await Promise.all([
+    sb.from('profiles').select('name, avatar_url, languages').eq('id', hostId).maybeSingle(),
+    sb.from('tables').select('*').eq('host_id', hostId),
+  ]);
+  if (profErr || !prof) return null;
+
+  const held = (tableRows ?? []).map(tableFromRow).filter(t => !isCancelled(t) && isPast(t));
+  let guestsMet = 0;
+  if (held.length > 0) {
+    const { data: signupRows } = await sb
+      .from('signups').select('*').in('table_id', held.map(t => t.id));
+    guestsMet = acceptedSignups((signupRows ?? []).map(signupFromRow)).filter(countsAsMet).length;
+  }
+
+  return {
+    name: prof.name ?? '',
+    avatarUrl: prof.avatar_url ?? '',
+    languages: Array.isArray(prof.languages) ? prof.languages : [],
+    tablesHosted: held.length,
+    guestsMet,
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Membership — accounts, on top of the anonymous sessions browsing runs on.

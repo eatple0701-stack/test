@@ -16,10 +16,16 @@ import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
 import { cleanDiets } from './profile.js';
 import { cleanMeetingNote } from '../domain/policy/meeting.js';
+import { acceptedSignups } from '../domain/policy/seatRequest.js';
+import { countsAsMet } from '../domain/policy/attendance.js';
+import { isCancelled } from '../domain/policy/cancellation.js';
+import { isPast } from '../domain/policy/table.js';
 
 const TABLES_KEY = 'bapchingu-tables';
 const SIGNUPS_KEY = 'bapchingu-signups';
 const BLOCKS_KEY = 'bapchingu-blocks';
+const REPORTS_KEY = 'bapchingu-reports';
+const REVIEWS_KEY = 'bapchingu-reviews';
 
 const read = (key) => {
   try {
@@ -238,6 +244,72 @@ async function local_deleteBlock(blockedId) {
 }
 
 /**
+ * A report, on the backend with nobody at the other end of it.
+ *
+ * Stored locally because that is all this backend can do, and the limits of
+ * that are the caller's to know: isLocalOnly() is already how screens learn
+ * they are on device-only storage. The row shape mirrors the remote so the
+ * dashboard and a localStorage inspection read the same fields.
+ */
+async function local_createReport(input) {
+  const row = {
+    id: newId(),
+    tableId: input.tableId ?? null,
+    reason: input.reasonId,
+    note: input.note ?? '',
+    createdAt: Date.now(),
+  };
+  write(REPORTS_KEY, [...read(REPORTS_KEY), row]);
+}
+
+async function local_listReviews(tableId) {
+  return read(REVIEWS_KEY)
+    .filter(r => r.tableId === tableId)
+    .sort((a, b) => a.createdAt - b.createdAt);
+}
+
+/** Upsert by seat, same one-line-per-seat rule the remote's primary key holds. */
+async function local_saveReview(input) {
+  const rows = read(REVIEWS_KEY).filter(r => r.signupId !== input.signupId);
+  const row = {
+    signupId: input.signupId,
+    tableId: input.tableId,
+    name: input.name ?? '',
+    body: input.body,
+    createdAt: Date.now(),
+  };
+  write(REVIEWS_KEY, [...rows, row]);
+  return row;
+}
+
+/**
+ * A host's track record, from the rows this device holds. The judgements are
+ * the same policies the remote applies; only the storage differs. Null when
+ * this device knows nothing about the host at all, so the screen can tell
+ * "new host" apart from "no data here".
+ */
+async function local_hostRecord(hostId) {
+  if (!hostId) return null;
+  const mine = read(TABLES_KEY).filter(t => t.hostId === hostId);
+  if (mine.length === 0) return null;
+
+  const held = mine.filter(t => !isCancelled(t) && isPast(t));
+  const heldIds = new Set(held.map(t => t.id));
+  const guestsMet = acceptedSignups(
+    read(SIGNUPS_KEY).filter(s => heldIds.has(s.tableId)),
+  ).filter(countsAsMet).length;
+
+  const latest = mine.slice().sort((a, b) => b.createdAt - a.createdAt)[0];
+  return {
+    name: latest.hostName ?? '',
+    avatarUrl: '',
+    languages: latest.languages ?? [],
+    tablesHosted: held.length,
+    guestsMet,
+  };
+}
+
+/**
  * Example tables, written once so the first run is not an empty screen.
  *
  * These are seeded rather than faked at render time: they are ordinary rows a
@@ -319,6 +391,14 @@ export const recordAttendance = useRemote ? remote.recordAttendance : local_reco
 export const listBlocks = useRemote ? remote.listBlocks : local_listBlocks;
 export const createBlock = useRemote ? remote.createBlock : local_createBlock;
 export const deleteBlock = useRemote ? remote.deleteBlock : local_deleteBlock;
+
+// 신고 · 후기 · 호스트 이력 — the trust surfaces 김훈 부장님's review asked
+// for, wired through the same seam so the parity test holds both backends to
+// them from the day they exist.
+export const createReport = useRemote ? remote.createReport : local_createReport;
+export const listReviews = useRemote ? remote.listReviews : local_listReviews;
+export const saveReview = useRemote ? remote.saveReview : local_saveReview;
+export const hostRecord = useRemote ? remote.hostRecord : local_hostRecord;
 
 // Seeded example rows exist to keep the first run from being an empty screen.
 // A shared database has other people's real tables in it, so seeding there

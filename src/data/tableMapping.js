@@ -106,6 +106,10 @@ export function signupFromRow(row) {
     // but is the ordinary case: nobody recorded anything, which attendance.js
     // reads as "they came".
     attendance: row.attendance ?? null,
+    // Present only when the query embedded the profiles row (the avatar
+    // stack on cards reads it); empty otherwise. Never written back —
+    // signupToRow does not know the field exists.
+    avatarUrl: row.profiles?.avatar_url ?? '',
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
   };
 }
@@ -146,6 +150,47 @@ export function blockToRow(input, { blockerId } = {}) {
     blocker_id: blockerId,
     blocked_id: input.blockedId,
     blocked_name: input.blockedName ?? '',
+  };
+}
+
+/**
+ * A report on its way to the team. One direction only — reports have no
+ * FromRow because the app never reads them back; they are written here and
+ * read in the dashboard, which is the entire design.
+ */
+export function reportToRow(input, { reporterId } = {}) {
+  return {
+    reporter_id: reporterId,
+    table_id: input.tableId ?? null,
+    reason: input.reasonId,
+    note: input.note ?? '',
+  };
+}
+
+/**
+ * A review row → the shape the table page reads. The name is denormalised
+ * onto the row at write time, same trade as tables.host_name: reviews render
+ * on the hottest page in the app, and a join for a first name is not worth it.
+ */
+export function reviewFromRow(row) {
+  if (!row) return null;
+  return {
+    signupId: row.signup_id,
+    tableId: row.table_id,
+    userId: row.user_id,
+    name: row.name ?? '',
+    body: row.body ?? '',
+    createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
+  };
+}
+
+export function reviewToRow(input, { userId } = {}) {
+  return {
+    signup_id: input.signupId,
+    table_id: input.tableId,
+    user_id: userId,
+    name: input.name ?? '',
+    body: input.body,
   };
 }
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { seatsRemaining, joinBlocker, isPast, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
 import {
@@ -10,11 +10,19 @@ import {
   ATTENDANCE, ATTENDANCE_PROMPT, attendanceOf, isNoShow, attendanceNote,
 } from '../domain/policy/attendance.js';
 import { canSeeMeetingNote, meetingGuidance } from '../domain/policy/meeting.js';
-import { isCancelled, cancellationNotice } from '../domain/policy/cancellation.js';
+import { isCancelled, cancellationNotice, bookable } from '../domain/policy/cancellation.js';
 import { isMember, gateText } from '../domain/policy/access.js';
 import {
+  REPORT_REASONS, REPORT_NOTE_MAX, cleanReportNote, validateReport,
+  REPORT_RECEIPT, REPORT_DOOR,
+} from '../domain/policy/report.js';
+import {
+  canReview, cleanReview, REVIEW_MAX, REVIEW_PROMPT, REVIEWS_HEADING,
+} from '../domain/policy/review.js';
+import { icsForTable, icsFilenameFor } from '../domain/calendar.js';
+import {
   getTable, listSignups, createSignup, cancelSignup, decideSignup, recordAttendance,
-  deleteTable, createBlock,
+  deleteTable, createBlock, createReport, listReviews, saveReview, hostRecord, listTables,
 } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
@@ -42,9 +50,30 @@ const fullDate = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 };
 
-export default function TableDetail({ tableId, profile, onProfileChange, onBack, onOpenTheme, auth, onRequireAuth }) {
+// The sticky bar's version: short enough to share a line with a button.
+const dayLabelShort = (date) => {
+  const d = new Date(`${date}T00:00`);
+  if (!Number.isFinite(d.getTime())) return date;
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+};
+
+export default function TableDetail({ tableId, profile, onProfileChange, onBack, onOpenTheme, onOpenTable, auth, onRequireAuth }) {
   const [table, setTable] = useState(null);
   const [signups, setSignups] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  // The one line I am writing (or rewriting) about this meal.
+  const [reviewDraft, setReviewDraft] = useState('');
+  const [reviewSaved, setReviewSaved] = useState(false);
+  // The host's track record, or null while unknown — null renders nothing,
+  // so a backend that cannot answer degrades to the page as it was.
+  const [host, setHost] = useState(null);
+  const [similar, setSimilar] = useState([]);
+  // The report door: closed → open → sent. Sent is terminal for this visit.
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState(null);
+  const [reportNote, setReportNote] = useState('');
+  const [reportProblems, setReportProblems] = useState([]);
+  const [reportSent, setReportSent] = useState(false);
   const [name, setName] = useState(profile?.name ?? '');
   const [nationality, setNationality] = useState(profile?.nationality ?? '');
   const [note, setNote] = useState('');
@@ -70,6 +99,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // waiting on a refetch of a list this screen has no other reason to hold —
   // createBlock is idempotent, so there is nothing to reconcile later.
   const [justBlocked, setJustBlocked] = useState(() => new Set());
+  // Where the sticky bar sends people: the decision area at the foot of the
+  // page, whichever of its forms (seat form, gate, rules) is standing there.
+  const joinRef = useRef(null);
   // Set once in Profile, so the seat form has nothing left to ask.
   const profileKnown = Boolean(profile?.name?.trim());
 
@@ -79,12 +111,43 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // does — but the dependency is now the thing the effect actually uses, so
   // it cannot go stale if this function later closes over something else.
   const refresh = useCallback(async () => {
-    const [t, s] = await Promise.all([getTable(tableId), listSignups(tableId)]);
+    const [t, s, r] = await Promise.all([
+      getTable(tableId),
+      listSignups(tableId),
+      // Reviews must never take the page down with them — a missing reviews
+      // table reads as "no lines yet", which is also what it means.
+      listReviews(tableId).catch(() => []),
+    ]);
     setTable(t);
     setSignups(s);
+    setReviews(r);
   }, [tableId]);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  // The host's record and the tables to offer next, fetched once the table
+  // itself is known. Failures degrade to absence: both blocks render nothing
+  // rather than an error, because neither is what this page is for.
+  useEffect(() => {
+    let alive = true;
+    if (!table?.hostId) return undefined;
+    hostRecord(table.hostId)
+      .then(h => { if (alive) setHost(h); })
+      .catch(() => {});
+    listTables()
+      .then(all => {
+        if (!alive) return;
+        const open = bookable(all).filter(t => t.id !== table.id && !isPast(t));
+        // Same dish first — the person reading this page has already chosen
+        // the dish — then anything else, soonest meal first either way.
+        const rank = (t) => (t.menuId === table.menuId ? 0 : 1);
+        open.sort((a, b) => rank(a) - rank(b) || `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
+        setSimilar(open.slice(0, 3));
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [table?.hostId, table?.id, table?.menuId]);
+
 
   const menu = table ? menuById(table.menuId) : null;
   const theme = menu?.themeId ? themeById(menu.themeId) : null;
@@ -110,6 +173,18 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     () => signups.find(s => s.userId === profile?.userId) ?? null,
     [signups, profile],
   );
+  const myReview = useMemo(
+    () => (mySignup ? reviews.find(r => r.signupId === mySignup.id) ?? null : null),
+    [reviews, mySignup],
+  );
+
+  // Rewriting starts from what you already wrote, not from a blank box that
+  // implies the first line was lost. Only fills an untouched draft — never
+  // overwrites what somebody is mid-typing.
+  useEffect(() => {
+    if (myReview && reviewDraft === '') setReviewDraft(myReview.body);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myReview]);
 
   if (!table || !menu) {
     return (
@@ -260,6 +335,50 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     setConfirmBlock(null);
   };
 
+  const saveMyReview = async () => {
+    const body = cleanReview(reviewDraft);
+    if (busy || !mySignup || !body) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await saveReview({ signupId: mySignup.id, tableId, name: mySignup.name, body });
+      await refresh();
+      setReviewSaved(true);
+      setTimeout(() => setReviewSaved(false), 2200);
+    } catch (e) {
+      setError(e.message);
+    }
+    setBusy(false);
+  };
+
+  const submitReport = async () => {
+    if (busy) return;
+    const problems = validateReport({ reasonId: reportReason, note: reportNote });
+    setReportProblems(problems);
+    if (problems.length > 0) return;
+    setBusy(true);
+    try {
+      await createReport({ tableId, reasonId: reportReason, note: cleanReportNote(reportNote) });
+      setReportSent(true);
+    } catch (e) {
+      setReportProblems([e.message]);
+    }
+    setBusy(false);
+  };
+
+  // The .ics download. Generated on the phone from rows the page already
+  // holds — no fetch, no service, nothing that can be down at dinnertime.
+  const addToCalendar = () => {
+    const ics = icsForTable(table, menu, { url: shareUrlFor(tableId) });
+    if (!ics) return;
+    const href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = icsFilenameFor(menu);
+    a.click();
+    URL.revokeObjectURL(href);
+  };
+
   return (
     <section className="sheet-page table-detail" aria-label={`${menu.name} table`}>
       <header className="sheet-page__head">
@@ -363,6 +482,16 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         <button className="detail-share" onClick={share}>
           {shared ? <><CheckIcon size={15} /> Link copied</> : '링크 보내기 · Send this table to someone'}
         </button>
+
+        {/* A traveller's day is their phone calendar. The promise this page
+            makes — this exit, this time — is exactly an event, and copying
+            it over by hand is where typos put people an hour late. Gone once
+            the meal is past or called off: there is nothing left to book. */}
+        {!isCancelled(table) && !isPast(table) && (
+          <button className="detail-share detail-calendar" onClick={addToCalendar}>
+            캘린더에 추가 · Add to your calendar
+          </button>
+        )}
       </div>
 
       {/* Language, said plainly, in all four of its states. Somebody weighing
@@ -446,6 +575,34 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </p>
         )}
       </div>
+
+      {/* The host as a person with a record, not a name on a line. Meetup
+          leads every event with its organiser for the same reason: the
+          decision being made on this page is about a stranger, and this is
+          what the app honestly knows about them. Renders only when the
+          backend could answer; a first-time host is said to be one rather
+          than dressed in zeros. */}
+      {host && (
+        <div className="detail-block host-card">
+          <h3 className="detail-block__label">호스트 · Who is cooking this evening</h3>
+          <div className="host-card__row">
+            {host.avatarUrl
+              ? <img className="host-card__avatar" src={host.avatarUrl} alt="" />
+              : <span className="host-card__initial" aria-hidden="true">{(table.hostName || '?').trim().charAt(0) || '?'}</span>}
+            <div className="host-card__facts">
+              <span className="host-card__name">{table.hostName}</span>
+              {host.languages.length > 0 && (
+                <span className="host-card__langs">{host.languages.join(' · ')}</span>
+              )}
+              <span className="host-card__record">
+                {host.tablesHosted === 0
+                  ? '첫 밥상 · Their first table. Every host in this app started as one.'
+                  : `밥상 ${host.tablesHosted}번 차림 · ${host.tablesHosted} table${host.tablesHosted === 1 ? '' : 's'} held, ${host.guestsMet} guest${host.guestsMet === 1 ? '' : 's'} shared them`}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* What the host said they would explain. Above "Who is going" because
           it is the reason to choose this table over another one serving the
@@ -673,6 +830,25 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           checkmark now would be the app vouching for a stranger it has never
           checked. It appears when verification does. */}
 
+      {/* Lines left by people whose seats were real — ReviewPolicy holds the
+          gate. The next stranger's actual question, "do evenings like this
+          happen", answered in the words of somebody whose evening it was. */}
+      {reviews.length > 0 && (
+        <div className="detail-block">
+          <h3 className="detail-block__label">{REVIEWS_HEADING}</h3>
+          <ul className="review-list">
+            {reviews.map(r => (
+              <li key={r.signupId} className="review-line">
+                <span className="review-line__body">“{r.body}”</span>
+                <span className="review-line__name">— {r.name || 'a guest'}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div ref={joinRef} aria-hidden="true" />
+
       {mySignup ? (
         /* Asking is no longer the same as being in, so this cannot say "you
            have a seat" any more — it said that to everyone, including people
@@ -690,6 +866,28 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   subject cannot see is not a record, it is a rumour. */}
               {attendanceNote(mySignup) && (
                 <p className="join-next join-noshow">{attendanceNote(mySignup)}</p>
+              )}
+              {/* After the meal, the seat turns into a pen. One line, shown
+                  on this table with your name — ReviewPolicy decides whether
+                  this person may hold the pen at all. */}
+              {canReview({ signup: mySignup, table }) && (
+                <div className="review-write">
+                  <h4 className="review-write__title">{REVIEW_PROMPT.title}</h4>
+                  <textarea
+                    rows={2}
+                    maxLength={REVIEW_MAX}
+                    value={reviewDraft}
+                    onChange={e => setReviewDraft(e.target.value)}
+                    placeholder={REVIEW_PROMPT.hint}
+                  />
+                  <button
+                    className="review-write__save"
+                    onClick={saveMyReview}
+                    disabled={busy || !cleanReview(reviewDraft)}
+                  >
+                    {reviewSaved ? <><CheckIcon size={14} /> {REVIEW_PROMPT.saved}</> : REVIEW_PROMPT.save}
+                  </button>
+                </div>
               )}
               {joined && state.kind === SEAT_STATUS.PENDING && (
                 <p className="join-next">
@@ -862,11 +1060,114 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         </div>
       )}
 
+      {/* The door to the team, next to the door to help — related concerns,
+          different directions. Blocking is beside the person it concerns up
+          in "Who is going"; this is for what a block cannot carry. Open to
+          anyone with the page, member or not, by ReportPolicy's reasoning:
+          the person most likely to need it followed somebody's shared link. */}
+      {reportSent ? (
+        <div className="report-receipt">
+          <p className="report-receipt__title"><CheckIcon size={15} /> {REPORT_RECEIPT.title}</p>
+          <p className="report-receipt__body">{REPORT_RECEIPT.body}</p>
+        </div>
+      ) : !reportOpen ? (
+        <button className="report-open" onClick={() => setReportOpen(true)}>
+          {REPORT_DOOR.open}
+        </button>
+      ) : (
+        <div className="report-panel">
+          <h3 className="report-panel__title">{REPORT_DOOR.title}</h3>
+          <p className="report-panel__hint">{REPORT_DOOR.hint}</p>
+          <div className="report-panel__reasons" role="group" aria-label="Reason">
+            {REPORT_REASONS.map(r => (
+              <button
+                key={r.id}
+                className={`report-reason${reportReason === r.id ? ' is-on' : ''}`}
+                aria-pressed={reportReason === r.id}
+                onClick={() => { setReportReason(r.id); setReportProblems([]); }}
+              >
+                {r.kr} · {r.en}
+              </button>
+            ))}
+          </div>
+          <textarea
+            className="report-panel__note"
+            rows={3}
+            maxLength={REPORT_NOTE_MAX}
+            value={reportNote}
+            onChange={e => setReportNote(e.target.value)}
+            placeholder="무슨 일이 있었나요? · What happened, in your words."
+          />
+          {reportProblems.length > 0 && (
+            <ul className="auth-problems">{reportProblems.map(p => <li key={p}>{p}</li>)}</ul>
+          )}
+          <div className="report-panel__row">
+            <button className="cancel-confirm__no" onClick={() => setReportOpen(false)}>
+              Never mind
+            </button>
+            <button className="cancel-confirm__yes" onClick={submitReport} disabled={busy}>
+              {busy ? 'Sending…' : REPORT_DOOR.send}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Quiet, at the bottom, and always there — not a scare on the way in,
           but not something to go hunting for either. */}
       <button className="safety-open" onClick={() => setSafetyOpen(true)}>
         도움이 필요하면 · Feeling unsafe or need help?
       </button>
+
+      {/* The page's last word looks forward. A full table, a wrong date, a
+          dish that scared somebody off — none of those should end at a dead
+          stop when other evenings are open. Same dish first, then soonest. */}
+      {onOpenTable && similar.length > 0 && (
+        <div className="detail-block similar-block">
+          <h3 className="detail-block__label">이런 밥상은 어때요 · Other tables open now</h3>
+          <ul className="similar-list">
+            {similar.map(t => {
+              const m = menuById(t.menuId);
+              if (!m) return null;
+              return (
+                <li key={t.id}>
+                  <button className="similar-row" onClick={() => onOpenTable(t.id)}>
+                    <span className="similar-row__word" aria-hidden="true">{m.nameKo}</span>
+                    <span className="similar-row__facts">
+                      <span className="similar-row__dish">{m.name}</span>
+                      <span className="similar-row__when">{fullDate(t.date)} · {t.time} · {t.place}</span>
+                    </span>
+                    <ChevronRightIcon size={14} />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      {/* The decision, kept within a thumb's reach while the evidence for it
+          scrolls by — Meetup's sticky bar, doing here what it does there.
+          Only for somebody who still has a decision: not the host, not
+          anyone already seated, not a full or finished table. Where the
+          membership gate is what is standing at the foot of the page, the
+          bar sends them to exactly that, which is the funnel working. */}
+      {!isHost && !mySignup && !blocker && !isCancelled(table) && !isPast(table) && (
+        <div className="detail-cta">
+          <span className="detail-cta__when">
+            <ClockIcon size={14} /> {dayLabelShort(table.date)} · {table.time}
+          </span>
+          <button
+            className="detail-cta__btn"
+            /* No behavior:'smooth' — Chromium quietly refuses smooth
+               scrollIntoView inside .content-region (verified in this app,
+               2026-08-03: instant scrolls, smooth does not move at all), and
+               a button that does nothing is worse than a jump cut. */
+            onClick={() => joinRef.current?.scrollIntoView({ block: 'start' })}
+          >
+            자리 요청 · Take a seat
+          </button>
+        </div>
+      )}
 
       {phrasesOpen && (
         <PhraseSheet

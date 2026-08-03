@@ -560,3 +560,98 @@ drop policy if exists avatars_update_own on storage.objects;
 create policy avatars_update_own on storage.objects
   for update to authenticated
   using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ---------------------------------------------------------------------------
+-- Reports (2026-08-03) — 김훈 부장님's 신고, the third leg after 차단 and 후기.
+-- ---------------------------------------------------------------------------
+-- A report is a row the team reads in the dashboard. That is the whole
+-- mechanism: no moderation queue, no automatic action, and the app's receipt
+-- text promises exactly that much (src/domain/policy/report.js).
+--
+-- Write-only by design. There is deliberately NO select policy — not even
+-- for the reporter. Reading your own past reports back is a feature nobody
+-- asked for, and the absence of any select path means a leaked anon key
+-- cannot enumerate who reported whom, which is the most damaging read this
+-- table could serve. The team reads it from the dashboard, which bypasses
+-- RLS by design.
+--
+-- table_id keeps `on delete set null` rather than cascade: a report about a
+-- table must survive the table's own deletion, because deleting the evidence
+-- is exactly the move a bad actor would reach for.
+
+create table if not exists public.reports (
+  id           uuid primary key default gen_random_uuid(),
+  reporter_id  uuid not null references public.profiles(id) on delete cascade,
+  table_id     uuid references public.tables(id) on delete set null,
+  reason       text not null check (reason in ('safety', 'person', 'fake', 'other')),
+  note         text not null default '' check (char_length(note) <= 300),
+  created_at   timestamptz not null default now()
+);
+
+alter table public.reports enable row level security;
+
+-- Any session may report, member or not — the person most likely to need
+-- this is a guest who followed a shared link and saw something wrong on it.
+drop policy if exists reports_insert_own on public.reports;
+create policy reports_insert_own on public.reports
+  for insert to authenticated with check (reporter_id = auth.uid());
+
+-- ---------------------------------------------------------------------------
+-- Reviews (2026-08-03) — one line per seat, written after the meal.
+-- ---------------------------------------------------------------------------
+-- The human half of the trust record; attendance is the honest half. Keyed by
+-- the signup itself, so "one review per person per table" is the primary key
+-- rather than a rule somebody has to remember, and an upsert makes rewriting
+-- your line the same act as writing it.
+--
+-- Its own table rather than columns on signups, for an RLS reason worth
+-- recording: signups' update policies are OR'd permissive policies, and the
+-- host already holds one of them (signups_decide_by_host). Adding a review
+-- column grant there would let a host pass their own policy's WITH CHECK
+-- while writing a guest's review text — the same crosstalk the column grant
+-- on signups exists to prevent. A separate table gets its own policies with
+-- no host in them at all.
+--
+-- The gate on WHO may write is the accepted seat, checked against the
+-- signups table itself. The gate on WHEN — after the meal, not on a
+-- cancelled table, not from a recorded no-show — lives in
+-- src/domain/policy/review.js. This is the floor, not the whole rule.
+
+create table if not exists public.reviews (
+  signup_id   uuid primary key references public.signups(id) on delete cascade,
+  table_id    uuid not null references public.tables(id) on delete cascade,
+  user_id     uuid not null references public.profiles(id) on delete cascade,
+  name        text not null default '',
+  body        text not null check (char_length(body) between 1 and 200),
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists reviews_table_idx on public.reviews (table_id);
+
+alter table public.reviews enable row level security;
+
+-- Readable by anyone who can read the table: a review exists to be read by
+-- the next stranger deciding whether to sit down.
+drop policy if exists reviews_read on public.reviews;
+create policy reviews_read on public.reviews
+  for select to authenticated using (true);
+
+drop policy if exists reviews_insert_own on public.reviews;
+create policy reviews_insert_own on public.reviews
+  for insert to authenticated with check (
+    user_id = auth.uid()
+    and exists (
+      select 1 from public.signups s
+      where s.id = signup_id and s.user_id = auth.uid()
+        and coalesce(s.status, 'accepted') = 'accepted'
+    )
+  );
+
+drop policy if exists reviews_update_own on public.reviews;
+create policy reviews_update_own on public.reviews
+  for update to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists reviews_delete_own on public.reviews;
+create policy reviews_delete_own on public.reviews
+  for delete to authenticated using (user_id = auth.uid());
