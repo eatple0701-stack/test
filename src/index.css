@@ -9266,3 +9266,13 @@ body {
   height: 1px;
   background: var(--line);
 }
+
+/* "저장됨" — the receipt an auto-saving form owes the person filling it. */
+.save-state {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.save-state.is-saved { color: var(--green-strong); }
+.save-state.is-offline { color: var(--orange-ink); }

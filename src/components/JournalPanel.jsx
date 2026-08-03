@@ -38,6 +38,8 @@ export default function JournalPanel({
   bookmarks, onRestaurantClick, onNavigate, journey,
   attestations = [], visitedMarkets = [], profile, onProfileChange,
   onOpenSummary, onOpenTheme, domainJourney, auth, onSignOut, onRequireAuth,
+  // What the app is allowed to claim about the last profile change.
+  saveState = 'idle',
 }) {
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
@@ -406,9 +408,18 @@ export default function JournalPanel({
         <div className="journal-settings">
           <div className="journal-section-header">
             <h3>프로필 · Profile</h3>
+            {/* There is no Save button because every tap already saves. That
+                is only true if the screen says so — otherwise it looks like a
+                form waiting for a button that does not exist. */}
+            {saveState === 'saving' && <span className="save-state">저장 중…</span>}
+            {saveState === 'saved' && <span className="save-state is-saved">✓ 저장됨 · Saved</span>}
+            {saveState === 'device' && (
+              <span className="save-state is-offline">이 기기에만 저장됨 · Saved here, will sync</span>
+            )}
           </div>
           <p className="journal-settings__hint">
             Set during signup, yours to change — no table asks you again.
+            변경하면 바로 저장됩니다 — 저장 버튼이 없습니다.
           </p>
           <ProfileFields profile={profile} onProfileChange={onProfileChange} />
 

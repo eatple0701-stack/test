@@ -210,6 +210,9 @@ export default function App() {
   // not left a phone number yet.
   const [authDoor, setAuthDoor] = useState(null);
   const [authMode, setAuthMode] = useState(null);
+  // 'idle' | 'saving' | 'saved' | 'device' — what the Passport's profile
+  // section is allowed to claim about the last change somebody made.
+  const [profileSave, setProfileSave] = useState('idle');
 
   const refreshAuth = async () => {
     const state = await getAuthState().catch(() => ({ kind: 'none' }));
@@ -288,6 +291,11 @@ export default function App() {
   const updateProfile = (next) => {
     const saved = saveProfile(next);
     setProfile(saved);
+    // Say so on screen. There is no Save button here — every tap writes —
+    // and a form that saves silently is a form people fill in twice because
+    // they cannot tell whether the first time counted. Asked on 8/4: "설정만
+    // 하고 저장은 어떻게 해?", which is the interface failing, not the person.
+    setProfileSave('saving');
     saveProfileFields({
       name: saved.name ?? '',
       nationality: saved.nationality ?? '',
@@ -295,7 +303,12 @@ export default function App() {
       gender: saved.gender ?? null,
       rulesVersion: saved.rulesVersion ?? null,
       rulesAgreedAt: saved.rulesAgreedAt ?? null,
-    }).catch(() => { /* stays on the device; the next save tries again */ });
+    })
+      .then(() => setProfileSave('saved'))
+      // Kept, not lost: the device has it and the next change sends the whole
+      // object again. Saying "저장됨" here would be the app claiming a write
+      // that did not land.
+      .catch(() => setProfileSave('device'));
     return saved;
   };
 
@@ -823,6 +836,7 @@ export default function App() {
                `journey` prop above is the legacy projection the stats use. */
             domainJourney={domainJourney}
             auth={auth}
+            saveState={profileSave}
             onSignOut={async () => {
               await signOutMember().catch(() => {});
               await refreshAuth();
