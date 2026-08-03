@@ -5196,7 +5196,9 @@ button {
 }
 .menu-chip__kr {
   font-family: var(--ex-kr);
-  color: var(--ex-brass);
+  /* --ex-brass is the fill role and measures 1.90:1 as text on a chip in
+     dark mode; --ex-brass-ink is the text role that exists for exactly this. */
+  color: var(--ex-brass-ink);
 }
 .menu-chip.is-on .menu-chip__kr { color: var(--ex-brass); }
 
@@ -6511,7 +6513,8 @@ button {
   border-radius: 999px;
   font-size: 10px;
   font-weight: 700;
-  color: #9A3412;
+  /* Was a hard-coded #9A3412, which cannot follow a theme — 2.06:1 in dark. */
+  color: var(--orange-ink);
 }
 .table-card__mine + .table-card__warn { margin-left: 6px; }
 
@@ -8832,7 +8835,9 @@ body {
 .app-topbar__mark { font-size: 17px; font-weight: 800; color: var(--ink-title); }
 .app-topbar__auth { display: flex; gap: 8px; }
 .app-topbar__signin {
-  min-height: 36px;
+  /* 44 is the floor Apple and Google both publish, and this pair is the
+     first thing a guest reaches for. Measured at 36px on 2026-08-04. */
+  min-height: 44px;
   padding: 0 12px;
   border: none;
   background: none;
@@ -8842,7 +8847,7 @@ body {
   cursor: pointer;
 }
 .app-topbar__join {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 14px;
   border: none;
   border-radius: 999px;
@@ -8924,7 +8929,7 @@ body {
   height: 22px;
   border-radius: 50%;
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-size: 12px;
   font-weight: 700;
   display: inline-flex;
@@ -8982,7 +8987,7 @@ body {
   height: 44px;
   border-radius: 50%;
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-size: 18px;
   font-weight: 700;
   display: inline-flex;
@@ -8993,7 +8998,7 @@ body {
 .host-card__facts { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .host-card__name { font-weight: 700; font-size: 14px; color: var(--ink); }
 .host-card__langs { font-size: 12px; color: var(--muted); }
-.host-card__record { font-size: 12px; color: var(--green-strong); font-weight: 600; }
+.host-card__record { font-size: 12px; color: var(--green-ink); font-weight: 600; }
 
 /* Lines from people who went. */
 .review-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -9067,7 +9072,7 @@ body {
 .report-reason.is-on {
   border-color: var(--green-strong);
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   font-weight: 600;
 }
 .report-panel__note {
@@ -9092,7 +9097,7 @@ body {
   margin: 0 0 4px;
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -9211,7 +9216,7 @@ body {
   margin-top: 10px;
   padding: 10px 14px;
   background: var(--green-tint);
-  color: var(--green-strong);
+  color: var(--green-ink);
   border-radius: var(--radius);
   font-size: 13px;
   font-weight: 600;
@@ -9274,7 +9279,7 @@ body {
   color: var(--muted);
   white-space: nowrap;
 }
-.save-state.is-saved { color: var(--green-strong); }
+.save-state.is-saved { color: var(--green-ink); }
 .save-state.is-offline { color: var(--orange-ink); }
 
 /* Profile: a summary on the Passport, the form behind a button. */
@@ -9338,7 +9343,7 @@ body {
   margin: 0 0 4px;
   font-size: 15px;
   font-weight: 800;
-  color: var(--green-strong);
+  color: var(--green-ink);
 }
 .promises__sub {
   margin: 0 0 12px;
@@ -9348,7 +9353,7 @@ body {
 }
 .promises__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .promise { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start; }
-.promise svg { color: var(--green-strong); margin-top: 2px; }
+.promise svg { color: var(--green-ink); margin-top: 2px; }
 .promise__body { display: flex; flex-direction: column; gap: 1px; }
 .promise__kr { font-size: 13px; font-weight: 700; color: var(--ink); }
 .promise__en { font-size: 12px; line-height: 1.5; color: var(--muted-strong); }
@@ -9378,7 +9383,7 @@ body {
 .week-day__count {
   font-size: 11px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
   background: var(--green-tint);
   border-radius: 999px;
   min-width: 20px;
@@ -9400,7 +9405,12 @@ body {
   margin: 10px 0 0;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--ex-brass);
+  /* Careful: .screen-head--dark is NOT dark. The 'Mastheads: light, big,
+     plain' block further down overrides it to --surface, so the modifier is
+     vestigial and this text sits on white. Paper-on-white measured 1.03:1
+     and brass measured 2.51:1; --ex-brass-ink is the text role and clears
+     AA in both themes. */
+  color: var(--ex-brass-ink);
   line-height: 1.5;
 }
 
@@ -9409,7 +9419,7 @@ body {
   margin-left: 6px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--green-strong);
+  color: var(--green-ink);
   background: var(--green-tint);
   border-radius: var(--radius-sm);
   padding: 1px 6px;
@@ -9566,3 +9576,27 @@ body {
   line-height: 1.5;
   color: var(--muted-strong);
 }
+
+/* ---------- Measured fixes (2026-08-04) ---------- */
+
+/* The week strip stays put while the list scrolls under it.
+   Measured problem: filtering to Thursday then scrolling left no sign of
+   which day was on, so three cards read as "the app lost some". 여기어때 and
+   야놀자 both pin their filter bars for the same reason. */
+.week-strip {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: var(--bg);
+  padding-bottom: 8px;
+  box-shadow: 0 6px 10px -8px rgba(10, 12, 16, 0.28);
+}
+
+/* Touch targets. 38px and 40px measured on the profile chip and the map
+   button; 44 is the floor both Apple and Google publish, and a station
+   platform is exactly where a missed tap costs. */
+.app-topbar__me { min-height: 44px; }
+.tables-map-open { min-height: 44px; }
+
+/* The card, after the paragraph came off it. */
+.table-card__gloss { margin-bottom: 2px; }

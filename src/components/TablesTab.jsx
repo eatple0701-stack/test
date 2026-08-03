@@ -192,63 +192,14 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         )}
       </header>
 
-      {/* The 8/1 tester's exact words: 첫 방문 시 무엇을 해야 하는지
-          직관적으로 이해하기 어려움. Meetup answers it with a numbered
-          "how it works" on the front page, and so does this — three steps
-          and the one cultural fact that makes the app make sense. Guests
-          only: a member has done all three. */}
-      {!isMember(auth) && (
-        <div className="how-strip" aria-label="How 밥친구 works">
-          <ol className="how-strip__steps">
-            <li className="how-strip__step">
-              <span className="how-strip__num" aria-hidden="true">1</span>
-              <span className="how-strip__kr">밥상 찾기</span>
-              <span className="how-strip__en">Find a table serving a dish no one can order alone.</span>
-            </li>
-            <li className="how-strip__step">
-              <span className="how-strip__num" aria-hidden="true">2</span>
-              <span className="how-strip__kr">자리 요청</span>
-              <span className="how-strip__en">Ask for the seat. The host says yes to you by name.</span>
-            </li>
-            <li className="how-strip__step">
-              <span className="how-strip__num" aria-hidden="true">3</span>
-              <span className="how-strip__kr">나눠 먹기</span>
-              <span className="how-strip__en">Meet, share the food, split the bill, keep the evening.</span>
-            </li>
-          </ol>
-          <p className="how-strip__why">
-            한국 밥상은 나눠 먹도록 차려집니다 — a Korean table is laid to be
-            shared. Browsing every dish and tip is free; the seat is what an
-            account is for.
-          </p>
-        </div>
-      )}
-
-      {/* The strongest sentence this product has, and it was nowhere on the
-          screen until now. Every 당근 모임 description is a hand-typed list of
-          rules the platform does not enforce — 1/n, 벙 참여 의무, 미활동 강퇴 —
-          because prose is all the organiser is given. Here each of those is a
-          policy with a test on it, and content/promises.js names the file
-          that keeps each promise so this block cannot outlive its own code.
-          This is also the 교수님's "어떻게 하느냐": the mechanism is the
-          public-diplomacy content, not decoration around it. */}
-      {!isMember(auth) && (
-        <div className="promises" aria-label={PROMISES_LEAD.kr}>
-          <h2 className="promises__lead" translate="no">{PROMISES_LEAD.kr}</h2>
-          <p className="promises__sub">{PROMISES_LEAD.en}</p>
-          <ul className="promises__list">
-            {PROMISES.map(p => (
-              <li key={p.id} className="promise">
-                <CheckIcon size={15} />
-                <span className="promise__body">
-                  <span className="promise__kr" translate="no">{p.kr}</span>
-                  <span className="promise__en">{p.en}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* The explaining used to stand here, between the hero and the tables,
+          and it cost a guest 1.7 screens of scrolling before they saw a
+          single meal (measured 2026-08-04: first card at 1391px on a 812px
+          phone). Meetup puts its events second and its "how it works" below
+          them, and that order is right for the same reason the 8/1 tester
+          was confused by neither: what a stranger needs first is evidence
+          that real tables exist, not a promise about what would happen if
+          they did. Both blocks now live under the list — see below. */}
 
       {/* 제주항공's 최저가 달력, in the unit this app trades in. That widget
           answers "which day", which is the question a traveller with four
@@ -416,8 +367,19 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               <h2 className="table-card__dish">{menu.name}</h2>
               <p className="table-card__gloss">{menu.gloss}</p>
 
-              {/* The reason this table exists at all. */}
-              <p className="table-card__why">{menu.whyShared}</p>
+              {/* whyShared — three lines explaining why this dish is eaten
+                  together — moved off the card on 2026-08-04. It is the best
+                  paragraph in the catalog and it was making every card 289px
+                  tall, which is the wrong trade in a list: somebody scanning
+                  is asking when, where and how many, and reads the reason on
+                  the page they open. The dish's own name, set large behind
+                  the card, does the work the missing photograph would.
+
+                  The photograph is genuinely missing, and not faked here:
+                  public/images holds eight category illustrations built for
+                  restaurants (된장, 국수, 사찰음식), none of which is 삼겹살.
+                  Mapping one on would be the app showing a picture of a dish
+                  nobody is serving. Real dish artwork is a team task. */}
 
               {/* A deadline that already exists, said out loud. Only inside
                   the last day, so it informs rather than nags — see
@@ -491,6 +453,65 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           );
         })}
       </div>
+
+      {/* The explaining, now that the tables have made their case.
+          Meetup's order: events, then "how it works", then why any of it is
+          worth doing. Both blocks are guests-only — a member has done all
+          three steps and does not need the rules recited back. */}
+      {!isMember(auth) && (
+        <div className="how-strip" aria-label="How 밥친구 works">
+          <ol className="how-strip__steps">
+            <li className="how-strip__step">
+              <span className="how-strip__num" aria-hidden="true">1</span>
+              <span className="how-strip__kr" translate="no">밥상 찾기</span>
+              <span className="how-strip__en">Find a table serving a dish no one can order alone.</span>
+            </li>
+            <li className="how-strip__step">
+              <span className="how-strip__num" aria-hidden="true">2</span>
+              <span className="how-strip__kr" translate="no">자리 요청</span>
+              <span className="how-strip__en">Ask for the seat. The host says yes to you by name.</span>
+            </li>
+            <li className="how-strip__step">
+              <span className="how-strip__num" aria-hidden="true">3</span>
+              <span className="how-strip__kr" translate="no">나눠 먹기</span>
+              <span className="how-strip__en">Meet, share the food, split the bill, keep the evening.</span>
+            </li>
+          </ol>
+          <p className="how-strip__why">
+            한국 밥상은 나눠 먹도록 차려집니다 — a Korean table is laid to be
+            shared. Browsing every dish and tip is free; the seat is what an
+            account is for.
+          </p>
+        </div>
+      )}
+
+      {/* Every 당근 모임 description is a hand-typed list of rules the
+          platform does not enforce — 1/n, 벙 참여 의무, 미활동 강퇴 — because
+          prose is all the organiser is given. Here each of those is a policy
+          with a test on it, and content/promises.js names the file that keeps
+          each promise so this block cannot outlive its own code. This is also
+          the 교수님's "어떻게 하느냐": the mechanism is the public-diplomacy
+          content, not decoration around it.
+
+          It reads better here than above the list, where it was asking for
+          trust before showing anything to trust. */}
+      {!isMember(auth) && (
+        <div className="promises" aria-label={PROMISES_LEAD.kr}>
+          <h2 className="promises__lead" translate="no">{PROMISES_LEAD.kr}</h2>
+          <p className="promises__sub">{PROMISES_LEAD.en}</p>
+          <ul className="promises__list">
+            {PROMISES.map(p => (
+              <li key={p.id} className="promise">
+                <CheckIcon size={15} />
+                <span className="promise__body">
+                  <span className="promise__kr" translate="no">{p.kr}</span>
+                  <span className="promise__en">{p.en}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Under the list, not only on the empty screen. A list with three
           tables in it is empty in the way that matters if none of them is the
