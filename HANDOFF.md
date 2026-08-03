@@ -77,7 +77,7 @@ npm run dev
 anon 키가 공개여도 안전한 이유가 RLS이고, 그게 이 파일에 있습니다.
 
 ```bash
-npm test          # 321개
+npm test          # 322개
 npm run lint      # oxlint
 npm run build
 ```

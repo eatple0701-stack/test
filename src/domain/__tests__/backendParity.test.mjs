@@ -48,8 +48,12 @@ test('every capability the repository offers exists in the Supabase backend', ()
 });
 
 test('every capability the repository offers exists in the localStorage backend', () => {
+  // `function` as well as `async function`: not every capability is a
+  // promise. onAuthChange hands back an unsubscribe function synchronously,
+  // because the caller stores it and calls it on unmount — making it async
+  // would give a screen a Promise where it expected a canceller.
   const missing = picks
-    .filter(p => !new RegExp(`(async function|const)\\s+${p.localName}\\b`).test(source))
+    .filter(p => !new RegExp(`(async function|function|const)\\s+${p.localName}\\b`).test(source))
     .map(p => `${p.exported} -> ${p.localName}`);
   assert.deepEqual(missing, [], 'exported by the repository, absent from tableRepository.js');
 });

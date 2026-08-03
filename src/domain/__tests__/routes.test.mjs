@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { pathFor, stateFromPath } from '../../routes.js';
+import { pathFor, stateFromPath, hasAuthPayload } from '../../routes.js';
 
 const screen = (over = {}) => ({
   activeTab: 'home', tableView: { screen: 'list' }, openThemeId: null, restaurantId: null, ...over,
@@ -93,4 +93,25 @@ test('a link that no longer means anything opens the app rather than breaking it
   }
   assert.equal(stateFromPath('/nonsense').activeTab, 'home');
   assert.equal(stateFromPath('/culture').openThemeId, null);
+});
+
+test('an address carrying an OAuth return is left for the auth client', () => {
+  // The app tidies the address on its first render. That tidy-up erased the
+  // `?code=` Google hands back, before the Supabase client could exchange
+  // it — so a real signup produced a real account and an app that still
+  // said 로그인. This is the guard, held by a test because the failure is
+  // invisible in code review and total in a browser.
+  const at = (url) => {
+    const u = new URL(url);
+    globalThis.window = { location: { hash: u.hash, search: u.search } };
+    return hasAuthPayload();
+  };
+  assert.equal(at('https://x.app/?code=abc123'), true, 'PKCE return must survive');
+  assert.equal(at('https://x.app/#access_token=abc&refresh_token=def'), true, 'implicit return must survive');
+  assert.equal(at('https://x.app/?error_description=access_denied'), true, 'a refusal must survive too');
+  // Ordinary addresses, including the ones this app writes itself.
+  assert.equal(at('https://x.app/'), false);
+  assert.equal(at('https://x.app/tables/abc-123'), false);
+  assert.equal(at('https://x.app/passport'), false);
+  delete globalThis.window;
 });

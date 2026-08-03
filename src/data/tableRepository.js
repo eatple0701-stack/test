@@ -489,6 +489,20 @@ async function local_signInMember({ email, password }) {
   return { userId: acc.userId, email: acc.email };
 }
 
+/**
+ * Nothing to subscribe to on this backend, honestly.
+ *
+ * The remote version exists because a session can change without the app
+ * asking — Google returning, a token refreshing, another tab signing out.
+ * Here the account only ever changes through a call this app just made, and
+ * every one of those already refreshes the screen. So this is a no-op that
+ * returns a working unsubscribe, which keeps the screens identical on both
+ * backends rather than making them ask which one they are on.
+ */
+function local_onAuthChange() {
+  return () => {};
+}
+
 async function local_signInWithGoogle() {
   // The truthful version, not a fake success: OAuth needs the shared server.
   throw new Error('Google sign-in needs the shared server — this device-only build uses email sign-up instead.');
@@ -543,6 +557,10 @@ async function local_saveAvatar(dataUrl) {
 // Membership travels through the same seam as everything else, so the parity
 // test holds both backends to the same list of capabilities.
 export const getAuthState = useRemote ? remote.getAuthState : local_getAuthState;
+// Reading the session once was never enough — see the comment on the remote
+// implementation, written the day Google sign-in shipped and did not appear
+// to work.
+export const onAuthChange = useRemote ? remote.onAuthChange : local_onAuthChange;
 export const signUpMember = useRemote ? remote.signUpMember : local_signUpMember;
 export const signInMember = useRemote ? remote.signInMember : local_signInMember;
 export const signInWithGoogle = useRemote ? remote.signInWithGoogle : local_signInWithGoogle;

@@ -87,3 +87,25 @@ export function stateFromPath(pathname) {
 /** The full link to a table, for a person sending it to somebody else. */
 export const shareUrlFor = (tableId) =>
   typeof window === 'undefined' ? '' : `${window.location.origin}/tables/${tableId}`;
+
+/**
+ * Is the address currently carrying something an identity provider put there?
+ *
+ * Lives here because this file owns the question "what is in the bar", and
+ * the answer decides whether the app may tidy it. Google's return is the
+ * live case — `?code=` under the PKCE flow — with the implicit `#access_token`
+ * form matched too, since recovery and invite links still arrive that way.
+ * `error_description` counts as a payload as well: a refusal that gets wiped
+ * before anything reads it is a failure nobody can explain.
+ *
+ * The app rewrote the address on its first render, which erased all of this
+ * before the auth client could exchange it (2026-08-04). Reading the URL
+ * directly rather than taking a string, because there is exactly one address
+ * bar and every caller means that one.
+ */
+export function hasAuthPayload() {
+  if (typeof window === 'undefined') return false;
+  const { hash = '', search = '' } = window.location;
+  return /[#&](access_token|error_description)=/.test(hash)
+    || /[?&](code|error_description)=/.test(search);
+}

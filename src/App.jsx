@@ -17,12 +17,14 @@ import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 // From the repository, not the profile module: it is the seam that knows
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
-import { saveProfileFields, ensureProfile, getAuthState, signOutMember } from './data/tableRepository.js';
+import {
+  saveProfileFields, ensureProfile, getAuthState, signOutMember, onAuthChange,
+} from './data/tableRepository.js';
 import { isMember } from './domain/policy/access.js';
 import AuthSheet from './components/AuthSheet';
 import SettingsTab from './components/SettingsTab';
 import { MAP_CENTER } from './utils';
-import { pathFor, stateFromPath } from './routes.js';
+import { pathFor, stateFromPath, hasAuthPayload } from './routes.js';
 import { matchesDietary, isQuarantined } from './data/verification';
 import { journeyFromLegacy } from './domain/bridge/legacyJourney.js';
 import { journeyProgress } from './domain/projection/journeyProgress.js';
@@ -217,7 +219,8 @@ export default function App() {
 
   useEffect(() => {
     let alive = true;
-    (async () => {
+
+    const sync = async (event) => {
       const state = await getAuthState().catch(() => ({ kind: 'none' }));
       if (!alive) return;
       setAuth(state);
@@ -236,12 +239,31 @@ export default function App() {
         }
       }
       // A Google member arrives with a name and an email and nothing the
-      // matching team can call. One completion step, once.
-      if (state.kind === 'member' && state.detailsComplete === false) {
+      // matching team can call. One completion step, once — and only on the
+      // events that mean somebody just arrived, so a token refreshing an
+      // hour into the evening cannot reopen a form they already filled.
+      if (state.kind === 'member' && state.detailsComplete === false
+          && event !== 'TOKEN_REFRESHED') {
         setAuthMode('details');
       }
-    })();
-    return () => { alive = false; };
+    };
+
+    sync('MOUNT');
+
+    // Reading the session once, at mount, was the bug behind "I signed in
+    // with Google and the app still says 로그인" (2026-08-04). The session
+    // arrives in the URL and is exchanged asynchronously, so the mount-time
+    // read can and did finish first — and nothing ever asked again. The
+    // subscription also covers what a one-shot read could never see: a token
+    // refreshing, and another tab signing in or out.
+    const unsubscribe = onAuthChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT'
+          || event === 'INITIAL_SESSION' || event === 'USER_UPDATED') {
+        sync(event);
+      }
+    });
+
+    return () => { alive = false; unsubscribe?.(); };
   }, []);
 
   /** True if the door is open; otherwise opens the auth sheet and says why. */
@@ -349,6 +371,12 @@ export default function App() {
   //
   // Written against the History API rather than a router, because the mapping
   // is nine paths over four pieces of state that already exist.
+  //
+  // Except for one address the app does not own: the one an identity
+  // provider hands back. `?code=` is the PKCE flow this project uses;
+  // `#access_token=` is the implicit form, still worth matching because a
+  // recovery or invite link arrives that way; `error_description` is what a
+  // refusal looks like, and it has to survive too or the failure is silent.
   const path = pathFor({
     activeTab, tableView, openThemeId, restaurantId: selectedRestaurant?.id ?? null,
   });
@@ -358,6 +386,19 @@ export default function App() {
   const lastPath = useRef(null);
   useEffect(() => {
     if (lastPath.current === path) return;
+    // Leave an OAuth return alone until the auth client has read it.
+    //
+    // This is the bug behind "I signed up with Google and the app still
+    // showed 로그인" (2026-08-04). Google hands the session back in the
+    // address — `?code=…` — and the Supabase client exchanges it when it
+    // loads. This effect ran first and rewrote the address to a clean path,
+    // deleting the code before anything could read it. The session was
+    // created on Google's side and thrown away on ours, every single time.
+    //
+    // So the first tidy-up waits. The client cleans the address itself once
+    // the exchange is done, and the next real navigation writes the path
+    // normally — nothing else about the History wiring changes.
+    if (lastPath.current === null && hasAuthPayload()) return;
     // The first run adopts whatever is already in the bar — a shared link —
     // instead of pushing a duplicate on top of it.
     if (lastPath.current === null) window.history.replaceState({ path }, '', path);

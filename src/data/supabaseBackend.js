@@ -133,10 +133,27 @@ export async function ensureProfile(local = {}) {
   const { data: existing } = await sb
     .from('profiles').select('*').eq('id', user.id).maybeSingle();
 
+  // Google hands back a name and a photo in the token, and this function used
+  // to drop both on the floor — a one-tap signup that produced a member
+  // called "?" with no face, which is most of what one-tap was for. Adopted
+  // only into empty fields, so nothing anybody typed is ever overwritten.
+  const fromGoogle = {
+    name: (user.user_metadata?.full_name || user.user_metadata?.name || '').trim(),
+    avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || '',
+  };
+
   if (existing) {
+    const adopt = {};
+    if (!existing.name && fromGoogle.name) adopt.name = fromGoogle.name;
+    if (!existing.avatar_url && fromGoogle.avatarUrl) adopt.avatar_url = fromGoogle.avatarUrl;
+    if (Object.keys(adopt).length > 0) {
+      await sb.from('profiles').update(adopt).eq('id', user.id);
+      Object.assign(existing, adopt);
+    }
     return {
       userId: existing.id,
       name: existing.name ?? '',
+      avatarUrl: existing.avatar_url ?? '',
       nationality: existing.nationality ?? '',
       languages: existing.languages ?? [],
       gender: existing.gender ?? null,
@@ -153,7 +170,8 @@ export async function ensureProfile(local = {}) {
   // or make somebody agree to the rules a second time.
   const row = {
     id: user.id,
-    name: local.name ?? '',
+    name: local.name?.trim() || fromGoogle.name,
+    avatar_url: fromGoogle.avatarUrl,
     nationality: local.nationality ?? '',
     languages: local.languages ?? [],
     gender: cleanGender(local.gender),
@@ -171,7 +189,13 @@ export async function ensureProfile(local = {}) {
   }
   if (error) throw new Error(friendlyError(error));
 
-  return { userId: user.id, ...local, isVerifiedHost: false };
+  return {
+    userId: user.id,
+    ...local,
+    name: row.name,
+    avatarUrl: row.avatar_url,
+    isVerifiedHost: false,
+  };
 }
 
 export async function saveProfileFields({
@@ -626,6 +650,40 @@ export async function signInMember({ email, password }) {
   const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
   if (error) throw new Error(friendlyAuthError(error));
   return { userId: data.user.id, email: data.user.email ?? '' };
+}
+
+/**
+ * Tell me when the session changes, because reading it once is not enough.
+ *
+ * Found live on 2026-08-04, minutes after Google sign-in was switched on: a
+ * member signed in with Google, landed back on the app, and the top bar
+ * still offered 로그인/가입하기. The app read the session exactly once, at
+ * mount, and Google's return puts the session in the URL for the client to
+ * exchange *asynchronously* — the read finished first, decided "not signed
+ * in", and nothing ever asked again.
+ *
+ * A one-shot read is wrong for more than OAuth, which is why the fix is a
+ * subscription rather than a delay: tokens refresh on their own schedule,
+ * another tab can sign out, and a restored session arrives after boot.
+ *
+ * Returns an unsubscribe function. Subscribing needs the client, which is
+ * loaded lazily, so this hands back a canceller that works whether or not
+ * the import has landed yet.
+ */
+export function onAuthChange(handler) {
+  let subscription = null;
+  let cancelled = false;
+  client()
+    .then((sb) => {
+      if (cancelled) return;
+      const { data } = sb.auth.onAuthStateChange((event) => handler(event));
+      subscription = data?.subscription ?? null;
+    })
+    .catch(() => {});
+  return () => {
+    cancelled = true;
+    subscription?.unsubscribe();
+  };
 }
 
 /**
