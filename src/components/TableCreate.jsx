@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   menus, menuById, CATEGORY_LABEL, defaultHourFor, eatenAtLabels,
 } from '../domain/catalog/menus.js';
@@ -56,6 +56,9 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   const [languages, setLanguages] = useState(
     () => cleanLanguages(prefill?.languages ?? profile?.languages));
   const [submitted, setSubmitted] = useState(false);
+  // Bumped on every failed attempt, so the scroll-to-first-error effect runs
+  // again when somebody presses the button twice without fixing anything.
+  const [attempt, setAttempt] = useState(0);
   const [saving, setSaving] = useState(false);
 
   const menu = menuId ? menuById(menuId) : null;
@@ -66,9 +69,54 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     return list;
   }, [menuId, date, time, place, seats, menu, hostName]);
 
+  // Which fields are empty, so the form can mark them where they stand.
+  //
+  // The summary list at the foot of the form is kept — it says everything at
+  // once — but on its own it made somebody read "Pick a date" at 3356px and
+  // then hunt for the date field 2000px above it, unmarked. This covers the
+  // required-and-empty cases, which are every problem a person actually hits;
+  // the seat rules stay with validateNewTable, which owns them.
+  const bad = useMemo(() => (submitted ? {
+    menu: !menuId,
+    date: !date,
+    time: !time,
+    place: !place.trim(),
+    hostName: !hostName.trim(),
+  } : {}), [submitted, menuId, date, time, place, hostName]);
+
+  // The first field in reading order that is wrong, so submitting scrolls to
+  // the top of the problem rather than to the middle of it.
+  const firstBadRef = useRef(null);
+  const claimed = useRef(false);
+  claimed.current = false;
+  const refFor = (key) => (node) => {
+    if (!bad[key] || claimed.current || !node) return;
+    claimed.current = true;
+    firstBadRef.current = node;
+  };
+
+  // Take them to the first thing that is wrong, after the marks exist.
+  //
+  // The problem list renders beside the button at the foot of a form four
+  // screens tall (3459px, measured 2026-08-04), naming fields up to 2000px
+  // above it. "Pick a date" at the bottom of an unmarked form is a scavenger
+  // hunt, so the page goes to the field and the field says so itself.
+  //
+  // In an effect rather than in submit(): the marks only exist once
+  // `submitted` is true, and reading the ref inside the handler read it one
+  // render too early — the first attempt scrolled nowhere. The counter makes
+  // a second identical attempt still fire.
+  useEffect(() => {
+    if (attempt === 0) return;
+    firstBadRef.current?.scrollIntoView({ block: 'center' });
+  }, [attempt]);
+
   const submit = async () => {
     setSubmitted(true);
-    if (problems.length > 0 || saving) return;
+    if (problems.length > 0 || saving) {
+      setAttempt(n => n + 1);
+      return;
+    }
     setSaving(true);
     const row = await createTable({
       menuId, date, time, place: place.trim(), restaurant: restaurant.trim(), guides, languages,
@@ -119,8 +167,9 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           and not a footnote to it. Removes itself once they have hosted. */}
       <HostBrief profile={profile} />
 
-      <div className="form-block">
-        <h2 className="form-label">What are you eating?</h2>
+      <div className={`form-block${bad.menu ? ' is-bad' : ''}`} ref={refFor('menu')}>
+        <h2 className="form-label">무엇을 먹나요 · What are you eating?</h2>
+        {bad.menu && <p className="field__error">요리를 하나 골라 주세요 · Choose a dish.</p>}
         <div className="dish-grid">
           {menus.map(m => (
             <button
@@ -174,29 +223,32 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       )}
 
       <div className="form-block">
-        <h2 className="form-label">When and where?</h2>
+        <h2 className="form-label">언제, 어디서 · When and where?</h2>
         <div className="field-row">
-          <label className="field">
-            <span className="field__label">Date</span>
+          <label className={`field${bad.date ? ' is-bad' : ''}`} ref={refFor('date')}>
+            <span className="field__label">날짜 · Date</span>
             <input type="date" value={date} min={todayISO()} onChange={e => setDate(e.target.value)} />
+            {bad.date && <span className="field__error">날짜를 골라 주세요 · Pick a date.</span>}
           </label>
-          <label className="field">
-            <span className="field__label">Time</span>
+          <label className={`field${bad.time ? ' is-bad' : ''}`} ref={refFor('time')}>
+            <span className="field__label">시간 · Time</span>
             <input
               type="time"
               value={time}
               onChange={e => { setTime(e.target.value); setTimeTouched(true); }}
             />
+            {bad.time && <span className="field__error">시간을 골라 주세요 · Pick a time.</span>}
           </label>
         </div>
-        <label className="field">
-          <span className="field__label">Where you will meet</span>
+        <label className={`field${bad.place ? ' is-bad' : ''}`} ref={refFor('place')}>
+          <span className="field__label">만나는 곳 · Where you will meet</span>
           <input
             type="text"
             value={place}
             placeholder="Exit 4, Jongno 3-ga station"
             onChange={e => setPlace(e.target.value)}
           />
+          {bad.place && <span className="field__error">만날 곳을 적어 주세요 · Say where you will meet.</span>}
         </label>
 
         {/* The shop, which is not the same as the meeting point. A table that
@@ -327,8 +379,13 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       </div>
 
       <div className="form-block">
-        <h2 className="form-label">Your name</h2>
-        <label className="field">
+        <h2 className="form-label">이름 · Your name</h2>
+        <label className={`field${bad.hostName ? ' is-bad' : ''}`} ref={refFor('hostName')}>
+          {/* This field had a placeholder and no label at all — the only one
+              in the form. A placeholder disappears the moment somebody types,
+              so the question vanishes exactly when they might want to check
+              it, and a screen reader had nothing to announce. */}
+          <span className="field__label">손님이 부를 이름 · What your guests should call you</span>
           <input
             type="text"
             value={hostName}
@@ -337,12 +394,13 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
                answer. A host taking it at its word would have called
                themselves "red jacket by the stairs". The real question is the
                field below. */
-            placeholder="What your guests should call you"
+            placeholder="Minsu"
             onChange={e => setHostName(e.target.value)}
           />
+          {bad.hostName && <span className="field__error">이름을 적어 주세요 · Add a name.</span>}
         </label>
         <label className="field">
-          <span className="field__label">How will they spot you? (optional)</span>
+          <span className="field__label">어떻게 알아볼까요 · How will they spot you? (optional)</span>
           <input
             type="text"
             value={meetingNote}

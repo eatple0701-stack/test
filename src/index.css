@@ -9620,3 +9620,34 @@ body {
     padding: 10px 0;
   }
 }
+
+/* ---------- Form errors, where the field is (2026-08-04) ---------- */
+/* The summary at the foot of the form stays, but a person reading "Pick a
+   date" at 3356px should not have to hunt 2000px up an unmarked form for the
+   field it means. */
+.field.is-bad input,
+.field.is-bad textarea {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+}
+.field__error,
+.form-block.is-bad > .field__error {
+  display: block;
+  margin-top: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--danger-ink);
+}
+.form-block.is-bad {
+  border-left: 3px solid var(--danger);
+  padding-left: 13px;
+  margin-left: -16px;
+}
+
+/* Tap targets in the sheets people use standing in a restaurant. Measured at
+   34–42px on 2026-08-04; 44 is the floor, and a mis-tap here happens with a
+   waiter waiting. */
+.phrase-tab { min-height: 44px; }
+.phrase-card__speak { min-height: 44px; }
+.sheet-page__back { min-width: 44px; min-height: 44px; }
