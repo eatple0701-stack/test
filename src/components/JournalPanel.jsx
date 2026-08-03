@@ -12,9 +12,10 @@ import { listTables, listAllSignups, listBlocks, deleteBlock, listReviews } from
 import { experienceById, themeIdsOfExperience, themeById, themes } from '../domain/catalog/index.js';
 import { themeCompletionKind, COMPLETION_KIND } from '../domain/policy/completion.js';
 import { ChevronRightIcon } from './Icons';
-import ProfileFields from './ProfileFields';
+import ProfileSheet from './ProfileSheet';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
+import { restrictionLabel, dietById } from '../data/profile';
 
 function formatStampDate(ts) {
   if (!ts) return null;
@@ -53,6 +54,7 @@ export default function JournalPanel({
   const [blocks, setBlocks] = useState([]);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   // Every culture this traveller finished, with what backed each one.
   // Computed from the same policy the stamp uses, so the two cannot drift.
@@ -408,20 +410,52 @@ export default function JournalPanel({
         <div className="journal-settings">
           <div className="journal-section-header">
             <h3>프로필 · Profile</h3>
-            {/* There is no Save button because every tap already saves. That
-                is only true if the screen says so — otherwise it looks like a
-                form waiting for a button that does not exist. */}
-            {saveState === 'saving' && <span className="save-state">저장 중…</span>}
             {saveState === 'saved' && <span className="save-state is-saved">✓ 저장됨 · Saved</span>}
             {saveState === 'device' && (
               <span className="save-state is-offline">이 기기에만 저장됨 · Saved here, will sync</span>
             )}
           </div>
-          <p className="journal-settings__hint">
-            Set during signup, yours to change — no table asks you again.
-            변경하면 바로 저장됩니다 — 저장 버튼이 없습니다.
-          </p>
-          <ProfileFields profile={profile} onProfileChange={onProfileChange} />
+
+          {/* What a table will see, read back — and a button to change it.
+              The whole form used to sit here permanently, auto-saving, which
+              buried the record this screen exists for under nine fields
+              nobody was editing. A summary answers the question people
+              actually have on this screen ("what does the table know about
+              me?") in four lines. */}
+          <dl className="profile-summary">
+            <div className="profile-summary__row">
+              <dt>이름</dt>
+              <dd>{profile?.name?.trim() || <span className="profile-summary__empty">아직 없음</span>}</dd>
+            </div>
+            <div className="profile-summary__row">
+              <dt>출신</dt>
+              <dd>{profile?.nationality?.trim() || <span className="profile-summary__empty">아직 없음</span>}</dd>
+            </div>
+            <div className="profile-summary__row">
+              <dt>언어</dt>
+              <dd>
+                {(profile?.languages ?? []).length > 0
+                  ? profile.languages.join(' · ')
+                  : <span className="profile-summary__empty">아직 없음</span>}
+              </dd>
+            </div>
+            <div className="profile-summary__row">
+              <dt>못 먹는 것</dt>
+              <dd>
+                {(profile?.avoids ?? []).length > 0 || (profile?.diets ?? []).length > 0 || profile?.allergyNote
+                  ? [
+                    ...(profile.avoids ?? []).map(restrictionLabel),
+                    ...(profile.diets ?? []).map(d => dietById(d)?.kr).filter(Boolean),
+                    profile.allergyNote,
+                  ].filter(Boolean).join(', ')
+                  : <span className="profile-summary__empty">없음</span>}
+              </dd>
+            </div>
+          </dl>
+
+          <button className="profile-edit" onClick={() => setProfileOpen(true)} translate="no">
+            프로필 설정 · Edit profile
+          </button>
 
           {/* The account row. The email is the one the team can reach;
               showing it back is the only receipt the unverified signup ever
@@ -738,6 +772,13 @@ export default function JournalPanel({
 
       {phrasesOpen && <PhraseSheet avoids={profile?.avoids} onClose={() => setPhrasesOpen(false)} />}
       {safetyOpen && <SafetySheet onClose={() => setSafetyOpen(false)} />}
+      {profileOpen && (
+        <ProfileSheet
+          profile={profile}
+          onSave={onProfileChange}
+          onClose={() => setProfileOpen(false)}
+        />
+      )}
     </section>
   );
 }

@@ -9276,3 +9276,51 @@ body {
 }
 .save-state.is-saved { color: var(--green-strong); }
 .save-state.is-offline { color: var(--orange-ink); }
+
+/* Profile: a summary on the Passport, the form behind a button. */
+.profile-summary {
+  margin: 4px 0 14px;
+  display: grid;
+  gap: 8px;
+}
+.profile-summary__row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+.profile-summary dt {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.profile-summary dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.profile-summary__empty { color: var(--muted); }
+.profile-edit {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-title);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.profile-edit:hover { background: var(--surface-hover); }
+.profile-sheet { max-width: 480px; }
+.profile-sheet__note { text-align: center; margin-bottom: 8px; }
+.profile-sheet__foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.profile-sheet__foot .auth-primary { flex: 1; }

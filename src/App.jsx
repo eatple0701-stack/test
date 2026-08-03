@@ -242,11 +242,17 @@ export default function App() {
         }
       }
       // A Google member arrives with a name and an email and nothing the
-      // matching team can call. One completion step, once — and only on the
-      // events that mean somebody just arrived, so a token refreshing an
-      // hour into the evening cannot reopen a form they already filled.
+      // matching team can call. Asked once, at the moment they arrive — and
+      // never again if they close it.
+      //
+      // It used to reopen on every load, because "details are missing" is
+      // true on every load until they are filled, and that was the only
+      // condition. A modal that returns after being dismissed is not asking,
+      // it is nagging; the honest place for a required field is the moment
+      // it becomes required, which is asking for a seat (see requireMember).
       if (state.kind === 'member' && state.detailsComplete === false
-          && event !== 'TOKEN_REFRESHED') {
+          && event !== 'TOKEN_REFRESHED'
+          && getProfile().detailsDeferredFor !== state.userId) {
         setAuthMode('details');
       }
     };
@@ -271,9 +277,19 @@ export default function App() {
 
   /** True if the door is open; otherwise opens the auth sheet and says why. */
   const requireMember = (door) => {
-    if (isMember(auth)) return true;
-    setAuthDoor(door);
-    return false;
+    if (!isMember(auth)) {
+      setAuthDoor(door);
+      return false;
+    }
+    // A member who deferred the contact details still has to leave them
+    // before taking part — that is the whole reason the app asks. Here it is
+    // not a nag: they just pressed the button that needs it, and the sheet
+    // explains itself. Browsing and the Passport never reach this.
+    if (auth.detailsComplete === false) {
+      setAuthMode('details');
+      return false;
+    }
+    return true;
   };
 
   // Written to this device first, then to the database.
@@ -879,7 +895,17 @@ export default function App() {
           initialMode={authMode ?? undefined}
           profile={profile}
           onProfileChange={updateProfile}
-          onClose={() => { setAuthDoor(null); setAuthMode(null); }}
+          onClose={() => {
+            // Closing the contact-details step is an answer: not now. It is
+            // remembered against this account so the modal stops greeting
+            // them on arrival — the next time it appears is when they press
+            // something that genuinely needs a phone number.
+            if (authMode === 'details' && auth.userId) {
+              setProfile(saveProfile({ ...getProfile(), detailsDeferredFor: auth.userId }));
+            }
+            setAuthDoor(null);
+            setAuthMode(null);
+          }}
           onAuthed={async () => {
             const state = await refreshAuth();
             if (state.kind === 'member') {
