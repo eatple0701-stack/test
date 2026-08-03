@@ -8802,3 +8802,22 @@ body {
   font-size: 14px;
 }
 .app-topbar__name { font-size: 14px; font-weight: 700; color: var(--ink-body); }
+
+/* The recording gate inside the Passport — between the profile and the
+   record it is about, not a wall in front of the whole tab. */
+.member-gate--inline {
+  margin: 0 0 4px;
+}
+
+/* On a desktop the Passport reads as a centred column like every other tab.
+   The gate card that used to render at App level sat outside the panel and
+   missed the content-region centring; everything lives inside the panel now,
+   and the panel itself gets the same column treatment for safety. */
+@media (min-width: 768px) {
+  .journal-panel,
+  .member-gate {
+    max-width: 720px;
+    margin-inline: auto;
+    width: 100%;
+  }
+}

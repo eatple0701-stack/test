@@ -18,7 +18,7 @@ import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
 import { saveProfileFields, ensureProfile, getAuthState, signOutMember } from './data/tableRepository.js';
-import { isMember, gateText } from './domain/policy/access.js';
+import { isMember } from './domain/policy/access.js';
 import AuthSheet from './components/AuthSheet';
 import { MAP_CENTER } from './utils';
 import { pathFor, stateFromPath } from './routes.js';
@@ -757,21 +757,13 @@ export default function App() {
             onOpenMap={openMap}
           />
         )}
-        {/* The Passport belongs to somebody — 8/3's decision. The gate shows
-            the same open-browsing reassurance every gate does, because the
-            professor's point about the front door applies here too: locked
-            out of one tab must never read as locked out of the app. */}
-        {!openThemeId && activeTab === 'journal' && !isMember(auth) && (
-          <div className="member-gate">
-            <h3 className="member-gate__title">{gateText('passport').title}</h3>
-            <p className="member-gate__body">{gateText('passport').body}</p>
-            <button className="auth-primary" onClick={() => setAuthDoor('passport')}>
-              {gateText('passport').cta}
-            </button>
-          </div>
-        )}
-        {!openThemeId && activeTab === 'journal' && isMember(auth) && (
+        {/* The Passport renders for everyone — 8/4's correction of 8/3's
+            wall. A guest sees the whole structure, profile first, with the
+            gate inside the panel where recording starts: looking is free,
+            keeping the record is what needs an account. */}
+        {!openThemeId && activeTab === 'journal' && (
           <JournalPanel
+            onRequireAuth={(door) => setAuthDoor(door)}
             bookmarks={bookmarks}
             companions={companions}
             mapCenter={mapCenter}

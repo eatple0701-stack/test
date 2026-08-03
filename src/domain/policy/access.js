@@ -78,10 +78,14 @@ export const GATE_TEXT = {
     body: 'When the app opens a table for you, somebody has to be reachable when a match lands. Browsing stays open without an account.',
     cta: '가입하고 계속 · Join and continue',
   },
+  // The one door that guards writing rather than looking. The Passport's
+  // whole structure renders for a guest — profile on top, record below —
+  // because seeing what the record would hold is the best argument for
+  // keeping one. This gate stands where the keeping starts.
   passport: {
-    title: '패스포트는 가입하면 생겨요',
-    body: 'The Passport keeps your evenings and the people you met — it needs to belong to somebody. Every dish, place and tip in the app stays open without an account.',
-    cta: '가입하고 시작 · Join and start',
+    title: '기록은 가입하고 남겨요',
+    body: 'This is what your Passport will hold — the evenings, the people, the places. Looking around stays open without an account; keeping a record that follows you needs one, so it belongs to somebody the team can reach.',
+    cta: '가입하고 기록 시작 · Join and start recording',
   },
 };
 

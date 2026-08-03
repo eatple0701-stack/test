@@ -7,6 +7,7 @@ import { isPast, didHappen } from '../domain/policy/table.js';
 import { isAccepted, isPending, hasLapsed } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
 import { isCancelled } from '../domain/policy/cancellation.js';
+import { isMember, gateText } from '../domain/policy/access.js';
 import { listTables, listAllSignups, listBlocks, deleteBlock } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById, themes } from '../domain/catalog/index.js';
 import { themeCompletionKind, COMPLETION_KIND } from '../domain/policy/completion.js';
@@ -36,12 +37,13 @@ export default function JournalPanel({
   // the value is not dead everywhere — it is just dead on this screen.
   bookmarks, onRestaurantClick, onNavigate, journey,
   attestations = [], visitedMarkets = [], profile, onProfileChange,
-  onOpenSummary, onOpenTheme, domainJourney, auth, onSignOut,
+  onOpenSummary, onOpenTheme, domainJourney, auth, onSignOut, onRequireAuth,
 }) {
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
   const [myTables, setMyTables] = useState([]);
+  const isMemberAuth = isMember(auth);
   const [blocks, setBlocks] = useState([]);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
@@ -346,6 +348,58 @@ export default function JournalPanel({
               : 'Nothing recorded yet — whatever you do lands here.'}
         </p>
       </header>
+
+      {/* Profile first, passport under it — the 8/4 direction, reversing the
+          8/2 ordering that buried it at the bottom as "settings". Who you are
+          comes before what you did: the name, languages and diets here are
+          what every table reads, and a guest looking at this screen should
+          see that the Passport starts with a person, not with empty stats. */}
+      <div className="journal-settings">
+        <div className="journal-section-header">
+          <h3>프로필 · Profile</h3>
+        </div>
+        <p className="journal-settings__hint">
+          Set once here and no table asks you again.
+        </p>
+        <ProfileFields profile={profile} onProfileChange={onProfileChange} />
+
+        {/* The account row, when there is an account. The email is the one
+            the team can reach; showing it back is the only receipt the
+            unverified signup ever issues, so a typo at least has somewhere
+            to be seen. */}
+        {auth?.kind === 'member' && (
+          <div className="account-block">
+            {profile?.avatarUrl ? (
+              <img className="account-avatar" src={profile.avatarUrl} alt="Your profile photo" />
+            ) : (
+              <span className="account-avatar account-avatar--empty" aria-hidden="true">
+                {(profile?.name ?? '?').trim().charAt(0) || '?'}
+              </span>
+            )}
+            <div className="account-block__body">
+              <span className="account-block__email">{auth.email || '(no email on file)'}</span>
+              <button className="account-signout" onClick={onSignOut}>
+                로그아웃 · Sign out
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* The recording gate, for a guest — under the profile, above the
+          passport it is about. The whole structure below stays visible, on
+          purpose: this screen used to be a wall for guests, and 우선 패스포트가
+          어떻게 구성되어 있는지 보이기는 해야돼 is the correction. Looking is
+          free; keeping the record is what needs somebody to belong to. */}
+      {!isMemberAuth && (
+        <div className="member-gate member-gate--inline">
+          <h3 className="member-gate__title">{gateText('passport').title}</h3>
+          <p className="member-gate__body">{gateText('passport').body}</p>
+          <button className="auth-primary" onClick={() => onRequireAuth?.('passport')}>
+            {gateText('passport').cta}
+          </button>
+        </div>
+      )}
 
       {/* The phrasebook, reachable without a table. It lived only inside a
           table you had already joined, which is the wrong place for the thing
@@ -654,44 +708,6 @@ export default function JournalPanel({
           </ul>
         </div>
       )}
-
-      {/* Settings, at the bottom of the same screen rather than behind a fifth
-          tab. The 8/2 meeting decided to merge Profile into the Passport, and
-          a tester wrote the same thing on their own. Below the record because
-          of what people come here for: checking Sunday's table many times,
-          changing a language once. */}
-      <div className="journal-settings">
-        <div className="journal-section-header">
-          <h3>설정 · Settings</h3>
-        </div>
-        <p className="journal-settings__hint">
-          Set once here and no table asks you again.
-        </p>
-        <ProfileFields profile={profile} onProfileChange={onProfileChange} />
-
-        {/* The account itself, under the settings it explains. Only a member
-            ever reads this screen — the Passport is gated — so the block can
-            assume there is an account to show. The email is the one the team
-            can reach; showing it back is the only receipt the unverified
-            signup ever issues, so a typo at least has somewhere to be seen. */}
-        {auth?.kind === 'member' && (
-          <div className="account-block">
-            {profile?.avatarUrl ? (
-              <img className="account-avatar" src={profile.avatarUrl} alt="Your profile photo" />
-            ) : (
-              <span className="account-avatar account-avatar--empty" aria-hidden="true">
-                {(profile?.name ?? '?').trim().charAt(0) || '?'}
-              </span>
-            )}
-            <div className="account-block__body">
-              <span className="account-block__email">{auth.email || '(no email on file)'}</span>
-              <button className="account-signout" onClick={onSignOut}>
-                로그아웃 · Sign out
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
 
       {phrasesOpen && <PhraseSheet avoids={profile?.avoids} onClose={() => setPhrasesOpen(false)} />}
       {safetyOpen && <SafetySheet onClose={() => setSafetyOpen(false)} />}
