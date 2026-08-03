@@ -8,7 +8,7 @@ import { isAccepted, isPending, hasLapsed } from '../domain/policy/seatRequest.j
 import { countsAsMet } from '../domain/policy/attendance.js';
 import { isCancelled } from '../domain/policy/cancellation.js';
 import { isMember, gateText } from '../domain/policy/access.js';
-import { listTables, listAllSignups, listBlocks, deleteBlock } from '../data/tableRepository.js';
+import { listTables, listAllSignups, listBlocks, deleteBlock, listReviews } from '../data/tableRepository.js';
 import { experienceById, themeIdsOfExperience, themeById, themes } from '../domain/catalog/index.js';
 import { themeCompletionKind, COMPLETION_KIND } from '../domain/policy/completion.js';
 import { ChevronRightIcon } from './Icons';
@@ -43,6 +43,10 @@ export default function JournalPanel({
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
   const [myTables, setMyTables] = useState([]);
+  // My own one-line reviews, keyed by table id. The record shows the line
+  // under the meal it remembers — written on the table page, read back here,
+  // because this panel is where remembering happens.
+  const [memories, setMemories] = useState({});
   const isMemberAuth = isMember(auth);
   const [blocks, setBlocks] = useState([]);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
@@ -102,6 +106,22 @@ export default function JournalPanel({
             : 0,
         }));
       if (alive) setMyTables(mine);
+
+      // My line about each meal that happened, fetched only for tables where
+      // I held a seat — a host has no signup to have written under. A missing
+      // reviews table degrades to no lines, which is also what it means.
+      const reviewable = mine.filter(t => didHappen(t) && t.myRequest);
+      if (reviewable.length > 0) {
+        const sets = await Promise.all(
+          reviewable.map(t => listReviews(t.id).catch(() => [])),
+        );
+        const found = {};
+        reviewable.forEach((t, i) => {
+          const r = sets[i].find(x => x.signupId === t.myRequest.id);
+          if (r) found[t.id] = r.body;
+        });
+        if (alive) setMemories(found);
+      }
     })();
     return () => { alive = false; };
   }, [profile]);
@@ -200,6 +220,9 @@ export default function JournalPanel({
           subtitle: t.people.length > 0
             ? `with ${t.people.map(p => p.name).join(', ')}`
             : (t.hosted ? 'your table' : t.place),
+          // The line I left on the table page, carried into the diary the
+          // evening belongs to.
+          memory: memories[t.id] ?? null,
         };
       })
       .filter(Boolean);
@@ -250,7 +273,7 @@ export default function JournalPanel({
     }
     if (undated.length > 0) grouped.push({ key: 'undated', heading: 'Earlier', items: undated });
     return grouped;
-  }, [attestations, visitedMarkets, visitedList, savedList, metPeople, myTables]);
+  }, [attestations, visitedMarkets, visitedList, savedList, metPeople, myTables, memories]);
 
   const recordCount = useMemo(
     () => days.reduce((n, d) => n + d.items.length, 0),
@@ -494,6 +517,11 @@ export default function JournalPanel({
                       <span className="record-item__title">{item.title}</span>
                       {item.subtitle && (
                         <span className="record-item__sub">{item.subtitle}</span>
+                      )}
+                      {/* The diary speaking in its owner's voice — the one
+                          line they left on the table afterwards. */}
+                      {item.memory && (
+                        <span className="record-item__memory">“{item.memory}”</span>
                       )}
                     </li>
                   ))}
