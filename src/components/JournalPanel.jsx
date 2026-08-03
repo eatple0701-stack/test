@@ -632,7 +632,13 @@ export default function JournalPanel({
           <div className="companion-list">
             {metPeople.map(p => (
               <div key={p.key} className="companion-card">
-                <div className="companion-card__avatar" style={{ background: 'var(--ex-brass)' }}>
+                {/* The initial was white on brass — 2.51:1, under the 3.0 a
+                    16px bold glyph needs. Brass is a fill, so the letter on
+                    top takes the dark field the rest of this palette pairs
+                    it with. The colour moves to CSS while it is being fixed:
+                    an inline style is invisible to a stylesheet audit, which
+                    is why this one survived two contrast sweeps. */}
+                <div className="companion-card__avatar">
                   {p.name.slice(0, 1)}
                 </div>
                 <div className="companion-card__body">

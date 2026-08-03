@@ -1021,7 +1021,7 @@ button {
 .btn-map--kakao {
   background: #FEE500;
   border: none;
-  color: #191919;
+  color: var(--ink);
   box-shadow: 0 4px 12px rgba(254, 229, 0, 0.3);
 }
 .btn-map--kakao:hover {
@@ -1254,7 +1254,7 @@ button {
   padding: 14px 16px;
   font-size: 14px;
   line-height: 1.65;
-  color: #14532D;
+  color: var(--green-ink);
 }
 .callout__label {
   font-size: 11px;
@@ -2247,7 +2247,7 @@ button {
 }
 .passport-progress__next {
   font-size: 12.5px;
-  color: #14532D;
+  color: var(--green-ink);
 }
 
 .journal-section {
@@ -3033,7 +3033,7 @@ button {
   border: none;
   border-radius: var(--radius);
   background: #fff;
-  color: #10402F;
+  color: var(--green-ink);
   font-size: 15px;
   font-weight: 800;
   display: inline-flex;
@@ -3278,7 +3278,7 @@ button {
   padding: 12px 14px;
   border-radius: var(--radius);
   background: var(--green-tint);
-  color: #14532D;
+  color: var(--green-ink);
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -3351,7 +3351,7 @@ button {
 .theme-complete p {
   font-size: 13.5px;
   line-height: 1.6;
-  color: #14532D;
+  color: var(--green-ink);
 }
 
 .theme-page__pathname {
@@ -3677,7 +3677,7 @@ button {
   border-radius: var(--radius);
   font-size: 13px;
   line-height: 1.55;
-  color: #14532D;
+  color: var(--green-ink);
 }
 
 /* Markets get their own card because they carry a check-off. */
@@ -4369,6 +4369,10 @@ button {
   border-radius: var(--radius-lg);
 }
 .companion-card__avatar {
+  /* Brass is a fill; the initial on it is the dark field, not white, which
+     measured 2.51:1. */
+  background: var(--ex-brass);
+  color: var(--ex-field);
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -4376,7 +4380,6 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
   font-weight: 800;
   font-size: 16px;
 }
@@ -6506,7 +6509,7 @@ button {
   border-radius: var(--radius);
   font-size: 13px;
   line-height: 1.5;
-  color: #9A3412;
+  color: var(--orange-ink);
 }
 .table-card__warn {
   margin-left: auto;
@@ -6872,7 +6875,7 @@ button {
   border-radius: var(--radius);
   font-size: 13px;
   line-height: 1.55;
-  color: #9A3412;
+  color: var(--orange-ink);
 }
 .safety__owed {
   margin-top: 4px;
@@ -7310,7 +7313,11 @@ body {
 .tab-item.active { color: var(--accent-ink); }
 
 /* Record marks pick up the warm accent instead of brass. */
-.record-item--table .record-item__mark,
+/* --accent-ink on --accent measured 1.11:1 — two oranges, so the tick was
+   invisible on the one screen that is a record of what somebody did. The
+   mark keeps the warm colour and drops the fill it was sitting on; the rule
+   below it is a fill and keeps both. */
+.record-item--table .record-item__mark { color: var(--orange-ink); }
 .story-card__rule-fill { color: var(--accent-ink); background: var(--accent); }
 .record-item__mark { color: var(--green-ink); }
 

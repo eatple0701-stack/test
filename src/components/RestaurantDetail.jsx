@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PlaceImage from './PlaceImage';
 import PlaceCard from './PlaceCard';
+import ErrorBoundary from './ErrorBoundary';
 import { menuById } from '../domain/catalog/menus.js';
 import { isPast } from '../domain/policy/table.js';
 import { listTables } from '../data/tableRepository.js';
@@ -51,27 +52,22 @@ const DIET_CAVEAT = {
   [CONFIDENCE.UNKNOWN]: { title: 'No dietary information yet.', body: `We haven't established what this kitchen serves, so we don't make a claim either way.` },
 };
 
-export default class RestaurantDetail extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'red', color: 'white', zIndex: 9999, padding: 20 }}>
-          <h1>Error in RestaurantDetail</h1>
-          <pre>{this.state.error?.toString()}</pre>
-          <pre>{this.state.error?.stack}</pre>
-          <button onClick={() => this.setState({ hasError: false })}>Dismiss</button>
-        </div>
-      );
-    }
-    return <RestaurantDetailInner {...this.props} />;
-  }
+// This screen used to catch its own crashes into a red full-bleed panel with
+// a raw JavaScript stack on it, at z-index 9999 — a debugging aid that was
+// still wired to production, where the person reading it is a traveller who
+// tapped a restaurant. The app already has a crash screen written for exactly
+// this: it explains the Chrome-translation conflict when that is what
+// happened, says nothing saved was lost, offers a way back, and keeps the
+// stack in a details element for whoever wants it.
+//
+// So the local boundary is gone and ErrorBoundary wraps this screen instead.
+// One crash treatment for the whole app, and it is the kind one.
+export default function RestaurantDetail(props) {
+  return (
+    <ErrorBoundary>
+      <RestaurantDetailInner {...props} />
+    </ErrorBoundary>
+  );
 }
 
 function RestaurantDetailInner({
