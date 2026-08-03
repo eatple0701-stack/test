@@ -81,16 +81,44 @@ async function signedInUser() {
  */
 let profileEnsuredFor = null;
 
+/**
+ * A session whose account no longer exists, detected by the one write every
+ * path makes: profiles.id references auth.users, so upserting the profile of
+ * a deleted user fails with 23503 (foreign_key_violation).
+ *
+ * How this happens in practice: the pre-pilot cleanup deleted every
+ * anonymous user and the test accounts, but a token is a bearer document —
+ * every device that had a session still holds a cryptographically valid one
+ * for a person who no longer exists. Found live on 2026-08-04: the landing
+ * page hung on "Loading tables…" forever, because the dead session passed
+ * getSession and then every query behind it failed.
+ */
+const isDeadSession = (error) => error?.code === '23503';
+
 async function currentUser() {
   const user = await signedInUser();
   if (profileEnsuredFor === user.id) return user;
 
   const sb = await client();
-  const { error } = await sb
+  let { error } = await sb
     .from('profiles')
     .upsert({ id: user.id }, { onConflict: 'id', ignoreDuplicates: true });
-  if (error) throw new Error(friendlyError(error));
 
+  if (isDeadSession(error)) {
+    // Discard the ghost and start as somebody new — anonymous, like any
+    // first visit. Browsing loses nothing; a member whose account was
+    // deleted signs in again and is told the truth by the auth error.
+    await sb.auth.signOut();
+    const fresh = await signedInUser();
+    ({ error } = await sb
+      .from('profiles')
+      .upsert({ id: fresh.id }, { onConflict: 'id', ignoreDuplicates: true }));
+    if (error) throw new Error(friendlyError(error));
+    profileEnsuredFor = fresh.id;
+    return fresh;
+  }
+
+  if (error) throw new Error(friendlyError(error));
   profileEnsuredFor = user.id;
   return user;
 }
@@ -133,6 +161,14 @@ export async function ensureProfile(local = {}) {
     rules_agreed_at: local.rulesAgreedAt ? new Date(local.rulesAgreedAt).toISOString() : null,
   };
   const { error } = await sb.from('profiles').insert(row);
+  // Mount-path twin of the dead-session recovery in currentUser(): this runs
+  // on app load with whatever token the browser kept, and a token can outlive
+  // its account. Behave as "not signed in yet" rather than crashing the app's
+  // first render — the next participating tap mints a fresh session normally.
+  if (isDeadSession(error)) {
+    await sb.auth.signOut();
+    return { ...local };
+  }
   if (error) throw new Error(friendlyError(error));
 
   return { userId: user.id, ...local, isVerifiedHost: false };
