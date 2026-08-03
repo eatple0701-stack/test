@@ -444,12 +444,19 @@ export async function signUpMember({ email, password, name, phone, birthdate }) 
   if (!data.session) {
     throw new Error('This project still requires email confirmation — turn off "Confirm email" in Supabase Auth settings.');
   }
-  await saveMemberDetails({ email, phone, birthdate });
-  // The profiles row every foreign key points at, carrying the typed name.
+  // Profiles row first, contact details second — the order is load-bearing.
+  // member_details.id is a foreign key to profiles(id), so writing the
+  // details before the profile violates the key. The first deploy had these
+  // two lines the other way round, and the live test failed exactly there:
+  // auth user created, then a 'did not save' with a half-made account behind
+  // it. The recovery path for anyone caught by that is signing in — the
+  // details-completion step runs saveMemberDetails, which now guarantees the
+  // profile row itself.
   const { error: profErr } = await sb.from('profiles')
     .upsert({ id: data.user.id, name: name?.trim() ?? '' }, { onConflict: 'id' });
   if (profErr) throw new Error(friendlyError(profErr));
   profileEnsuredFor = data.user.id;
+  await saveMemberDetails({ email, phone, birthdate });
   return { userId: data.user.id, email: data.user.email ?? '' };
 }
 
@@ -493,6 +500,15 @@ export async function saveMemberDetails({ email, phone, birthdate }) {
   if (!session?.user || session.user.is_anonymous) {
     throw new Error('Sign in before saving contact details.');
   }
+  // member_details.id references profiles(id), so the profile row has to
+  // exist before this write no matter which door somebody came through —
+  // fresh signup, Google completion, or recovery from the half-made accounts
+  // the first deploy left behind. Guaranteed here rather than trusted to the
+  // caller, because the caller already forgot once.
+  const { error: profErr } = await sb.from('profiles')
+    .upsert({ id: session.user.id }, { onConflict: 'id', ignoreDuplicates: true });
+  if (profErr) throw new Error(friendlyError(profErr));
+
   const row = {
     id: session.user.id,
     email: (email ?? session.user.email ?? '').trim(),
