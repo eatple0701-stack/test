@@ -38,7 +38,10 @@ const dayLabel = (date) => {
 // render, and src/domain/policy/week.js, which owns the date arithmetic they
 // used to duplicate.
 
-export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, onOpenPassport }) {
+// onOpenPassport is gone with the top bar it served: the way to your own
+// Passport is the chip in the app chrome now, on every screen rather than
+// this one.
+export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth }) {
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
   const [blockedIds, setBlockedIds] = useState([]);
@@ -137,28 +140,9 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
   return (
     <section className="tables-tab" aria-label="밥친구 tables">
-      {/* The Meetup-shaped top bar (2026-08-04): this list is the landing
-          page now, and a landing page keeps its sign-in in the corner, not
-          in the doorway. A member sees themselves here instead — the same
-          corner, answering "am I signed in" at a glance. */}
-      <div className="app-topbar">
-        {/* The wordmark is a name, not a phrase. Chrome rendering it as
-            "rice friend" is the app losing its own signage. */}
-        <span className="app-topbar__mark" aria-hidden="true" translate="no">밥친구</span>
-        {isMember(auth) ? (
-          <button className="app-topbar__me" onClick={onOpenPassport}>
-            {profile?.avatarUrl
-              ? <img className="app-topbar__avatar" src={profile.avatarUrl} alt="" />
-              : <span className="app-topbar__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
-            <span className="app-topbar__name">{profile?.name?.trim() || 'My passport'}</span>
-          </button>
-        ) : (
-          <span className="app-topbar__auth">
-            <button className="app-topbar__signin" translate="no" onClick={() => onOpenAuth?.('signin')}>로그인</button>
-            <button className="app-topbar__join" translate="no" onClick={() => onOpenAuth?.('signup')}>가입하기</button>
-          </span>
-        )}
-      </div>
+      {/* The wordmark and the sign-in pair used to sit here, at the top of
+          this one tab. They are app chrome, not landing-page content — see
+          .app-chrome in App.jsx, where they now live on every screen. */}
 
       <header className="screen-head screen-head--dark">
         <span className="screen-head__kr">밥친구</span>

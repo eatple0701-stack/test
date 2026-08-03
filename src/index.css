@@ -1527,7 +1527,10 @@ button {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--muted);
+  /* --muted measures 2.81:1 in dark mode. These are the primary navigation
+     labels — the one set of words a person must be able to read on every
+     screen — so they take the body-text token instead. */
+  color: var(--ink-body);
   font-size: 12px;
   letter-spacing: 0.01em;
   transition: color 0.15s ease;
@@ -8754,61 +8757,6 @@ body {
 
 /* The Meetup-shaped corner: a slim bar over the landing with the wordmark on
    one side and either sign-in or yourself on the other. */
-.app-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
-}
-.app-topbar__mark { font-size: 17px; font-weight: 800; color: var(--ink-title); }
-.app-topbar__auth { display: flex; gap: 8px; }
-.app-topbar__signin {
-  /* 44 is the floor Apple and Google both publish, and this pair is the
-     first thing a guest reaches for. Measured at 36px on 2026-08-04. */
-  min-height: 44px;
-  padding: 0 12px;
-  border: none;
-  background: none;
-  color: var(--ink-body);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.app-topbar__join {
-  min-height: 44px;
-  padding: 0 14px;
-  border: none;
-  border-radius: 999px;
-  background: var(--accent-strong);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.app-topbar__me {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 4px;
-}
-.app-topbar__avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
-.app-topbar__initial {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--fill);
-  color: var(--muted-strong);
-  font-weight: 800;
-  font-size: 14px;
-}
-.app-topbar__name { font-size: 14px; font-weight: 700; color: var(--ink-body); }
 
 /* The recording gate inside the Passport — between the profile and the
    record it is about, not a wall in front of the whole tab. */
@@ -9525,7 +9473,6 @@ body {
 /* Touch targets. 38px and 40px measured on the profile chip and the map
    button; 44 is the floor both Apple and Google publish, and a station
    platform is exactly where a missed tap costs. */
-.app-topbar__me { min-height: 44px; }
 .tables-map-open { min-height: 44px; }
 
 /* The card, after the paragraph came off it. */
@@ -9559,4 +9506,110 @@ body {
    rather than a shimmer, which is the whole point of the setting. */
 @media (prefers-reduced-motion: reduce) {
   .skeleton-line { animation: none; background: var(--fill); }
+}
+
+/* ---------- App chrome: name, tabs, you (2026-08-04) ---------- */
+/* One row at the top of every screen. The wordmark and the sign-in pair used
+   to live inside the Tables tab, which meant a member browsing Places could
+   not tell whether they were signed in, and the app's own name appeared on
+   one screen out of five.
+
+   The tab bar is a child of this row. On a phone it is position:fixed to the
+   bottom, so it leaves the flow and this row holds exactly the two things
+   that belong at the top; from 768px up it returns to the flow and the three
+   sit on one line. */
+.app-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.app-chrome__mark {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink-title);
+  flex: 0 0 auto;
+}
+.app-chrome__auth { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+.app-chrome__signin {
+  min-height: 44px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  color: var(--ink-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.app-chrome__join {
+  min-height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.app-chrome__me {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  cursor: pointer;
+  flex: 0 0 auto;
+  max-width: 46vw;
+}
+.app-chrome__avatar,
+.app-chrome__initial {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+.app-chrome__initial {
+  display: grid;
+  place-items: center;
+  background: var(--green-tint);
+  color: var(--green-ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+.app-chrome__name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* From 768px the tab bar rejoins the row. It carries the border-bottom for
+   the whole chrome, so the header drops its own to avoid a double rule. */
+@media (min-width: 768px) {
+  .app-chrome {
+    padding: 0 16px;
+    border-bottom: none;
+    border-bottom: 1px solid var(--line);
+    gap: 16px;
+  }
+  .app-chrome .tab-bar {
+    flex: 1;
+    /* The rail rule sets order:-1 so the bar could climb above the content
+       when it was the shell's own child. Inside the chrome that would put
+       the tabs ahead of the wordmark, so it is cancelled here. */
+    order: 0;
+    border-bottom: none;
+    padding: 10px 0;
+  }
 }

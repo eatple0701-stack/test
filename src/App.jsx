@@ -713,6 +713,43 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {/* App chrome: the name on the left, the tabs, and who you are on the
+          right — one row, above the content, on every screen. The wordmark
+          and the sign-in pair used to live inside the Tables tab, which made
+          them page content pretending to be chrome: a member browsing Places
+          could not tell whether they were signed in, and the app's own name
+          appeared on one screen out of five.
+
+          First in the DOM rather than last, so it is the top of the page on
+          every width without an order trick. On a phone the tab bar inside
+          it is position:fixed to the bottom, leaves this row's flow, and
+          what remains up top is exactly the two things that belong there.
+          Selecting a tab also leaves the theme screen, which otherwise
+          guards every tab's content and makes the bar look dead. */}
+      <header className="app-chrome">
+        <span className="app-chrome__mark" aria-hidden="true" translate="no">밥친구</span>
+        <TabBar
+          activeTab={activeTab}
+          onSelect={(tab) => { setOpenThemeId(null); goToTab(tab); }}
+        />
+        {isMember(auth) ? (
+          <button
+            className="app-chrome__me"
+            onClick={() => { setOpenThemeId(null); goToTab('journal'); }}
+          >
+            {profile?.avatarUrl
+              ? <img className="app-chrome__avatar" src={profile.avatarUrl} alt="" />
+              : <span className="app-chrome__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
+            <span className="app-chrome__name">{profile?.name?.trim() || 'My passport'}</span>
+          </button>
+        ) : (
+          <span className="app-chrome__auth">
+            <button className="app-chrome__signin" translate="no" onClick={() => setAuthMode('signin')}>로그인</button>
+            <button className="app-chrome__join" translate="no" onClick={() => setAuthMode('signup')}>가입하기</button>
+          </span>
+        )}
+      </header>
+
       {/* Content is the substrate now. The map used to sit behind every screen
           — at `inset: 0` on mobile, holding most of the viewport on desktop —
           which made a culture platform read as a maps product. It is summoned
@@ -771,7 +808,6 @@ export default function App() {
             profile={profile}
             auth={auth}
             onOpenAuth={(mode) => setAuthMode(mode)}
-            onOpenPassport={() => goToTab('journal')}
             /* Gated at the handler rather than inside the screen: the list
                itself is browsing and stays open, the two doors out of it are
                participation. requireMember opens the auth sheet with the
@@ -876,14 +912,6 @@ export default function App() {
         )}
 
       </div>
-
-      {/* Selecting a tab leaves the theme screen. Without this the tab bar
-          looks dead while a theme is open, since the theme route guards
-          every tab's content. */}
-      <TabBar
-        activeTab={activeTab}
-        onSelect={(tab) => { setOpenThemeId(null); goToTab(tab); }}
-      />
 
       {/* The membership door, wherever it was knocked on from. onAuthed runs
           the same identity sync the mount effect does, because a fresh member

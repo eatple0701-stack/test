@@ -58,7 +58,10 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
     <section className="tables-lead" aria-label="Open tables">
       <div className="tables-lead__head">
         <div>
-          <span className="tables-lead__kr">밥친구</span>
+          {/* The 밥친구 label above this heading is gone: the wordmark is in
+              the app chrome now, four lines up the screen, and printing the
+              product's own name twice in one viewport is the section
+              introducing an app the reader is already inside. */}
           <h2 className="tables-lead__title">
             {open.length > 0
               ? 'Tables you could join this week'
