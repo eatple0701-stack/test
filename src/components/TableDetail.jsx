@@ -438,10 +438,18 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
 
       {/* The curation the plan asks for, and the thing a table was missing:
           why this dish is eaten together at all. Without it a table is a
-          booking; with it the meal is the point of the trip. */}
+          booking; with it the meal is the point of the trip.
+          Folded since 8/4: the page grew a host card, reviews and similar
+          tables in one day, and somebody arriving on a shared link now
+          scrolls a long way to the decision. The culture prose is the one
+          block that is an *invitation* rather than a fact they need — so it
+          keeps its place but opens on a tap instead of costing a screenful. */}
       {menu.culture && (
-        <div className="detail-block">
-          <h3 className="detail-block__label">Why it is eaten together</h3>
+        <details className="detail-block culture-fold">
+          <summary className="detail-block__label culture-fold__summary">
+            Why it is eaten together
+            <ChevronRightIcon size={14} />
+          </summary>
           <p className="detail-culture">{menu.culture}</p>
 
           {/* Offered only where the catalog genuinely places the dish inside a
@@ -455,7 +463,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               <ChevronRightIcon size={14} />
             </button>
           )}
-        </div>
+        </details>
       )}
 
       <div className="detail-block detail-block--facts">
@@ -646,6 +654,15 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <p className={meeting.kind === 'written' ? 'meeting-note' : 'meeting-note meeting-note--none'}>
             {meeting.body}
           </p>
+          {/* The day-of channel, borrowed rather than built: the host's own
+              open chat, behind the same gate as the note because it reaches
+              the same people. cleanChatUrl already refused anything that is
+              not an https link, on both write and read. */}
+          {table.chatUrl && (
+            <a className="meeting-chat" href={table.chatUrl} target="_blank" rel="noopener noreferrer">
+              오픈채팅 참여 · Join this table’s open chat
+            </a>
+          )}
         </div>
       )}
 

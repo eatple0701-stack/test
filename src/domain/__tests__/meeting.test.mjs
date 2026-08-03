@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  MEETING_NOTE_MAX, cleanMeetingNote, canSeeMeetingNote, meetingGuidance,
+  MEETING_NOTE_MAX, cleanMeetingNote, canSeeMeetingNote, meetingGuidance, cleanChatUrl,
 } from '../policy/meeting.js';
 
 const table = (over = {}) => ({ id: 't1', hostId: 'h1', place: 'Exit 4, Sinsa', ...over });
@@ -73,4 +73,20 @@ test('a cancelled table has no meeting point to describe', () => {
   // new required argument.
   assert.equal(canSeeMeetingNote({ isHost: true, mySignupAccepted: false, table: table() }), true);
   assert.equal(canSeeMeetingNote({ isHost: true, mySignupAccepted: false }), true);
+});
+
+test('a chat link is carried only when it is plainly a safe link', () => {
+  assert.equal(cleanChatUrl('https://open.kakao.com/o/gAbCdEf'), 'https://open.kakao.com/o/gAbCdEf');
+  assert.equal(cleanChatUrl('  https://open.kakao.com/o/x  '), 'https://open.kakao.com/o/x');
+});
+
+test('anything that is not an https link renders as no link at all', () => {
+  // This string becomes a clickable element on other people's screens, so
+  // javascript: and http: must die here rather than in a code review.
+  assert.equal(cleanChatUrl('javascript:alert(1)'), '');
+  assert.equal(cleanChatUrl('http://open.kakao.com/o/x'), '');
+  assert.equal(cleanChatUrl('open.kakao.com/o/x'), '');
+  assert.equal(cleanChatUrl('https://'), '');
+  assert.equal(cleanChatUrl('x'.repeat(300)), '');
+  assert.equal(cleanChatUrl(null), '');
 });

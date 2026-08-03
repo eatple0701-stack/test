@@ -9130,3 +9130,34 @@ body {
   line-height: 1.5;
   margin-top: 2px;
 }
+
+/* ---------- Connection batch (2026-08-04) ---------- */
+
+/* The host's open-chat link, inside the meeting block. */
+.meeting-chat {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--green-tint);
+  color: var(--green-strong);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.meeting-chat:hover { text-decoration: underline; }
+
+/* The culture prose, folded until asked for. */
+.culture-fold__summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+.culture-fold__summary::-webkit-details-marker { display: none; }
+.culture-fold__summary svg { transition: transform 0.15s ease; }
+.culture-fold[open] .culture-fold__summary svg { transform: rotate(90deg); }
+.culture-fold .detail-culture { margin-top: 10px; }
+.culture-fold .detail-theme { margin-top: 10px; }

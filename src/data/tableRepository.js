@@ -15,7 +15,7 @@
 import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
 import { cleanDiets } from './profile.js';
-import { cleanMeetingNote } from '../domain/policy/meeting.js';
+import { cleanMeetingNote, cleanChatUrl } from '../domain/policy/meeting.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
 import { isCancelled } from '../domain/policy/cancellation.js';
@@ -104,6 +104,9 @@ async function local_createTable(input) {
     // station exit and then had nothing more to say; this is the last
     // hundred metres.
     meetingNote: cleanMeetingNote(input.meetingNote),
+    // The host's open-chat room — same audience as the note, same cleaner
+    // as the remote path, so neither backend can carry an unsafe link.
+    chatUrl: cleanChatUrl(input.chatUrl),
     cancelledAt: null,
     seats: Number(input.seats),
     note: input.note ?? '',

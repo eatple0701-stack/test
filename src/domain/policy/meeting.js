@@ -30,6 +30,31 @@ export const cleanMeetingNote = (text) =>
   typeof text === 'string' ? text.trim().slice(0, MEETING_NOTE_MAX) : '';
 
 /**
+ * The open-chat link a host may attach (2026-08-04), rejected unless it is
+ * plainly a link.
+ *
+ * The app deliberately builds no chat of its own — a pilot cannot moderate
+ * one — so the day-of channel ("running 10 minutes late", "which exit?")
+ * borrows the tool every phone in Korea already has: 카카오 오픈채팅. The
+ * host makes the room and pastes the link; the app only carries it, to the
+ * same audience as the meeting note and through the same gate.
+ *
+ * https only, because this string is rendered as a clickable link on other
+ * people's screens — a javascript: or http: value must die here, not in a
+ * code review. Anything rejected becomes '', which renders as no link at
+ * all rather than a broken one.
+ */
+export const CHAT_URL_MAX = 200;
+
+export const cleanChatUrl = (url) => {
+  if (typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.length > CHAT_URL_MAX) return '';
+  if (!/^https:\/\/\S+\.\S+/.test(trimmed)) return '';
+  return trimmed;
+};
+
+/**
  * May this person read how to recognise the host?
  *
  * The host wrote it, so they see it. A confirmed guest is going to the meal,

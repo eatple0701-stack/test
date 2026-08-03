@@ -14,7 +14,7 @@ import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
 import { cleanGender } from '../domain/catalog/genders.js';
 import { cleanDiets } from './profile.js';
-import { cleanMeetingNote } from '../domain/policy/meeting.js';
+import { cleanMeetingNote, cleanChatUrl } from '../domain/policy/meeting.js';
 
 /** A `tables` row as it comes out of Postgres → the shape the screens read. */
 export function tableFromRow(row) {
@@ -40,6 +40,10 @@ export function tableFromRow(row) {
     // How to recognise the host on the night. Gated in the UI rather than by
     // RLS — see canSeeMeetingNote in src/domain/policy/meeting.js.
     meetingNote: row.meeting_note ?? '',
+    // The host's open-chat room, same audience and same gate as the note.
+    // Cleaned on read as well as write, because a row predating the rule —
+    // or written past the API — must still never render as a live link.
+    chatUrl: cleanChatUrl(row.chat_url),
     // Called off, kept rather than deleted — see policy/cancellation.js.
     cancelledAt: row.cancelled_at ?? null,
     seats: row.seats,
@@ -71,6 +75,7 @@ export function tableToRow(input, { hostId, hostVerified = false } = {}) {
     place: input.place,
     restaurant: input.restaurant ?? '',
     meeting_note: cleanMeetingNote(input.meetingNote),
+    chat_url: cleanChatUrl(input.chatUrl),
     seats: Number(input.seats),
     note: input.note ?? '',
   };

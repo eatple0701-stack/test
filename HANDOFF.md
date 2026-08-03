@@ -1,7 +1,7 @@
 # 밥친구 / Eatple — 인수인계
 
 **HEAD:** `388093c` · 2026-08-03 · 워킹트리 깨끗
-**테스트:** 298개 전부 통과 (`npm test`)
+**테스트:** 321개 전부 통과 (`npm test`)
 **배포:** https://test-umber-phi-78.vercel.app
 
 이 문서 하나로 이전 대화를 읽지 않고 이어서 작업할 수 있게 썼습니다.
@@ -77,7 +77,7 @@ npm run dev
 anon 키가 공개여도 안전한 이유가 RLS이고, 그게 이 파일에 있습니다.
 
 ```bash
-npm test          # 319개
+npm test          # 321개
 npm run lint      # oxlint
 npm run build
 ```
@@ -149,13 +149,13 @@ npm run build
 | 어색한 회화 문장 교정 | 외국인 | "이거 몇 인분이에요" |
 | 폰 뒤로가기 · 공유 링크 | 외국인(technical) | `routes.js` + `vercel.json` |
 | 음식의 유래·문화 정보 | 부장님 | 출처 18건, 퀴즈 24문제 |
-| 첫 방문 안내 | 외국인("랜딩 혼란") | prologue |
+| 첫 방문 안내 | 외국인("랜딩 혼란") | 8/4부터 랜딩의 3단계 스트립(`how-strip`, 게스트에게만) — Prologue 스플래시는 Meetup형 랜딩으로 대체되어 삭제됨 |
 | 다크 모드 | 외국인("앱 쓸 때 중요하게 본다") | `index.css` `:root[data-theme="dark"]` — 토큰 값만 분기, 실기기에서 2건 추가로 발견·수정(백-패널 흰색 하드코딩, 마켓 카드 제목 파란 글씨) |
 | 라이트/다크/시스템 직접 선택 | 사용자(폰으로 확인 후 요청) | `src/data/theme.js`, Profile의 Appearance 칩 3개 |
 | 알러지 직접 입력 | 외국인("what if ur allergic to prawns") | Profile의 자유 텍스트 필드, `signups.allergy_note` — 5종 고정 목록은 그대로 두고 그 위에 얹은 탈출구 |
 | 차단 | 부장님(`NOT_YET_BUILT`) | `supabase/blocks` 테이블 + RLS, TableDetail·Passport — RLS는 실 프로젝트 미검증 |
 | PC 가로 스크롤 UX | 외국인 | `App.jsx`의 전역 wheel 리스너 — 마우스 휠이 가로 스크롤 행 위에 있으면 자동으로 좌우 스크롤로 바뀜, 컴포넌트 7곳 안 건드림 |
-| SNS 확산 — 링크 미리보기 | 부장님 | `index.html`에 Open Graph·Twitter Card 메타 태그 추가 — og:image는 없음(적합한 래스터 이미지 자산이 없어서 안 넣음), 테이블별 미리보기는 SSR 없이는 불가능(정적 SPA라 모든 링크가 같은 일반 미리보기) |
+| SNS 확산 — 링크 미리보기 | 부장님 | 전역 OG는 `index.html`, **테이블별 미리보기는 8/4에 해결** — `api/table-og.js`(Vercel 함수)가 봇 UA에만 응답, 데이터는 `table_preview` RPC(anon에 카드 분량만 노출). og:image는 여전히 없음(적합한 래스터 자산 부재) |
 | 규칙 동의 받기 | 교수님("사용자 조항에 동의를 받던가") | `RulesConsent.jsx` + `policy/consent.js`, 첫 자리 요청·첫 상 차리기 직전에 1회, `profiles.rules_version`에 버전째로 기록 |
 | **자리 요청 승인** | 부장님("초기에는 관리자의 승인 절차") | `policy/seatRequest.js` + `signups.status` + RLS `signups_decide_by_host`. 승인자는 운영자가 아니라 **호스트** — 아래 참고 |
 | **매칭 확정 시간** | 교수님("매칭 확정은 얼마나 걸리며") | 식사 12시간 전까지, 답 없으면 만료되고 좌석 반환. `LAPSE_HOURS_BEFORE_MEAL` |

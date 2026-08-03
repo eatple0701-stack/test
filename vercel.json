@@ -1,6 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    {
+      "source": "/tables/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|kakaotalk|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
+        }
+      ],
+      "destination": "/api/table-og?id=:id"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

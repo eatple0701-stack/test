@@ -177,11 +177,17 @@ export async function createTable(input) {
   const { data: profile } = await sb
     .from('profiles').select('is_verified_host').eq('id', user.id).maybeSingle();
 
-  const { data, error } = await sb
-    .from('tables')
-    .insert(tableToRow(input, { hostId: user.id, hostVerified: profile?.is_verified_host ?? false }))
-    .select()
-    .single();
+  const row = tableToRow(input, { hostId: user.id, hostVerified: profile?.is_verified_host ?? false });
+  let { data, error } = await sb.from('tables').insert(row).select().single();
+  // The deploy can reach a project whose schema has not caught up — the same
+  // situation deleteTable already survives. PostgREST refuses an insert
+  // naming a column it does not know (PGRST204; raw Postgres would say
+  // 42703), so retry once without the newest column. A host opening a table
+  // must not fail because the chat-link column is a schema run away.
+  if (error && (error.code === 'PGRST204' || error.code === '42703')) {
+    const { chat_url: _dropped, ...legacy } = row;
+    ({ data, error } = await sb.from('tables').insert(legacy).select().single());
+  }
   if (error) throw new Error(friendlyError(error));
   return tableFromRow(data);
 }

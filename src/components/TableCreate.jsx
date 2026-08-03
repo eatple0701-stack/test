@@ -43,6 +43,9 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     () => Math.max(4, menuById(prefill?.menuId)?.minPeople ?? 0));
   const [note, setNote] = useState('');
   const [meetingNote, setMeetingNote] = useState('');
+  // Optional 오픈채팅 link — the day-of channel the app deliberately does
+  // not build itself. Validated by MeetingPolicy on the way to storage.
+  const [chatUrl, setChatUrl] = useState('');
   const [hostName, setHostName] = useState(profile?.name ?? '');
   const [guides, setGuides] = useState([]);
   // Their own profile answer, so the question is not asked twice.
@@ -65,7 +68,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     setSaving(true);
     const row = await createTable({
       menuId, date, time, place: place.trim(), restaurant: restaurant.trim(), guides, languages,
-      seats: Number(seats), note: note.trim(), meetingNote,
+      seats: Number(seats), note: note.trim(), meetingNote, chatUrl,
       hostId: profile?.userId, hostName: hostName.trim(), hostNationality: profile?.nationality,
       hostGender: profile?.gender ?? null,
     });
@@ -345,6 +348,20 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           <span className="field__note">
             Only people with a seat see this — not everyone browsing. The app has no chat and no
             phone numbers, so this is how somebody finds you at {place.trim() || 'the meeting point'}.
+          </span>
+        </label>
+        <label className="field">
+          <span className="field__label">오픈채팅 링크 · Open chat link (optional)</span>
+          <input
+            type="url"
+            value={chatUrl}
+            placeholder="https://open.kakao.com/o/..."
+            onChange={e => setChatUrl(e.target.value)}
+          />
+          <span className="field__note">
+            Make a KakaoTalk open chat and paste its link — your confirmed guests
+            see it, nobody else does. It is the "running 10 minutes late" channel
+            the app itself does not have. https links only.
           </span>
         </label>
         <label className="field">
