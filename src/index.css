@@ -9324,3 +9324,93 @@ body {
   border-top: 1px solid var(--line);
 }
 .profile-sheet__foot .auth-primary { flex: 1; }
+
+/* ---------- Landing: promises + week strip (2026-08-04) ---------- */
+
+/* What the app guarantees, and why that is unusual. */
+.promises {
+  margin: 12px 16px 0;
+  padding: 16px;
+  background: var(--green-tint);
+  border-radius: var(--radius-lg);
+}
+.promises__lead {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--green-strong);
+}
+.promises__sub {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+.promises__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.promise { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start; }
+.promise svg { color: var(--green-strong); margin-top: 2px; }
+.promise__body { display: flex; flex-direction: column; gap: 1px; }
+.promise__kr { font-size: 13px; font-weight: 700; color: var(--ink); }
+.promise__en { font-size: 12px; line-height: 1.5; color: var(--muted-strong); }
+
+/* Seven days, with the empty ones showing. */
+.week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 14px 16px 4px;
+}
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 2px 9px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--ink);
+}
+.week-day:hover { border-color: var(--line-hover); }
+.week-day__name { font-size: 11px; font-weight: 600; color: var(--muted); }
+.week-day__date { font-size: 15px; font-weight: 700; }
+.week-day__count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green-strong);
+  background: var(--green-tint);
+  border-radius: 999px;
+  min-width: 20px;
+  padding: 1px 6px;
+  text-align: center;
+}
+.week-day.is-weekend .week-day__name { color: var(--orange-ink); }
+/* An empty day is legible, not hidden — it is the one that asks you to host. */
+.week-day.is-empty .week-day__count { color: var(--muted); background: var(--fill); }
+.week-day.is-empty .week-day__date { color: var(--muted); }
+.week-day.is-on {
+  border-color: var(--green-strong);
+  background: var(--green-tint);
+}
+.week-day.is-on .week-day__count { background: var(--green-strong); color: #fff; }
+
+/* What joining buys, stated in seats. */
+.screen-head__reward {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ex-brass);
+  line-height: 1.5;
+}
+
+/* Tables held, on the card where people filter. */
+.table-card__record {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green-strong);
+  background: var(--green-tint);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+}

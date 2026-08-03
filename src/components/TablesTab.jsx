@@ -9,7 +9,10 @@ import { tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
-import { ChevronRightIcon, MapPinIcon, ClockIcon } from './Icons';
+import { weekAhead } from '../domain/policy/week.js';
+import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
+import { hostRecord } from '../data/tableRepository.js';
+import { ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
 import { isMember } from '../domain/policy/access.js';
 
@@ -29,27 +32,9 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
-// Local wall-clock dates for the day chips. Not toISOString(), which is UTC —
-// a Seoul evening is already tomorrow in UTC, and "오늘" filtering to
-// yesterday's tables is exactly the off-by-one a traveller would hit at 9pm.
-const localYmd = (offset = 0) => {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
-
-const isWeekendDate = (date) => {
-  const d = new Date(`${date}T00:00`);
-  if (!Number.isFinite(d.getTime())) return false;
-  return d.getDay() === 6 || d.getDay() === 0;
-};
-
-/** The three ways a traveller actually thinks about when. */
-const DAY_CHIPS = [
-  { id: 'today', label: '오늘 · Today', match: (date) => date === localYmd(0) },
-  { id: 'tomorrow', label: '내일 · Tomorrow', match: (date) => date === localYmd(1) },
-  { id: 'weekend', label: '주말 · Weekend', match: isWeekendDate },
-];
+// The day chips that used to live here are gone — see the week strip in the
+// render, and src/domain/policy/week.js, which owns the date arithmetic they
+// used to duplicate.
 
 export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, onOpenPassport }) {
   const [tables, setTables] = useState(null);
@@ -102,10 +87,43 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     if (womenFilter) {
       list = list.filter(t => tableIncludesGender(t, signupsFor[t.id] ?? [], 'Woman'));
     }
-    const day = DAY_CHIPS.find(c => c.id === dayFilter);
-    if (day) list = list.filter(t => day.match(t.date));
+    // dayFilter is a date now, not a named window — the strip made the
+    // named windows redundant and this comparison exact.
+    if (dayFilter) list = list.filter(t => t.date === dayFilter);
     return list;
   }, [open, menuFilter, womenFilter, dayFilter, signupsFor]);
+
+  // Counted from every open table rather than from what the filters left, so
+  // the strip keeps telling the truth about the week while a filter is on.
+  const week = useMemo(() => weekAhead(open), [open]);
+
+  // How many tables each host has actually held, by host id.
+  //
+  // 여기어때 puts "11,480명 평가" on every card, and the number doing the
+  // work there is the count, not the score — a 9.2 from three people is not
+  // a 9.2. Ours is tables held, which is the only count we have that nobody
+  // can inflate. It belongs on the card because the card is where people
+  // filter; the detail page already had it, one scroll too late.
+  //
+  // One lookup per host rather than per table, and failures are dropped
+  // rather than surfaced: a missing record renders no badge, which is the
+  // same thing it means.
+  const [hostRecords, setHostRecords] = useState({});
+  useEffect(() => {
+    let alive = true;
+    const ids = [...new Set(open.map(t => t.hostId).filter(Boolean))];
+    const missing = ids.filter(id => !(id in hostRecords));
+    if (missing.length === 0) return undefined;
+    (async () => {
+      const found = {};
+      await Promise.all(missing.map(async (id) => {
+        found[id] = await hostRecord(id).catch(() => null);
+      }));
+      if (alive) setHostRecords(prev => ({ ...prev, ...found }));
+    })();
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Only offer a filter for dishes somebody is actually eating — a chip that
   // always returns nothing is a dead end dressed as a choice.
@@ -154,9 +172,21 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             상 차리기 · Open a table
           </button>
         ) : (
-          <button className="screen-head__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-            무료로 가입하기 · Join 밥친구
-          </button>
+          <>
+            <button className="screen-head__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
+              무료로 가입하기 · Join 밥친구
+            </button>
+            {/* What joining buys, as a number. 야놀자 does not say "join for
+                benefits", it says you get the member price — the reward is
+                stated in the unit the customer came for. Ours is seats, and
+                the count is the real one, so an empty week says so rather
+                than promising a full one. */}
+            <p className="screen-head__reward">
+              {open.length > 0
+                ? `가입하면 지금 열려 있는 밥상 ${open.length}곳에 자리를 요청할 수 있어요 · ${open.length} table${open.length === 1 ? '' : 's'} open right now`
+                : '가입하면 첫 밥상을 직접 열 수 있어요 · Join and open the first table yourself'}
+            </p>
+          </>
         )}
       </header>
 
@@ -189,6 +219,56 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             shared. Browsing every dish and tip is free; the seat is what an
             account is for.
           </p>
+        </div>
+      )}
+
+      {/* The strongest sentence this product has, and it was nowhere on the
+          screen until now. Every 당근 모임 description is a hand-typed list of
+          rules the platform does not enforce — 1/n, 벙 참여 의무, 미활동 강퇴 —
+          because prose is all the organiser is given. Here each of those is a
+          policy with a test on it, and content/promises.js names the file
+          that keeps each promise so this block cannot outlive its own code.
+          This is also the 교수님's "어떻게 하느냐": the mechanism is the
+          public-diplomacy content, not decoration around it. */}
+      {!isMember(auth) && (
+        <div className="promises" aria-label={PROMISES_LEAD.kr}>
+          <h2 className="promises__lead" translate="no">{PROMISES_LEAD.kr}</h2>
+          <p className="promises__sub">{PROMISES_LEAD.en}</p>
+          <ul className="promises__list">
+            {PROMISES.map(p => (
+              <li key={p.id} className="promise">
+                <CheckIcon size={15} />
+                <span className="promise__body">
+                  <span className="promise__kr" translate="no">{p.kr}</span>
+                  <span className="promise__en">{p.en}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* 제주항공's 최저가 달력, in the unit this app trades in. That widget
+          answers "which day", which is the question a traveller with four
+          nights in Seoul actually arrives with — and the empty days are the
+          load-bearing half: a 0 under Thursday is a fact somebody can act
+          on, and the action is opening a table. */}
+      {tables !== null && (
+        <div className="week-strip" role="group" aria-label="Tables by day">
+          {week.map(d => (
+            <button
+              key={d.ymd}
+              className={`week-day${dayFilter === d.ymd ? ' is-on' : ''}${d.count === 0 ? ' is-empty' : ''}${d.isWeekend ? ' is-weekend' : ''}`}
+              aria-pressed={dayFilter === d.ymd}
+              onClick={() => setDayFilter(dayFilter === d.ymd ? null : d.ymd)}
+            >
+              <span className="week-day__name">
+                {d.isToday ? '오늘' : d.date.toLocaleDateString('en-GB', { weekday: 'short' })}
+              </span>
+              <span className="week-day__date">{d.date.getDate()}</span>
+              <span className="week-day__count">{d.count}</span>
+            </button>
+          ))}
         </div>
       )}
 
@@ -226,18 +306,9 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </div>
       )}
 
-      <div className="menu-chips" role="group" aria-label="Filter by day">
-        {DAY_CHIPS.map(c => (
-          <button
-            key={c.id}
-            className={`menu-chip${dayFilter === c.id ? ' is-on' : ''}`}
-            aria-pressed={dayFilter === c.id}
-            onClick={() => setDayFilter(dayFilter === c.id ? null : c.id)}
-          >
-            {c.label}
-          </button>
-        ))}
-      </div>
+      {/* The 오늘/내일/주말 chips are gone: the strip above says the same
+          thing with more in it — the days with nothing on them — and two
+          date filters stacked on one screen is a choice nobody asked for. */}
 
       <div className="menu-chips" role="group" aria-label="Filter by who is going">
         <button
@@ -275,7 +346,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           <p className="tables-empty__title">Nothing on that day yet.</p>
           <p>Other days have tables — or open one and own the evening.</p>
           <button className="tables-empty__cta" translate="no" onClick={() => setDayFilter(null)}>
-            다른 날 보기 · Show every day
+            이번 주 전체 보기 · Show the whole week
           </button>
           <button className="tables-empty__ask" translate="no" onClick={onCreateTable}>
             상 차리기 · Open a table
@@ -347,6 +418,15 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               <span className="table-card__foot">
                 <span className="table-card__host">
                   Hosted by {t.hostName}
+                  {/* Only once there is something to say. A first-time host
+                      gets no badge rather than a "0 tables" one — the detail
+                      page says "첫 밥상" in words, where there is room to say
+                      it kindly. */}
+                  {hostRecords[t.hostId]?.tablesHosted > 0 && (
+                    <span className="table-card__record">
+                      밥상 {hostRecords[t.hostId].tablesHosted}번
+                    </span>
+                  )}
                   {t.hostVerified && <span className="table-card__verified">인증 · verified</span>}
                   {/* Scanning a list, the language is the fastest filter a
                       traveller applies. */}
