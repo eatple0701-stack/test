@@ -20,6 +20,7 @@ import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 import { saveProfileFields, ensureProfile, getAuthState, signOutMember } from './data/tableRepository.js';
 import { isMember } from './domain/policy/access.js';
 import AuthSheet from './components/AuthSheet';
+import SettingsTab from './components/SettingsTab';
 import { MAP_CENTER } from './utils';
 import { pathFor, stateFromPath } from './routes.js';
 import { matchesDietary, isQuarantined } from './data/verification';
@@ -786,9 +787,10 @@ export default function App() {
             }}
           />
         )}
-        {/* The Profile tab used to render here. It is a section at the bottom
-            of the Passport now — the 8/2 meeting's decision, and the same
-            thing a foreign tester asked for independently. */}
+        {/* The fifth tab: device settings. Not the old Profile tab returning
+            — profile stays inside the Passport — but the appearance mode,
+            which was hiding in the profile form where it never belonged. */}
+        {!openThemeId && activeTab === 'settings' && <SettingsTab />}
 
       </div>
 

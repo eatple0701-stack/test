@@ -349,25 +349,49 @@ export default function JournalPanel({
         </p>
       </header>
 
-      {/* Profile first, passport under it — the 8/4 direction, reversing the
-          8/2 ordering that buried it at the bottom as "settings". Who you are
-          comes before what you did: the name, languages and diets here are
-          what every table reads, and a guest looking at this screen should
-          see that the Passport starts with a person, not with empty stats. */}
-      <div className="journal-settings">
-        <div className="journal-section-header">
-          <h3>프로필 · Profile</h3>
-        </div>
-        <p className="journal-settings__hint">
-          Set once here and no table asks you again.
-        </p>
-        <ProfileFields profile={profile} onProfileChange={onProfileChange} />
+      {/* The two tools first — 8/4's ordering. The phrasebook and the safety
+          sheet are what somebody standing in a restaurant actually opens this
+          tab for, and they work signed out; nothing on this screen should
+          stand between a person at a counter and the sentence they need. */}
+      <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
+        <span className="journal-tool__kr">식탁에서</span>
+        <span className="journal-tool__body">
+          What to say — ordering, what you cannot eat, and something to ask the
+          table. Works with or without a meal booked.
+        </span>
+      </button>
 
-        {/* The account row, when there is an account. The email is the one
-            the team can reach; showing it back is the only receipt the
-            unverified signup ever issues, so a typo at least has somewhere
-            to be seen. */}
-        {auth?.kind === 'member' && (
+      {/* Getting help, from a screen that is always two taps away. The
+          emergency numbers, the leave-at-any-point line and the report
+          channel are no use behind a door you can only find while shopping
+          for a specific dinner — which is where this used to live. */}
+      <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
+        <span className="journal-tool__kr">도움이 필요하면</span>
+        <span className="journal-tool__body">
+          112, 119, the 24-hour travel helpline, and how to reach the 밥친구
+          team. You can leave any meal at any point.
+        </span>
+      </button>
+
+      {/* Then the person, then their record. A member sees the values every
+          table reads — set during signup, editable here, which is the "개개인이
+          설정한 설정값을 볼 수 있게" half of the 8/4 direction. A guest sees
+          the door those values live behind: 나만의 프로필 만들기, where 만들기
+          means signing up, because the profile fields are written as part of
+          joining now rather than on this screen. */}
+      {isMemberAuth ? (
+        <div className="journal-settings">
+          <div className="journal-section-header">
+            <h3>프로필 · Profile</h3>
+          </div>
+          <p className="journal-settings__hint">
+            Set during signup, yours to change — no table asks you again.
+          </p>
+          <ProfileFields profile={profile} onProfileChange={onProfileChange} />
+
+          {/* The account row. The email is the one the team can reach;
+              showing it back is the only receipt the unverified signup ever
+              issues, so a typo at least has somewhere to be seen. */}
           <div className="account-block">
             {profile?.avatarUrl ? (
               <img className="account-avatar" src={profile.avatarUrl} alt="Your profile photo" />
@@ -383,15 +407,8 @@ export default function JournalPanel({
               </button>
             </div>
           </div>
-        )}
-      </div>
-
-      {/* The recording gate, for a guest — under the profile, above the
-          passport it is about. The whole structure below stays visible, on
-          purpose: this screen used to be a wall for guests, and 우선 패스포트가
-          어떻게 구성되어 있는지 보이기는 해야돼 is the correction. Looking is
-          free; keeping the record is what needs somebody to belong to. */}
-      {!isMemberAuth && (
+        </div>
+      ) : (
         <div className="member-gate member-gate--inline">
           <h3 className="member-gate__title">{gateText('passport').title}</h3>
           <p className="member-gate__body">{gateText('passport').body}</p>
@@ -400,35 +417,6 @@ export default function JournalPanel({
           </button>
         </div>
       )}
-
-      {/* The phrasebook, reachable without a table. It lived only inside a
-          table you had already joined, which is the wrong place for the thing
-          a traveller wants at a counter, in a shop, at somebody else's dinner
-          — a tester asked for exactly this: "have menu for translations/what
-          to say". High on the screen because it is a tool, not a record. */}
-      <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
-        <span className="journal-tool__kr">식탁에서</span>
-        <span className="journal-tool__body">
-          What to say — ordering, what you cannot eat, and something to ask the
-          table. Works with or without a meal booked.
-        </span>
-      </button>
-
-      {/* Getting help, from a screen that is always two taps away.
-          Its only entry point used to be the bottom of a table page, which
-          meant it could be reached solely by somebody browsing a specific
-          dinner — not by somebody sitting at one, walking away from one, or
-          opening the app afterwards. If the host had called the table off it
-          was gone altogether. The emergency numbers, the leave-at-any-point
-          line and the report channel are all no use behind a door you can
-          only find while shopping. */}
-      <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
-        <span className="journal-tool__kr">도움이 필요하면</span>
-        <span className="journal-tool__body">
-          112, 119, the 24-hour travel helpline, and how to reach the 밥친구
-          team. You can leave any meal at any point.
-        </span>
-      </button>
 
       {/* Above the record, because it has not happened yet. This is also the
           only place a traveller can check what they agreed to — a seat taken

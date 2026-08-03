@@ -83,9 +83,9 @@ export const GATE_TEXT = {
   // because seeing what the record would hold is the best argument for
   // keeping one. This gate stands where the keeping starts.
   passport: {
-    title: '기록은 가입하고 남겨요',
-    body: 'This is what your Passport will hold — the evenings, the people, the places. Looking around stays open without an account; keeping a record that follows you needs one, so it belongs to somebody the team can reach.',
-    cta: '가입하고 기록 시작 · Join and start recording',
+    title: '나만의 프로필 · 패스포트 만들기',
+    body: 'Your profile — name, languages, what you eat — is written once, while joining, and every table reads it from then on. The Passport below fills with your evenings as they happen. Looking around stays open without an account; making yours is one signup.',
+    cta: '만들기 · Create mine',
   },
 };
 

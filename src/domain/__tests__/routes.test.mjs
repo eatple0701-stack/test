@@ -25,6 +25,8 @@ test('every screen has an address', () => {
   assert.equal(stateFromPath('/').activeTab, 'match');
   assert.equal(pathFor(screen({ activeTab: 'places' })), '/places');
   assert.equal(pathFor(screen({ activeTab: 'journal' })), '/passport');
+  assert.equal(pathFor(screen({ activeTab: 'settings' })), '/settings');
+  assert.equal(stateFromPath('/settings').activeTab, 'settings');
   assert.equal(
     pathFor(screen({ activeTab: 'match', tableView: { screen: 'create' } })),
     '/tables/new',
@@ -64,6 +66,7 @@ test('every path round-trips back to the screen it came from', () => {
     screen({ activeTab: 'places' }),
     screen({ activeTab: 'places', restaurantId: 'r-4' }),
     screen({ activeTab: 'journal' }),
+    screen({ activeTab: 'settings' }),
     screen({ openThemeId: 'street-food' }),
   ];
   for (const s of screens) {

@@ -4,6 +4,7 @@ import {
 } from '../data/tableRepository.js';
 import { validateSignup, gateText } from '../domain/policy/access.js';
 import { XIcon } from './Icons';
+import ProfileFields from './ProfileFields';
 
 // The door between browsing and belonging.
 //
@@ -88,7 +89,10 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
       // The name typed here is the name tables will call you — one write, so
       // the seat form never has to ask again.
       onProfileChange?.({ ...profile, name: name.trim() });
-      setMode('avatar');
+      // Then the profile a table actually reads — languages, gender, what
+      // you cannot eat — written as part of joining (8/4's structure), so
+      // the Passport shows values from the first day instead of blanks.
+      setMode('profile');
     } catch (e) {
       setError(e.message);
     }
@@ -129,7 +133,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
     setBusy(true);
     try {
       await saveMemberDetails({ phone, birthdate });
-      setMode('avatar');
+      setMode('profile');
     } catch (e) {
       setError(e.message);
     }
@@ -266,6 +270,24 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             {error && <p className="auth-error">{error}</p>}
             <button className="auth-primary" onClick={submitDetails} disabled={busy}>
               {busy ? 'Saving…' : '저장하고 계속 · Save and continue'}
+            </button>
+          </div>
+        )}
+
+        {mode === 'profile' && (
+          <div className="auth-form">
+            {/* The fields every table reads, filled while joining — the 8/4
+                structure. Saved on every tap through onProfileChange exactly
+                as they are when edited later on the Passport, so skipping
+                ahead loses nothing that was already touched. */}
+            <h2 className="form-label">프로필 · Your profile</h2>
+            <p className="auth-note">
+              This is what a table sees and what the app cooks with — languages, what you
+              cannot eat, how you eat. Change any of it later on your Passport.
+            </p>
+            <ProfileFields profile={profile} onProfileChange={onProfileChange} />
+            <button className="auth-primary" onClick={() => setMode('avatar')}>
+              계속 · Continue
             </button>
           </div>
         )}

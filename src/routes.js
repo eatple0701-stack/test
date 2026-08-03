@@ -38,6 +38,7 @@ export function pathFor({ activeTab, tableView, openThemeId, restaurantId }) {
       return '/';
     case 'places': return '/places';
     case 'journal': return '/passport';
+    case 'settings': return '/settings';
     case 'home': return '/explore';
     default: return '/';
   }
@@ -62,6 +63,8 @@ export function stateFromPath(pathname) {
       return { ...base, activeTab: 'match' };
     case 'explore':
       return base;
+    case 'settings':
+      return { ...base, activeTab: 'settings' };
     case 'tables':
       if (!tail) return { ...base, activeTab: 'match' };
       if (tail === 'new') return { ...base, activeTab: 'match', tableView: { screen: 'create' } };
