@@ -11,6 +11,7 @@ import {
 } from '../domain/policy/attendance.js';
 import { canSeeMeetingNote, meetingGuidance } from '../domain/policy/meeting.js';
 import { isCancelled, cancellationNotice } from '../domain/policy/cancellation.js';
+import { isMember, gateText } from '../domain/policy/access.js';
 import {
   getTable, listSignups, createSignup, cancelSignup, decideSignup, recordAttendance,
   deleteTable, createBlock,
@@ -41,7 +42,7 @@ const fullDate = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 };
 
-export default function TableDetail({ tableId, profile, onProfileChange, onBack, onOpenTheme }) {
+export default function TableDetail({ tableId, profile, onProfileChange, onBack, onOpenTheme, auth, onRequireAuth }) {
   const [table, setTable] = useState(null);
   const [signups, setSignups] = useState([]);
   const [name, setName] = useState(profile?.name ?? '');
@@ -778,6 +779,18 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           {blocker === JOIN_BLOCK.FULL && (
             <p className="join-next">Open the same dish yourself and fill your own table.</p>
           )}
+        </div>
+      ) : !isMember(auth) ? (
+        /* The membership door, before the rules door. Browsing this whole
+           page costs nothing — the dish, the guides, who is going — and the
+           gate only stands where the commitment starts. AccessPolicy owns
+           the words so every gate in the app says the same thing. */
+        <div className="join-block">
+          <h3 className="detail-block__label">{gateText('join-table').title}</h3>
+          <p className="join-next">{gateText('join-table').body}</p>
+          <button className="form-submit" onClick={() => onRequireAuth?.("join-table")}>
+            {gateText('join-table').cta}
+          </button>
         </div>
       ) : !agreedToRules(profile, PURPOSE.version) ? (
         /* 교수님's ask, in the one place it is genuinely read: nobody has

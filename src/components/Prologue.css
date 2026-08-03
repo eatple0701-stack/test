@@ -76,3 +76,18 @@
   margin-bottom: 6px;
 }
 
+
+/* The second way in. Quieter than the join button on purpose, but a real
+   button, not small print — browsing without an account is a promise the
+   product makes, and the front door is where it is made. */
+.prologue-browse {
+  margin-top: 12px;
+  border: none;
+  background: none;
+  color: var(--muted-strong);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 8px;
+}

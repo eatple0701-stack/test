@@ -8595,3 +8595,154 @@ body {
   color: var(--danger);
   background: var(--danger-tint);
 }
+
+/* The membership door. One sheet, two moods — gate-opened or front-door. */
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 16, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 220;
+}
+.auth-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 22px 20px 28px;
+}
+.auth-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--fill);
+  color: var(--ink-body);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.auth-gate { margin: 4px 28px 16px 0; }
+.auth-gate__title { font-size: 18px; font-weight: 800; margin: 0 0 6px; color: var(--ink-title); }
+.auth-gate__body { font-size: 14px; line-height: 1.55; margin: 0; color: var(--ink-body); }
+.auth-choose { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.auth-form { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.auth-primary {
+  min-height: 52px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.auth-primary:disabled { opacity: 0.55; cursor: default; }
+.auth-secondary {
+  min-height: 52px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink-body);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.auth-google {
+  min-height: 52px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-title);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.auth-switch {
+  border: none;
+  background: none;
+  color: var(--muted-strong);
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px;
+}
+.auth-note { font-size: 13px; line-height: 1.5; color: var(--muted-strong); margin: 0; }
+.auth-error { font-size: 14px; font-weight: 600; color: var(--danger); margin: 0; }
+.auth-problems {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--danger);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* A gate rendered in place of a member-only surface. */
+.member-gate {
+  margin: 16px;
+  padding: 20px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.member-gate__title { font-size: 17px; font-weight: 800; margin: 0; color: var(--ink-title); }
+.member-gate__body { font-size: 14px; line-height: 1.55; margin: 0; color: var(--ink-body); }
+
+/* The account row at the bottom of the Passport's settings. */
+.account-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.account-avatar--empty {
+  display: grid;
+  place-items: center;
+  background: var(--fill);
+  color: var(--muted-strong);
+  font-weight: 800;
+  font-size: 18px;
+}
+.account-block__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.account-block__email {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-signout {
+  align-self: flex-start;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--muted-strong);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}

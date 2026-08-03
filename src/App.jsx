@@ -18,7 +18,9 @@ import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 // From the repository, not the profile module: it is the seam that knows
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
-import { saveProfileFields, ensureProfile } from './data/tableRepository.js';
+import { saveProfileFields, ensureProfile, getAuthState, signOutMember } from './data/tableRepository.js';
+import { isMember, gateText } from './domain/policy/access.js';
+import AuthSheet from './components/AuthSheet';
 import { MAP_CENTER } from './utils';
 import { pathFor, stateFromPath } from './routes.js';
 import { matchesDietary, isQuarantined } from './data/verification';
@@ -199,21 +201,58 @@ export default function App() {
   // supabaseBackend.js. The parity test added with the seat requests counted
   // it as wired because tableRepository re-exports it — mentioned is not
   // called, and that test now knows the difference.
+  // Who is holding the phone. 'none' until proven otherwise — and proving
+  // otherwise no longer costs an account. Mounting used to sign every
+  // visitor in anonymously, which is how a venue's shared wifi walks into
+  // Supabase's 30-per-hour anonymous sign-in limit; getAuthState only reads.
+  const [auth, setAuth] = useState({ kind: 'none' });
+  // Which gate opened the sheet (its words come from AccessPolicy), or which
+  // mode to open straight into — 'details' catches a Google member who has
+  // not left a phone number yet.
+  const [authDoor, setAuthDoor] = useState(null);
+  const [authMode, setAuthMode] = useState(null);
+
+  const refreshAuth = async () => {
+    const state = await getAuthState().catch(() => ({ kind: 'none' }));
+    setAuth(state);
+    return state;
+  };
+
   useEffect(() => {
     let alive = true;
     (async () => {
-      try {
-        const merged = await ensureProfile(getProfile());
-        // Keep whatever this device knows and let the server settle identity.
-        // A name typed before signing in must survive; the id must not.
-        if (alive && merged?.userId) setProfile(saveProfile({ ...getProfile(), ...merged }));
-      } catch {
-        // No keys, or offline. The app stays on its local id, which is
-        // exactly the single-device behaviour it had before Supabase.
+      const state = await getAuthState().catch(() => ({ kind: 'none' }));
+      if (!alive) return;
+      setAuth(state);
+      // Identity sync only where a session already exists — a returning
+      // member, a restored anonymous browser, or Google landing back with
+      // the session in the URL. A first-time browser stays costless.
+      if (state.kind !== 'none') {
+        try {
+          const merged = await ensureProfile(getProfile());
+          // Keep whatever this device knows and let the server settle
+          // identity. A name typed before signing in must survive; the id
+          // must not.
+          if (alive && merged?.userId) setProfile(saveProfile({ ...getProfile(), ...merged }));
+        } catch {
+          // Offline; the app stays on its local id.
+        }
+      }
+      // A Google member arrives with a name and an email and nothing the
+      // matching team can call. One completion step, once.
+      if (state.kind === 'member' && state.detailsComplete === false) {
+        setAuthMode('details');
       }
     })();
     return () => { alive = false; };
   }, []);
+
+  /** True if the door is open; otherwise opens the auth sheet and says why. */
+  const requireMember = (door) => {
+    if (isMember(auth)) return true;
+    setAuthDoor(door);
+    return false;
+  };
 
   // Written to this device first, then to the database.
   //
@@ -600,11 +639,15 @@ export default function App() {
 
   if (!prologueCompleted) {
     return (
-      <Prologue 
-        onComplete={() => {
+      <Prologue
+        onComplete={(choice) => {
           localStorage.setItem('kfm-prologue', 'true');
           setPrologueCompleted(true);
-        }} 
+          // The front door offers joining but never demands it — 비로그인으로
+          // 둘러보기 is a real choice, not a hidden link. Somebody here for
+          // the map and the tips owes the app nothing.
+          if (choice === 'join' && !isMember(auth)) setAuthMode('choose');
+        }}
       />
     );
   }
@@ -667,8 +710,18 @@ export default function App() {
         {!openThemeId && activeTab === 'match' && tableView.screen === 'list' && (
           <TablesTab
             profile={profile}
-            onCreateTable={() => { setTablePrefill(null); setTableView({ screen: 'create' }); }}
-            onRequestTable={() => setTableView({ screen: 'request' })}
+            /* Gated at the handler rather than inside the screen: the list
+               itself is browsing and stays open, the two doors out of it are
+               participation. requireMember opens the auth sheet with the
+               right words when the answer is no. */
+            onCreateTable={() => {
+              if (!requireMember('open-table')) return;
+              setTablePrefill(null); setTableView({ screen: 'create' });
+            }}
+            onRequestTable={() => {
+              if (!requireMember('request-table')) return;
+              setTableView({ screen: 'request' });
+            }}
             onOpenTable={(id) => setTableView({ screen: 'detail', tableId: id })}
           />
         )}
@@ -694,6 +747,8 @@ export default function App() {
           <TableDetail
             tableId={tableView.tableId}
             profile={profile}
+            auth={auth}
+            onRequireAuth={(door) => setAuthDoor(door)}
             onProfileChange={updateProfile}
             onBack={() => setTableView({ screen: 'list' })}
             onOpenTheme={(id) => { setTableView({ screen: 'list' }); setActiveTab('home'); setOpenThemeId(id); }}
@@ -711,7 +766,20 @@ export default function App() {
             onOpenMap={openMap}
           />
         )}
-        {!openThemeId && activeTab === 'journal' && (
+        {/* The Passport belongs to somebody — 8/3's decision. The gate shows
+            the same open-browsing reassurance every gate does, because the
+            professor's point about the front door applies here too: locked
+            out of one tab must never read as locked out of the app. */}
+        {!openThemeId && activeTab === 'journal' && !isMember(auth) && (
+          <div className="member-gate">
+            <h3 className="member-gate__title">{gateText('passport').title}</h3>
+            <p className="member-gate__body">{gateText('passport').body}</p>
+            <button className="auth-primary" onClick={() => setAuthDoor('passport')}>
+              {gateText('passport').cta}
+            </button>
+          </div>
+        )}
+        {!openThemeId && activeTab === 'journal' && isMember(auth) && (
           <JournalPanel
             bookmarks={bookmarks}
             companions={companions}
@@ -728,6 +796,11 @@ export default function App() {
             /* The Set-shaped journey the completion policy reads. The other
                `journey` prop above is the legacy projection the stats use. */
             domainJourney={domainJourney}
+            auth={auth}
+            onSignOut={async () => {
+              await signOutMember().catch(() => {});
+              await refreshAuth();
+            }}
           />
         )}
         {/* The Profile tab used to render here. It is a section at the bottom
@@ -743,6 +816,29 @@ export default function App() {
         activeTab={activeTab}
         onSelect={(tab) => { setOpenThemeId(null); goToTab(tab); }}
       />
+
+      {/* The membership door, wherever it was knocked on from. onAuthed runs
+          the same identity sync the mount effect does, because a fresh member
+          needs their server id in the local profile before the next screen
+          reads it. */}
+      {(authDoor || authMode) && (
+        <AuthSheet
+          door={authDoor}
+          initialMode={authMode ?? undefined}
+          profile={profile}
+          onProfileChange={updateProfile}
+          onClose={() => { setAuthDoor(null); setAuthMode(null); }}
+          onAuthed={async () => {
+            const state = await refreshAuth();
+            if (state.kind === 'member') {
+              try {
+                const merged = await ensureProfile(getProfile());
+                if (merged?.userId) setProfile(saveProfile({ ...getProfile(), ...merged }));
+              } catch { /* offline; next load syncs */ }
+            }
+          }}
+        />
+      )}
 
       <MapOverlay
         open={mapOpen}

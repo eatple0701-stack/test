@@ -36,7 +36,7 @@ export default function JournalPanel({
   // the value is not dead everywhere — it is just dead on this screen.
   bookmarks, onRestaurantClick, onNavigate, journey,
   attestations = [], visitedMarkets = [], profile, onProfileChange,
-  onOpenSummary, onOpenTheme, domainJourney,
+  onOpenSummary, onOpenTheme, domainJourney, auth, onSignOut,
 }) {
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
@@ -668,6 +668,29 @@ export default function JournalPanel({
           Set once here and no table asks you again.
         </p>
         <ProfileFields profile={profile} onProfileChange={onProfileChange} />
+
+        {/* The account itself, under the settings it explains. Only a member
+            ever reads this screen — the Passport is gated — so the block can
+            assume there is an account to show. The email is the one the team
+            can reach; showing it back is the only receipt the unverified
+            signup ever issues, so a typo at least has somewhere to be seen. */}
+        {auth?.kind === 'member' && (
+          <div className="account-block">
+            {profile?.avatarUrl ? (
+              <img className="account-avatar" src={profile.avatarUrl} alt="Your profile photo" />
+            ) : (
+              <span className="account-avatar account-avatar--empty" aria-hidden="true">
+                {(profile?.name ?? '?').trim().charAt(0) || '?'}
+              </span>
+            )}
+            <div className="account-block__body">
+              <span className="account-block__email">{auth.email || '(no email on file)'}</span>
+              <button className="account-signout" onClick={onSignOut}>
+                로그아웃 · Sign out
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {phrasesOpen && <PhraseSheet avoids={profile?.avoids} onClose={() => setPhrasesOpen(false)} />}

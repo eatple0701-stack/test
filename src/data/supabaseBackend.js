@@ -368,3 +368,163 @@ export async function deleteBlock(blockedId) {
 
 /** Nothing to seed: a shared database already has everybody else's tables. */
 export async function seedSampleTables() {}
+
+// ---------------------------------------------------------------------------
+// Membership — accounts, on top of the anonymous sessions browsing runs on.
+//
+// The split the product decided on 2026-08-03: reading needs a session
+// (RLS is `to authenticated`, so signedInUser mints throwaway anonymous ones
+// on demand), participating needs a *member* — somebody who signed up and
+// left contact details the team can reach. Nothing here verifies anything:
+// no confirmation mail, no SMS code. Email and phone are collected as
+// information, which is the requirement the meeting actually stated, and
+// pretending to verify them would be theatre.
+//
+// Contact details go to `member_details`, a table whose RLS lets a person
+// read and write only their own row. Other travellers never see a phone
+// number; the team reads the table from the dashboard, which bypasses RLS by
+// design. That is what "관리 측면에서 필요한 정보" turns into concretely.
+
+/** Auth errors, translated to sentences a person at a form can act on. */
+function friendlyAuthError(error) {
+  const text = (error?.message ?? '').toLowerCase();
+  if (text.includes('invalid login credentials')) return 'Email or password is wrong.';
+  if (text.includes('already registered')) return 'That email already has an account — try signing in.';
+  if (text.includes('at least 8') || text.includes('password should')) return 'A password needs at least 8 characters.';
+  if (text.includes('provider is not enabled') || text.includes('unsupported provider')) {
+    return 'Google sign-in is not switched on for this project yet.';
+  }
+  if (text.includes('confirm') || text.includes('not confirmed')) {
+    return 'This project still requires email confirmation — turn off "Confirm email" in Supabase Auth settings, or check your inbox.';
+  }
+  if (text.includes('rate limit')) return 'Too many tries from this network — wait a minute and try again.';
+  return error?.message || 'That did not work. Check your connection and try again.';
+}
+
+/**
+ * Who is holding the phone: none, anonymous, or member.
+ *
+ * Reads the session without creating one — this is the call the app makes on
+ * mount, and mounting must not mint accounts. Every page view used to sign in
+ * anonymously on arrival, which is how a busy venue's shared wifi walks into
+ * Supabase's 30-per-hour anonymous sign-in limit; browsing now costs nothing
+ * until somebody actually opens a table list.
+ *
+ * `detailsComplete` is how a Google member is caught: OAuth hands back a name
+ * and an email but no phone and no birthdate, so the app has one more step to
+ * ask — and this flag is what tells it to.
+ */
+export async function getAuthState() {
+  const sb = await client();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user) return { kind: 'none' };
+  if (session.user.is_anonymous) return { kind: 'anonymous', userId: session.user.id };
+  const { data: details } = await sb
+    .from('member_details').select('id').eq('id', session.user.id).maybeSingle();
+  return {
+    kind: 'member',
+    userId: session.user.id,
+    email: session.user.email ?? '',
+    detailsComplete: Boolean(details),
+  };
+}
+
+/**
+ * Sign up with email and password, and file the contact details.
+ *
+ * The email doubles as the login ID. If the dashboard still has
+ * "Confirm email" switched on, signUp hands back a user with no session and
+ * this surfaces as its own sentence rather than a mystery — the setting is
+ * the deploy step this feature depends on, the way schema.sql is for columns.
+ */
+export async function signUpMember({ email, password, name, phone, birthdate }) {
+  const sb = await client();
+  const { data, error } = await sb.auth.signUp({ email: email.trim(), password });
+  if (error) throw new Error(friendlyAuthError(error));
+  if (!data.session) {
+    throw new Error('This project still requires email confirmation — turn off "Confirm email" in Supabase Auth settings.');
+  }
+  await saveMemberDetails({ email, phone, birthdate });
+  // The profiles row every foreign key points at, carrying the typed name.
+  const { error: profErr } = await sb.from('profiles')
+    .upsert({ id: data.user.id, name: name?.trim() ?? '' }, { onConflict: 'id' });
+  if (profErr) throw new Error(friendlyError(profErr));
+  profileEnsuredFor = data.user.id;
+  return { userId: data.user.id, email: data.user.email ?? '' };
+}
+
+export async function signInMember({ email, password }) {
+  const sb = await client();
+  const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
+  if (error) throw new Error(friendlyAuthError(error));
+  return { userId: data.user.id, email: data.user.email ?? '' };
+}
+
+/**
+ * Google. Redirects the whole page away and back, so nothing after this call
+ * runs on success — the session arrives in the URL when Google returns, the
+ * client library picks it up, and the mount-time getAuthState sees a member.
+ * The one thing that does come back here is the failure to even leave, which
+ * is what an unconfigured provider looks like.
+ */
+export async function signInWithGoogle() {
+  const sb = await client();
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin },
+  });
+  if (error) throw new Error(friendlyAuthError(error));
+}
+
+export async function signOutMember() {
+  const sb = await client();
+  const { error } = await sb.auth.signOut();
+  if (error) throw new Error(friendlyAuthError(error));
+}
+
+/**
+ * The contact row, upserted so the Google completion step and the signup form
+ * are the same write. Email is stored here as well as in auth so the team
+ * reads one table in the dashboard, not a join.
+ */
+export async function saveMemberDetails({ email, phone, birthdate }) {
+  const sb = await client();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user || session.user.is_anonymous) {
+    throw new Error('Sign in before saving contact details.');
+  }
+  const row = {
+    id: session.user.id,
+    email: (email ?? session.user.email ?? '').trim(),
+    phone: (phone ?? '').trim(),
+    birthdate: birthdate || null,
+  };
+  const { error } = await sb.from('member_details').upsert(row, { onConflict: 'id' });
+  if (error) throw new Error(friendlyError(error));
+}
+
+/**
+ * The profile photo. A data URL, already downscaled by the screen — the
+ * storage bucket caps size as the real enforcement, this just keeps uploads
+ * quick on venue wifi. Stored at <uid>/avatar.jpg so the storage policy can
+ * check the folder name against auth.uid(), and upsert:true makes replacing
+ * your photo the same act as setting it.
+ */
+export async function saveAvatar(dataUrl) {
+  const sb = await client();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user || session.user.is_anonymous) {
+    throw new Error('Sign in before adding a photo.');
+  }
+  const blob = await (await fetch(dataUrl)).blob();
+  const path = `${session.user.id}/avatar.jpg`;
+  const { error } = await sb.storage.from('avatars')
+    .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+  if (error) throw new Error(friendlyAuthError(error));
+  const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
+  const url = pub?.publicUrl ?? '';
+  const { error: profErr } = await sb.from('profiles')
+    .update({ avatar_url: url }).eq('id', session.user.id);
+  if (profErr) throw new Error(friendlyError(profErr));
+  return url;
+}

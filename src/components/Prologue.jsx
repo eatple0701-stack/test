@@ -16,10 +16,15 @@ import './Prologue.css';
 export default function Prologue({ onComplete }) {
   const [leaving, setLeaving] = useState(false);
 
-  const enter = () => {
+  // Two ways in, both real. 'join' opens the membership sheet on the other
+  // side; 'browse' is the whole app minus participation, promised out loud —
+  // somebody here for the map and the tips owes this screen nothing, and a
+  // front door that only opens for members would lose exactly the travellers
+  // the pilot wants standing in front of it.
+  const enter = (choice) => () => {
     setLeaving(true);
     // Long enough to read as a transition, short enough not to be a wait.
-    setTimeout(onComplete, 320);
+    setTimeout(() => onComplete(choice), 320);
   };
 
   return (
@@ -43,7 +48,10 @@ export default function Prologue({ onComplete }) {
               It still appears under 자리 요청, where a person is committing to
               an evening, and at the top of the safety sheet. See PURPOSE in
               content/safety.js. */}
-          <button className="prologue-btn" onClick={enter}>밥친구 찾기 · Find a table</button>
+          <button className="prologue-btn" onClick={enter('join')}>가입하고 시작 · Join and start</button>
+          <button className="prologue-browse" onClick={enter('browse')}>
+            먼저 둘러보기 · Just browse — no account needed
+          </button>
         </div>
       </div>
     </div>

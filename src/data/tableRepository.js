@@ -334,3 +334,115 @@ export const seedSampleTables = useRemote ? remote.seedSampleTables : local_seed
  */
 export const ensureProfile = useRemote ? remote.ensureProfile : async (local) => local;
 export const saveProfileFields = useRemote ? remote.saveProfileFields : async () => {};
+
+// --- Membership, on the device-only backend ------------------------------
+//
+// A real account system needs a server; this is the shape of one, so the
+// screens behave identically on both backends and the parity test holds the
+// two lists of capabilities together. The password is hashed before storage
+// because even a demo must not keep plaintext next to the email it belongs
+// to — but be honest about the ceiling: localStorage on a shared machine is
+// readable by anybody at the keyboard, hash or no hash. The pilot's real
+// accounts live in Supabase; this exists so a keyless build still walks.
+
+const ACCOUNT_KEY = 'bapchingu-account';
+
+const readAccount = () => {
+  try {
+    const raw = localStorage.getItem(ACCOUNT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+const writeAccount = (row) => {
+  try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(row)); } catch { /* quota */ }
+};
+
+async function hashPassword(password) {
+  if (!globalThis.crypto?.subtle) return `plain:${password}`; // ancient browser; stated, not hidden
+  const bytes = new TextEncoder().encode(`bapchingu:${password}`);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function local_getAuthState() {
+  const acc = readAccount();
+  if (!acc || !acc.signedIn) return { kind: 'none' };
+  return {
+    kind: 'member',
+    userId: acc.userId,
+    email: acc.email ?? '',
+    detailsComplete: Boolean(acc.phone && acc.birthdate),
+  };
+}
+
+async function local_signUpMember({ email, password, name, phone, birthdate }) {
+  const existing = readAccount();
+  if (existing && existing.email === email.trim()) {
+    throw new Error('That email already has an account — try signing in.');
+  }
+  const acc = {
+    // The device's one identity — membership is a hat the same id puts on,
+    // so tables opened before signing up stay recognisable as yours.
+    userId: readAccount()?.userId ?? `u-${Math.random().toString(36).slice(2, 10)}`,
+    email: email.trim(),
+    passwordHash: await hashPassword(password),
+    name: name?.trim() ?? '',
+    phone: (phone ?? '').trim(),
+    birthdate: birthdate || null,
+    signedIn: true,
+    createdAt: Date.now(),
+  };
+  writeAccount(acc);
+  return { userId: acc.userId, email: acc.email };
+}
+
+async function local_signInMember({ email, password }) {
+  const acc = readAccount();
+  if (!acc || acc.email !== email.trim()) throw new Error('Email or password is wrong.');
+  if (acc.passwordHash !== await hashPassword(password)) throw new Error('Email or password is wrong.');
+  writeAccount({ ...acc, signedIn: true });
+  return { userId: acc.userId, email: acc.email };
+}
+
+async function local_signInWithGoogle() {
+  // The truthful version, not a fake success: OAuth needs the shared server.
+  throw new Error('Google sign-in needs the shared server — this device-only build uses email sign-up instead.');
+}
+
+async function local_signOutMember() {
+  const acc = readAccount();
+  if (acc) writeAccount({ ...acc, signedIn: false });
+}
+
+async function local_saveMemberDetails({ email, phone, birthdate }) {
+  const acc = readAccount();
+  if (!acc || !acc.signedIn) throw new Error('Sign in before saving contact details.');
+  writeAccount({
+    ...acc,
+    email: (email ?? acc.email ?? '').trim(),
+    phone: (phone ?? '').trim(),
+    birthdate: birthdate || acc.birthdate || null,
+  });
+}
+
+async function local_saveAvatar(dataUrl) {
+  const acc = readAccount();
+  if (!acc || !acc.signedIn) throw new Error('Sign in before adding a photo.');
+  // The data URL is the storage. Fine at avatar sizes — the screen downscales
+  // to ~256px before this is ever called — and it round-trips the same shape
+  // the remote returns: a string the profile can carry.
+  writeAccount({ ...acc, avatarUrl: dataUrl });
+  return dataUrl;
+}
+
+// Membership travels through the same seam as everything else, so the parity
+// test holds both backends to the same list of capabilities.
+export const getAuthState = useRemote ? remote.getAuthState : local_getAuthState;
+export const signUpMember = useRemote ? remote.signUpMember : local_signUpMember;
+export const signInMember = useRemote ? remote.signInMember : local_signInMember;
+export const signInWithGoogle = useRemote ? remote.signInWithGoogle : local_signInWithGoogle;
+export const signOutMember = useRemote ? remote.signOutMember : local_signOutMember;
+export const saveMemberDetails = useRemote ? remote.saveMemberDetails : local_saveMemberDetails;
+export const saveAvatar = useRemote ? remote.saveAvatar : local_saveAvatar;

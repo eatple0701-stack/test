@@ -495,3 +495,68 @@ create policy blocks_delete_own on public.blocks
 -- Verification is granted by an administrator in the Supabase dashboard:
 --   update public.profiles set is_verified_host = true where id = '<uuid>';
 -- There is deliberately no policy allowing a user to set this on themselves.
+
+-- ---------------------------------------------------------------------------
+-- Membership (2026-08-03). Browsing stays anonymous; participating needs an
+-- account with contact details the team can reach. Nothing is verified — no
+-- confirmation mail, no SMS — by decision: the requirement was information
+-- for running the pilot, and pretending to verify would be theatre.
+--
+-- Two dashboard switches this depends on, neither expressible in SQL:
+--   Authentication → Sign In / Providers → Email → "Confirm email" OFF
+--     (password sign-up without a verification round-trip)
+--   Authentication → Providers → Google → configure client ID + secret
+--     (the Google button errors politely until this is done)
+
+-- The face a member chooses to show. Public by the same reasoning as name:
+-- it exists to be recognised by, at a table and at a station exit.
+alter table public.profiles add column if not exists avatar_url text default '';
+
+-- Contact details, in their own table rather than on profiles, because RLS is
+-- row-level and profiles is broadly readable on purpose (names and languages
+-- are for other travellers). A phone number is not. This table's rows are
+-- readable only by their owner; the team reads it from the dashboard, which
+-- bypasses RLS by design — that is the 관리 측면 the meeting asked for.
+create table if not exists public.member_details (
+  id          uuid primary key references public.profiles(id) on delete cascade,
+  email       text not null default '',
+  phone       text not null default '',
+  birthdate   date,
+  created_at  timestamptz not null default now()
+);
+
+alter table public.member_details enable row level security;
+
+drop policy if exists member_details_select_own on public.member_details;
+create policy member_details_select_own on public.member_details
+  for select to authenticated using (id = auth.uid());
+
+drop policy if exists member_details_insert_own on public.member_details;
+create policy member_details_insert_own on public.member_details
+  for insert to authenticated with check (id = auth.uid());
+
+drop policy if exists member_details_update_own on public.member_details;
+create policy member_details_update_own on public.member_details
+  for update to authenticated
+  using (id = auth.uid()) with check (id = auth.uid());
+
+-- The avatars bucket. Public read — a photo chosen to be recognised by is
+-- public in the same sense a name is — with writes fenced to your own folder
+-- and a size cap doing the real enforcement of "small".
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 2097152, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do nothing;
+
+drop policy if exists avatars_read on storage.objects;
+create policy avatars_read on storage.objects
+  for select using (bucket_id = 'avatars');
+
+drop policy if exists avatars_write_own on storage.objects;
+create policy avatars_write_own on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists avatars_update_own on storage.objects;
+create policy avatars_update_own on storage.objects
+  for update to authenticated
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
