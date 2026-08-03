@@ -247,13 +247,13 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
 
         {mode === 'details' && (
           <div className="auth-form">
-            {/* A Google account arrives with a name and an email and nothing
-                else. The pilot's requirement is reachability, so the two
-                missing pieces are asked once, here, before the door opens. */}
+            {/* Whoever arrives missing contact details — a Google account by
+                nature, or a signup the first deploy cut in half — is asked
+                once, here, before the doors open. */}
             <h2 className="form-label">거의 다 됐어요 · Almost there</h2>
             <p className="auth-note">
-              Google gave us your name and email. The team also needs a phone number and a
-              date of birth to run matching — nobody at a table ever sees either.
+              Your account exists but two details are missing — Google sign-ins arrive without them, and an interrupted signup can too. The team needs a phone number and a
+              date of birth to run matching; nobody at a table ever sees either.
             </p>
             <label className="field">
               <span className="field__label">전화번호 · Phone</span>
