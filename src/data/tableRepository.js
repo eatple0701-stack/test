@@ -16,6 +16,7 @@ import { cleanGuides } from '../domain/catalog/hosts.js';
 import { cleanLanguages } from '../domain/catalog/languages.js';
 import { cleanDiets } from './profile.js';
 import { cleanMeetingNote, cleanChatUrl } from '../domain/policy/meeting.js';
+import { pointOf } from '../domain/policy/place.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
 import { isCancelled } from '../domain/policy/cancellation.js';
@@ -107,6 +108,10 @@ async function local_createTable(input) {
     // The host's open-chat room — same audience as the note, same cleaner
     // as the remote path, so neither backend can carry an unsafe link.
     chatUrl: cleanChatUrl(input.chatUrl),
+    // Same validation as the remote path: a point that could never be drawn
+    // is never stored, on either backend.
+    lat: pointOf(input)?.lat ?? null,
+    lng: pointOf(input)?.lng ?? null,
     cancelledAt: null,
     seats: Number(input.seats),
     note: input.note ?? '',

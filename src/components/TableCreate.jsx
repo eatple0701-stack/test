@@ -9,6 +9,7 @@ import { LANGUAGES, cleanLanguages } from '../domain/catalog/languages.js';
 import { createTable } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import HostBrief from './HostBrief';
+import PlacePicker from './PlacePicker';
 import RulesConsent from './RulesConsent';
 import { PURPOSE } from '../content/safety.js';
 import { agreedToRules } from '../domain/policy/consent.js';
@@ -46,6 +47,9 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   // Optional 오픈채팅 link — the day-of channel the app deliberately does
   // not build itself. Validated by MeetingPolicy on the way to storage.
   const [chatUrl, setChatUrl] = useState('');
+  // Where the host will stand, pointed at rather than geocoded from the
+  // place text. Optional; a table without it stays in the list, off the map.
+  const [point, setPoint] = useState({ lat: null, lng: null });
   const [hostName, setHostName] = useState(profile?.name ?? '');
   const [guides, setGuides] = useState([]);
   // Their own profile answer, so the question is not asked twice.
@@ -69,6 +73,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
     const row = await createTable({
       menuId, date, time, place: place.trim(), restaurant: restaurant.trim(), guides, languages,
       seats: Number(seats), note: note.trim(), meetingNote, chatUrl,
+      lat: point.lat, lng: point.lng,
       hostId: profile?.userId, hostName: hostName.trim(), hostNationality: profile?.nationality,
       hostGender: profile?.gender ?? null,
     });
@@ -350,6 +355,11 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             phone numbers, so this is how somebody finds you at {place.trim() || 'the meeting point'}.
           </span>
         </label>
+        {/* The map answers a question words cannot: "can I get there from
+            where I am sleeping". 부장님's 모임 장소 표시, asked of the one
+            person who actually knows where they will be standing. */}
+        <PlacePicker value={point} onChange={setPoint} />
+
         <label className="field">
           <span className="field__label">오픈채팅 링크 · Open chat link (optional)</span>
           <input

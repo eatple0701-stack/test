@@ -666,6 +666,23 @@ create policy reviews_delete_own on public.reviews
 -- chose to share with strangers they invited.
 alter table public.tables add column if not exists chat_url text default '';
 
+-- Where the table is, when the host pointed at a map (2026-08-04).
+--
+-- 김훈 부장님 asked for 구글 지도 API를 연계하여 모임 장소 표시. Nullable and
+-- unconstrained here on purpose: the app refuses an implausible coordinate in
+-- src/domain/policy/place.js, where the reasoning can be read and tested,
+-- rather than in a check constraint that would only produce "그것이 저장되지
+-- 않았습니다" at the moment a host is trying to open a table.
+--
+-- Deliberately NOT geocoded from `place`. That column holds "홍대입구 3번
+-- 출구" and "the CU by the station"; a geocoder turns those into a
+-- coordinate that looks exactly as confident as a true one while being a
+-- block away. Standing at the wrong exit at 19:00 is the failure this app
+-- exists to prevent, so the only points stored are the ones a person put
+-- there.
+alter table public.tables add column if not exists lat double precision;
+alter table public.tables add column if not exists lng double precision;
+
 -- ---------------------------------------------------------------------------
 -- Link previews (2026-08-04). A shared table link unfurls in KakaoTalk with
 -- the dish and the evening on it, which is what 핵심기능 5 (SNS 확산) needs

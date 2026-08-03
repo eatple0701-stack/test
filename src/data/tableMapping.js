@@ -15,6 +15,7 @@ import { cleanLanguages } from '../domain/catalog/languages.js';
 import { cleanGender } from '../domain/catalog/genders.js';
 import { cleanDiets } from './profile.js';
 import { cleanMeetingNote, cleanChatUrl } from '../domain/policy/meeting.js';
+import { pointOf } from '../domain/policy/place.js';
 
 /** A `tables` row as it comes out of Postgres → the shape the screens read. */
 export function tableFromRow(row) {
@@ -44,6 +45,10 @@ export function tableFromRow(row) {
     // Cleaned on read as well as write, because a row predating the rule —
     // or written past the API — must still never render as a live link.
     chatUrl: cleanChatUrl(row.chat_url),
+    // Where the host pointed at the map, if they did. Carried raw; whether
+    // it is drawable is PlacePolicy's judgement, not this file's.
+    lat: row.lat ?? null,
+    lng: row.lng ?? null,
     // Called off, kept rather than deleted — see policy/cancellation.js.
     cancelledAt: row.cancelled_at ?? null,
     seats: row.seats,
@@ -76,6 +81,10 @@ export function tableToRow(input, { hostId, hostVerified = false } = {}) {
     restaurant: input.restaurant ?? '',
     meeting_note: cleanMeetingNote(input.meetingNote),
     chat_url: cleanChatUrl(input.chatUrl),
+    // Validated through the policy on the way in as well as out, so a point
+    // that could never be drawn is never stored either.
+    lat: pointOf(input)?.lat ?? null,
+    lng: pointOf(input)?.lng ?? null,
     seats: Number(input.seats),
     note: input.note ?? '',
   };

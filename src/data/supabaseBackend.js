@@ -238,16 +238,32 @@ export async function createTable(input) {
     .from('profiles').select('is_verified_host').eq('id', user.id).maybeSingle();
 
   const row = tableToRow(input, { hostId: user.id, hostVerified: profile?.is_verified_host ?? false });
-  let { data, error } = await sb.from('tables').insert(row).select().single();
+  let attempt = { ...row };
+  let { data, error } = await sb.from('tables').insert(attempt).select().single();
+
   // The deploy can reach a project whose schema has not caught up — the same
   // situation deleteTable already survives. PostgREST refuses an insert
-  // naming a column it does not know (PGRST204; raw Postgres would say
-  // 42703), so retry once without the newest column. A host opening a table
-  // must not fail because the chat-link column is a schema run away.
-  if (error && (error.code === 'PGRST204' || error.code === '42703')) {
-    const { chat_url: _dropped, ...legacy } = row;
-    ({ data, error } = await sb.from('tables').insert(legacy).select().single());
+  // naming a column it does not know, and helpfully says which one:
+  //
+  //   PGRST204: Could not find the 'lat' column of 'tables' in the schema cache
+  //
+  // So the retry reads the name out of the error and drops that column,
+  // rather than dropping a hard-coded list. The hard-coded version was
+  // written for chat_url and silently stopped working the day lat/lng were
+  // added — the second column was never in the list, so the retry failed
+  // identically to the first attempt. This version cannot go stale.
+  //
+  // Bounded, because a loop driven by a server's error text must terminate
+  // even if the text stops matching, and columns are dropped one at a time
+  // so a project missing only one keeps the rest.
+  for (let i = 0; error && i < 6; i += 1) {
+    if (error.code !== 'PGRST204' && error.code !== '42703') break;
+    const missing = /'([a-z_]+)' column/.exec(error.message ?? '')?.[1];
+    if (!missing || !(missing in attempt)) break;
+    delete attempt[missing];
+    ({ data, error } = await sb.from('tables').insert(attempt).select().single());
   }
+
   if (error) throw new Error(friendlyError(error));
   return tableFromRow(data);
 }

@@ -1,0 +1,109 @@
+import React, { useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import { MAP_CENTER } from '../utils';
+import { menuById } from '../domain/catalog/menus.js';
+import { seatsRemaining } from '../domain/policy/table.js';
+import { mappable, pointOf, unplacedNotice } from '../domain/policy/place.js';
+import { XIcon } from './Icons';
+
+// The tables, on the map. 김훈 부장님's 모임 장소 표시.
+//
+// The map in this app has shown restaurants since before the app was 밥친구,
+// and never the tables — the one thing the product is actually about. A
+// traveller choosing between two dinners is asking whether either is near
+// where they are sleeping, and until now the answer was a place name they
+// had to paste into another app.
+//
+// The pin carries the dish rather than a generic marker, because on a map of
+// a city the question is not "is something here" but "is 삼겹살 here on
+// Thursday". Tapping opens the table.
+//
+// Tables the host never placed are counted and named under the map instead
+// of being guessed onto it — see src/domain/policy/place.js for why a
+// geocoded pin would be worse than none.
+
+const tablePin = (menu, left) => L.divIcon({
+  className: 'table-pin',
+  html: `<span class="table-pin__body${left === 0 ? ' is-full' : ''}">
+    <span class="table-pin__word">${menu?.nameKo ?? '밥상'}</span>
+    <span class="table-pin__seats">${left === 0 ? 'full' : left}</span>
+  </span>`,
+  // Measured rather than guessed so the tip sits on the point, not near it.
+  iconSize: [null, null],
+  iconAnchor: [30, 34],
+});
+
+export default function TablesMap({ tables = [], signupsFor = {}, onOpenTable, onClose }) {
+  const placed = useMemo(() => mappable(tables), [tables]);
+  const notice = useMemo(() => unplacedNotice(tables), [tables]);
+
+  // Centre on the tables when there are any, so the map opens where the food
+  // is rather than on a fixed downtown point that may hold nothing.
+  const center = useMemo(() => {
+    if (placed.length === 0) return MAP_CENTER;
+    const pts = placed.map(pointOf);
+    return [
+      pts.reduce((s, p) => s + p.lat, 0) / pts.length,
+      pts.reduce((s, p) => s + p.lng, 0) / pts.length,
+    ];
+  }, [placed]);
+
+  return (
+    <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label="Tables on the map">
+      <header className="map-overlay__bar">
+        <div className="map-overlay__heading">
+          <h2>밥상 지도 · Tables near you</h2>
+          <p>
+            {placed.length > 0
+              ? `${placed.length} table${placed.length === 1 ? '' : 's'} placed by their host`
+              : 'No host has dropped a pin yet'}
+          </p>
+        </div>
+        <button className="map-overlay__close" aria-label="Close map" onClick={onClose}>
+          <XIcon size={18} />
+        </button>
+      </header>
+
+      <div className="map-overlay__map">
+        <MapContainer center={center} zoom={12} style={{ height: '100%', width: '100%' }} zoomControl={false}>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          />
+          {placed.map(t => {
+            const menu = menuById(t.menuId);
+            const p = pointOf(t);
+            const left = seatsRemaining(t, signupsFor[t.id] ?? []);
+            return (
+              <Marker
+                key={t.id}
+                position={[p.lat, p.lng]}
+                icon={tablePin(menu, left)}
+                eventHandlers={{ click: () => onOpenTable?.(t.id) }}
+              >
+                {/* A popup as well as the click, because on a phone a tap
+                    that navigates immediately gives no chance to check the
+                    date first. */}
+                <Popup>
+                  <strong>{menu?.name ?? 'Table'}</strong><br />
+                  {t.date} {t.time}<br />
+                  {t.place}
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MapContainer>
+      </div>
+
+      {/* Never silent about what is missing: four in the list and three on
+          the map reads as the app losing one. */}
+      {notice && (
+        <div className="map-overlay__panel tables-map__notice">
+          <p className="tables-map__notice-kr">{notice.kr}</p>
+          <p className="tables-map__notice-en">{notice.en}</p>
+        </div>
+      )}
+    </div>
+  );
+}

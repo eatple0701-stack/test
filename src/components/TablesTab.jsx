@@ -11,6 +11,7 @@ import { visibleTables } from '../domain/policy/blocking.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
 import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
+import TablesMap from './TablesMap';
 import { hostRecord } from '../data/tableRepository.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
@@ -46,8 +47,9 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // nothing else. See HANDOFF.md §4: praised by a reviewer for existing
   // before it did.
   const [womenFilter, setWomenFilter] = useState(false);
-  // 오늘/내일/주말 — one at a time, second tap turns it off, like menuFilter.
+  // A date from the week strip, or null for the whole week.
   const [dayFilter, setDayFilter] = useState(null);
+  const [mapOpen, setMapOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -253,6 +255,14 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           nights in Seoul actually arrives with — and the empty days are the
           load-bearing half: a 0 under Thursday is a fact somebody can act
           on, and the action is opening a table. */}
+      {/* 부장님's 모임 장소 표시. Beside the week rather than in the tab bar,
+          because "which day" and "where" are the same decision made twice. */}
+      {tables !== null && open.length > 0 && (
+        <button className="tables-map-open" translate="no" onClick={() => setMapOpen(true)}>
+          <MapPinIcon size={15} /> 지도로 보기 · See these on a map
+        </button>
+      )}
+
       {tables !== null && (
         <div className="week-strip" role="group" aria-label="Tables by day">
           {week.map(d => (
@@ -480,6 +490,17 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             for you if nobody has.
           </span>
         </button>
+      )}
+
+      {/* Shows every open table, not the filtered list: a map is for finding
+          what you did not know to filter for. */}
+      {mapOpen && (
+        <TablesMap
+          tables={open}
+          signupsFor={signupsFor}
+          onOpenTable={(id) => { setMapOpen(false); onOpenTable(id); }}
+          onClose={() => setMapOpen(false)}
+        />
       )}
     </section>
   );
