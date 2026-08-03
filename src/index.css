@@ -9177,3 +9177,20 @@ body {
   cursor: pointer;
 }
 .danger-open:hover { background: var(--danger-tint); }
+
+/* "or" divider in the auth sheet — social above, form below, Meetup order. */
+.auth-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.auth-or::before,
+.auth-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}

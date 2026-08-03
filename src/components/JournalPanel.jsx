@@ -377,7 +377,7 @@ export default function JournalPanel({
           tab for, and they work signed out; nothing on this screen should
           stand between a person at a counter and the sentence they need. */}
       <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
-        <span className="journal-tool__kr">식탁에서</span>
+        <span className="journal-tool__kr" translate="no">식탁에서</span>
         <span className="journal-tool__body">
           What to say — ordering, what you cannot eat, and something to ask the
           table. Works with or without a meal booked.
@@ -389,7 +389,7 @@ export default function JournalPanel({
           channel are no use behind a door you can only find while shopping
           for a specific dinner — which is where this used to live. */}
       <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
-        <span className="journal-tool__kr">도움이 필요하면</span>
+        <span className="journal-tool__kr" translate="no">도움이 필요하면</span>
         <span className="journal-tool__body">
           112, 119, the 24-hour travel helpline, and how to reach the 밥친구
           team. You can leave any meal at any point.
@@ -435,7 +435,7 @@ export default function JournalPanel({
         <div className="member-gate member-gate--inline">
           <h3 className="member-gate__title">{gateText('passport').title}</h3>
           <p className="member-gate__body">{gateText('passport').body}</p>
-          <button className="auth-primary" onClick={() => onRequireAuth?.('passport')}>
+          <button className="auth-primary" translate="no" onClick={() => onRequireAuth?.('passport')}>
             {gateText('passport').cta}
           </button>
         </div>

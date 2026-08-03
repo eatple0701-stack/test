@@ -56,8 +56,15 @@ function downscale(file) {
 }
 
 export default function AuthSheet({ door, initialMode, profile, onProfileChange, onClose, onAuthed }) {
-  // 'choose' → 'signup' | 'signin' → ('details') → 'avatar' → done
-  const [mode, setMode] = useState(initialMode ?? 'choose');
+  // 'signup' | 'signin' → ('details') → 'profile' → 'avatar' → done
+  //
+  // There used to be a 'choose' step in front of this: a screen offering
+  // "create an account" and "sign in" as buttons. It was a click that taught
+  // nobody anything — every door into this sheet already says which one it
+  // is. 만들기 on the Passport means create; 로그인 in the corner means sign
+  // in. So the sheet opens on the form itself, with the other way in as one
+  // line at the bottom, which is how every signup people are used to works.
+  const [mode, setMode] = useState(initialMode ?? 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState(profile?.name ?? '');
@@ -162,31 +169,32 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <XIcon size={18} />
         </button>
 
+        {/* The gate's title only. Its body is already on the card the person
+            just tapped — repeating three sentences here made a modal that
+            asks somebody to read the same paragraph twice before they can
+            type anything. Meetup's own signup modal is a heading and the
+            ways in; that is the shape being matched. */}
         {gate && mode !== 'avatar' && (
           <header className="auth-gate">
             <h2 className="auth-gate__title">{gate.title}</h2>
-            <p className="auth-gate__body">{gate.body}</p>
           </header>
-        )}
-
-        {mode === 'choose' && (
-          <div className="auth-choose">
-            <button className="auth-primary" onClick={() => setMode('signup')}>
-              가입하기 · Create an account
-            </button>
-            <button className="auth-secondary" onClick={() => setMode('signin')}>
-              로그인 · I already have one
-            </button>
-            <button className="auth-google" onClick={google}>
-              Google로 계속 · Continue with Google
-            </button>
-            {error && <p className="auth-error">{error}</p>}
-          </div>
         )}
 
         {mode === 'signup' && (
           <div className="auth-form">
-            <h2 className="form-label">가입 · Join 밥친구</h2>
+            {!gate && <h2 className="form-label" translate="no">가입하기 · Create your account</h2>}
+
+            {/* Social first, then the form — Meetup's order, and the right
+                one: one tap beats five fields for anybody who has a Google
+                account. The email form stays visible underneath rather than
+                behind another click, because the fields are what the pilot
+                actually needs and hiding them would cost more taps than it
+                saves. */}
+            <button className="auth-google" onClick={google} translate="no">
+              Google로 계속 · Continue with Google
+            </button>
+            <p className="auth-or"><span>또는 · or</span></p>
+
             <label className="field">
               <span className="field__label">이메일 · Email — this is your login ID</span>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
@@ -216,18 +224,22 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               <ul className="auth-problems">{problems.map(p => <li key={p}>{p}</li>)}</ul>
             )}
             {error && <p className="auth-error">{error}</p>}
-            <button className="auth-primary" onClick={submitSignup} disabled={busy}>
+            <button className="auth-primary" onClick={submitSignup} disabled={busy} translate="no">
               {busy ? 'Joining…' : '가입 · Join'}
             </button>
-            <button className="auth-switch" onClick={() => { setMode('signin'); setError(null); }}>
-              이미 계정이 있어요 · Sign in instead
+            <button className="auth-switch" onClick={() => { setMode('signin'); setError(null); }} translate="no">
+              이미 계정이 있어요 · Sign in
             </button>
           </div>
         )}
 
         {mode === 'signin' && (
           <div className="auth-form">
-            <h2 className="form-label">로그인 · Sign in</h2>
+            {!gate && <h2 className="form-label" translate="no">로그인 · Sign in</h2>}
+            <button className="auth-google" onClick={google} translate="no">
+              Google로 계속 · Continue with Google
+            </button>
+            <p className="auth-or"><span>또는 · or</span></p>
             <label className="field">
               <span className="field__label">이메일 · Email</span>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
@@ -237,13 +249,10 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" />
             </label>
             {error && <p className="auth-error">{error}</p>}
-            <button className="auth-primary" onClick={submitSignin} disabled={busy}>
+            <button className="auth-primary" onClick={submitSignin} disabled={busy} translate="no">
               {busy ? 'Signing in…' : '로그인 · Sign in'}
             </button>
-            <button className="auth-google" onClick={google}>
-              Google로 계속 · Continue with Google
-            </button>
-            <button className="auth-switch" onClick={() => { setMode('signup'); setError(null); }}>
+            <button className="auth-switch" onClick={() => { setMode('signup'); setError(null); }} translate="no">
               처음이에요 · Create an account
             </button>
           </div>

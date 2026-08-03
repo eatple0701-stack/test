@@ -85,7 +85,7 @@ export default function SettingsTab({ auth, onSignedOut }) {
                 Closing your account removes everything you gave us — your name,
                 email, phone and date of birth — and everything you made here.
               </p>
-              <button className="danger-open" onClick={() => setConfirming(true)}>
+              <button className="danger-open" translate="no" onClick={() => setConfirming(true)}>
                 회원 탈퇴 · Close my account
               </button>
             </>

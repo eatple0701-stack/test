@@ -431,7 +431,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             no other way to fill them — there is no messaging, no notification
             and no feed — so the link is the only reach this app gives them.
             핵심기능 5 is SNS 확산, and this is the object that spreads. */}
-        <button className="detail-share" onClick={share}>
+        <button className="detail-share" translate="no" onClick={share}>
           {shared ? <><CheckIcon size={15} /> Link copied</> : '링크 보내기 · Send this table to someone'}
         </button>
 
@@ -440,7 +440,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             it over by hand is where typos put people an hour late. Gone once
             the meal is past or called off: there is nothing left to book. */}
         {!isCancelled(table) && !isPast(table) && (
-          <button className="detail-share detail-calendar" onClick={addToCalendar}>
+          <button className="detail-share detail-calendar" translate="no" onClick={addToCalendar}>
             캘린더에 추가 · Add to your calendar
           </button>
         )}
@@ -476,7 +476,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         {/* The app used to stop here — it delivered somebody to a restaurant
             and then had nothing to offer at the meal itself, which is the
             only part of this that matters. */}
-        <button className="phrase-open" onClick={() => setPhrasesOpen(true)}>
+        <button className="phrase-open" translate="no" onClick={() => setPhrasesOpen(true)}>
           식탁에서 · What to say at the table
         </button>
       </div>
@@ -668,7 +668,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               the same people. cleanChatUrl already refused anything that is
               not an https link, on both write and read. */}
           {table.chatUrl && (
-            <a className="meeting-chat" href={table.chatUrl} target="_blank" rel="noopener noreferrer">
+            <a className="meeting-chat" translate="no" href={table.chatUrl} target="_blank" rel="noopener noreferrer">
               오픈채팅 참여 · Join this table’s open chat
             </a>
           )}
@@ -1012,7 +1012,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         <div className="join-block">
           <h3 className="detail-block__label">{gateText('join-table').title}</h3>
           <p className="join-next">{gateText('join-table').body}</p>
-          <button className="form-submit" onClick={() => onRequireAuth?.("join-table")}>
+          <button className="form-submit" translate="no" onClick={() => onRequireAuth?.("join-table")}>
             {gateText('join-table').cta}
           </button>
         </div>
@@ -1072,7 +1072,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           )}
 
           {error && <p className="join-error">{error}</p>}
-          <button className="form-submit" onClick={join} disabled={busy || !name.trim()}>
+          <button className="form-submit" translate="no" onClick={join} disabled={busy || !name.trim()}>
             {busy ? 'Asking…' : '자리 요청 · Take a seat'}
           </button>
 
@@ -1097,7 +1097,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <p className="report-receipt__body">{REPORT_RECEIPT.body}</p>
         </div>
       ) : !reportOpen ? (
-        <button className="report-open" onClick={() => setReportOpen(true)}>
+        <button className="report-open" translate="no" onClick={() => setReportOpen(true)}>
           {REPORT_DOOR.open}
         </button>
       ) : (
@@ -1140,7 +1140,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
 
       {/* Quiet, at the bottom, and always there — not a scare on the way in,
           but not something to go hunting for either. */}
-      <button className="safety-open" onClick={() => setSafetyOpen(true)}>
+      <button className="safety-open" translate="no" onClick={() => setSafetyOpen(true)}>
         도움이 필요하면 · Feeling unsafe or need help?
       </button>
 
@@ -1183,7 +1183,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             <ClockIcon size={14} /> {dayLabelShort(table.date)} · {table.time}
           </span>
           <button
-            className="detail-cta__btn"
+            className="detail-cta__btn" translate="no"
             /* No behavior:'smooth' — Chromium quietly refuses smooth
                scrollIntoView inside .content-region (verified in this app,
                2026-08-03: instant scrolls, smooth does not move at all), and

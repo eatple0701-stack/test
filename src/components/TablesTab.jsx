@@ -133,8 +133,8 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           </button>
         ) : (
           <span className="app-topbar__auth">
-            <button className="app-topbar__signin" onClick={() => onOpenAuth?.('signin')}>로그인</button>
-            <button className="app-topbar__join" onClick={() => onOpenAuth?.('signup')}>가입하기</button>
+            <button className="app-topbar__signin" translate="no" onClick={() => onOpenAuth?.('signin')}>로그인</button>
+            <button className="app-topbar__join" translate="no" onClick={() => onOpenAuth?.('signup')}>가입하기</button>
           </span>
         )}
       </div>
@@ -150,11 +150,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             tables below make the pitch either way; that is the whole reason
             they are the landing page. */}
         {isMember(auth) ? (
-          <button className="screen-head__cta" onClick={onCreateTable}>
+          <button className="screen-head__cta" translate="no" onClick={onCreateTable}>
             상 차리기 · Open a table
           </button>
         ) : (
-          <button className="screen-head__cta" onClick={() => onOpenAuth?.('signup')}>
+          <button className="screen-head__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
             무료로 가입하기 · Join 밥친구
           </button>
         )}
@@ -262,7 +262,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             Gender is new here — no host or guest has declared one yet. That
             is not the same as no table like this existing.
           </p>
-          <button className="tables-empty__cta" onClick={() => setWomenFilter(false)}>
+          <button className="tables-empty__cta" translate="no" onClick={() => setWomenFilter(false)}>
             필터 끄기 · Turn this filter off
           </button>
         </div>
@@ -274,10 +274,10 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         <div className="tables-empty">
           <p className="tables-empty__title">Nothing on that day yet.</p>
           <p>Other days have tables — or open one and own the evening.</p>
-          <button className="tables-empty__cta" onClick={() => setDayFilter(null)}>
+          <button className="tables-empty__cta" translate="no" onClick={() => setDayFilter(null)}>
             다른 날 보기 · Show every day
           </button>
-          <button className="tables-empty__ask" onClick={onCreateTable}>
+          <button className="tables-empty__ask" translate="no" onClick={onCreateTable}>
             상 차리기 · Open a table
           </button>
         </div>
@@ -287,12 +287,12 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         <div className="tables-empty">
           <p className="tables-empty__title">No table for this one yet.</p>
           <p>Open it yourself and the seats are yours to fill.</p>
-          <button className="tables-empty__cta" onClick={onCreateTable}>
+          <button className="tables-empty__cta" translate="no" onClick={onCreateTable}>
             상 차리기 · Open a table
           </button>
           {/* The other half of an empty screen: say what you wanted, and let
               the app either find it or hand it back as a table. */}
-          <button className="tables-empty__ask" onClick={onRequestTable}>
+          <button className="tables-empty__ask" translate="no" onClick={onRequestTable}>
             찾는 밥상 · Tell us what you are after
           </button>
         </div>
