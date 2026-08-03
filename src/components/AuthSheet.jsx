@@ -3,7 +3,7 @@ import {
   signUpMember, signInMember, signInWithGoogle, saveMemberDetails, saveAvatar,
 } from '../data/tableRepository.js';
 import { validateSignup, gateText } from '../domain/policy/access.js';
-import { XIcon } from './Icons';
+import { XIcon, ChevronLeftIcon } from './Icons';
 import ProfileFields from './ProfileFields';
 
 // The door between browsing and belonging.
@@ -56,14 +56,16 @@ function downscale(file) {
 }
 
 export default function AuthSheet({ door, initialMode, profile, onProfileChange, onClose, onAuthed }) {
-  // 'signup' | 'signin' → ('details') → 'profile' → 'avatar' → done
+  // 'signup' → 'signup-email' ┐
+  // 'signin' ─────────────────┴→ ('details') → 'profile' → 'avatar' → done
   //
-  // There used to be a 'choose' step in front of this: a screen offering
-  // "create an account" and "sign in" as buttons. It was a click that taught
-  // nobody anything — every door into this sheet already says which one it
-  // is. 만들기 on the Passport means create; 로그인 in the corner means sign
-  // in. So the sheet opens on the form itself, with the other way in as one
-  // line at the bottom, which is how every signup people are used to works.
+  // Two doors, kept apart, each with the shape Meetup gives it (studied
+  // 2026-08-04 at the user's direction): signing in shows its two fields
+  // immediately, because the person already has a password in their head;
+  // signing up shows Google and a single 이메일로 가입 line, because five
+  // inputs on arrival is a wall, and the fields belong on the other side of
+  // one deliberate tap. Each door links to the other at the bottom rather
+  // than making anybody guess which modal they are in.
   const [mode, setMode] = useState(initialMode ?? 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -169,31 +171,46 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <XIcon size={18} />
         </button>
 
-        {/* The gate's title only. Its body is already on the card the person
-            just tapped — repeating three sentences here made a modal that
-            asks somebody to read the same paragraph twice before they can
-            type anything. Meetup's own signup modal is a heading and the
-            ways in; that is the shape being matched. */}
-        {gate && mode !== 'avatar' && (
-          <header className="auth-gate">
-            <h2 className="auth-gate__title">{gate.title}</h2>
-          </header>
+        {/* Back, on the steps that have somewhere to go back to. Meetup's
+            signup form carries one in the same corner, and without it the
+            only way out of a form somebody opened by mistake is closing the
+            whole modal and starting again. */}
+        {(mode === 'signup-email') && (
+          <button className="auth-back" onClick={() => { setMode('signup'); setError(null); }} aria-label="Back">
+            <ChevronLeftIcon size={20} />
+          </button>
         )}
 
+        {/* Signing up and signing in are two doors, not two tabs of one form.
+            Meetup keeps them as separate modals with their own titles, and
+            the reason shows on the screen: a person who came to sign in
+            should never be looking at a phone-number field. */}
         {mode === 'signup' && (
-          <div className="auth-form">
-            {!gate && <h2 className="form-label" translate="no">가입하기 · Create your account</h2>}
-
-            {/* Social first, then the form — Meetup's order, and the right
-                one: one tap beats five fields for anybody who has a Google
-                account. The email form stays visible underneath rather than
-                behind another click, because the fields are what the pilot
-                actually needs and hiding them would cost more taps than it
-                saves. */}
+          <div className="auth-choose">
+            <h2 className="auth-title">{gate ? gate.title : '회원가입'}</h2>
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google
             </button>
             <p className="auth-or"><span>또는 · or</span></p>
+            {/* The email path is a step, not a wall of fields. Five inputs
+                on arrival is what the 8/4 review called 존나 불편 — and it is
+                also what Meetup avoids by putting one line here instead. */}
+            <button className="auth-email-link" onClick={() => setMode('signup-email')} translate="no">
+              이메일로 가입 · Sign up with email
+            </button>
+            {error && <p className="auth-error">{error}</p>}
+            <p className="auth-foot">
+              이미 계정이 있으신가요?
+              <button className="auth-foot__link" onClick={() => { setMode('signin'); setError(null); }}>
+                로그인
+              </button>
+            </p>
+          </div>
+        )}
+
+        {mode === 'signup-email' && (
+          <div className="auth-form">
+            <h2 className="auth-title">가입을 완료해 주세요</h2>
 
             <label className="field">
               <span className="field__label">이메일 · Email — this is your login ID</span>
@@ -227,15 +244,17 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             <button className="auth-primary" onClick={submitSignup} disabled={busy} translate="no">
               {busy ? 'Joining…' : '가입 · Join'}
             </button>
-            <button className="auth-switch" onClick={() => { setMode('signin'); setError(null); }} translate="no">
-              이미 계정이 있어요 · Sign in
-            </button>
           </div>
         )}
 
+        {/* Its own door, with its own two fields. Unlike signup, the email
+            form is right here rather than a step away — Meetup does the same
+            asymmetry, and it is the correct one: somebody signing in has a
+            password in their head right now, while somebody signing up is
+            deciding whether to spend two minutes. */}
         {mode === 'signin' && (
           <div className="auth-form">
-            {!gate && <h2 className="form-label" translate="no">로그인 · Sign in</h2>}
+            <h2 className="auth-title">로그인</h2>
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google
             </button>
@@ -252,9 +271,12 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             <button className="auth-primary" onClick={submitSignin} disabled={busy} translate="no">
               {busy ? 'Signing in…' : '로그인 · Sign in'}
             </button>
-            <button className="auth-switch" onClick={() => { setMode('signup'); setError(null); }} translate="no">
-              처음이에요 · Create an account
-            </button>
+            <p className="auth-foot">
+              아직 계정이 없으신가요?
+              <button className="auth-foot__link" onClick={() => { setMode('signup'); setError(null); }}>
+                회원가입
+              </button>
+            </p>
           </div>
         )}
 
