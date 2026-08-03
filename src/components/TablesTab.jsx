@@ -8,7 +8,7 @@ import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { visibleTables } from '../domain/policy/blocking.js';
-import { acceptedSignups } from '../domain/policy/seatRequest.js';
+import { acceptedSignups, askDeadline } from '../domain/policy/seatRequest.js';
 import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
 import TablesMap from './TablesMap';
@@ -418,6 +418,19 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
               {/* The reason this table exists at all. */}
               <p className="table-card__why">{menu.whyShared}</p>
+
+              {/* A deadline that already exists, said out loud. Only inside
+                  the last day, so it informs rather than nags — see
+                  askDeadline in SeatRequestPolicy. */}
+              {(() => {
+                const d = askDeadline(t);
+                if (!d) return null;
+                return (
+                  <span className={`table-card__deadline${d.urgent ? ' is-urgent' : ''}`} translate="no">
+                    {d.kr}
+                  </span>
+                );
+              })()}
 
               <span className="table-card__meta">
                 <ClockIcon size={13} /> {dayLabel(t.date)} · {t.time}

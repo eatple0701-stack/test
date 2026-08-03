@@ -218,3 +218,55 @@ export function requestState(signup, table, now = new Date()) {
   }
   return { kind: SEAT_STATUS.PENDING, seatHeld: true, title: 'Waiting for the host', body: `The host has until ${LAPSE_HOURS_BEFORE_MEAL} hours before the meal to answer. If they do not, this lapses and the seat goes back — you will not be left guessing on the night.` };
 }
+
+/**
+ * How long is left to ask for a seat at this table, in words.
+ *
+ * The 12-hour lapse has been a real rule since the approval batch and has
+ * never once appeared on a screen. Somebody browsing on Thursday evening for
+ * a Friday dinner is inside the window and cannot tell; a host wondering why
+ * their table went quiet cannot tell either.
+ *
+ * This is 야놀자's countdown with the dishonesty removed. Theirs invents a
+ * deadline to hurry people — "1일 18시간 7분 후 혜택 종료" on an offer that
+ * will be back tomorrow. Ours already exists, is enforced in code, and gives
+ * the seat back when it passes. Printing a real deadline is the opposite of
+ * manufacturing urgency: it is telling somebody the thing they would want to
+ * know if they knew to ask.
+ *
+ * Returns null when there is nothing true to say — a table with no time, a
+ * meal already past, a cancelled evening, or a deadline further out than a
+ * day, where a countdown would be noise rather than information.
+ *
+ * @returns {{ hours: number, kr: string, en: string, urgent: boolean } | null}
+ */
+export function askDeadline(table, now = new Date()) {
+  if (!table || isCancelled(table)) return null;
+  const at = lapseAt(table);
+  if (!at) return null;
+
+  const ms = at.getTime() - now.getTime();
+  if (ms <= 0) return null;
+
+  const hours = Math.floor(ms / 3600000);
+  const minutes = Math.floor((ms % 3600000) / 60000);
+
+  // Beyond a day the number stops being a decision aid. "Ask within 3 days"
+  // is not something anybody acts on, and a permanent ticking clock on every
+  // card is exactly the manufactured pressure this file refuses.
+  if (hours >= 24) return null;
+
+  const left = hours >= 1 ? `${hours}시간` : `${minutes}분`;
+  const leftEn = hours >= 1
+    ? `${hours} hour${hours === 1 ? '' : 's'}`
+    : `${minutes} minute${minutes === 1 ? '' : 's'}`;
+
+  return {
+    hours,
+    minutes,
+    kr: `자리 요청 마감까지 ${left}`,
+    en: `${leftEn} left to ask — after that the host cannot answer and the seat reopens`,
+    // Under three hours the wording earns emphasis; above it, a plain line.
+    urgent: hours < 3,
+  };
+}

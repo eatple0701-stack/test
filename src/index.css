@@ -9526,3 +9526,43 @@ body {
 .review-photo__add:hover { background: var(--surface-hover); }
 .review-photo__add:disabled { opacity: 0.6; cursor: default; }
 .review-photo__hint { font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+/* ---------- The deadline that already existed (2026-08-04) ---------- */
+/* Not manufactured urgency: this cutoff is enforced in code and gives the
+   seat back when it passes. Stating it is information, not pressure. */
+.table-card__deadline {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted-strong);
+  background: var(--fill);
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+}
+.table-card__deadline.is-urgent {
+  color: var(--orange-ink);
+  background: var(--orange-tint);
+}
+.detail-deadline {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  background: var(--fill);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-body);
+}
+.detail-deadline svg { flex: 0 0 auto; margin-top: 2px; }
+.detail-deadline.is-urgent { background: var(--orange-tint); color: var(--orange-ink); }
+.detail-deadline__en {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--muted-strong);
+}

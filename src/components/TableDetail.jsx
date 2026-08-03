@@ -4,7 +4,7 @@ import { seatsRemaining, joinBlocker, isPast, BLOCKER_TEXT, JOIN_BLOCK } from '.
 import {
   SEAT_STATUS, isPending, isAccepted, isDeclined, hasLapsed, pendingSignups,
   acceptedSignups, affectedByCancellation,
-  canAccept, acceptBlocker, DECIDE_BLOCK_TEXT, requestState,
+  canAccept, acceptBlocker, DECIDE_BLOCK_TEXT, requestState, askDeadline,
 } from '../domain/policy/seatRequest.js';
 import {
   ATTENDANCE, ATTENDANCE_PROMPT, attendanceOf, isNoShow, attendanceNote,
@@ -170,6 +170,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const confirmed = useMemo(() => acceptedSignups(signups), [signups]);
   const affected = useMemo(() => affectedByCancellation(signups, table), [signups, table]);
   const meeting = useMemo(() => meetingGuidance(table, { isHost }), [table, isHost]);
+  const deadline = useMemo(() => askDeadline(table), [table]);
   const cancelNotice = useMemo(() => cancellationNotice(table, { isHost }), [table, isHost]);
   const blocker = useMemo(
     () => (table ? joinBlocker(table, signups, profile?.userId) : null),
@@ -456,6 +457,19 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </span>
           of {table.seats}
         </p>
+
+        {/* The rule that has governed this app since the approval batch and
+            has never once been on a screen. Only to somebody who could still
+            act on it — a host and a seated guest are past the decision. */}
+        {!isHost && !mySignup && deadline && (
+          <p className={`detail-deadline${deadline.urgent ? ' is-urgent' : ''}`}>
+            <ClockIcon size={14} />
+            <span>
+              <span translate="no">{deadline.kr}</span>
+              <span className="detail-deadline__en">{deadline.en}</span>
+            </span>
+          </p>
+        )}
 
         {/* The URL existed and nothing offered it. A host with empty seats has
             no other way to fill them — there is no messaging, no notification

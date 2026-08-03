@@ -4,6 +4,7 @@ import {
   SEAT_STATUS, statusOf, isHolding, pendingSignups, acceptedSignups, affectedByCancellation,
   LAPSE_HOURS_BEFORE_MEAL, lapseAt, hasLapsed, isWaiting, stillHolding,
   DECIDE_BLOCK, acceptBlocker, canAccept, canDecline, requestState,
+  askDeadline,
 } from '../policy/seatRequest.js';
 
 const HOST = 'host-1';
@@ -203,4 +204,46 @@ test('a host cannot give away a seat at a meal that is not happening', () => {
     acceptBlocker({ signup: req, signups: [req], table: off, userId: HOST, now: at('2026-08-05T10:00:00Z') }),
     DECIDE_BLOCK.CANCELLED,
   );
+});
+
+test('the deadline to ask is printed only while it is worth acting on', () => {
+  // 야놀자's countdown invents a deadline to hurry people. This one already
+  // exists, is enforced in code, and gives the seat back when it passes —
+  // printing it is telling somebody what they would ask if they knew to.
+  const meal = (hoursFromNow) => {
+    const at = new Date(Date.now() + hoursFromNow * 3600000);
+    return {
+      id: 't',
+      date: `${at.getFullYear()}-${String(at.getMonth() + 1).padStart(2, '0')}-${String(at.getDate()).padStart(2, '0')}`,
+      time: `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`,
+      cancelledAt: null,
+    };
+  };
+
+  // A dinner 20 hours out: the 12-hour cutoff is 8 hours away, which is a
+  // number somebody can act on tonight.
+  const soon = askDeadline(meal(20));
+  assert.ok(soon, 'a deadline inside the day should be stated');
+  assert.equal(soon.hours, 7, 'floors to whole hours remaining');
+  assert.equal(soon.urgent, false);
+  assert.match(soon.en, /the seat reopens/);
+
+  // Under three hours it earns emphasis.
+  assert.equal(askDeadline(meal(14)).urgent, true);
+
+  // Beyond a day the number stops being a decision aid, and a permanent
+  // ticking clock on every card is the manufactured pressure this refuses.
+  assert.equal(askDeadline(meal(72)), null, 'a deadline three days out says nothing useful');
+
+  // Past the cutoff there is nothing left to ask for.
+  assert.equal(askDeadline(meal(6)), null, 'inside the 12-hour window');
+  assert.equal(askDeadline(meal(-2)), null, 'the meal already happened');
+});
+
+test('a cancelled table has no deadline to advertise', () => {
+  const at = new Date(Date.now() + 20 * 3600000);
+  const ymd = `${at.getFullYear()}-${String(at.getMonth() + 1).padStart(2, '0')}-${String(at.getDate()).padStart(2, '0')}`;
+  assert.equal(askDeadline({ date: ymd, time: '19:00', cancelledAt: Date.now() }), null);
+  assert.equal(askDeadline(null), null);
+  assert.equal(askDeadline({ date: 'nonsense' }), null);
 });
