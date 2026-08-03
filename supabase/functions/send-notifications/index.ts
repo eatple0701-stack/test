@@ -47,6 +47,22 @@ async function sendViaResend(row: Row, key: string) {
   if (!res.ok) throw new Error(`resend ${res.status}: ${await res.text()}`);
 }
 
+/**
+ * UTF-8 → base64, folded at 76 columns per MIME.
+ *
+ * Exists because of a bug seen in production on 2026-08-04: plain-text
+ * bodies were folded by SMTP at a byte boundary, and a byte boundary is not
+ * a character boundary in Korean — "포함" arrived as "d��함". Base64 makes
+ * the body binary-safe; no fold can land inside a character again.
+ */
+function base64Body(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  const b64 = btoa(bin);
+  return b64.replace(/(.{76})/g, '$1\r\n');
+}
+
 async function sendViaGmail(row: Row, user: string, pass: string) {
   const { SMTPClient } = await import('https://deno.land/x/denomailer@1.6.0/mod.ts');
   const client = new SMTPClient({
@@ -62,7 +78,11 @@ async function sendViaGmail(row: Row, user: string, pass: string) {
       from: user,
       to: row.recipient,
       subject: row.subject,
-      content: row.body,
+      mimeContent: [{
+        mimeType: 'text/plain; charset="utf-8"',
+        content: base64Body(row.body),
+        transferEncoding: 'base64',
+      }],
     });
   } finally {
     await client.close();
