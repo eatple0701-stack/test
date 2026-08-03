@@ -8746,3 +8746,59 @@ body {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* The Meetup-shaped corner: a slim bar over the landing with the wordmark on
+   one side and either sign-in or yourself on the other. */
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.app-topbar__mark { font-size: 17px; font-weight: 800; color: var(--ink-title); }
+.app-topbar__auth { display: flex; gap: 8px; }
+.app-topbar__signin {
+  min-height: 36px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  color: var(--ink-body);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.app-topbar__join {
+  min-height: 36px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.app-topbar__me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+}
+.app-topbar__avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+.app-topbar__initial {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--fill);
+  color: var(--muted-strong);
+  font-weight: 800;
+  font-size: 14px;
+}
+.app-topbar__name { font-size: 14px; font-weight: 700; color: var(--ink-body); }

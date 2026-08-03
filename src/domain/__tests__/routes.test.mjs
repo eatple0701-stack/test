@@ -15,8 +15,14 @@ const screen = (over = {}) => ({
 });
 
 test('every screen has an address', () => {
-  assert.equal(pathFor(screen()), '/');
-  assert.equal(pathFor(screen({ activeTab: 'match' })), '/tables');
+  // '/' belongs to the table list now — the landing shows the meals, the way
+  // Meetup's front page shows the events. Explore moved to its own address,
+  // and '/tables' lives on as an alias so links shared before this keep
+  // working.
+  assert.equal(pathFor(screen()), '/explore');
+  assert.equal(pathFor(screen({ activeTab: 'match' })), '/');
+  assert.equal(stateFromPath('/tables').activeTab, 'match');
+  assert.equal(stateFromPath('/').activeTab, 'match');
   assert.equal(pathFor(screen({ activeTab: 'places' })), '/places');
   assert.equal(pathFor(screen({ activeTab: 'journal' })), '/passport');
   assert.equal(

@@ -5,7 +5,6 @@ import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
 import JournalPanel from './components/JournalPanel';
 import HomeTab from './components/HomeTab';
-import Prologue from './components/Prologue';
 import TravelSummary from './components/TravelSummary';
 import ThemeComplete from './components/ThemeComplete';
 import TablesTab from './components/TablesTab';
@@ -150,9 +149,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState(opening.activeTab);
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
   const [focusStory, setFocusStory] = useState(false);
-  const [prologueCompleted, setPrologueCompleted] = useState(
-    () => localStorage.getItem('kfm-prologue') === 'true'
-  );
   const [showSummary, setShowSummary] = useState(false);
 
   // 밥친구 navigation, kept local to the Tables tab rather than in the global
@@ -637,20 +633,12 @@ export default function App() {
     });
   }, [selectedFilters, searchQuery]);
 
-  if (!prologueCompleted) {
-    return (
-      <Prologue
-        onComplete={(choice) => {
-          localStorage.setItem('kfm-prologue', 'true');
-          setPrologueCompleted(true);
-          // The front door offers joining but never demands it — 비로그인으로
-          // 둘러보기 is a real choice, not a hidden link. Somebody here for
-          // the map and the tips owes the app nothing.
-          if (choice === 'join' && !isMember(auth)) setAuthMode('choose');
-        }}
-      />
-    );
-  }
+  {/* The Prologue splash used to gate everything here — one screen you had
+      to answer before seeing a single table. Retired 2026-08-04 for the
+      Meetup-shaped front door: a visitor lands directly on the list of real
+      meals, the pitch sits above it as a hero, and 로그인/가입 wait in the
+      corner of the header instead of blocking the way in. A splash makes a
+      promise; a list of tables somebody actually opened keeps it. */}
 
   return (
     <div className="app-shell">
@@ -710,6 +698,9 @@ export default function App() {
         {!openThemeId && activeTab === 'match' && tableView.screen === 'list' && (
           <TablesTab
             profile={profile}
+            auth={auth}
+            onOpenAuth={(mode) => setAuthMode(mode)}
+            onOpenPassport={() => goToTab('journal')}
             /* Gated at the handler rather than inside the screen: the list
                itself is browsing and stays open, the two doors out of it are
                participation. requireMember opens the auth sheet with the

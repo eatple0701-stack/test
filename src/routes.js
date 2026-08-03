@@ -29,9 +29,16 @@ export function pathFor({ activeTab, tableView, openThemeId, restaurantId }) {
       if (tableView?.screen === 'detail' && tableView.tableId) return `/tables/${tableView.tableId}`;
       if (tableView?.screen === 'create') return '/tables/new';
       if (tableView?.screen === 'request') return '/tables/find';
-      return '/tables';
+      // The table list is the landing page — '/', not '/tables'. Decided
+      // 2026-08-04 against Meetup's logged-out front page: the first thing a
+      // visitor sees is the events themselves, not a splash about them. The
+      // list of meals people actually opened makes the pitch better than any
+      // sentence describing it. '/tables' still parses below, so every link
+      // shared before this keeps working.
+      return '/';
     case 'places': return '/places';
     case 'journal': return '/passport';
+    case 'home': return '/explore';
     default: return '/';
   }
 }
@@ -49,6 +56,12 @@ export function stateFromPath(pathname) {
   };
 
   switch (head) {
+    // The landing. '' is what splitting '/' produces, so a bare visit lands
+    // on the table list — the Meetup-shaped decision pathFor explains.
+    case '':
+      return { ...base, activeTab: 'match' };
+    case 'explore':
+      return base;
     case 'tables':
       if (!tail) return { ...base, activeTab: 'match' };
       if (tail === 'new') return { ...base, activeTab: 'match', tableView: { screen: 'create' } };

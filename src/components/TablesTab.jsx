@@ -10,6 +10,7 @@ import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
+import { isMember } from '../domain/policy/access.js';
 
 // 밥친구 — the tables you can ask to sit at.
 //
@@ -27,7 +28,7 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
-export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile }) {
+export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, onOpenPassport }) {
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
   const [blockedIds, setBlockedIds] = useState([]);
@@ -88,15 +89,46 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
   return (
     <section className="tables-tab" aria-label="밥친구 tables">
+      {/* The Meetup-shaped top bar (2026-08-04): this list is the landing
+          page now, and a landing page keeps its sign-in in the corner, not
+          in the doorway. A member sees themselves here instead — the same
+          corner, answering "am I signed in" at a glance. */}
+      <div className="app-topbar">
+        <span className="app-topbar__mark" aria-hidden="true">밥친구</span>
+        {isMember(auth) ? (
+          <button className="app-topbar__me" onClick={onOpenPassport}>
+            {profile?.avatarUrl
+              ? <img className="app-topbar__avatar" src={profile.avatarUrl} alt="" />
+              : <span className="app-topbar__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
+            <span className="app-topbar__name">{profile?.name?.trim() || 'My passport'}</span>
+          </button>
+        ) : (
+          <span className="app-topbar__auth">
+            <button className="app-topbar__signin" onClick={() => onOpenAuth?.('signin')}>로그인</button>
+            <button className="app-topbar__join" onClick={() => onOpenAuth?.('signup')}>가입하기</button>
+          </span>
+        )}
+      </div>
+
       <header className="screen-head screen-head--dark">
         <span className="screen-head__kr">밥친구</span>
         <h1 className="screen-head__title">Dishes you cannot order alone.</h1>
         <p className="screen-head__sub">
           Ask to sit at a table, or open one and see who comes.
         </p>
-        <button className="screen-head__cta" onClick={onCreateTable}>
-          상 차리기 · Open a table
-        </button>
+        {/* One CTA, chosen by who is looking — Meetup's front page asks a
+            stranger to join, not to host. A member gets the real verb. The
+            tables below make the pitch either way; that is the whole reason
+            they are the landing page. */}
+        {isMember(auth) ? (
+          <button className="screen-head__cta" onClick={onCreateTable}>
+            상 차리기 · Open a table
+          </button>
+        ) : (
+          <button className="screen-head__cta" onClick={() => onOpenAuth?.('signup')}>
+            무료로 가입하기 · Join 밥친구
+          </button>
+        )}
       </header>
 
       {/* Said plainly rather than discovered later. A host who believes
