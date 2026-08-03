@@ -6,7 +6,6 @@ import ExploreCover from './ExploreCover';
 import ThemeStoryCard from './ThemeStoryCard';
 import TablesLead from './TablesLead';
 import TodayTable from './TodayTable';
-import FirstRun from './FirstRun';
 import FoodRoulette from './FoodRoulette';
 import CultureCards from './CultureCards';
 
@@ -86,10 +85,17 @@ export default function HomeTab({
           only reminder the app can give is being unmissable when opened. */}
       <TodayTable profile={profile} onOpenTable={onOpenTodayTable} />
 
+      {/* FirstRun used to stand here, teaching three steps that were not the
+          three steps the landing page taught — two answers to "what happens
+          here?", depending on which tab somebody opened first. The steps are
+          now in content/howItWorks.js, said once, on the landing where a
+          first visit actually begins. Its best line came with them: 밥친구
+          handles no money, which is the fact that removes the hesitation and
+          was missing from the landing entirely. Explore keeps its own job,
+          which is the culture, and still leads with tables. */}
       {newHere ? (
         <>
           {tables}
-          <FirstRun />
           {cover}
         </>
       ) : (

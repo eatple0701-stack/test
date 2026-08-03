@@ -410,7 +410,7 @@ export default function JournalPanel({
         <div className="journal-settings">
           <div className="journal-section-header">
             <h3>프로필 · Profile</h3>
-            {saveState === 'saved' && <span className="save-state is-saved">✓ 저장됨 · Saved</span>}
+            {saveState === 'saved' && <span className="save-state is-saved" role="status">✓ 저장됨 · Saved</span>}
             {saveState === 'device' && (
               <span className="save-state is-offline">이 기기에만 저장됨 · Saved here, will sync</span>
             )}

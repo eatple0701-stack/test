@@ -1154,7 +1154,10 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             </label>
           )}
 
-          {error && <p className="join-error">{error}</p>}
+          {/* role=alert so a screen reader hears the refusal. Somebody who
+              cannot see the red line has no other way to learn the seat did
+              not go through. */}
+          {error && <p className="join-error" role="alert">{error}</p>}
           <button className="form-submit" translate="no" onClick={join} disabled={busy || !name.trim()}>
             {busy ? 'Asking…' : '자리 요청 · Take a seat'}
           </button>
@@ -1176,7 +1179,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           the person most likely to need it followed somebody's shared link. */}
       {reportSent ? (
         <div className="report-receipt">
-          <p className="report-receipt__title"><CheckIcon size={15} /> {REPORT_RECEIPT.title}</p>
+          <p className="report-receipt__title" role="status"><CheckIcon size={15} /> {REPORT_RECEIPT.title}</p>
           <p className="report-receipt__body">{REPORT_RECEIPT.body}</p>
         </div>
       ) : !reportOpen ? (

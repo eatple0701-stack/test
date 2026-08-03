@@ -11,6 +11,7 @@ import { visibleTables } from '../domain/policy/blocking.js';
 import { acceptedSignups, askDeadline } from '../domain/policy/seatRequest.js';
 import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
+import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import TablesMap from './TablesMap';
 import { hostRecord } from '../data/tableRepository.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
@@ -281,7 +282,25 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </button>
       </div>
 
-      {tables === null && <p className="tables-empty">Loading tables…</p>}
+      {/* Cards in outline while the real ones arrive. The line of text this
+          replaces was the whole loading state, which on venue wifi is a
+          blank screen holding one sentence — and the layout then jumped when
+          the cards landed. Three placeholders of the right height keep the
+          page still and say "there is a list here" before the list exists.
+          aria-busy carries the same fact to a screen reader, which cannot
+          see the shimmer. */}
+      {tables === null && (
+        <div className="table-list" aria-busy="true" aria-label="Loading tables">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="table-card table-card--skeleton" aria-hidden="true">
+              <span className="skeleton-line skeleton-line--sm" />
+              <span className="skeleton-line skeleton-line--lg" />
+              <span className="skeleton-line" />
+              <span className="skeleton-line skeleton-line--sm" />
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Gender is new and nothing has it seeded yet, so this filter empties
           the list on every existing install — the honest reason is "nobody
@@ -461,26 +480,16 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       {!isMember(auth) && (
         <div className="how-strip" aria-label="How 밥친구 works">
           <ol className="how-strip__steps">
-            <li className="how-strip__step">
-              <span className="how-strip__num" aria-hidden="true">1</span>
-              <span className="how-strip__kr" translate="no">밥상 찾기</span>
-              <span className="how-strip__en">Find a table serving a dish no one can order alone.</span>
-            </li>
-            <li className="how-strip__step">
-              <span className="how-strip__num" aria-hidden="true">2</span>
-              <span className="how-strip__kr" translate="no">자리 요청</span>
-              <span className="how-strip__en">Ask for the seat. The host says yes to you by name.</span>
-            </li>
-            <li className="how-strip__step">
-              <span className="how-strip__num" aria-hidden="true">3</span>
-              <span className="how-strip__kr" translate="no">나눠 먹기</span>
-              <span className="how-strip__en">Meet, share the food, split the bill, keep the evening.</span>
-            </li>
+            {HOW_STEPS.map((s, i) => (
+              <li key={s.id} className="how-strip__step">
+                <span className="how-strip__num" aria-hidden="true">{i + 1}</span>
+                <span className="how-strip__kr" translate="no">{s.kr}</span>
+                <span className="how-strip__en">{s.en}</span>
+              </li>
+            ))}
           </ol>
           <p className="how-strip__why">
-            한국 밥상은 나눠 먹도록 차려집니다 — a Korean table is laid to be
-            shared. Browsing every dish and tip is free; the seat is what an
-            account is for.
+            <span translate="no">{HOW_WHY.kr}</span> — {HOW_WHY.en}
           </p>
         </div>
       )}
