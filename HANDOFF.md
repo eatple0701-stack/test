@@ -1,7 +1,7 @@
 # 밥친구 / Eatple — 인수인계
 
 **HEAD:** `388093c` · 2026-08-03 · 워킹트리 깨끗
-**테스트:** 342개 전부 통과 (`npm test`)
+**테스트:** 345개 전부 통과 (`npm test`)
 **배포:** https://test-umber-phi-78.vercel.app
 
 이 문서 하나로 이전 대화를 읽지 않고 이어서 작업할 수 있게 썼습니다.
@@ -77,7 +77,7 @@ npm run dev
 anon 키가 공개여도 안전한 이유가 RLS이고, 그게 이 파일에 있습니다.
 
 ```bash
-npm test          # 342개
+npm test          # 345개
 npm run lint      # oxlint
 npm run build
 ```

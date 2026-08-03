@@ -656,6 +656,45 @@ drop policy if exists reviews_delete_own on public.reviews;
 create policy reviews_delete_own on public.reviews
   for delete to authenticated using (user_id = auth.uid());
 
+-- One photo of the meal that happened, travelling with the line (2026-08-04).
+--
+-- Every comparable product sells with pictures — 여기어때 with rooms, Meetup
+-- with the last event, 당근 with the item — and this one had none, which for
+-- a food app is a gap in the argument rather than in the polish.
+--
+-- On reviews rather than on tables, so the gate is already right: only
+-- somebody who held an accepted seat at a meal that happened can attach one.
+-- A photo of a dinner is evidence, and evidence has to come from a witness.
+alter table public.reviews add column if not exists photo_url text default '';
+
+-- The bucket. Public read, because a photo posted to persuade the next
+-- traveller is public in the same sense the line beside it is. Writes fenced
+-- to your own folder by the same storage.foldername check the avatars bucket
+-- uses, and a 5MB cap doing the real enforcement of "one photo" — the client
+-- downscales to ~1280px long edge before uploading, which lands far under it.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('table-photos', 'table-photos', true, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do nothing;
+
+drop policy if exists table_photos_read on storage.objects;
+create policy table_photos_read on storage.objects
+  for select using (bucket_id = 'table-photos');
+
+drop policy if exists table_photos_write_own on storage.objects;
+create policy table_photos_write_own on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'table-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists table_photos_update_own on storage.objects;
+create policy table_photos_update_own on storage.objects
+  for update to authenticated
+  using (bucket_id = 'table-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists table_photos_delete_own on storage.objects;
+create policy table_photos_delete_own on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'table-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
 -- ---------------------------------------------------------------------------
 -- The last hundred metres, socially (2026-08-04): a host may attach an open
 -- chat link (카카오 오픈채팅) to their table. The app deliberately builds no

@@ -4,6 +4,9 @@ import {
 } from '../data/tableRepository.js';
 import { validateSignup, gateText } from '../domain/policy/access.js';
 import { XIcon, ChevronLeftIcon } from './Icons';
+// Shared with the meal photos on a table page — one canvas, two sets of
+// rules, so quality and bugs cannot drift apart between them.
+import { downscale, AVATAR } from '../data/image.js';
 import ProfileFields from './ProfileFields';
 
 // The door between browsing and belonging.
@@ -22,38 +25,6 @@ import ProfileFields from './ProfileFields';
 // contact information, collected as typed. The one honest consequence is
 // written under the form rather than hidden: typos are yours to avoid,
 // because nothing will catch them.
-
-/**
- * Shrink a chosen image to avatar size on a canvas.
- *
- * 256px is plenty for a face in a circle, uploads fast on venue wifi, and
- * keeps the localStorage backend (which stores the data URL itself) from
- * eating its quota. JPEG at 0.85 because photos are photos.
- */
-function downscale(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const side = Math.min(img.width, img.height);
-      const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 256;
-      const ctx = canvas.getContext('2d');
-      // Centre-crop to a square, because the app renders avatars round and a
-      // stretched face helps nobody get recognised.
-      ctx.drawImage(
-        img,
-        (img.width - side) / 2, (img.height - side) / 2, side, side,
-        0, 0, 256, 256,
-      );
-      resolve(canvas.toDataURL('image/jpeg', 0.85));
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('That file could not be read as an image.')); };
-    img.src = url;
-  });
-}
 
 export default function AuthSheet({ door, initialMode, profile, onProfileChange, onClose, onAuthed }) {
   // 'signup' → 'signup-email' ┐
@@ -154,7 +125,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
     setError(null);
     setBusy(true);
     try {
-      const dataUrl = await downscale(file);
+      const dataUrl = await downscale(file, AVATAR);
       const url = await saveAvatar(dataUrl);
       onProfileChange?.({ ...profile, avatarUrl: url });
       await finish();

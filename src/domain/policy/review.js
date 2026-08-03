@@ -58,5 +58,40 @@ export const REVIEW_PROMPT = {
   saved: 'On the record.',
 };
 
+/**
+ * The photo, which travels with the line and under the same gate.
+ *
+ * Added 2026-08-04 after putting this app beside 여기어때, 야놀자, Meetup and
+ * 당근: all four sell with pictures and this one had none. For a food product
+ * that is not a gap in polish, it is a gap in the argument — a stranger
+ * deciding whether 감자탕 is worth an evening is helped more by one photo of
+ * the pot than by any sentence available.
+ *
+ * Deliberately a photo of the meal that happened, not stock photography of
+ * the dish. Stock would be prettier and would be the app claiming an evening
+ * nobody had; this repository's rule is that it does not assert what it has
+ * not checked, and the only food picture it can vouch for is one taken by
+ * somebody who was sitting there.
+ *
+ * Same gate as the line (canReview): accepted seat, meal past, table not
+ * cancelled, author not a recorded no-show.
+ */
+export const PHOTO_PROMPT = {
+  add: '사진 한 장 · Add a photo',
+  replace: '사진 바꾸기 · Change photo',
+  remove: '사진 빼기 · Remove',
+  hint: 'One picture of what actually arrived. It goes on this table for the next person deciding, next to your name.',
+};
+
+/**
+ * A stored photo URL the app is willing to render, or ''.
+ *
+ * Same reasoning as cleanChatUrl in MeetingPolicy: this string becomes a
+ * src on other people's screens, so anything that is not plainly an https
+ * URL becomes nothing rather than a broken image or worse.
+ */
+export const cleanPhotoUrl = (url) =>
+  typeof url === 'string' && /^https:\/\/\S+\.\S+/.test(url.trim()) ? url.trim() : '';
+
 /** The heading over other people's lines on a table page. */
 export const REVIEWS_HEADING = '다녀간 사람들 · From people who went';

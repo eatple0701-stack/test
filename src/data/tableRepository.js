@@ -276,6 +276,21 @@ async function local_listReviews(tableId) {
     .sort((a, b) => a.createdAt - b.createdAt);
 }
 
+/**
+ * The meal photo, on the backend with no storage service behind it.
+ *
+ * The data URL *is* the storage here, which is honest rather than clever:
+ * localStorage has a few megabytes and a downscaled meal photo is ~150KB, so
+ * a handful of evenings fit and the quota error, if it ever comes, arrives as
+ * the failure it is instead of as a silent truncation.
+ */
+async function local_saveTablePhoto(dataUrl) {
+  if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/')) {
+    throw new Error('That file could not be read as an image.');
+  }
+  return dataUrl;
+}
+
 /** Upsert by seat, same one-line-per-seat rule the remote's primary key holds. */
 async function local_saveReview(input) {
   const rows = read(REVIEWS_KEY).filter(r => r.signupId !== input.signupId);
@@ -284,6 +299,7 @@ async function local_saveReview(input) {
     tableId: input.tableId,
     name: input.name ?? '',
     body: input.body,
+    photoUrl: input.photoUrl ?? '',
     createdAt: Date.now(),
   };
   write(REVIEWS_KEY, [...rows, row]);
@@ -407,6 +423,9 @@ export const createReport = useRemote ? remote.createReport : local_createReport
 export const listReviews = useRemote ? remote.listReviews : local_listReviews;
 export const saveReview = useRemote ? remote.saveReview : local_saveReview;
 export const hostRecord = useRemote ? remote.hostRecord : local_hostRecord;
+// The picture of the meal, which travels with the line — every comparable
+// product sells with photographs and this one had none.
+export const saveTablePhoto = useRemote ? remote.saveTablePhoto : local_saveTablePhoto;
 
 // Seeded example rows exist to keep the first run from being an empty screen.
 // A shared database has other people's real tables in it, so seeding there

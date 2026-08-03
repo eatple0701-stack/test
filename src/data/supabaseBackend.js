@@ -533,6 +533,40 @@ export async function saveReview(input) {
 }
 
 /**
+ * The photo of a meal, on its way to the line it travels with.
+ *
+ * Stored at <uid>/<signupId>.jpg so the storage policy can check the folder
+ * against auth.uid() — the same shape the avatars bucket uses — and keyed by
+ * the seat so replacing your photo is the same act as posting it, exactly
+ * like the review it belongs to.
+ *
+ * Returns the public URL for saveReview to carry. Nothing is written to the
+ * reviews row here: a photo without a line is not a review, and two writes
+ * that can half-succeed is how a table ends up with a picture nobody signed.
+ */
+export async function saveTablePhoto(dataUrl, signupId) {
+  const sb = await client();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user || session.user.is_anonymous) {
+    throw new Error('Sign in before adding a photo.');
+  }
+  const blob = await (await fetch(dataUrl)).blob();
+  const path = `${session.user.id}/${signupId}.jpg`;
+  const { error } = await sb.storage.from('table-photos')
+    .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+  if (error) {
+    // The bucket can be a schema run behind, same as every other column
+    // added this week. Say which door is shut rather than "did not save".
+    if (/bucket/i.test(error.message ?? '')) {
+      throw new Error('Photos are not switched on for this project yet — run the latest schema.sql.');
+    }
+    throw new Error(friendlyAuthError(error));
+  }
+  const { data: pub } = sb.storage.from('table-photos').getPublicUrl(path);
+  return pub?.publicUrl ?? '';
+}
+
+/**
  * A host's track record, computed from rows anybody at the table could read
  * one by one — this only aggregates what tables_read and signups_read already
  * expose, so it grants nothing new.

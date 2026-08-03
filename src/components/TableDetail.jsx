@@ -17,12 +17,14 @@ import {
   REPORT_RECEIPT, REPORT_DOOR,
 } from '../domain/policy/report.js';
 import {
-  canReview, cleanReview, REVIEW_MAX, REVIEW_PROMPT, REVIEWS_HEADING,
+  canReview, cleanReview, REVIEW_MAX, REVIEW_PROMPT, REVIEWS_HEADING, PHOTO_PROMPT,
 } from '../domain/policy/review.js';
+import { downscale, MEAL_PHOTO } from '../data/image.js';
 import { icsForTable, icsFilenameFor } from '../domain/calendar.js';
 import {
   getTable, listSignups, createSignup, cancelSignup, decideSignup, recordAttendance,
   deleteTable, createBlock, createReport, listReviews, saveReview, hostRecord, listTables,
+  saveTablePhoto,
 } from '../data/tableRepository.js';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
@@ -64,6 +66,10 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // The one line I am writing (or rewriting) about this meal.
   const [reviewDraft, setReviewDraft] = useState('');
   const [reviewSaved, setReviewSaved] = useState(false);
+  // The uploaded photo's URL, held until the line is saved with it.
+  const [photoDraft, setPhotoDraft] = useState('');
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const photoRef = useRef(null);
   // The host's track record, or null while unknown — null renders nothing,
   // so a backend that cannot answer degrades to the page as it was.
   const [host, setHost] = useState(null);
@@ -183,6 +189,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // overwrites what somebody is mid-typing.
   useEffect(() => {
     if (myReview && reviewDraft === '') setReviewDraft(myReview.body);
+    if (myReview?.photoUrl && photoDraft === '') setPhotoDraft(myReview.photoUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myReview]);
 
@@ -341,7 +348,12 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     setBusy(true);
     setError(null);
     try {
-      await saveReview({ signupId: mySignup.id, tableId, name: mySignup.name, body });
+      await saveReview({
+        signupId: mySignup.id, tableId, name: mySignup.name, body,
+        // Whatever photo is attached right now — including the one already
+        // stored, so rewriting the line does not silently drop the picture.
+        photoUrl: photoDraft,
+      });
       await refresh();
       setReviewSaved(true);
       setTimeout(() => setReviewSaved(false), 2200);
@@ -349,6 +361,24 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       setError(e.message);
     }
     setBusy(false);
+  };
+
+  /**
+   * The photo, uploaded the moment it is chosen and held until the line is
+   * saved. Uploading first means the slow part happens while somebody is
+   * still typing, and the Save button stays instant.
+   */
+  const pickMealPhoto = async (file) => {
+    if (!file || !mySignup) return;
+    setError(null);
+    setPhotoBusy(true);
+    try {
+      const dataUrl = await downscale(file, MEAL_PHOTO);
+      setPhotoDraft(await saveTablePhoto(dataUrl, mySignup.id));
+    } catch (e) {
+      setError(e.message);
+    }
+    setPhotoBusy(false);
   };
 
   const submitReport = async () => {
@@ -865,6 +895,13 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <ul className="review-list">
             {reviews.map(r => (
               <li key={r.signupId} className="review-line">
+                {/* The evidence, above the words. A stranger deciding whether
+                    감자탕 is worth an evening is helped more by one picture
+                    of the pot than by any sentence available — and this one
+                    was taken by somebody who was sitting there. */}
+                {r.photoUrl && (
+                  <img className="review-line__photo" src={r.photoUrl} alt="" loading="lazy" />
+                )}
                 <span className="review-line__body">“{r.body}”</span>
                 <span className="review-line__name">— {r.name || 'a guest'}</span>
               </li>
@@ -906,6 +943,38 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                     onChange={e => setReviewDraft(e.target.value)}
                     placeholder={REVIEW_PROMPT.hint}
                   />
+                  {/* The picture, beside the line and under the same gate.
+                      Uploaded on choosing so the slow part happens while
+                      somebody is still typing. */}
+                  <input
+                    ref={photoRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={e => pickMealPhoto(e.target.files?.[0])}
+                  />
+                  {photoDraft && (
+                    <div className="review-photo">
+                      <img src={photoDraft} alt="" />
+                      <button className="review-photo__remove" onClick={() => setPhotoDraft('')}>
+                        {PHOTO_PROMPT.remove}
+                      </button>
+                    </div>
+                  )}
+                  <button
+                    className="review-photo__add"
+                    onClick={() => photoRef.current?.click()}
+                    disabled={photoBusy}
+                    translate="no"
+                  >
+                    {photoBusy ? '올리는 중…' : (photoDraft ? PHOTO_PROMPT.replace : PHOTO_PROMPT.add)}
+                  </button>
+                  <span className="review-photo__hint">{PHOTO_PROMPT.hint}</span>
+                  {/* The seat form has an error line; this block did not, so
+                      a failed upload set an error that rendered nowhere and
+                      the button simply went quiet. Silent failure is the one
+                      thing this repository does not allow. */}
+                  {error && <p className="auth-error">{error}</p>}
                   <button
                     className="review-write__save"
                     onClick={saveMyReview}

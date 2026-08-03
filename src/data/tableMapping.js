@@ -16,6 +16,7 @@ import { cleanGender } from '../domain/catalog/genders.js';
 import { cleanDiets } from './profile.js';
 import { cleanMeetingNote, cleanChatUrl } from '../domain/policy/meeting.js';
 import { pointOf } from '../domain/policy/place.js';
+import { cleanPhotoUrl } from '../domain/policy/review.js';
 
 /** A `tables` row as it comes out of Postgres → the shape the screens read. */
 export function tableFromRow(row) {
@@ -194,6 +195,10 @@ export function reviewFromRow(row) {
     userId: row.user_id,
     name: row.name ?? '',
     body: row.body ?? '',
+    // Cleaned on read as well as write: this becomes a src on other
+    // people's screens, and a row written before the rule — or past the
+    // API — must still never render as one.
+    photoUrl: cleanPhotoUrl(row.photo_url),
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
   };
 }
@@ -205,6 +210,7 @@ export function reviewToRow(input, { userId } = {}) {
     user_id: userId,
     name: input.name ?? '',
     body: input.body,
+    photo_url: cleanPhotoUrl(input.photoUrl),
   };
 }
 

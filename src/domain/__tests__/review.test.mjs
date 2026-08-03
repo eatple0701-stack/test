@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canReview, cleanReview, REVIEW_MAX, REVIEW_PROMPT } from '../policy/review.js';
+import { canReview, cleanReview, REVIEW_MAX, REVIEW_PROMPT, cleanPhotoUrl, PHOTO_PROMPT } from '../policy/review.js';
 
 // ReviewPolicy — who may describe an evening.
 //
@@ -55,4 +55,28 @@ test('the prompt asks for memory, not for a score', () => {
   for (const scoreWord of ['rate', 'score', 'stars', '점수', '별점']) {
     assert.ok(!text.includes(scoreWord), `the prompt asks people to "${scoreWord}"`);
   }
+});
+
+test('a photo URL is carried only when it is plainly a safe link', () => {
+  // Same reasoning as the chat link in MeetingPolicy: this string becomes a
+  // src on other people's screens.
+  assert.equal(cleanPhotoUrl('https://x.supabase.co/storage/v1/o/a.jpg'), 'https://x.supabase.co/storage/v1/o/a.jpg');
+  assert.equal(cleanPhotoUrl('  https://x.co/a.jpg  '), 'https://x.co/a.jpg');
+});
+
+test('anything that is not an https URL renders as no photo at all', () => {
+  assert.equal(cleanPhotoUrl('javascript:alert(1)'), '');
+  assert.equal(cleanPhotoUrl('http://x.co/a.jpg'), '');
+  // A data: URL is how the device-only backend stores one; it is never a
+  // value the remote path should render, and the remote is what this cleans.
+  assert.equal(cleanPhotoUrl('data:image/jpeg;base64,abc'), '');
+  assert.equal(cleanPhotoUrl(''), '');
+  assert.equal(cleanPhotoUrl(null), '');
+});
+
+test('the photo prompt asks for the meal that happened, not a pretty dish', () => {
+  // Stock photography would be prettier and would be the app claiming an
+  // evening nobody had. The wording is the guard.
+  const text = `${PHOTO_PROMPT.hint}`.toLowerCase();
+  assert.match(text, /actually arrived/);
 });
