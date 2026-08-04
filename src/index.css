@@ -9774,3 +9774,26 @@ body {
 .phrase-tab { min-height: 44px; }
 .phrase-card__speak { min-height: 44px; }
 .sheet-page__back { min-width: 44px; min-height: 44px; }
+
+/* The offline bar. Sits under the chrome, above the content, and is absent
+   entirely when there is signal — see src/components/OfflineBar.jsx for why
+   it names what still works rather than only what does not. Amber, not red:
+   losing signal in a basement restaurant is a normal condition of using this
+   app, not a fault anybody needs to fix. */
+.offline-bar {
+  padding: 10px 16px 11px;
+  background: color-mix(in srgb, var(--ex-brass) 16%, var(--surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--ex-brass) 45%, transparent);
+}
+.offline-bar__kr {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-title);
+}
+.offline-bar__en {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}

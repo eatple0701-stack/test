@@ -47,9 +47,22 @@ function page({ title, description }, url) {
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${esc(url)}">
+<!-- The app mark, absolute because a crawler resolves this from its own
+     host, not ours. Added 2026-08-04 alongside index.html's: this function
+     already told KakaoTalk the dish, the time and the seats left, and then
+     handed it a card with a blank square where a picture goes. It is the
+     icon rather than a photo of the dish on purpose — the project has no
+     photograph of anybody's 보쌈, and a stock one would be the card
+     promising a meal that is not the one being shared. -->
+<meta property="og:image" content="https://test-umber-phi-78.vercel.app/icon-192.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="192">
+<meta property="og:image:height" content="192">
+<meta property="og:image:alt" content="밥친구 Eatple">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
+<meta name="twitter:image" content="https://test-umber-phi-78.vercel.app/icon-192.png">
 <meta http-equiv="refresh" content="0;url=${esc(url)}">
 </head>
 <body>${esc(title)}</body>

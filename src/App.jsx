@@ -23,6 +23,7 @@ import {
 import { isMember } from './domain/policy/access.js';
 import AuthSheet from './components/AuthSheet';
 import SettingsTab from './components/SettingsTab';
+import OfflineBar from './components/OfflineBar';
 import { MAP_CENTER } from './utils';
 import { pathFor, stateFromPath, hasAuthPayload } from './routes.js';
 import { matchesDietary, isQuarantined } from './data/verification';
@@ -749,6 +750,11 @@ export default function App() {
           </span>
         )}
       </header>
+
+      {/* Under the chrome and above everything else, because it changes what
+          the screen below it can promise. Renders nothing at all while the
+          signal is fine, so it costs no space in the normal case. */}
+      <OfflineBar />
 
       {/* Content is the substrate now. The map used to sit behind every screen
           — at `inset: 0` on mobile, holding most of the viewport on desktop —

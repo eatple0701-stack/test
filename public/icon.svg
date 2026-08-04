@@ -1,0 +1,45 @@
+<!--
+  밥친구's mark: one dish, and more than one person reaching it.
+
+  Replaces a purple lightning bolt (#863bff) that came in with the project
+  template and belonged to nobody — wrong palette, wrong product, and about to
+  be installed on people's home screens once the manifest existed.
+
+  Every choice here is answerable to something this app already teaches:
+
+  - Metal, not wood. src/content/quiz.js asks travellers exactly this
+    ("Korean chopsticks are traditionally wooden, like in Japan and China" —
+    false), sourced in src/content/sources.js. An icon drawn with wooden
+    chopsticks would be the app contradicting its own quiz.
+  - A spoon with them. The 수저 pair is the Korean table's own arrangement,
+    and the same source is explicit that a spoon does work here that
+    chopsticks do not — rice and soup.
+  - Reaching from two sides, into one dish. That is the product: a meal
+    nobody can order alone, shared from a communal pot. It is also correct
+    manners; chopsticks are never drawn crossed or standing upright in rice,
+    both of which carry funeral associations this app has no business
+    stamping on a home screen.
+
+  Drawn inside a 410px circle so the maskable version survives Android's
+  round, squircle and teardrop crops without losing a utensil.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="밥친구 Eatple">
+  <rect width="512" height="512" rx="112" fill="#087F5B"/>
+
+  <!-- The shared dish, seen from above. Carries the mark at 16px, where the
+       utensils are only a suggestion of movement towards it. -->
+  <circle cx="256" cy="256" r="100" fill="#FFFFFF"/>
+  <circle cx="256" cy="256" r="66" fill="none" stroke="#087F5B" stroke-opacity="0.16" stroke-width="10"/>
+
+  <g fill="#DDE3EA">
+    <!-- Left 수저: chopstick above, spoon below. -->
+    <rect x="64" y="216" width="84" height="22" rx="11"/>
+    <rect x="64" y="274" width="70" height="22" rx="11"/>
+    <ellipse cx="140" cy="285" rx="20" ry="15"/>
+
+    <!-- Right 수저, mirrored — the second person. -->
+    <rect x="364" y="216" width="84" height="22" rx="11"/>
+    <rect x="378" y="274" width="70" height="22" rx="11"/>
+    <ellipse cx="372" cy="285" rx="20" ry="15"/>
+  </g>
+</svg>

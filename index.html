@@ -2,11 +2,35 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Meet fellow travelers in Korea, share a meal, and explore Korean culture together." />
-    <meta name="theme-color" content="#FFFFFF" />
     <title>밥친구 Eatple · Don't just visit Korea. Share a Korean table.</title>
+
+    <!-- Installable, and dressed for the phone it lands on.
+         Added 2026-08-04: there was no manifest at all, so "add to home
+         screen" produced a browser bookmark rather than an app, and the icon
+         it used was a purple lightning bolt left over from the project
+         template. public/icon.svg replaces it — see that file for why the
+         mark is drawn with metal 수저 rather than wooden chopsticks. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- iOS reads none of the manifest above. These four lines are the
+         whole of what makes an iPhone home-screen launch look like an app,
+         and apple-touch-icon must be PNG — Safari ignores SVG here. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="밥친구" />
+
+    <!-- The browser chrome, in the theme the traveller actually chose.
+         This was a single hard-coded #FFFFFF, so every dark-mode user got a
+         white address bar above a near-black app. Two media-scoped tags is
+         how a browser is told to follow along; the script below then
+         overwrites whichever one applies when somebody picks a theme by
+         hand, because a manual choice must beat the OS sensor here exactly
+         as it does in src/data/theme.js. -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FFFFFF" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0F1115" />
 
     <!-- 핵심기능 5, SNS 확산: the table share button (TableDetail.jsx) already
          builds a link and hands it to the OS share sheet, which is how it
@@ -26,6 +50,20 @@
     <meta property="og:title" content="밥친구 Eatple · Don't just visit Korea. Share a Korean table." />
     <meta property="og:description" content="Meet fellow travelers in Korea, share a meal, and explore Korean culture together." />
     <meta property="og:url" content="https://test-umber-phi-78.vercel.app" />
+    <!-- og:image, finally. It was missing because every asset in public/images
+         was an SVG illustration and most crawlers — KakaoTalk included —
+         either skip SVG or render it badly, so a text-only preview was the
+         better of two bad options. Drawing a real PNG app icon (public/icon.svg
+         → icon-192.png) removed that constraint. It is the square app mark
+         rather than a wide banner: a 1200×630 card would need artwork the
+         project does not have, and inventing one is how a link preview ends
+         up promising something the app does not contain. -->
+    <meta property="og:image" content="https://test-umber-phi-78.vercel.app/icon-192.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="192" />
+    <meta property="og:image:height" content="192" />
+    <meta property="og:image:alt" content="밥친구 Eatple" />
+    <meta name="twitter:image" content="https://test-umber-phi-78.vercel.app/icon-192.png" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="밥친구 Eatple" />
     <meta name="twitter:description" content="Meet fellow travelers in Korea, share a meal, and explore Korean culture together." />
@@ -43,8 +81,24 @@
             ? stored
             : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
           document.documentElement.setAttribute('data-theme', theme);
+          paintBrowserChrome(theme);
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'light');
+        }
+
+        // The two media-scoped theme-color tags above follow the OS, which is
+        // right for anybody who never chose. The moment somebody has chosen,
+        // they are wrong, so the pair is replaced by one unconditional tag —
+        // the same precedence applyTheme() in src/data/theme.js applies, and
+        // the same two colours. Change one, change both.
+        function paintBrowserChrome(theme) {
+          if (stored !== 'light' && stored !== 'dark') return;
+          var tags = document.querySelectorAll('meta[name="theme-color"]');
+          for (var i = 0; i < tags.length; i++) tags[i].remove();
+          var tag = document.createElement('meta');
+          tag.setAttribute('name', 'theme-color');
+          tag.setAttribute('content', theme === 'dark' ? '#0F1115' : '#FFFFFF');
+          document.head.appendChild(tag);
         }
       })();
     </script>

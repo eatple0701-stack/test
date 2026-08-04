@@ -15,15 +15,43 @@ globalThis.localStorage = (() => {
 })();
 
 let attrs = {};
-let metaContent = null;
+// index.html ships *two* theme-color tags, scoped to prefers-color-scheme, so
+// the browser chrome is right before React boots. The stub models a real head
+// holding several of them — a stub that could only ever return one tag was
+// what let applyTheme spend a while updating the first of two and leaving the
+// other to contradict it.
+let head = [];
+const makeMeta = () => {
+  const el = { tagName: 'META', _attrs: {} };
+  el.setAttribute = (k, v) => { el._attrs[k] = v; };
+  el.getAttribute = (k) => el._attrs[k] ?? null;
+  el.remove = () => { head = head.filter(m => m !== el); };
+  return el;
+};
+const seedTwoScopedTags = () => {
+  head = [];
+  for (const [media, content] of [
+    ['(prefers-color-scheme: light)', '#FFFFFF'],
+    ['(prefers-color-scheme: dark)', '#0F1115'],
+  ]) {
+    const m = makeMeta();
+    m.setAttribute('name', 'theme-color');
+    m.setAttribute('media', media);
+    m.setAttribute('content', content);
+    head.push(m);
+  }
+};
+const themeColorTags = () => head.filter(m => m.getAttribute('name') === 'theme-color');
+
 globalThis.document = {
   documentElement: {
     setAttribute: (k, v) => { attrs[k] = v; },
     getAttribute: (k) => attrs[k] ?? null,
   },
-  querySelector: () => ({
-    setAttribute: (k, v) => { if (k === 'content') metaContent = v; },
-  }),
+  head: { appendChild: (el) => { head.push(el); return el; } },
+  createElement: () => makeMeta(),
+  querySelectorAll: (sel) => (sel === 'meta[name="theme-color"]' ? themeColorTags() : []),
+  querySelector: (sel) => (sel === 'meta[name="theme-color"]' ? themeColorTags()[0] ?? null : null),
 };
 
 let mqlMatches = false;
@@ -85,12 +113,35 @@ test('applyTheme writes the resolved value, never the literal "system"', () => {
 });
 
 test('applyTheme updates the theme-color meta tag to match, for the status bar', () => {
-  metaContent = null;
+  seedTwoScopedTags();
   applyTheme('dark');
-  assert.equal(metaContent, '#0F1115');
+  assert.equal(themeColorTags().length, 1, 'exactly one tag should survive');
+  assert.equal(themeColorTags()[0].getAttribute('content'), '#0F1115');
 
   applyTheme('light');
-  assert.equal(metaContent, '#FFFFFF');
+  assert.equal(themeColorTags().length, 1);
+  assert.equal(themeColorTags()[0].getAttribute('content'), '#FFFFFF');
+});
+
+test('an explicit choice leaves no media-scoped tag behind to contradict it', () => {
+  // The bug this test exists for: index.html's light-scoped tag was being
+  // handed a dark colour while its dark-scoped sibling still said dark, so a
+  // traveller on a light OS who picked 다크 got a white status bar over a
+  // black app. An explicit choice must not carry a media query at all.
+  seedTwoScopedTags();
+  assert.equal(themeColorTags().length, 2, 'the fixture is two scoped tags');
+  applyTheme('dark');
+  for (const tag of themeColorTags()) {
+    assert.equal(tag.getAttribute('media'), null, 'a surviving tag still has a media query');
+  }
+});
+
+test('applying twice does not pile up tags', () => {
+  seedTwoScopedTags();
+  applyTheme('dark');
+  applyTheme('light');
+  applyTheme('dark');
+  assert.equal(themeColorTags().length, 1);
 });
 
 test('setTheme persists the raw choice and applies it in the same call', () => {

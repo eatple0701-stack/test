@@ -1,0 +1,41 @@
+{
+  "name": "밥친구 Eatple",
+  "short_name": "밥친구",
+  "description": "Solo trip, shared table. Find a Korean meal you cannot order alone, and the people to share it with.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#087F5B",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["food", "travel", "social"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "찾는 밥상 · Find me a table",
+      "short_name": "찾는 밥상",
+      "url": "/tables/find"
+    },
+    {
+      "name": "상 차리기 · Open a table",
+      "short_name": "상 차리기",
+      "url": "/tables/new"
+    }
+  ]
+}

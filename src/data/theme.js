@@ -34,7 +34,11 @@ export function systemPrefersDark() {
 export const resolveTheme = (theme) =>
   theme === 'system' ? (systemPrefersDark() ? 'dark' : 'light') : theme;
 
-const THEME_COLOR = { light: '#FFFFFF', dark: '#0F1115' };
+// Kept in step with index.html, which ships the same two values as
+// media-scoped tags for the first paint. Light is the header's --surface
+// rather than --bg, because the header is what sits under the status bar;
+// dark is --bg, which is what reaches the top edge in the dark palette.
+export const THEME_COLOR = { light: '#FFFFFF', dark: '#0F1115' };
 
 /** Writes the resolved value to the DOM. Never 'system' — the CSS only knows light/dark. */
 export function applyTheme(theme) {
@@ -45,8 +49,18 @@ export function applyTheme(theme) {
   // ever sees this tag, so an explicit choice has to reach it separately
   // from the --bg token or the status bar keeps following the OS after a
   // traveller has told the app not to.
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', THEME_COLOR[resolved]);
+  //
+  // index.html ships *two* of these, scoped to prefers-color-scheme, so the
+  // chrome is right before React boots. Setting the first one's content
+  // would have been silently wrong from the moment those were added: the
+  // light-scoped tag would carry a dark colour while the dark-scoped tag
+  // still matched. So every tag goes and one unconditional tag replaces
+  // them — an explicit choice does not want a media query attached.
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove());
+  const meta = document.createElement('meta');
+  meta.setAttribute('name', 'theme-color');
+  meta.setAttribute('content', THEME_COLOR[resolved]);
+  document.head.appendChild(meta);
 }
 
 /** Saves the traveller's raw choice (including 'system') and applies it immediately. */
