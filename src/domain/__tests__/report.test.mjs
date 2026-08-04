@@ -58,3 +58,18 @@ test('the receipt promises a reader, not a process', () => {
   }
   assert.ok(text.includes('read'), 'the one honest promise — a person reads it — is missing');
 });
+
+test('a report problem names its field and speaks both languages', () => {
+  // The panel marks the box that is wrong, which it can only do if the
+  // problem says which box that is — and somebody upset enough to open this
+  // panel is the last person who should be handed English only.
+  const cases = [validateReport({}), validateReport({ reasonId: 'person', note: '' })];
+  for (const problems of cases) {
+    assert.ok(problems.length > 0);
+    for (const p of problems) {
+      assert.ok(['reason', 'note'].includes(p.field), `unknown field ${p.field}`);
+      assert.match(p.kr, /[가-힣]/, `${p.field} has no Korean`);
+      assert.ok(p.en.trim().length > 0, `${p.field} has no English`);
+    }
+  }
+});

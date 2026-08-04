@@ -70,11 +70,22 @@ const NOTE_REQUIRED = ['person', 'other'];
  */
 export function validateReport({ reasonId, note } = {}) {
   const problems = [];
+  // Both languages, and named by field, for the same reason the signup form
+  // carries both: somebody reaching this panel is upset, and an English-only
+  // sentence is the worst moment for the app to stop speaking their language.
   if (!reportReasonById(reasonId)) {
-    problems.push('Pick what kind of problem this is.');
+    problems.push({
+      field: 'reason',
+      kr: '어떤 문제인지 골라 주세요.',
+      en: 'Pick what kind of problem this is.',
+    });
   }
   if (NOTE_REQUIRED.includes(reasonId) && !cleanReportNote(note)) {
-    problems.push('Say what happened — this kind of report is only the words you write.');
+    problems.push({
+      field: 'note',
+      kr: '무슨 일이 있었는지 적어 주세요. 이 신고는 적어 주신 내용이 전부예요.',
+      en: 'Say what happened — this kind of report is only the words you write.',
+    });
   }
   return problems;
 }

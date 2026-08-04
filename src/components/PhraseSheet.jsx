@@ -22,9 +22,15 @@ import { ChevronLeftIcon } from './Icons';
 // can hold.
 const QUIZ = 'quiz';
 const GROUPS = [PHRASE_GROUP.ORDER, PHRASE_GROUP.DIETARY, PHRASE_GROUP.TABLE, PHRASE_GROUP.TALK, QUIZ];
+// Korean on top, English under it — the shape every other label in the app
+// has. The Korean was already sitting in GROUP_LABEL and this file threw it
+// away, so the sheet titled 식탁에서 · What to say at the table was followed
+// by five tabs that had stopped speaking Korean. Two lines rather than a
+// middot because five tabs share one row: 주문할 때 · Ordering, side by side,
+// would not fit at 375px.
 const TAB_LABEL = {
-  ...Object.fromEntries(Object.entries(GROUP_LABEL).map(([k, v]) => [k, v.en])),
-  [QUIZ]: 'Quiz',
+  ...Object.fromEntries(Object.entries(GROUP_LABEL).map(([k, v]) => [k, v])),
+  [QUIZ]: { ko: '퀴즈', en: 'Quiz' },
 };
 
 /** Is there a Korean voice on this device? Voices arrive asynchronously. */
@@ -100,7 +106,8 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
             className={`phrase-tab${group === g ? ' is-on' : ''}`}
             onClick={() => setGroup(g)}
           >
-            {TAB_LABEL[g]}
+            <span className="phrase-tab__ko">{TAB_LABEL[g].ko}</span>
+            <span className="phrase-tab__en">{TAB_LABEL[g].en}</span>
           </button>
         ))}
       </div>

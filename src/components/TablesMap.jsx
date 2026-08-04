@@ -30,8 +30,11 @@ const tablePin = (menu, left) => L.divIcon({
     <span class="table-pin__seats">${left === 0 ? 'full' : left}</span>
   </span>`,
   // Measured rather than guessed so the tip sits on the point, not near it.
+  // Moved with the pill when it grew from 32px to 44px (index.css,
+  // .table-pin__body) — the anchor is half the height plus the shadow, and
+  // leaving it at 34 would have floated every pin six pixels off its place.
   iconSize: [null, null],
-  iconAnchor: [30, 34],
+  iconAnchor: [30, 46],
 });
 
 export default function TablesMap({ tables = [], signupsFor = {}, onOpenTable, onClose }) {

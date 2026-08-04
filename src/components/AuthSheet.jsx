@@ -1,8 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   signUpMember, signInMember, signInWithGoogle, saveMemberDetails, saveAvatar,
 } from '../data/tableRepository.js';
-import { validateSignup, gateText } from '../domain/policy/access.js';
+import {
+  validateSignup, validateSignin, problemFields, gateText,
+} from '../domain/policy/access.js';
+import { authError, AUTH_ACTION } from '../domain/policy/authError.js';
 import { XIcon, ChevronLeftIcon } from './Icons';
 // Shared with the meal photos on a table page — one canvas, two sets of
 // rules, so quality and bugs cannot drift apart between them.
@@ -26,6 +29,26 @@ import ProfileFields from './ProfileFields';
 // written under the form rather than hidden: typos are yours to avoid,
 // because nothing will catch them.
 
+/**
+ * A labelled box that says what is wrong with itself.
+ *
+ * The complaint sits under the box that caused it rather than in a list at the
+ * bottom of the sheet, in both languages, because the labels above are in both
+ * and an error that only speaks English is the app changing its mind about who
+ * it is talking to at the worst possible moment.
+ */
+function Field({ id, label, bad, problems, markRef, children }) {
+  const wrong = !!bad?.[id];
+  const said = wrong ? problems.find(p => p.field === id) : null;
+  return (
+    <label className={`field${wrong ? ' is-bad' : ''}`} ref={markRef?.(id)}>
+      <span className="field__label">{label}</span>
+      {React.cloneElement(children, { 'aria-invalid': wrong || undefined })}
+      {said && <span className="field__error">{said.kr} · {said.en}</span>}
+    </label>
+  );
+}
+
 export default function AuthSheet({ door, initialMode, profile, onProfileChange, onClose, onAuthed }) {
   // 'signup' → 'signup-email' ┐
   // 'signin' ─────────────────┴→ ('details') → 'profile' → 'avatar' → done
@@ -46,6 +69,8 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [signinBad, setSigninBad] = useState({});
   const fileRef = useRef(null);
 
   const gate = door ? gateText(door) : null;
@@ -53,6 +78,26 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
     () => validateSignup({ email, password, name, phone, birthdate }),
     [email, password, name, phone, birthdate],
   );
+  // Only after a press. Marking a box red the moment somebody tabs into it is
+  // how a form calls you wrong for typing slowly.
+  const bad = submitted ? problemFields(problems) : {};
+
+  // Scroll to the first complaint, for the reason the create form scrolls to
+  // one: this sheet is 849px inside a 721px window, so the list of problems
+  // could sit below the fold of the very screen that printed it. Claimed on
+  // each render, in DOM order, so "first" means first on screen.
+  const firstBad = useRef(null);
+  const claimed = useRef(false);
+  claimed.current = false;
+  const markRef = (key) => (node) => {
+    if (!bad[key] || claimed.current || !node) return;
+    claimed.current = true;
+    firstBad.current = node;
+  };
+  useEffect(() => {
+    if (attempt === 0) return;
+    firstBad.current?.scrollIntoView({ block: 'center' });
+  }, [attempt]);
 
   const finish = async () => {
     onAuthed?.();
@@ -61,6 +106,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
 
   const submitSignup = async () => {
     setSubmitted(true);
+    setAttempt(n => n + 1);
     setError(null);
     if (problems.length > 0 || busy) return;
     setBusy(true);
@@ -74,7 +120,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
       // the Passport shows values from the first day instead of blanks.
       setMode('profile');
     } catch (e) {
-      setError(e.message);
+      setError(authError(e));
     }
     setBusy(false);
   };
@@ -82,12 +128,18 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
   const submitSignin = async () => {
     setError(null);
     if (busy) return;
+    // Asked here rather than let through, because the backend's answer to an
+    // empty form was `missing email or phone` — lowercase, English, and the
+    // first thing this app ever said to somebody who mistyped nothing at all.
+    const missing = validateSignin({ email, password });
+    setSigninBad(problemFields(missing));
+    if (missing.length > 0) return;
     setBusy(true);
     try {
       await signInMember({ email, password });
       await finish();
     } catch (e) {
-      setError(e.message);
+      setError(authError(e));
     }
     setBusy(false);
   };
@@ -99,7 +151,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
       // back here — an unconfigured provider, or the device-only backend.
       await signInWithGoogle();
     } catch (e) {
-      setError(e.message);
+      setError(authError(e));
     }
   };
 
@@ -107,7 +159,10 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
     setError(null);
     if (busy) return;
     if (!phone.trim() || !birthdate) {
-      setError('The team needs a phone number and a date of birth to run matching.');
+      setError({
+        kr: '매칭에 전화번호와 생년월일이 필요해요.',
+        en: 'The team needs a phone number and a date of birth to run matching.',
+      });
       return;
     }
     setBusy(true);
@@ -115,7 +170,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
       await saveMemberDetails({ phone, birthdate });
       setMode('profile');
     } catch (e) {
-      setError(e.message);
+      setError(authError(e));
     }
     setBusy(false);
   };
@@ -130,10 +185,33 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
       onProfileChange?.({ ...profile, avatarUrl: url });
       await finish();
     } catch (e) {
-      setError(e.message);
+      setError(authError(e));
       setBusy(false);
     }
   };
+
+  // One error line for all six steps, so a message can never appear in one
+  // mood on one screen and another somewhere else. When the failure is really
+  // "you are at the wrong door" it carries the door with it — an already
+  // registered email is the commonest signup failure there is, and leaving
+  // somebody to find 로그인 at the bottom of the sheet themselves is a
+  // needless dead end.
+  const errorLine = error && (
+    <div className="auth-error" role="alert">
+      <p className="auth-error__kr">{error.kr}</p>
+      <p className="auth-error__en">{error.en}</p>
+      {error.action === AUTH_ACTION.SIGNIN && (
+        <button className="auth-error__go" onClick={() => { setMode('signin'); setError(null); }}>
+          로그인하기 · Go to sign in
+        </button>
+      )}
+      {error.action === AUTH_ACTION.SIGNUP && (
+        <button className="auth-error__go" onClick={() => { setMode('signup'); setError(null); }}>
+          회원가입하기 · Create an account
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label="Sign in">
@@ -169,7 +247,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             <button className="auth-email-link" onClick={() => setMode('signup-email')} translate="no">
               이메일로 가입 · Sign up with email
             </button>
-            {error && <p className="auth-error">{error}</p>}
+            {errorLine}
             <p className="auth-foot">
               이미 계정이 있으신가요?
               <button className="auth-foot__link" onClick={() => { setMode('signin'); setError(null); }}>
@@ -183,35 +261,32 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <div className="auth-form">
             <h2 className="auth-title">가입을 완료해 주세요</h2>
 
-            <label className="field">
-              <span className="field__label">이메일 · Email — this is your login ID</span>
+            <Field id="email" bad={bad} problems={problems} markRef={markRef}
+              label="이메일 · Email — this is your login ID">
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
-            </label>
-            <label className="field">
-              <span className="field__label">비밀번호 · Password</span>
+            </Field>
+            <Field id="password" bad={bad} problems={problems} markRef={markRef}
+              label="비밀번호 · Password">
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="8+ characters" autoComplete="new-password" />
-            </label>
-            <label className="field">
-              <span className="field__label">이름 · Name — what a table calls you</span>
+            </Field>
+            <Field id="name" bad={bad} problems={problems} markRef={markRef}
+              label="이름 · Name — what a table calls you">
               <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Aya" autoComplete="name" />
-            </label>
-            <label className="field">
-              <span className="field__label">전화번호 · Phone</span>
+            </Field>
+            <Field id="phone" bad={bad} problems={problems} markRef={markRef}
+              label="전화번호 · Phone">
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+82 10-0000-0000" autoComplete="tel" />
-            </label>
-            <label className="field">
-              <span className="field__label">생년월일 · Date of birth</span>
+            </Field>
+            <Field id="birthdate" bad={bad} problems={problems} markRef={markRef}
+              label="생년월일 · Date of birth">
               <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} />
-            </label>
+            </Field>
             <p className="auth-note">
               No code is sent to your email or phone — they are contact details for the team
               running the pilot, seen by nobody else at any table. Type them carefully;
               nothing checks them for you.
             </p>
-            {submitted && problems.length > 0 && (
-              <ul className="auth-problems">{problems.map(p => <li key={p}>{p}</li>)}</ul>
-            )}
-            {error && <p className="auth-error">{error}</p>}
+            {errorLine}
             <button className="auth-primary" onClick={submitSignup} disabled={busy} translate="no">
               {busy ? 'Joining…' : '가입 · Join'}
             </button>
@@ -230,15 +305,15 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               Google로 계속 · Continue with Google
             </button>
             <p className="auth-or"><span>또는 · or</span></p>
-            <label className="field">
-              <span className="field__label">이메일 · Email</span>
+            <Field id="email" bad={signinBad} problems={validateSignin({ email, password })}
+              label="이메일 · Email">
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
-            </label>
-            <label className="field">
-              <span className="field__label">비밀번호 · Password</span>
+            </Field>
+            <Field id="password" bad={signinBad} problems={validateSignin({ email, password })}
+              label="비밀번호 · Password">
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" />
-            </label>
-            {error && <p className="auth-error">{error}</p>}
+            </Field>
+            {errorLine}
             <button className="auth-primary" onClick={submitSignin} disabled={busy} translate="no">
               {busy ? 'Signing in…' : '로그인 · Sign in'}
             </button>
@@ -269,7 +344,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               <span className="field__label">생년월일 · Date of birth</span>
               <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} />
             </label>
-            {error && <p className="auth-error">{error}</p>}
+            {errorLine}
             <button className="auth-primary" onClick={submitDetails} disabled={busy}>
               {busy ? 'Saving…' : '저장하고 계속 · Save and continue'}
             </button>
@@ -308,7 +383,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               style={{ display: 'none' }}
               onChange={e => pickPhoto(e.target.files?.[0])}
             />
-            {error && <p className="auth-error">{error}</p>}
+            {errorLine}
             <button className="auth-primary" onClick={() => fileRef.current?.click()} disabled={busy}>
               {busy ? 'Uploading…' : '사진 고르기 · Choose a photo'}
             </button>

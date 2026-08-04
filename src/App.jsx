@@ -908,6 +908,13 @@ export default function App() {
               await refreshAuth();
               setActiveTab('match');
             }}
+            /* Signing out is not signing off: they stay on Settings, which
+               still has something on it for a guest, rather than being thrown
+               to another tab as though they had done something drastic. */
+            onSignOut={async () => {
+              await signOutMember().catch(() => {});
+              await refreshAuth();
+            }}
           />
         )}
 

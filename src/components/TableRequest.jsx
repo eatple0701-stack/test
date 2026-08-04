@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { menus, menuById } from '../domain/catalog/menus.js';
 import {
   matchRequest, requestAsTable, isEmptyRequest, shouldOfferToHost, MATCH,
@@ -36,7 +36,19 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
   const [place, setPlace] = useState('');
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
-  const [asked, setAsked] = useState(false);
+  const [asked, setAsked] = useState(0);
+  const resultsRef = useRef(null);
+
+  // The answer lands below the fold of a screen four dish-rows tall, so
+  // pressing the button looked like it did nothing: measured, the results
+  // heading appeared at 716px in an 812px viewport with one of nine rows on
+  // screen. Counting the presses rather than flipping a flag is what makes a
+  // second search scroll too — and the effect, rather than the click handler,
+  // is what makes it fire after the rows exist to scroll to.
+  useEffect(() => {
+    if (asked === 0) return;
+    resultsRef.current?.scrollIntoView({ block: 'start' });
+  }, [asked]);
 
   useEffect(() => {
     let alive = true;
@@ -132,15 +144,15 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
       <div className="form-actions">
         <button
           className="form-submit"
-          onClick={() => setAsked(true)}
+          onClick={() => setAsked(n => n + 1)}
           disabled={tables === null || isEmptyRequest(request)}
         >
           {tables === null ? 'Looking…' : '찾아보기 · Find me a table'}
         </button>
       </div>
 
-      {asked && (
-        <div className="req-results">
+      {asked > 0 && (
+        <div className="req-results" ref={resultsRef}>
           {exact.length > 0 && (
             <>
               <h2 className="req-results__head">

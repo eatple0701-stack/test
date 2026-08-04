@@ -223,7 +223,10 @@ button {
   border-left: 1px solid var(--line);
 }
 .chip {
-  height: 40px;
+  /* 44, not 40. Chips are the filter row, the appearance switch and the
+     language pickers — every one of them a thumb target on a phone held in
+     one hand, and every one of them 4px short until 2026-08-04. */
+  height: 44px;
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid var(--line);
@@ -4089,6 +4092,20 @@ button {
 .market-card__check {
   min-height: 44px;
 }
+/* Leaflet ships its zoom buttons at 30px. They sit on the map where a host
+   drops the pin for where the table meets, so they are as much a control of
+   this app as anything we drew ourselves. Matched to Leaflet's own selector
+   (`.leaflet-touch .leaflet-bar a`, two classes and an element) because a
+   shorter one loses to it and the buttons stayed 30px. */
+.leaflet-touch .leaflet-bar a.leaflet-control-zoom-in,
+.leaflet-touch .leaflet-bar a.leaflet-control-zoom-out,
+.leaflet-bar a.leaflet-control-zoom-in,
+.leaflet-bar a.leaflet-control-zoom-out {
+  width: 44px;
+  height: 44px;
+  line-height: 42px;
+  font-size: 20px;
+}
 .detail-close,
 .summary-sheet__close {
   width: 44px;
@@ -5836,7 +5853,7 @@ button {
 .phrase-tab {
   flex: none;
   min-height: 44px;
-  padding: 8px 15px;
+  padding: 6px 15px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -5846,7 +5863,17 @@ button {
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+  /* Two lines now — Korean above English, stacked so five tabs still fit a
+     375px row. See TAB_LABEL in PhraseSheet.jsx. */
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  line-height: 1.25;
 }
+.phrase-tab__ko { font-size: 13px; font-weight: 700; }
+.phrase-tab__en { font-size: 10px; font-weight: 600; opacity: 0.75; }
 .phrase-tab.is-on {
   background: var(--ex-field);
   border-color: var(--ex-field);
@@ -7793,9 +7820,17 @@ body {
    action the row is trying to sell. Tinted red only once it is pressed and
    asking for confirmation (.cancel-confirm), not while it is just sitting
    here as an option. */
+/* "Block", beside a person at the table. Measured 21px on 2026-08-04 — the
+   smallest control anywhere in the app, and one of the two things somebody
+   reaches for when another guest has made them uncomfortable. It stays quiet
+   (this is not an accusation button) but it is now a target a shaking thumb
+   can hit: the padding grows, the type does not. */
 .who-row__block {
   margin-left: auto;
-  padding: 3px 9px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
   border: 1px solid var(--line-hover);
   border-radius: 999px;
   background: none;
@@ -7886,7 +7921,7 @@ body {
 .lang-picks { display: flex; flex-wrap: wrap; gap: 8px; }
 .lang-pick {
   padding: 9px 14px;
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface);
@@ -8588,12 +8623,14 @@ body {
   color: var(--ink-title);
   line-height: 1.3;
 }
+/* 44px, both corners. Measured at 34px on 2026-08-04: the two controls that
+   undo opening this sheet by accident were the smallest targets on it. */
 .auth-back {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 34px;
-  height: 34px;
+  top: 8px;
+  left: 8px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 50%;
   background: none;
@@ -8606,6 +8643,7 @@ body {
 /* "이메일로 가입" — a line, not a slab. The primary action on this step is
    Google; this is the other way, offered without competing for the eye. */
 .auth-email-link {
+  min-height: 44px;
   border: none;
   background: none;
   color: var(--ink-title);
@@ -8621,10 +8659,18 @@ body {
   font-size: 14px;
   color: var(--muted-strong);
 }
+/* The switch between the two doors — measured 16px tall, the smallest target
+   in the whole sheet and the one somebody who opened the wrong form needs
+   most. Padded to 44px while staying on the same line as the question, which
+   is where it reads best. */
 .auth-foot__link {
+  display: inline-block;
+  vertical-align: middle;
+  min-height: 44px;
+  line-height: 20px;
   border: none;
   background: none;
-  padding: 0 0 0 6px;
+  padding: 12px 10px;
   font-size: 14px;
   font-weight: 700;
   color: var(--accent-strong);
@@ -8633,10 +8679,10 @@ body {
 .auth-foot__link:hover { text-decoration: underline; }
 .auth-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 34px;
-  height: 34px;
+  top: 8px;
+  right: 8px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 50%;
   background: var(--fill);
@@ -8681,26 +8727,50 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
+/* "나중에" on the photo step, "취소" on the profile sheet — the way out of
+   two screens somebody may have opened by mistake. Was 29px. */
 .auth-switch {
+  min-height: 44px;
   border: none;
   background: none;
   color: var(--muted-strong);
   font-size: 14px;
   text-decoration: underline;
   cursor: pointer;
-  padding: 6px;
+  padding: 6px 12px;
 }
 .auth-note { font-size: 13px; line-height: 1.5; color: var(--muted-strong); margin: 0; }
-.auth-error { font-size: 14px; font-weight: 600; color: var(--danger); margin: 0; }
-.auth-problems {
+/* The failure block. Two lines rather than one because every label above it
+   is two lines, and a Korean sentence and its English twin at the same weight
+   is how the rest of this app talks. Tinted rather than bare text so it reads
+   as a state of the form, not as another paragraph. */
+.auth-error {
   margin: 0;
-  padding-left: 18px;
-  font-size: 13px;
-  color: var(--danger);
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
+.auth-error__kr { margin: 0; font-size: 14px; font-weight: 700; color: var(--danger); }
+.auth-error__en { margin: 0; font-size: 13px; line-height: 1.45; color: var(--ink-body); }
+/* When the real answer is "you are at the other door", the door is here. */
+.auth-error__go {
+  align-self: flex-start;
+  margin-top: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  background: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--danger);
+  cursor: pointer;
+}
+.auth-error__go:hover { background: color-mix(in srgb, var(--danger) 10%, transparent); }
 
 /* A gate rendered in place of a member-only surface. */
 .member-gate {
@@ -8751,11 +8821,18 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Measured 15px tall on 2026-08-04 — the smallest control in the app, and
+   the one a person on a borrowed phone needs to hit first time. Padded to 44
+   without becoming a slab: the real sign-out button now lives in Settings,
+   and this stays the quiet one beside the email it belongs to. */
 .account-signout {
   align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border: none;
   background: none;
-  padding: 0;
+  padding: 0 8px 0 0;
   color: var(--muted-strong);
   font-size: 13px;
   text-decoration: underline;
@@ -8925,6 +9002,7 @@ body {
 .report-open {
   display: block;
   width: calc(100% - 32px);
+  min-height: 44px;
   margin: 4px 16px 0;
   padding: 12px;
   background: none;
@@ -8945,15 +9023,23 @@ body {
 .report-panel__title { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--ink); }
 .report-panel__hint { margin: 0 0 10px; font-size: 12px; color: var(--muted); line-height: 1.5; }
 .report-panel__reasons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+/* The four reasons are the whole content of this panel and were 31px tall.
+   Nothing on this screen matters more than being able to press it. */
 .report-reason {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border: 1px solid var(--line);
   background: var(--surface);
   border-radius: 999px;
-  padding: 7px 12px;
+  padding: 7px 14px;
   font-size: 12px;
   color: var(--ink-body);
   cursor: pointer;
 }
+/* When Send was pressed with no reason chosen, the group itself says so —
+   the complaint used to be a bullet under a paragraph, naming nothing. */
+.report-panel__reasons.is-bad .report-reason { border-color: var(--danger-line); }
 .report-reason.is-on {
   border-color: var(--green-strong);
   background: var(--green-tint);
@@ -9038,14 +9124,17 @@ body {
   color: var(--ink-body);
   white-space: nowrap;
 }
+/* 자리 요청 — the one action this entire app exists to make possible, and it
+   was 41px. Measured 2026-08-04 at 375×812. */
 .detail-cta__btn {
   flex: 1;
+  min-height: 48px;
   border: none;
   border-radius: var(--radius);
   background: var(--orange-strong);
   color: #fff;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15px;
   padding: 12px;
   cursor: pointer;
 }
@@ -9127,8 +9216,27 @@ body {
 /* The door out, in Settings. Quiet until opened — a destructive control that
    shouts is a control people tap by accident. */
 .danger-zone { margin-top: 8px; }
+/* Signing out, in the ordinary weight — the reversible action, offered first
+   and looking like every other primary control rather than like a warning. */
+.settings-signout {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink-title);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.settings-signout:hover { background: var(--fill); }
+/* And the permanent one below it, still quiet, still confirmed — but now at
+   a size a thumb can actually land on (was 41px). */
+.danger-zone__hint { margin-top: 18px; }
 .danger-open {
   width: 100%;
+  min-height: 44px;
   padding: 12px;
   background: none;
   border: 1px solid var(--danger-line);
@@ -9332,11 +9440,17 @@ body {
 /* A pin that carries the dish, because the question on a city map is not
    "is something here" but "is 삼겹살 here". */
 .table-pin { background: none; border: none; }
+/* Measured 75×32 on 2026-08-04. A pin is the only thing to tap on this
+   screen and it was the one control short of 44 — on a map, where a thumb is
+   also panning, an undersized target is how you open the wrong table. The
+   pill grows downward-and-up evenly, so TablesMap's iconAnchor moves with it
+   (see the comment on tablePin) and the tip still sits on the point. */
 .table-pin__body {
   display: inline-flex;
   align-items: center;
+  min-height: 44px;
   gap: 5px;
-  padding: 5px 9px;
+  padding: 5px 11px;
   background: var(--green-strong);
   color: #fff;
   border-radius: 999px;
@@ -9347,12 +9461,21 @@ body {
   border: 2px solid #fff;
 }
 .table-pin__body.is-full { background: var(--muted-strong); }
+/* The seat count. It was white text on 24%-white over the green pill, which
+   composites to roughly rgb(70,149,126) — 3.62:1 against white at 11px, under
+   the 4.5 small text needs. (An automated sweep first reported this as 1.00:1
+   by reading the translucent layer as opaque; the number was wrong, the
+   failure was not.) Inverted instead of nudged: a solid light pill with the
+   pin's own green on it reads at about 5.5:1 and, on a map at arm's length,
+   the count is now the lightest thing on the pin rather than the faintest. */
 .table-pin__seats {
-  background: rgba(255, 255, 255, 0.24);
+  background: #fff;
+  color: var(--green-strong);
   border-radius: 999px;
   padding: 0 5px;
   font-size: 11px;
 }
+.table-pin__body.is-full .table-pin__seats { color: var(--muted-strong); }
 .tables-map__notice { padding: 12px 16px 16px; }
 .tables-map__notice-kr { margin: 0 0 3px; font-size: 13px; font-weight: 700; color: var(--ink); }
 .tables-map__notice-en { margin: 0; font-size: 12px; line-height: 1.5; color: var(--muted-strong); }

@@ -16,13 +16,24 @@ import { RESTRICTIONS, restrictionLabel, DIETS } from '../data/profile';
 // changes something visible on another screen — which is the only reason a
 // setting deserves a row.
 
-function Field({ label, hint, children }) {
+/**
+ * One question on the profile.
+ *
+ * `control` marks the three questions answered by a single box rather than a
+ * row of chips. Those render as a real <label> wrapped around the input, so
+ * the words above it are the box's name rather than text that happens to sit
+ * nearby — measured 2026-08-04, all three were unlabelled, which meant a
+ * screen reader announced "edit text, Aya" and nothing else. Chip rows stay a
+ * <div>: a label pointing at seven buttons names none of them.
+ */
+function Field({ label, hint, children, control }) {
+  const Tag = control ? 'label' : 'div';
   return (
-    <div className="profile-field">
+    <Tag className="profile-field">
       <span className="profile-field__label">{label}</span>
       {children}
       {hint && <p className="profile-field__hint">{hint}</p>}
-    </div>
+    </Tag>
   );
 }
 
@@ -46,7 +57,8 @@ export default function ProfileFields({ profile, onProfileChange }) {
   return (
     <div className="profile-body">
         <Field
-          label="Your name"
+          control
+          label="이름 · Your name"
           hint="What the table looks for when you arrive."
         >
           <input
@@ -58,7 +70,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
           />
         </Field>
 
-        <Field label="Where you are from" hint="Optional. Shown to the table, nowhere else.">
+        <Field control label="출신 · Where you are from" hint="Optional. Shown to the table, nowhere else.">
           <input
             type="text"
             className="profile-input"
@@ -69,7 +81,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
         </Field>
 
         <Field
-          label="Languages you speak"
+          label="할 수 있는 언어 · Languages you speak"
           hint="So a host knows what the table will run in."
         >
           <div className="chip-row">
@@ -91,7 +103,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             The one place it changes another screen: the Tables filter
             (TablesTab.jsx), which is the feature this field exists for. */}
         <Field
-          label="Gender (optional)"
+          label="성별 · Gender (optional)"
           hint="Not verified — just what you tell the table. Used only for the 'tables with another woman' filter on Tables."
         >
           <div className="chip-row">
@@ -114,7 +126,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             조건에 적합한 한식 메뉴 우선 제시, and a preference the app never
             acts on is decoration. */}
         <Field
-          label="What you do not eat"
+          label="못 먹는 것 · What you do not eat"
           hint="Tables serving these are flagged before you ask for a seat. Nothing is hidden from you — the warning is on the card."
         >
           <div className="chip-row">
@@ -138,7 +150,8 @@ export default function ProfileFields({ profile, onProfileChange }) {
             the boxes above it; it is carried to the host as a sentence
             instead of five checkboxes. */}
         <Field
-          label="Anything else you can't eat? (optional)"
+          control
+          label="그 밖에 못 먹는 것 · Anything else you cannot eat? (optional)"
           hint="Free text, sent to the host with your seat request — not checked against any menu, just carried."
         >
           <textarea
@@ -159,7 +172,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             app cannot rule on whether a 한상 is halal and does not try — it
             passes the word to somebody who can ask the kitchen. */}
         <Field
-          label="How you eat"
+          label="식사 방식 · How you eat"
           hint="Sent to the host with your seat request. The app does not judge dishes by this — it tells the person who can ask."
         >
           <div className="chip-row">

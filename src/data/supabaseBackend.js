@@ -560,7 +560,7 @@ export async function saveTablePhoto(dataUrl, signupId) {
     if (/bucket/i.test(error.message ?? '')) {
       throw new Error('Photos are not switched on for this project yet — run the latest schema.sql.');
     }
-    throw new Error(friendlyAuthError(error));
+    throw authFailure(error);
   }
   const { data: pub } = sb.storage.from('table-photos').getPublicUrl(path);
   return pub?.publicUrl ?? '';
@@ -620,20 +620,26 @@ export async function hostRecord(hostId) {
 // number; the team reads the table from the dashboard, which bypasses RLS by
 // design. That is what "관리 측면에서 필요한 정보" turns into concretely.
 
-/** Auth errors, translated to sentences a person at a form can act on. */
-function friendlyAuthError(error) {
-  const text = (error?.message ?? '').toLowerCase();
-  if (text.includes('invalid login credentials')) return 'Email or password is wrong.';
-  if (text.includes('already registered')) return 'That email already has an account — try signing in.';
-  if (text.includes('at least 8') || text.includes('password should')) return 'A password needs at least 8 characters.';
-  if (text.includes('provider is not enabled') || text.includes('unsupported provider')) {
-    return 'Google sign-in is not switched on for this project yet.';
-  }
-  if (text.includes('confirm') || text.includes('not confirmed')) {
-    return 'This project still requires email confirmation — turn off "Confirm email" in Supabase Auth settings, or check your inbox.';
-  }
-  if (text.includes('rate limit')) return 'Too many tries from this network — wait a minute and try again.';
-  return error?.message || 'That did not work. Check your connection and try again.';
+/**
+ * An auth failure, passed on without being reworded.
+ *
+ * This used to translate — `invalid login credentials` became "Email or
+ * password is wrong." right here, in the data layer. Two problems, both found
+ * on 2026-08-04. It was English-only in a bilingual app, and worse, it fired
+ * *before* AuthErrorPolicy could read the original, so the policy always saw
+ * a sentence it had never heard of and fell through to its generic line. Two
+ * translators, and the wrong one won.
+ *
+ * So the rule this file follows everywhere else applies here too: the data
+ * layer reports what happened, and src/domain/policy/authError.js decides
+ * what a person is told. The code and status ride along, because Supabase
+ * puts `invalid_credentials` in `code` and only sometimes in the message.
+ */
+function authFailure(error) {
+  const e = new Error(error?.message || 'auth request failed');
+  e.code = error?.code ?? error?.error_code ?? null;
+  e.status = error?.status ?? null;
+  return e;
 }
 
 /**
@@ -675,7 +681,7 @@ export async function getAuthState() {
 export async function signUpMember({ email, password, name, phone, birthdate }) {
   const sb = await client();
   const { data, error } = await sb.auth.signUp({ email: email.trim(), password });
-  if (error) throw new Error(friendlyAuthError(error));
+  if (error) throw authFailure(error);
   if (!data.session) {
     throw new Error('This project still requires email confirmation — turn off "Confirm email" in Supabase Auth settings.');
   }
@@ -698,7 +704,7 @@ export async function signUpMember({ email, password, name, phone, birthdate }) 
 export async function signInMember({ email, password }) {
   const sb = await client();
   const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
-  if (error) throw new Error(friendlyAuthError(error));
+  if (error) throw authFailure(error);
   return { userId: data.user.id, email: data.user.email ?? '' };
 }
 
@@ -749,13 +755,13 @@ export async function signInWithGoogle() {
     provider: 'google',
     options: { redirectTo: window.location.origin },
   });
-  if (error) throw new Error(friendlyAuthError(error));
+  if (error) throw authFailure(error);
 }
 
 export async function signOutMember() {
   const sb = await client();
   const { error } = await sb.auth.signOut();
-  if (error) throw new Error(friendlyAuthError(error));
+  if (error) throw authFailure(error);
 }
 
 /**
@@ -851,7 +857,7 @@ export async function saveAvatar(dataUrl) {
   const path = `${session.user.id}/avatar.jpg`;
   const { error } = await sb.storage.from('avatars')
     .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
-  if (error) throw new Error(friendlyAuthError(error));
+  if (error) throw authFailure(error);
   const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
   const url = pub?.publicUrl ?? '';
   const { error: profErr } = await sb.from('profiles')

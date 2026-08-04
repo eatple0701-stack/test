@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { getStoredTheme, setTheme } from '../data/theme.js';
 import { isMember } from '../domain/policy/access.js';
 import { deleteAccount } from '../data/tableRepository.js';
+import { authError } from '../domain/policy/authError.js';
 
 // The fifth tab (2026-08-04). Appearance lived inside the profile form,
 // which put a device preference in the middle of fields a host actually
@@ -17,7 +18,7 @@ const CHOICES = [
   { id: 'dark', kr: '다크', en: 'Dark' },
 ];
 
-export default function SettingsTab({ auth, onSignedOut }) {
+export default function SettingsTab({ auth, onSignedOut, onSignOut }) {
   const [theme, setThemeState] = useState(getStoredTheme);
   // Anything that is not explicitly dark reads as 디폴트 — including the
   // 'system' value older devices stored back when three choices existed.
@@ -34,7 +35,7 @@ export default function SettingsTab({ auth, onSignedOut }) {
       await deleteAccount();
       onSignedOut?.();
     } catch (e) {
-      setError(e.message);
+      setError(authError(e));
       setBusy(false);
     }
   };
@@ -81,9 +82,24 @@ export default function SettingsTab({ auth, onSignedOut }) {
           </div>
           {!confirming ? (
             <>
+              {/* Signing out belongs here, above the door that cannot be
+                  reopened. Measured 2026-08-04: this tab offered exactly one
+                  account action — 회원 탈퇴 — while 로그아웃 was 15px tall and
+                  813px down the Passport. Settings is where a person looks to
+                  sign out of a borrowed phone, and the only button they found
+                  here deleted the account. The reversible action goes first,
+                  in the ordinary weight; the permanent one keeps its own
+                  colour and its confirmation. */}
               <p className="journal-settings__hint">
-                Closing your account removes everything you gave us — your name,
-                email, phone and date of birth — and everything you made here.
+                로그아웃해도 계정과 기록은 그대로 있어요. Signing out leaves everything
+                where it is — your Passport, your seats, the tables you host.
+              </p>
+              <button className="settings-signout" translate="no" onClick={onSignOut}>
+                로그아웃 · Sign out
+              </button>
+              <p className="journal-settings__hint danger-zone__hint">
+                Closing your account is different: it removes everything you gave us — your
+                name, email, phone and date of birth — and everything you made here.
               </p>
               <button className="danger-open" translate="no" onClick={() => setConfirming(true)}>
                 회원 탈퇴 · Close my account
@@ -99,7 +115,12 @@ export default function SettingsTab({ auth, onSignedOut }) {
                 people&rsquo;s tables go too. This cannot be undone, and signing
                 up again starts an empty account.
               </p>
-              {error && <p className="auth-error">{error}</p>}
+              {error && (
+                <div className="auth-error" role="alert">
+                  <p className="auth-error__kr">{error.kr}</p>
+                  <p className="auth-error__en">{error.en}</p>
+                </div>
+              )}
               <div className="cancel-confirm__row">
                 <button className="cancel-confirm__no" onClick={() => setConfirming(false)} disabled={busy}>
                   그냥 둘게요 · Keep it

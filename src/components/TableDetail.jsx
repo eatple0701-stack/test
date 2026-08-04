@@ -19,6 +19,7 @@ import {
 import {
   canReview, cleanReview, REVIEW_MAX, REVIEW_PROMPT, REVIEWS_HEADING, PHOTO_PROMPT,
 } from '../domain/policy/review.js';
+import { saveError } from '../domain/policy/saveError.js';
 import { downscale, MEAL_PHOTO } from '../data/image.js';
 import { icsForTable, icsFilenameFor } from '../domain/calendar.js';
 import {
@@ -228,7 +229,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       // once. The database refuses the second one, and the person holding it
       // needs to be told which of them lost rather than left staring at a
       // button that did nothing.
-      setError(e.message);
+      setError(saveError(e));
       await refresh();
       setBusy(false);
       return;
@@ -260,7 +261,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       // Two hosts on two devices, or the same host on two tabs. The backends
       // refuse the second answer rather than overwrite the first, and the
       // person holding the losing tab is told so.
-      setError(e.message);
+      setError(saveError(e));
     }
     await refresh();
     setDeciding(null);
@@ -282,7 +283,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     try {
       await recordAttendance(signup.id, attendance);
     } catch (e) {
-      setError(e.message);
+      setError(saveError(e));
     }
     await refresh();
     setDeciding(null);
@@ -310,7 +311,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     try {
       await deleteTable(tableId);
     } catch (e) {
-      setError(e.message);
+      setError(saveError(e));
       setBusy(false);
       return;
     }
@@ -337,7 +338,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       await createBlock({ blockedId: confirmBlock.id, blockedName: confirmBlock.name });
       setJustBlocked(prev => new Set(prev).add(confirmBlock.id));
     } catch (e) {
-      setError(e.message);
+      setError(saveError(e));
     }
     setBlocking(false);
     setConfirmBlock(null);
@@ -359,7 +360,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       setReviewSaved(true);
       setTimeout(() => setReviewSaved(false), 2200);
     } catch (e) {
-      setError(e.message);
+      setError(saveError(e));
     }
     setBusy(false);
   };
@@ -377,7 +378,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       const dataUrl = await downscale(file, MEAL_PHOTO);
       setPhotoDraft(await saveTablePhoto(dataUrl, mySignup.id));
     } catch (e) {
-      setError(e.message);
+      setError(saveError(e));
     }
     setPhotoBusy(false);
   };
@@ -949,14 +950,19 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   this person may hold the pen at all. */}
               {canReview({ signup: mySignup, table }) && (
                 <div className="review-write">
-                  <h4 className="review-write__title">{REVIEW_PROMPT.title}</h4>
-                  <textarea
-                    rows={2}
-                    maxLength={REVIEW_MAX}
-                    value={reviewDraft}
-                    onChange={e => setReviewDraft(e.target.value)}
-                    placeholder={REVIEW_PROMPT.hint}
-                  />
+                  {/* A label, not only a placeholder — the prompt is the whole
+                      instruction here, and a placeholder vanishes the moment
+                      the first character is typed. */}
+                  <label className="review-write__field">
+                    <h4 className="review-write__title">{REVIEW_PROMPT.title}</h4>
+                    <textarea
+                      rows={2}
+                      maxLength={REVIEW_MAX}
+                      value={reviewDraft}
+                      onChange={e => setReviewDraft(e.target.value)}
+                      placeholder={REVIEW_PROMPT.hint}
+                    />
+                  </label>
                   {/* The picture, beside the line and under the same gate.
                       Uploaded on choosing so the slow part happens while
                       somebody is still typing. */}
@@ -988,7 +994,12 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                       a failed upload set an error that rendered nowhere and
                       the button simply went quiet. Silent failure is the one
                       thing this repository does not allow. */}
-                  {error && <p className="auth-error">{error}</p>}
+                  {error && (
+                    <div className="auth-error" role="alert">
+                      <p className="auth-error__kr">{error.kr}</p>
+                      <p className="auth-error__en">{error.en}</p>
+                    </div>
+                  )}
                   <button
                     className="review-write__save"
                     onClick={saveMyReview}
@@ -1157,7 +1168,11 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           {/* role=alert so a screen reader hears the refusal. Somebody who
               cannot see the red line has no other way to learn the seat did
               not go through. */}
-          {error && <p className="join-error" role="alert">{error}</p>}
+          {error && (
+            <p className="join-error" role="alert">
+              <strong>{error.kr}</strong> {error.en}
+            </p>
+          )}
           <button className="form-submit" translate="no" onClick={join} disabled={busy || !name.trim()}>
             {busy ? 'Asking…' : '자리 요청 · Take a seat'}
           </button>
@@ -1190,7 +1205,11 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         <div className="report-panel">
           <h3 className="report-panel__title">{REPORT_DOOR.title}</h3>
           <p className="report-panel__hint">{REPORT_DOOR.hint}</p>
-          <div className="report-panel__reasons" role="group" aria-label="Reason">
+          <div
+            className={`report-panel__reasons${reportProblems.some(p => p.field === 'reason') ? ' is-bad' : ''}`}
+            role="group"
+            aria-label="Reason"
+          >
             {REPORT_REASONS.map(r => (
               <button
                 key={r.id}
@@ -1202,17 +1221,27 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               </button>
             ))}
           </div>
-          <textarea
-            className="report-panel__note"
-            rows={3}
-            maxLength={REPORT_NOTE_MAX}
-            value={reportNote}
-            onChange={e => setReportNote(e.target.value)}
-            placeholder="무슨 일이 있었나요? · What happened, in your words."
-          />
-          {reportProblems.length > 0 && (
-            <ul className="auth-problems">{reportProblems.map(p => <li key={p}>{p}</li>)}</ul>
-          )}
+          {reportProblems.filter(p => p.field === 'reason').map(p => (
+            <span key={p.field} className="field__error">{p.kr} · {p.en}</span>
+          ))}
+          {/* Labelled, not just placeheld. A placeholder disappears the moment
+              somebody starts typing, which on this panel means the question
+              vanishes exactly when a distressed person looks up to check what
+              they were being asked. */}
+          <label className={`field${reportProblems.some(p => p.field === 'note') ? ' is-bad' : ''}`}>
+            <span className="field__label">무슨 일이 있었나요? · What happened, in your words</span>
+            <textarea
+              className="report-panel__note"
+              rows={3}
+              maxLength={REPORT_NOTE_MAX}
+              value={reportNote}
+              onChange={e => setReportNote(e.target.value)}
+              placeholder="적어 주신 그대로 팀에 전달됩니다."
+            />
+            {reportProblems.filter(p => p.field === 'note').map(p => (
+              <span key={p.field} className="field__error">{p.kr} · {p.en}</span>
+            ))}
+          </label>
           <div className="report-panel__row">
             <button className="cancel-confirm__no" onClick={() => setReportOpen(false)}>
               Never mind

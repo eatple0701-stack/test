@@ -114,29 +114,63 @@ export const SIGNUP_FIELDS = [
  * is not either — that is the product decision, not an oversight — so
  * checking anything beyond "looks like one" would be pretending to a rigour
  * the system does not have.
+ *
+ * Each problem carries the `field` it belongs to, so the form can put the
+ * complaint next to the box that caused it. It used to return bare English
+ * sentences and the sheet printed them as a bulleted list at the bottom:
+ * measured 2026-08-04, an empty signup produced five lines naming five fields
+ * with none of the five marked, on a sheet 849px tall inside a 721px window.
+ * A person then had to match sentence to box by reading. Both languages are
+ * here for the same reason the labels above the boxes have both.
  */
 export function validateSignup({ email, phone, name, birthdate, password } = {}) {
   const problems = [];
+  const bad = (field, kr, en) => problems.push({ field, kr, en });
   if (!email || !/^\S+@\S+\.\S+$/.test(email.trim())) {
-    problems.push('Enter an email address — it doubles as your login ID.');
+    bad('email', '이메일 주소를 입력해 주세요. 로그인 아이디로도 씁니다.',
+      'Enter an email address — it doubles as your login ID.');
   }
   if (!password || password.length < 8) {
-    problems.push('A password needs at least 8 characters.');
+    bad('password', '비밀번호는 8자 이상이어야 해요.',
+      'A password needs at least 8 characters.');
   }
   if (!name || !name.trim()) {
-    problems.push('Add the name people at a table should call you.');
+    bad('name', '밥상에서 부를 이름을 적어 주세요.',
+      'Add the name people at a table should call you.');
   }
   if (!phone || !/^[+\d][\d\s-]{7,}$/.test(phone.trim())) {
-    problems.push('Enter a phone number the team could reach you on.');
+    bad('phone', '연락받을 전화번호를 입력해 주세요.',
+      'Enter a phone number the team could reach you on.');
   }
   if (!birthdate || !/^\d{4}-\d{2}-\d{2}$/.test(birthdate)) {
-    problems.push('Pick your date of birth.');
+    bad('birthdate', '생년월일을 골라 주세요.', 'Pick your date of birth.');
   } else {
     const at = new Date(`${birthdate}T00:00`);
     const now = new Date();
     if (!Number.isFinite(at.getTime()) || at.getTime() > now.getTime()) {
-      problems.push('That date of birth has not happened yet.');
+      bad('birthdate', '아직 오지 않은 날짜예요.', 'That date of birth has not happened yet.');
     }
   }
   return problems;
 }
+
+/** The fields a signin needs before it is worth a network round trip. */
+export function validateSignin({ email, password } = {}) {
+  const problems = [];
+  // Shallower still than signup on purpose: an existing account's email was
+  // already checked for shape the day it was made, and refusing to *send* a
+  // login because the address looks odd would lock out anybody whose real
+  // address this regex has not imagined. Empty is the only certain mistake —
+  // and it was the one the backend answered with `missing email or phone`.
+  if (!email || !email.trim()) {
+    problems.push({ field: 'email', kr: '이메일을 입력해 주세요.', en: 'Enter your email.' });
+  }
+  if (!password) {
+    problems.push({ field: 'password', kr: '비밀번호를 입력해 주세요.', en: 'Enter your password.' });
+  }
+  return problems;
+}
+
+/** Which boxes to mark, from a problem list. */
+export const problemFields = (problems = []) =>
+  Object.fromEntries(problems.map(p => [p.field, true]));
