@@ -8,6 +8,7 @@ import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
 import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { visibleTables } from '../domain/policy/blocking.js';
+import { emptyReason, emptyText, hasOtherDays, EMPTY } from '../domain/policy/emptiness.js';
 import { acceptedSignups, askDeadline } from '../domain/policy/seatRequest.js';
 import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
@@ -297,52 +298,53 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </div>
       )}
 
-      {/* Gender is new and nothing has it seeded yet, so this filter empties
-          the list on every existing install — the honest reason is "nobody
-          has said yet", not "no table like this exists", and the way out is
-          the filter itself, not a table the reader has to go open. */}
-      {tables !== null && shown.length === 0 && womenFilter && (
-        <div className="tables-empty">
-          <p className="tables-empty__title">Nobody has said yet.</p>
-          <p>
-            Gender is new here — no host or guest has declared one yet. That
-            is not the same as no table like this existing.
-          </p>
-          <button className="tables-empty__cta" translate="no" onClick={() => setWomenFilter(false)}>
-            필터 끄기 · Turn this filter off
-          </button>
-        </div>
-      )}
+      {/* Why it is empty is a judgement, so EmptinessPolicy makes it and this
+          only lays it out. Two sentences were being asserted rather than
+          checked before it did: "No table for this one yet" named a dish
+          nobody had chosen once the app had no tables to offer chips for, and
+          "Other days have tables" was printed under a bare week. */}
+      {tables !== null && emptyReason({ open, shown, menuFilter, womenFilter, dayFilter }) && (() => {
+        const reason = emptyReason({ open, shown, menuFilter, womenFilter, dayFilter });
+        const text = emptyText(reason, { otherDays: hasOtherDays(open, dayFilter) });
+        return (
+          <div className="tables-empty">
+            <p className="tables-empty__title">{text.title}</p>
+            <p>{text.body}</p>
 
-      {/* A day with nothing on it is an honest answer with an obvious next
-          move — widen the day, or be the table that day gets. */}
-      {tables !== null && shown.length === 0 && !womenFilter && dayFilter && (
-        <div className="tables-empty">
-          <p className="tables-empty__title">Nothing on that day yet.</p>
-          <p>Other days have tables — or open one and own the evening.</p>
-          <button className="tables-empty__cta" translate="no" onClick={() => setDayFilter(null)}>
-            이번 주 전체 보기 · Show the whole week
-          </button>
-          <button className="tables-empty__ask" translate="no" onClick={onCreateTable}>
-            상 차리기 · Open a table
-          </button>
-        </div>
-      )}
+            {/* The way out is whatever the reader can actually undo. */}
+            {reason === EMPTY.GENDER && (
+              <button className="tables-empty__cta" translate="no" onClick={() => setWomenFilter(false)}>
+                필터 끄기 · Turn this filter off
+              </button>
+            )}
+            {reason === EMPTY.DAY && (
+              <button className="tables-empty__cta" translate="no" onClick={() => setDayFilter(null)}>
+                이번 주 전체 보기 · Show the whole week
+              </button>
+            )}
+            {reason === EMPTY.DISH && (
+              <button className="tables-empty__cta" translate="no" onClick={() => setMenuFilter(null)}>
+                요리 전체 보기 · Show every dish
+              </button>
+            )}
 
-      {tables !== null && shown.length === 0 && !womenFilter && !dayFilter && (
-        <div className="tables-empty">
-          <p className="tables-empty__title">No table for this one yet.</p>
-          <p>Open it yourself and the seats are yours to fill.</p>
-          <button className="tables-empty__cta" translate="no" onClick={onCreateTable}>
-            상 차리기 · Open a table
-          </button>
-          {/* The other half of an empty screen: say what you wanted, and let
-              the app either find it or hand it back as a table. */}
-          <button className="tables-empty__ask" translate="no" onClick={onRequestTable}>
-            찾는 밥상 · Tell us what you are after
-          </button>
-        </div>
-      )}
+            {/* Opening one is the answer to every case, and the only answer
+                to a bare week. */}
+            <button
+              className={reason === EMPTY.NONE ? 'tables-empty__cta' : 'tables-empty__ask'}
+              translate="no"
+              onClick={onCreateTable}
+            >
+              상 차리기 · Open a table
+            </button>
+            {/* Say what you wanted and let the app either find it or hand it
+                back as a table — the other half of an empty screen. */}
+            <button className="tables-empty__ask" translate="no" onClick={onRequestTable}>
+              찾는 밥상 · Tell us what you are after
+            </button>
+          </div>
+        );
+      })()}
 
       <div className="table-list">
         {shown.map(t => {
