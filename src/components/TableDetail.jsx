@@ -1129,7 +1129,10 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
            gate only stands where the commitment starts. AccessPolicy owns
            the words so every gate in the app says the same thing. */
         <div className="join-block">
-          <h3 className="detail-block__label">{gateText('join-table').title}</h3>
+          <h3 className="detail-block__label">
+            {gateText('join-table').titleKr}
+            <span className="detail-block__label-en">{gateText('join-table').titleEn}</span>
+          </h3>
           <p className="join-next">{gateText('join-table').body}</p>
           <button className="form-submit" translate="no" onClick={() => onRequireAuth?.("join-table")}>
             {gateText('join-table').cta}

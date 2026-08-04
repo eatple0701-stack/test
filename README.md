@@ -105,7 +105,7 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 403 tests, node's built-in runner, no test-framework dependency
+npm test          # 404 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 ```

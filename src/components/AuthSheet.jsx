@@ -236,7 +236,16 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             should never be looking at a phone-number field. */}
         {mode === 'signup' && (
           <div className="auth-choose">
-            <h2 className="auth-title">{gate ? gate.title : '회원가입'}</h2>
+            {/* Both halves of the heading, and the reason under it. The gate's
+                body was written to be read here — an invitation with the
+                browsing reassurance in it — and for a while it was not
+                rendered anywhere, leaving one Korean sentence in front of a
+                traveller who does not read Korean. */}
+            <h2 className="auth-title">
+              <span className="auth-title__kr">{gate ? gate.titleKr : '회원가입'}</span>
+              <span className="auth-title__en">{gate ? gate.titleEn : 'Join 밥친구'}</span>
+            </h2>
+            {gate && <p className="auth-gate__body">{gate.body}</p>}
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google
             </button>
@@ -249,9 +258,9 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             </button>
             {errorLine}
             <p className="auth-foot">
-              이미 계정이 있으신가요?
+              <span className="auth-foot__ask">이미 계정이 있으신가요? · Already have an account?</span>
               <button className="auth-foot__link" onClick={() => { setMode('signin'); setError(null); }}>
-                로그인
+                로그인 · Sign in
               </button>
             </p>
           </div>
@@ -259,7 +268,10 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
 
         {mode === 'signup-email' && (
           <div className="auth-form">
-            <h2 className="auth-title">가입을 완료해 주세요</h2>
+            <h2 className="auth-title">
+              <span className="auth-title__kr">가입을 완료해 주세요</span>
+              <span className="auth-title__en">Finish signing up</span>
+            </h2>
 
             <Field id="email" bad={bad} problems={problems} markRef={markRef}
               label="이메일 · Email — this is your login ID">
@@ -300,7 +312,10 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             deciding whether to spend two minutes. */}
         {mode === 'signin' && (
           <div className="auth-form">
-            <h2 className="auth-title">로그인</h2>
+            <h2 className="auth-title">
+              <span className="auth-title__kr">로그인</span>
+              <span className="auth-title__en">Sign in</span>
+            </h2>
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google
             </button>

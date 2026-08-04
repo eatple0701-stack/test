@@ -478,7 +478,10 @@ export default function JournalPanel({
         </div>
       ) : (
         <div className="member-gate member-gate--inline">
-          <h3 className="member-gate__title">{gateText('passport').title}</h3>
+          <h3 className="member-gate__title">
+            {gateText('passport').titleKr}
+            <span className="member-gate__title-en">{gateText('passport').titleEn}</span>
+          </h3>
           <p className="member-gate__body">{gateText('passport').body}</p>
           <button className="auth-primary" translate="no" onClick={() => onRequireAuth?.('passport')}>
             {gateText('passport').cta}

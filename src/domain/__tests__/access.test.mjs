@@ -49,10 +49,25 @@ test('an anonymous session is not a membership', () => {
 test('every gated door has words for its closed state', () => {
   for (const door of MEMBER_ONLY) {
     const t = gateText(door);
-    assert.ok(t.title && t.body && t.cta, `${door} has no gate text`);
+    assert.ok(t.titleKr && t.titleEn && t.body && t.cta, `${door} has no gate text`);
     // The reassurance is the point: nobody should read a gate and conclude
     // the whole app is locked.
     assert.match(t.body, /without an account|does not need an account/);
+  }
+});
+
+test('a gate reads in both languages, because its reader may read neither well', () => {
+  // The bug: the signup sheet rendered the Korean title and nothing else, so
+  // the audience this app exists for — somebody who does not read Korean —
+  // met one Korean sentence at the moment it asked for their phone number.
+  const hangul = /[가-힣]/;
+  for (const door of MEMBER_ONLY) {
+    const t = gateText(door);
+    assert.match(t.titleKr, hangul, `${door} has no Korean heading`);
+    assert.ok(!hangul.test(t.titleEn), `${door}'s English heading is not English`);
+    assert.ok(!hangul.test(t.body), `${door}'s body is not English`);
+    // The CTA is one line in both, the way every other button in the app is.
+    assert.match(t.cta, /·/, `${door}'s button is not bilingual`);
   }
 });
 

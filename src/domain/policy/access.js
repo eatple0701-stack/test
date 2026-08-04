@@ -61,20 +61,31 @@ export const canPass = (door, auth) =>
  * they have stopped imagining the person. The browsing reassurance is in
  * every variant on purpose: the professor's whole point about the front door
  * was that nobody should feel locked out of looking.
+ *
+ * The heading is `titleKr` + `titleEn` rather than one `title`, and that is a
+ * repair rather than a style. There was a single `title`, in Korean, and the
+ * signup sheet rendered it alone — so somebody who does not read Korean met
+ * one Korean sentence at the exact moment the app asked them to hand over a
+ * phone number, with the English reason sitting unrendered in this file. A
+ * lone `title` is what made that easy; two named halves make a call site say
+ * out loud that it is dropping one.
  */
 export const GATE_TEXT = {
   'join-table': {
-    title: '자리를 요청하려면 가입이 필요해요',
+    titleKr: '자리를 요청하려면 가입이 필요해요',
+    titleEn: 'Asking for a seat needs an account',
     body: 'A seat at a table is a promise to real people, so the team needs a way to reach you if plans change. Browsing every table, dish and tip stays open without an account.',
     cta: '가입하고 계속 · Join and continue',
   },
   'open-table': {
-    title: '상을 차리려면 가입이 필요해요',
+    titleKr: '상을 차리려면 가입이 필요해요',
+    titleEn: 'Opening a table needs an account',
     body: 'Hosting means strangers plan their evening around you, so hosts sign up first. Looking around does not need an account.',
     cta: '가입하고 계속 · Join and continue',
   },
   'request-table': {
-    title: '찾는 밥상은 가입 후에 쓸 수 있어요',
+    titleKr: '찾는 밥상은 가입 후에 쓸 수 있어요',
+    titleEn: 'Telling us what you are after needs an account',
     body: 'When the app opens a table for you, somebody has to be reachable when a match lands. Browsing stays open without an account.',
     cta: '가입하고 계속 · Join and continue',
   },
@@ -83,7 +94,8 @@ export const GATE_TEXT = {
   // because seeing what the record would hold is the best argument for
   // keeping one. This gate stands where the keeping starts.
   passport: {
-    title: '나만의 프로필 · 패스포트 만들기',
+    titleKr: '나만의 프로필 · 패스포트 만들기',
+    titleEn: 'Make your own profile and Passport',
     body: 'Your profile — name, languages, what you eat — is written once, while joining, and every table reads it from then on. The Passport below fills with your evenings as they happen. Looking around stays open without an account; making yours is one signup.',
     cta: '만들기 · Create mine',
   },
