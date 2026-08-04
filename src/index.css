@@ -9983,3 +9983,30 @@ body {
 }
 .table-card__kind-kr { font-size: inherit; font-weight: 700; }
 .table-card__kind-en { font-size: 10px; font-weight: 600; opacity: 0.78; }
+
+/* 문화 가이드 on the list card — 교수님's 어떻게, where the choice is made.
+   Only ever rendered for a 호스트 테이블 (guideSummary returns null otherwise),
+   so a 테이블 메이트 card is untouched and the list does not grow a line that
+   says nothing. One line, clipped rather than wrapped: four guides is the
+   maximum and the card was deliberately slimmed once already. */
+.table-card__guides {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--ink-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Without these the ellipsis never fires: a nowrap child of a flex column
+     takes its content width as its minimum, so with all four guides ticked
+     the line measured 481px inside a 335px card — overflowing the card
+     rather than being clipped by it. min-width lets it shrink; max-width
+     stops it reaching past the padding. */
+  min-width: 0;
+  max-width: 100%;
+}
+.table-card__guides-label {
+  font-weight: 700;
+  color: var(--green-ink);
+}
+.table-card__guides-label::after { content: ' · '; }

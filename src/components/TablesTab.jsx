@@ -5,7 +5,7 @@ import {
   listTables, listAllSignups, listBlocks, seedSampleTables, isLocalOnly,
 } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
-import { tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
+import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
 import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { acceptedSignups, askDeadline } from '../domain/policy/seatRequest.js';
@@ -388,6 +388,24 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
               <h2 className="table-card__dish">{menu.name}</h2>
               <p className="table-card__gloss">{menu.gloss}</p>
+
+              {/* 신보람 교수님's note, answered where it is actually asked.
+                  The badge above says 호스트 테이블 — a category. This says
+                  what this host will do, which is the 어떻게 the review asked
+                  for, and it has been in the data since 8/2 while rendering
+                  only on the detail page. Somebody scanning the list to pick
+                  an evening could not tell a host who will walk them through
+                  ordering from a table that splits a bill.
+
+                  Only on hosted tables: guideSummary returns null when there
+                  is nothing ticked, so a 테이블 메이트 card gains no line and
+                  no apology. */}
+              {guideSummary(t) && (
+                <p className="table-card__guides">
+                  <span className="table-card__guides-label">Host shows you</span>
+                  {guideSummary(t).en}
+                </p>
+              )}
 
               {/* whyShared — three lines explaining why this dish is eaten
                   together — moved off the card on 2026-08-04. It is the best

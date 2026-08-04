@@ -80,6 +80,51 @@ export const GUIDES = [
 export const guideById = (id) => GUIDES.find(g => g.id === id) ?? null;
 
 /**
+ * What this host said they would do, short enough for a card.
+ *
+ * 신보람 교수님's heaviest note on the plan was that splitting a dish nobody
+ * can order alone is "실용적인 여행 앱일 뿐, 공공외교성은 잘 드러나지 않는다",
+ * with the direction: 「"무엇을 하느냐"보다 "어떻게 하느냐"」.
+ *
+ * The 어떻게 has been in the data since 8/2 — these four guides, ticked by the
+ * host themselves — and it rendered one screen too deep. The list card carried
+ * 호스트 테이블, which is a category, and the detail page carried 문화 가이드,
+ * which is the answer. Somebody scanning a list to choose an evening never saw
+ * the difference between a host who will walk them through ordering and a
+ * table that splits a bill.
+ *
+ * Deliberately not a slogan. HANDOFF records that a public-diplomacy line at
+ * the front door "read as decoration there", which is the correct reading: the
+ * app claiming cultural exchange is a claim. This is not a claim — it is the
+ * host's own commitment, ticked by them, and the label 호스트 테이블 is
+ * derived from the same array, so a table cannot show the badge and an empty
+ * promise.
+ *
+ * Returns null rather than an empty string for a table with no guides, so a
+ * 테이블 메이트 card renders nothing at all instead of an apology.
+ */
+export function guideSummary(table) {
+  const ticked = new Set(table?.guides ?? []);
+  // Catalogue order, not the order the host happened to tick them in — which
+  // is what the column stores and what read as scrambled on the card:
+  // "Table manners · Where the dish comes from · How it is eaten · How to
+  // order". GUIDES is already in the order an evening happens: you order, it
+  // arrives, you eat it, and somewhere in there somebody says where it comes
+  // from. Reading it in that order is the difference between a list and a
+  // sentence.
+  const offered = GUIDES.filter(g => ticked.has(g.id));
+  if (offered.length === 0) return null;
+  return {
+    guides: offered,
+    // English carries the meaning because the person choosing cannot read
+    // Korean yet — that is the whole premise of the product. The Korean names
+    // are on the detail page beside these, where there is room for both.
+    en: offered.map(g => g.en).join(' · '),
+    kr: offered.map(g => g.kr).join(' · '),
+  };
+}
+
+/**
  * The two shapes of table the 8/2 meeting separated.
  *
  *   호스트 테이블 — a host gathering foreigners around a dish and walking them
