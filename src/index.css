@@ -9488,15 +9488,22 @@ body {
   border-radius: var(--radius);
   overflow: hidden;
 }
+/* 23px, and newly load-bearing: the pin is dropped for you now when you come
+   from a venue page, so this is the control somebody reaches for when that
+   automatic pin is in the wrong place. It was easy to ignore while nobody
+   ever had a pin to clear. */
 .place-picker__clear {
   align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border: none;
   background: none;
   color: var(--danger-ink);
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 4px 8px 4px 0;
 }
 
 /* ---------- Meal photos (2026-08-04) ---------- */
@@ -9796,4 +9803,111 @@ body {
   font-size: 12px;
   line-height: 1.5;
   color: var(--ink-body);
+}
+
+/* ---------- 8/4 실기기 피드백 ---------- */
+
+/* The Google Calendar fallback. Secondary to the .ics above it — the file
+   needs no account — but it is the one that survives an in-app browser. */
+.detail-calendar--google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.detail-calendar__notice {
+  margin: 6px 16px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ex-brass) 14%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--ex-brass) 40%, transparent);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+.detail-calendar__notice strong { color: var(--ink-title); }
+
+/* Reviews live in the map apps; these are the doors to them. Deliberately
+   quieter than the table CTA above — going to read reviews is a detour, and
+   opening a table is the thing this app is for. */
+.map-links { margin: 12px 0 4px; }
+.map-links__note {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted-strong);
+}
+.map-links__note strong { color: var(--ink-title); }
+.map-links__row { display: flex; gap: 8px; flex-wrap: wrap; }
+.map-links__btn {
+  flex: 1 1 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-title);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.map-links__btn:hover { background: var(--fill); }
+
+/* The route planners at the foot of a place page, now labelled as such. */
+.map-route__label {
+  margin: 16px 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-title);
+}
+.map-route__row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* The receipt under 저장하기: says where the place went, and goes there. */
+.saved-receipt {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px dashed var(--green-strong);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--green-ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.saved-receipt:hover { background: var(--green-tint); }
+
+/* What the venue itself lists, on the create form. A hint, not a choice —
+   the dish below is one of the ten shared plates and these two lists do not
+   line up. Set apart so it cannot be mistaken for something to tap. */
+.venue-menu-hint {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--fill);
+  border: 1px solid var(--line);
+}
+.venue-menu-hint__head {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-title);
+}
+.venue-menu-hint__list {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+.venue-menu-hint__note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted-strong);
 }

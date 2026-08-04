@@ -49,7 +49,12 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   const [chatUrl, setChatUrl] = useState('');
   // Where the host will stand, pointed at rather than geocoded from the
   // place text. Optional; a table without it stays in the list, off the map.
-  const [point, setPoint] = useState({ lat: null, lng: null });
+  // Prefilled when the host arrived from a venue page, which already knows
+  // exactly where it is. Dropping them on an empty map to find a restaurant
+  // the app has the coordinates for was the 8/4 report.
+  const [point, setPoint] = useState(
+    () => (prefill?.point ? { ...prefill.point } : { lat: null, lng: null }),
+  );
   const [hostName, setHostName] = useState(profile?.name ?? '');
   const [guides, setGuides] = useState([]);
   // Their own profile answer, so the question is not asked twice.
@@ -169,6 +174,25 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
 
       <div className={`form-block${bad.menu ? ' is-bad' : ''}`} ref={refFor('menu')}>
         <h2 className="form-label">무엇을 먹나요 · What are you eating?</h2>
+        {/* What the venue actually serves, when the host came from its page.
+            Not a choice — the dish below is one of the ten nobody can order
+            alone, and a temple kitchen serves none of them, so these two lists
+            genuinely do not line up. Shown anyway because the host standing in
+            front of that menu should not have to remember it, and hiding it is
+            how a page looks like it forgot where you came from. Names only:
+            this app does not print prices it cannot verify. */}
+        {prefill?.venueMenus?.length > 0 && (
+          <div className="venue-menu-hint">
+            <p className="venue-menu-hint__head">
+              {prefill.venueName}에서 파는 것 · On the menu at {prefill.venueName}
+            </p>
+            <p className="venue-menu-hint__list">{prefill.venueMenus.join(' · ')}</p>
+            <p className="venue-menu-hint__note">
+              밥친구의 요리 목록과는 별개예요 · Pick the shared dish below; this is just what the
+              kitchen lists.
+            </p>
+          </div>
+        )}
         {bad.menu && <p className="field__error">요리를 하나 골라 주세요 · Choose a dish.</p>}
         <div className="dish-grid">
           {menus.map(m => (

@@ -85,3 +85,45 @@ export function icsForTable(table, menu, { url = '', now = new Date() } = {}) {
 
 /** The filename a phone shows in the download tray. */
 export const icsFilenameFor = (menu) => `bapchingu-${menu?.id ?? 'table'}.ics`;
+
+/**
+ * The same event as a Google Calendar link, because the .ics does not always
+ * arrive.
+ *
+ * Found on a real phone, 2026-08-04: a host opened the app inside KakaoTalk's
+ * in-app browser, pressed 캘린더에 추가, got iOS's file preview — and no Add
+ * button, because an in-app browser previews the download instead of handing
+ * it to the Calendar app. The event was never saved and nothing said so.
+ *
+ * A plain https link has no such problem. It survives every in-app browser
+ * there is, because opening a URL is the one thing they all do.
+ *
+ * This does not replace the .ics. The file is the better answer wherever it
+ * works — it needs no account and no third party — so both are offered and
+ * the file stays first.
+ *
+ * `ctz` is Asia/Seoul rather than the floating time the .ics uses. Google's
+ * template has no floating form: without a zone it reads the times in the
+ * *viewer's* zone, which would put a traveller whose laptop is still on home
+ * time at the wrong hour. Naming the zone is how you say "19:00 in Seoul"
+ * here, and it means the same thing the .ics means.
+ */
+export function googleCalendarUrl(table, menu, { url = '' } = {}) {
+  const start = mealDate(table?.date, table?.time);
+  if (!start || !menu) return null;
+  const end = new Date(start.getTime() + MEAL_HOURS * 3600000);
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: `${menu.nameKo} ${menu.name} · 밥친구`,
+    dates: `${icsLocal(start)}/${icsLocal(end)}`,
+    location: [table.restaurant, table.place].filter(Boolean).join(' — '),
+    details: [
+      `Meet at ${table.place}.`,
+      table.restaurant ? `Eating at ${table.restaurant}.` : 'Restaurant decided together at the table.',
+      url,
+    ].filter(Boolean).join('\n'),
+    ctz: 'Asia/Seoul',
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}

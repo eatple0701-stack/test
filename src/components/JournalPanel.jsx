@@ -604,6 +604,40 @@ export default function JournalPanel({
         </div>
       </div>
 
+      {/* Where the 저장 button actually puts things. It used to sit last on
+          a 2.7-screen page — measured 1804px down on 2026-08-04, after the
+          record, the stats, the goals and the people — and it was titled
+          "Saved for Later" while the button that fills it says 저장. Two
+          names for one thing, at opposite ends of a long scroll, is why the
+          8/4 review said "내가 추가한 리스트들이 어디있는지 안보인다". */}
+      {savedList.length > 0 && (
+        <div className="journal-section">
+          <div className="journal-section-header">
+            <h3>저장한 곳 · Saved places</h3>
+          </div>
+          <p className="journal-settings__hint">
+            {savedList.length}곳을 패스포트에 저장했어요 · Saved from a place page. Tap one to
+            open it again.
+          </p>
+          <div className="journal-grid">
+            {savedList.map(({ place, savedAt }) => (
+              <button
+                key={place.id}
+                className="stamp stamp--saved"
+                onClick={() => onRestaurantClick(place)}
+              >
+                <span className="stamp-ring">
+                  <img src={place.image} alt="" />
+                </span>
+                <span className="stamp-name">{place.name.split('(')[0].trim()}</span>
+                <span className="stamp-zone">{place.zone}</span>
+                {savedAt && <span className="stamp-date">{formatStampDate(savedAt)}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="journal-section">
         <div className="journal-section-header">
           <h3>Worth doing</h3>
@@ -677,29 +711,6 @@ export default function JournalPanel({
         </div>
       )}
 
-      {savedList.length > 0 && (
-        <div className="journal-section">
-          <div className="journal-section-header">
-            <h3>Saved for Later</h3>
-          </div>
-          <div className="journal-grid">
-            {savedList.map(({ place, savedAt }) => (
-              <button
-                key={place.id}
-                className="stamp stamp--saved"
-                onClick={() => onRestaurantClick(place)}
-              >
-                <span className="stamp-ring">
-                  <img src={place.image} alt="" />
-                </span>
-                <span className="stamp-name">{place.name.split('(')[0].trim()}</span>
-                <span className="stamp-zone">{place.zone}</span>
-                {savedAt && <span className="stamp-date">{formatStampDate(savedAt)}</span>}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {isEmpty && (
         <div className="journal-empty" style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '16px', marginTop: '20px' }}>

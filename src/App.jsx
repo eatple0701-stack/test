@@ -987,9 +987,25 @@ export default function App() {
         onToggleBookmark={handleToggleBookmark}
         isVisited={selectedRestaurant ? visitedIds.includes(selectedRestaurant.id) : false}
         onOpenTableHere={(r) => {
+          // Everything this venue already knows about itself. It used to send
+          // the name and the address only, so a host who pressed 여기서 상
+          // 차리기 at Balwoo Gongyang was then asked to find Balwoo Gongyang
+          // on a map the app had the coordinates for all along — reported from
+          // a real phone on 2026-08-04, where the pin was dropped by hand.
+          const point = r.coordinates?.value ?? r.coordinates;
           setTablePrefill({
             restaurant: r.name.split('(')[0].trim(),
             place: r.address?.value ?? r.zone,
+            point: Number.isFinite(point?.lat) && Number.isFinite(point?.lng)
+              ? { lat: point.lat, lng: point.lng }
+              : null,
+            // The venue's own menu names, carried as a hint rather than as the
+            // dish. The dish is one of the ten that cannot be ordered alone
+            // (src/domain/catalog/menus.js) and this venue may serve none of
+            // them — a temple kitchen does not do 삼겹살 — so the host still
+            // chooses. Names only: prices are never shown in this app.
+            venueMenus: (r.menus?.value ?? []).map(m => m.name).filter(Boolean),
+            venueName: r.name.split('(')[0].trim(),
           });
           setSelectedRestaurant(null);
           setActiveTab('match');
@@ -1006,7 +1022,15 @@ export default function App() {
         onOpenRestaurant={openDetail}
         onExploreZone={goExplore}
         bookmarkedIds={bookmarkedIds}
-        onNavigate={goToTab}
+        /* Closes the sheet on the way out. This used to be a bare goToTab, so
+           anything that navigated from inside a place page changed the tab
+           underneath a full-screen modal that stayed open — nothing appeared
+           to happen. Found while wiring the 저장한 곳 receipt, which is the
+           first control that actually uses it. */
+        onNavigate={(tab) => {
+          setSelectedRestaurant(null);
+          goToTab(tab);
+        }}
       />
 
       {showSummary && (

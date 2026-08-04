@@ -21,7 +21,8 @@ import {
 } from '../domain/policy/review.js';
 import { saveError } from '../domain/policy/saveError.js';
 import { downscale, MEAL_PHOTO } from '../data/image.js';
-import { icsForTable, icsFilenameFor } from '../domain/calendar.js';
+import { icsForTable, icsFilenameFor, googleCalendarUrl } from '../domain/calendar.js';
+import { downloadNotice } from '../domain/policy/browser.js';
 import {
   getTable, listSignups, createSignup, cancelSignup, decideSignup, recordAttendance,
   deleteTable, createBlock, createReport, listReviews, saveReview, hostRecord, listTables,
@@ -411,6 +412,11 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     URL.revokeObjectURL(href);
   };
 
+  // Computed here rather than inside the JSX so the button is simply absent
+  // when the table has no parseable time, the same rule addToCalendar follows.
+  const gcalUrl = googleCalendarUrl(table, menu, { url: shareUrlFor(tableId) });
+  const dlNotice = downloadNotice(typeof navigator === 'undefined' ? '' : navigator.userAgent);
+
   return (
     <section className="sheet-page table-detail" aria-label={`${menu.name} table`}>
       <header className="sheet-page__head">
@@ -485,9 +491,28 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             it over by hand is where typos put people an hour late. Gone once
             the meal is past or called off: there is nothing left to book. */}
         {!isCancelled(table) && !isPast(table) && (
-          <button className="detail-share detail-calendar" translate="no" onClick={addToCalendar}>
-            캘린더에 추가 · Add to your calendar
-          </button>
+          <>
+            <button className="detail-share detail-calendar" translate="no" onClick={addToCalendar}>
+              캘린더에 추가 · Add to your calendar
+            </button>
+            {/* The same event as a link, because the file above does not always
+                arrive. Reported from a real phone: opened inside KakaoTalk, the
+                download became a preview with no Add button and the event was
+                never saved. A URL is the one thing every in-app browser can
+                still do. Second, not first — the file needs no account. */}
+            {gcalUrl && (
+              <a className="detail-share detail-calendar--google" href={gcalUrl} target="_blank" rel="noopener noreferrer">
+                구글 캘린더로 추가 · Add with Google Calendar
+              </a>
+            )}
+            {/* Only ever an extra sentence, never a removed button — the
+                detection is a user-agent guess (src/domain/policy/browser.js). */}
+            {dlNotice && (
+              <p className="detail-calendar__notice">
+                <strong>{dlNotice.kr}</strong> {dlNotice.en}
+              </p>
+            )}
+          </>
         )}
       </div>
 

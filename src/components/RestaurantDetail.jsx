@@ -15,6 +15,7 @@ import CulturalRoute from './CulturalRoute';
 import { getCulture } from '../data/culture';
 import { tipsFor } from '../data/journey';
 import { restaurants } from '../data/restaurants';
+import { tableCtaFor, mapLinksFor, MAP_LINKS_NOTE } from '../domain/policy/venue.js';
 import { featuredZones } from '../data/experiences';
 import { haversineKm, formatDistance, getOpenStatus, todaysHours, directionsUrl, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
 import {
@@ -73,7 +74,7 @@ export default function RestaurantDetail(props) {
 function RestaurantDetailInner({
   restaurant, onClose, isBookmarked, onToggleBookmark, isVisited, onToggleVisited,
   mapCenter, focusStory, onOpenRestaurant, onExploreZone, bookmarkedIds = [],
-  onOpenTableHere, onOpenTable,
+  onOpenTableHere, onOpenTable, onNavigate,
 }) {
   // Tables already happening at this restaurant. Read the same way every
   // other screen reads them, so the Supabase swap reaches here for free.
@@ -139,6 +140,10 @@ function RestaurantDetailInner({
   if (!restaurant) return null;
 
   const name = restaurant.name.split('(')[0].trim();
+  // Both derived from the venue rather than fixed — see venue.js for why a
+  // bakery must not be offered 상 차리기, and why no review is quoted here.
+  const tableCta = tableCtaFor(restaurant);
+  const mapLinks = mapLinksFor(restaurant);
   const status = getOpenStatus(restaurant.hours);
   const today = todaysHours(restaurant.hours);
   const culture = getCulture(restaurant);
@@ -494,14 +499,27 @@ function RestaurantDetailInner({
                   </button>
                 )}
                 <div className="cta-stack__row">
+                  {/* Two words for one thing was the bug: this said "In
+                      Passport" and the list it fills was titled "Saved for
+                      Later", eight screens apart. Both are 저장한 곳 now, and
+                      the button says where the place went rather than only
+                      that something happened. */}
                   <button
                     className={`btn-secondary${isBookmarked ? ' is-active' : ''}`}
                     onClick={() => onToggleBookmark(restaurant.id)}
                   >
                     <HeartIcon size={16} filled={isBookmarked} />
-                    {isBookmarked ? 'In Passport' : 'Save to Passport'}
+                    {isBookmarked ? '저장됨 · Saved' : '저장하기 · Save this place'}
                   </button>
                 </div>
+                {isBookmarked && (
+                  <button
+                    className="saved-receipt"
+                    onClick={() => onNavigate?.('journal')}
+                  >
+                    패스포트 › 저장한 곳에 있어요 · Find it under Saved places in your Passport
+                  </button>
+                )}
 
                 {/* The one thing this app does, offered from the place it
                     would happen. "Meet Travelers" used to sit here and go to
@@ -511,11 +529,40 @@ function RestaurantDetailInner({
                     product looking in. */}
                 {onOpenTableHere && (
                   <button className="place-table-cta" onClick={() => onOpenTableHere(restaurant)}>
-                    <span className="place-table-cta__title">여기서 상 차리기</span>
-                    <span className="place-table-cta__sub">
-                      Open a table at {name} and see who wants to come.
-                    </span>
+                    {/* Worded from the venue's own category rather than fixed:
+                        상 차리기 is *setting a table*, which is the wrong event
+                        at a bakery. See src/domain/policy/venue.js. */}
+                    <span className="place-table-cta__title">{tableCta.title}</span>
+                    <span className="place-table-cta__sub">{tableCta.sub}</span>
                   </button>
+                )}
+
+                {/* Reviews, without pretending we have any.
+                    The 8/4 review asked for Google/Naver/Kakao reviews inline.
+                    Naver and Kakao publish no review text through their APIs,
+                    Google's terms forbid re-rendering theirs, and scraping is
+                    not something this project will do. So the place is handed
+                    over instead — one tap into the app where the reviews, the
+                    photos and the walking directions already live. */}
+                {mapLinks.length > 0 && (
+                  <div className="map-links">
+                    <p className="map-links__note">
+                      <strong>{MAP_LINKS_NOTE.kr}</strong> {MAP_LINKS_NOTE.en}
+                    </p>
+                    <div className="map-links__row">
+                      {mapLinks.map(link => (
+                        <a
+                          key={link.id}
+                          className={`map-links__btn map-links__btn--${link.id}`}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {link.kr} · {link.en}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {tablesHere.length > 0 && (
@@ -587,15 +634,21 @@ function RestaurantDetailInner({
                 </button>
               </div>
 
-              <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {/* These three are route planners, not place pages — they always
+                  were, and the labels said only "Naver Map", which is how a
+                  reader ends up looking for reviews behind a directions link.
+                  Named for the job now; the reviews are their own block higher
+                  up, next to the button that turns this place into a table. */}
+              <p className="map-route__label">길찾기 · Get there</p>
+              <div className="map-route__row">
                 <button className="btn-primary" onClick={() => window.open(directionsUrl(restaurant, mapCenter), '_blank')}>
-                  Google Maps
+                  Google
                 </button>
                 <button className="btn-primary btn-map--naver" onClick={() => window.open(naverMapUrl(restaurant, mapCenter), '_blank')}>
-                  Naver Map
+                  네이버 · Naver
                 </button>
                 <button className="btn-primary btn-map--kakao" onClick={() => window.open(kakaoMapUrl(restaurant, mapCenter), '_blank')}>
-                  Kakao Map
+                  카카오 · Kakao
                 </button>
               </div>
             </section>

@@ -40,8 +40,8 @@ export default function PlacePicker({ value, onChange }) {
       <div className="place-picker__map">
         <MapContainer center={point ? [point.lat, point.lng] : MAP_CENTER} zoom={point ? 15 : 12} style={{ height: '100%', width: '100%' }}>
           <TileLayer
-            attribution='&copy; OpenStreetMap contributors &copy; CARTO'
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; OpenStreetMap contributors'
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <ClickToPlace onPick={onChange} />
           {point && <Marker position={[point.lat, point.lng]} icon={dropPin} />}
