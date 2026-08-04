@@ -208,8 +208,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               aria-pressed={dayFilter === d.ymd}
               onClick={() => setDayFilter(dayFilter === d.ymd ? null : d.ymd)}
             >
+              {/* Every other day in this strip says Wed, Thu, Fri. Today said
+                  오늘 and only 오늘, so the one day a hungry traveller cares
+                  about most was the single day they could not read. */}
               <span className="week-day__name">
-                {d.isToday ? '오늘' : d.date.toLocaleDateString('en-GB', { weekday: 'short' })}
+                {d.isToday ? 'Today' : d.date.toLocaleDateString('en-GB', { weekday: 'short' })}
               </span>
               <span className="week-day__date">{d.date.getDate()}</span>
               <span className="week-day__count">{d.count}</span>
@@ -245,7 +248,15 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 className={`menu-chip${menuFilter === id ? ' is-on' : ''}`}
                 onClick={() => setMenuFilter(menuFilter === id ? null : id)}
               >
-                <span className="menu-chip__kr" translate="no">{m.nameKo}</span> {m.name}
+                {/* 삼겹살 Samgyeopsal is a name and a spelling of that name —
+                    neither tells somebody who landed yesterday what the food
+                    is. The cards below have carried the gloss since the 8/1
+                    review asked for it ("로마자만 쓰지 않기"); the control you
+                    filter with had not, so the choice was between words with
+                    no meaning attached. */}
+                <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
+                <span className="menu-chip__en">{m.name}</span>
+                <span className="menu-chip__gloss">{m.gloss}</span>
               </button>
             );
           })}
@@ -357,8 +368,16 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 {/* The distinction the 8/2 meeting drew, and the one a
                     nervous first-timer is actually scanning for: will
                     somebody explain this to me, or are we all guessing? */}
+                {/* Both languages. This badge carried only the Korean until
+                    2026-08-04, which made 호스트 테이블 — the Korean host
+                    teaching their own food, the thing the professor's review
+                    called the actual public diplomacy here — unreadable to
+                    the exact person it exists for. The detail page has always
+                    glossed it; the list is where somebody decides which table
+                    to open, so the list is where the word has to work. */}
                 <span className={`table-card__kind is-${tableKind(t)}`}>
-                  {tableKindLabel(t).kr}
+                  <span className="table-card__kind-kr">{tableKindLabel(t).kr}</span>
+                  <span className="table-card__kind-en">{tableKindLabel(t).en}</span>
                 </span>
                 {isMine && <span className="table-card__mine">Your table</span>}
                 {iAmGoing && <span className="table-card__mine">You are going</span>}

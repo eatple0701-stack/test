@@ -43,7 +43,8 @@ test('a table row maps onto every field the screens read', () => {
   assert.equal(t.seats, 4);
   assert.equal(t.note, 'I will do the scissors.');
   assert.ok(t.createdAt > 0);
-  // Nothing in the database is a seeded example.
+  // A row that does not carry the column reads as real — the dormant-schema
+  // contract, and the old behaviour exactly.
   assert.equal(t.isSample, false);
   // No field the screens read may come back undefined.
   for (const [k, v] of Object.entries(t)) assert.notEqual(v, undefined, `${k} is undefined`);
@@ -307,4 +308,32 @@ test('a block row never surfaces undefined where the screen expects a string', (
 test('a missing block row maps to null, matching every other *FromRow', () => {
   assert.equal(blockFromRow(null), null);
   assert.equal(blockFromRow(undefined), null);
+});
+
+test('a seeded row keeps its label all the way to the screen', () => {
+  // The bug this test exists for. tableFromRow used to write `isSample: false`
+  // as a literal, with a comment asserting that nothing in the database is a
+  // sample. On 2026-08-04 twelve of the thirteen live tables were demo rows —
+  // 데모호스트 at 검증용 홍대입구 — and every one of them reached a visitor
+  // labelled as somebody's real evening, because the badge the UI renders
+  // (TablesTab.jsx, TablesLead.jsx) could never be true in production.
+  const seeded = tableFromRow({ ...row, is_sample: true });
+  assert.equal(seeded.isSample, true, 'a seeded row lost its label in the mapping');
+
+  // And the inverse still holds, so a real table is never accused of being a
+  // demo — the badge is a confession, not decoration.
+  assert.equal(tableFromRow({ ...row, is_sample: false }).isSample, false);
+});
+
+test('the app itself never claims a table is a sample', () => {
+  // is_sample is the team's column, like host_verified and host_kind: set in
+  // the statement that seeds a demo row, never by somebody filling in the
+  // create form. If tableToRow ever started sending it, a host could label
+  // their own real table a demo — or, worse, unlabel a seeded one.
+  const out = tableToRow(
+    { menuId: 'bossam', hostName: 'Kang', date: '2026-08-20', time: '18:00',
+      place: 'Gongdeok', seats: '4', note: '', isSample: true },
+    { hostId: 'uuid-host' },
+  );
+  assert.equal(out.is_sample, undefined, 'the client tried to write is_sample');
 });

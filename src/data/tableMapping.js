@@ -55,9 +55,21 @@ export function tableFromRow(row) {
     seats: row.seats,
     note: row.note ?? '',
     createdAt: row.created_at ? new Date(row.created_at).getTime() : 0,
-    // Sample rows only exist in the localStorage seed; nothing in the database
-    // is a sample, so the badge never shows once the backend is real.
-    isSample: false,
+    // This used to read `isSample: false` with a comment saying "nothing in
+    // the database is a sample, so the badge never shows once the backend is
+    // real". That was true when it was written and false by 2026-08-04:
+    // twelve of the thirteen rows then live were demo tables seeded during
+    // verification — hosted by 데모호스트, meeting at 검증용 홍대입구 — and
+    // every one of them rendered as somebody's real evening, because this
+    // line made the badge impossible to reach.
+    //
+    // README calls that "the one thing this screen must not do". A rule that
+    // only holds on the localStorage backend does not hold.
+    //
+    // Read, not assumed. `?? false` keeps the dormant-schema contract the
+    // rest of this file follows: a project whose schema has not caught up
+    // yet reads every row as real, which is the old behaviour exactly.
+    isSample: row.is_sample ?? false,
   };
 }
 

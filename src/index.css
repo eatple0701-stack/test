@@ -9947,3 +9947,39 @@ body {
   color: var(--ink-body);
 }
 .place-actions__transit strong { color: var(--ink-title); }
+
+/* ---------- 8/4 첫 방문자 관점 ---------- */
+
+/* The dish filter, glossed. The chip was 삼겹살 Samgyeopsal — a name and its
+   spelling — so the control you narrow the list with told a first-week
+   traveller nothing about the food. Stacked rather than inline: three pieces
+   side by side would push the row past a phone's width and the row already
+   scrolls. See TablesTab.jsx for the 8/1 review this answers. */
+.menu-chip {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 7px 14px;
+  line-height: 1.25;
+}
+.menu-chip__en { font-size: 12px; font-weight: 600; }
+.menu-chip__gloss {
+  font-size: 10.5px;
+  font-weight: 500;
+  opacity: 0.72;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 호스트 테이블 · Hosted table, on the card rather than only in the detail.
+   Two lines because the badge sits in a tight row beside the dish name. */
+.table-card__kind {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+.table-card__kind-kr { font-size: inherit; font-weight: 700; }
+.table-card__kind-en { font-size: 10px; font-weight: 600; opacity: 0.78; }

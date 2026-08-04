@@ -103,6 +103,25 @@ alter table public.tables add column if not exists meeting_note text default '';
 -- themselves, and the way to guarantee that is to give the client no route.
 alter table public.tables add column if not exists host_kind text;
 
+-- is_sample — the team's column too, and added for a reason worth writing
+-- down. On 2026-08-04 the live project held thirteen tables, twelve of them
+-- seeded during verification: hosted by 데모호스트, meeting at places named
+-- 검증용 홍대입구 and 마감검증용. Every one rendered to a visitor as a real
+-- person's evening, because src/data/tableMapping.js hard-coded
+-- `isSample: false` for every database row and the UI's sample badge was
+-- therefore unreachable in production.
+--
+-- README states the rule this broke: "a demo that quietly passes off invented
+-- strangers as real users is the one thing this screen must not do." It held
+-- on the localStorage backend and nowhere else.
+--
+-- Default false so every real table stays real without anybody doing
+-- anything, and — like host_verified and host_kind — no policy grants an
+-- update, so a seeded row cannot later scrub its own label off. Set it in the
+-- same statement that inserts the demo row; docs/seed-tables-playbook.md
+-- carries the wording.
+alter table public.tables add column if not exists is_sample boolean not null default false;
+
 -- Copied from the host's profile at table-open time, same treatment as
 -- host_nationality — self-declared, not a credential, and unlike
 -- host_verified/host_kind it IS the host's own to set.
