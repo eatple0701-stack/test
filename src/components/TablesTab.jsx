@@ -14,6 +14,7 @@ import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import TablesMap from './TablesMap';
+import PhraseSheet from './PhraseSheet';
 import { hostRecord } from '../data/tableRepository.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
@@ -55,6 +56,9 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // A date from the week strip, or null for the whole week.
   const [dayFilter, setDayFilter] = useState(null);
   const [mapOpen, setMapOpen] = useState(false);
+  // Opened only from the bare-week empty state. Local, the way TableDetail and
+  // the Passport each hold their own — the sheet takes no state worth lifting.
+  const [phrasesOpen, setPhrasesOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -342,9 +346,30 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             <button className="tables-empty__ask" translate="no" onClick={onRequestTable}>
               찾는 밥상 · Tell us what you are after
             </button>
+
+            {/* The bare-week copy says the phrases are here to read meanwhile,
+                and both buttons above it open the signup sheet for a guest —
+                a screen promising free things while offering only doors. The
+                dishes and the places are one tap away in the tab bar; the
+                phrase sheet is two taps down inside the Passport, which is
+                the one nobody would guess. So it gets a door of its own, on
+                the one screen with nothing else to do. It also happens to be
+                the part that works with no signal. */}
+            {reason === EMPTY.NONE && (
+              <button className="tables-empty__ask" translate="no" onClick={() => setPhrasesOpen(true)}>
+                식탁에서 · What to say at the table
+              </button>
+            )}
           </div>
         );
       })()}
+
+      {phrasesOpen && (
+        <PhraseSheet
+          onClose={() => setPhrasesOpen(false)}
+          avoids={profile?.avoids}
+        />
+      )}
 
       <div className="table-list">
         {shown.map(t => {
