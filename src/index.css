@@ -872,7 +872,14 @@ button {
   flex-shrink: 0;
   margin-top: 2px;
 }
+/* The phone number and the website, at 21px until 2026-08-04. They sat inside
+   a modal that my audits never looked at — the scope was .content-region and
+   this renders in .detail-sheet outside it — so two of the most obviously
+   tappable things on a place page went four sweeps without being measured. */
 .practical-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   color: var(--green-ink);
   font-weight: 500;
   text-decoration: none;
@@ -1021,10 +1028,16 @@ button {
 .btn-map--naver:hover {
   box-shadow: 0 6px 16px rgba(0, 132, 60, 0.3);
 }
+/* Kakao yellow is a fixed brand colour, so the text on it must be fixed too.
+   This was `color: var(--ink)`, which follows the theme — in dark mode the ink
+   flips to #EDEFF2 and lands near-white on #FEE500: 1.11:1, text you cannot
+   read at all. The same shape of bug the repo already hit once with a
+   hard-coded white panel. #191919 is Kakao's own pairing, 15.9:1 here, and it
+   does not move when the theme does. */
 .btn-map--kakao {
   background: #FEE500;
   border: none;
-  color: var(--ink);
+  color: #191919;
   box-shadow: 0 4px 12px rgba(254, 229, 0, 0.3);
 }
 .btn-map--kakao:hover {
@@ -9911,3 +9924,26 @@ body {
   line-height: 1.5;
   color: var(--muted-strong);
 }
+
+/* Everything you can do with a place, at the top of its page rather than six
+   screens down inside "Nearby Experiences". See RestaurantDetail.jsx for the
+   measurements that moved it. */
+.place-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+.place-actions__row { display: flex; gap: 8px; }
+.place-actions__row .btn-secondary { flex: 1; }
+/* How you get here, said once and early. */
+.place-actions__transit {
+  margin: 2px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--fill);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+.place-actions__transit strong { color: var(--ink-title); }

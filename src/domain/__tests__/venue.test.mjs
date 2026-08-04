@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  venueKind, tableCtaFor, mapLinksFor, MAP_LINKS_NOTE,
+  venueKind, tableCtaFor, mapLinksFor, transitLine, MAP_LINKS_NOTE,
   VENUE_KIND, MEAL_CATEGORIES, OUTING_CATEGORIES,
 } from '../policy/venue.js';
 import { restaurants } from '../../data/restaurants.js';
@@ -87,4 +87,44 @@ test('the note refuses to claim the reviews as ours', () => {
   for (const overclaim of ['our review', 'we rate', 'verified by', '평점', '별점']) {
     assert.ok(!text.toLowerCase().includes(overclaim.toLowerCase()), `note claims "${overclaim}"`);
   }
+});
+
+test('the way here is one line, in both languages', () => {
+  const balwoo = restaurants.find(r => r.id === 'balwoo');
+  const line = transitLine(balwoo);
+  assert.equal(line.station, 'Anguk');
+  assert.equal(line.walkingMinutes, 7);
+  assert.match(line.kr, /지하철 3호선/);
+  assert.match(line.kr, /도보 7분/);
+  assert.match(line.en, /7 min walk from Anguk Station/);
+});
+
+test('an exit is never invented', () => {
+  // All sixteen venues carry exit: null — the routing API did not return one,
+  // and restaurants.js records that in its evidence. Printing a guessed exit
+  // is how somebody waits at the wrong corner of a six-exit station.
+  for (const r of restaurants.filter(x => x.transit?.value?.station)) {
+    const line = transitLine(r);
+    if (r.transit.value.exit == null) {
+      assert.equal(line.exit, null, `${r.id} produced an exit from nothing`);
+      assert.ok(!/출구|Exit \d/.test(`${line.kr} ${line.en}`), `${r.id} printed an exit`);
+    }
+  }
+});
+
+test('every venue with transit data produces a readable line', () => {
+  const withTransit = restaurants.filter(r => r.transit?.value?.station);
+  assert.ok(withTransit.length > 0, 'the fixture found no transit data');
+  for (const r of withTransit) {
+    const line = transitLine(r);
+    assert.match(line.kr, /[가-힣]/, `${r.id} has no Korean`);
+    assert.ok(line.en.trim().length > 0, `${r.id} has no English`);
+    assert.ok(!/undefined|null|NaN/.test(`${line.kr} ${line.en}`), `${r.id} leaked a placeholder`);
+  }
+});
+
+test('a venue with no transit data gets no line rather than an empty one', () => {
+  assert.equal(transitLine({}), null);
+  assert.equal(transitLine(null), null);
+  assert.equal(transitLine({ transit: { value: { station: '  ' } } }), null);
 });

@@ -120,6 +120,50 @@ export function mapLinksFor(restaurant) {
   ];
 }
 
+/**
+ * How to get here, in one line, in both languages.
+ *
+ * The station, the line and the walk have been in restaurants.js all along
+ * (`transit`, from a routing API) and only ever appeared in English, in
+ * fragments — "Anguk" and "Line 3" as two separate labels inside Quick Info.
+ * For a traveller who cannot read a Korean map, that line is worth more than
+ * the map: 8/4's review said the map showed so little that "같은 한국인이어도
+ * … 구분하기 힘들 거 같은데 외국인이면 오죽하겠나".
+ *
+ * The exit number is deliberately absent. Every one of the sixteen venues has
+ * `exit: null` — the routing API did not return it, and restaurants.js says so
+ * in its own evidence note. Guessing an exit is exactly the failure this app
+ * is built to avoid: somebody stands at the wrong one for twenty minutes.
+ * When the data gets exits, this function will print them and not before.
+ *
+ * "Line 3" → "3호선" is a mechanical rename, not a claim. The station name
+ * stays romanised because that is the form we hold; writing 안국 would be
+ * inventing a spelling we never sourced.
+ */
+export function transitLine(restaurant) {
+  const t = restaurant?.transit?.value ?? restaurant?.transit;
+  const station = String(t?.station ?? '').trim();
+  if (!station) return null;
+
+  const lineNo = /(\d+)/.exec(String(t?.line ?? ''))?.[1] ?? null;
+  const krLine = lineNo ? `지하철 ${lineNo}호선 ` : '';
+  const enLine = t?.line ? `, ${t.line}` : '';
+  const mins = Number.isFinite(t?.walkingMinutes) ? t.walkingMinutes : null;
+
+  return {
+    station,
+    line: t?.line ?? null,
+    walkingMinutes: mins,
+    exit: t?.exit ?? null,
+    kr: mins !== null
+      ? `${krLine}${station}역에서 도보 ${mins}분`
+      : `${krLine}${station}역 근처`,
+    en: mins !== null
+      ? `${mins} min walk from ${station} Station${enLine}`
+      : `Near ${station} Station${enLine}`,
+  };
+}
+
 /** Said above the links, so nobody reads them as our own reviews. */
 export const MAP_LINKS_NOTE = {
   kr: '후기와 사진은 지도 앱에서 보세요.',

@@ -15,7 +15,7 @@ import CulturalRoute from './CulturalRoute';
 import { getCulture } from '../data/culture';
 import { tipsFor } from '../data/journey';
 import { restaurants } from '../data/restaurants';
-import { tableCtaFor, mapLinksFor, MAP_LINKS_NOTE } from '../domain/policy/venue.js';
+import { tableCtaFor, mapLinksFor, transitLine, MAP_LINKS_NOTE } from '../domain/policy/venue.js';
 import { featuredZones } from '../data/experiences';
 import { haversineKm, formatDistance, getOpenStatus, todaysHours, directionsUrl, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
 import {
@@ -144,6 +144,7 @@ function RestaurantDetailInner({
   // bakery must not be offered 상 차리기, and why no review is quoted here.
   const tableCta = tableCtaFor(restaurant);
   const mapLinks = mapLinksFor(restaurant);
+  const transit = transitLine(restaurant);
   const status = getOpenStatus(restaurant.hours);
   const today = todaysHours(restaurant.hours);
   const culture = getCulture(restaurant);
@@ -257,6 +258,106 @@ function RestaurantDetailInner({
             <div className="diet-note">
               <p><strong>{caveat.title}</strong> {caveat.body}</p>
               {certClaim && <p className="diet-note__cert">Certification claimed: {certClaim.body} — we have not sighted the certificate.</p>}
+            </div>
+
+            {/* Everything you can DO with this place, at the top of it.
+                Measured on the live site 2026-08-04: this block used to live
+                inside Nearby Experiences, 6.2 to 6.5 screens down a page 8.7
+                screens tall, behind the food story, the etiquette, the
+                phrases and the route. It was reported as "반영이 안 된 거
+                같다" — which was the right read. A control nobody scrolls to
+                is not a control. Reading about the kitchen can wait below;
+                saving it, opening a table at it, and checking what people
+                say about it cannot. */}
+            <div className="place-actions">
+              <div className="place-actions__row">
+                {/* Two words for one thing was the bug: this said "In
+                    Passport" and the list it fills was titled "Saved for
+                    Later", eight screens apart. Both are 저장한 곳 now, and
+                    the button says where the place went rather than only
+                    that something happened. */}
+                <button
+                  className={`btn-secondary${isBookmarked ? ' is-active' : ''}`}
+                  onClick={() => onToggleBookmark(restaurant.id)}
+                >
+                  <HeartIcon size={16} filled={isBookmarked} />
+                  {isBookmarked ? '저장됨 · Saved' : '저장하기 · Save this place'}
+                </button>
+              </div>
+              {isBookmarked && (
+                <button className="saved-receipt" onClick={() => onNavigate?.('journal')}>
+                  패스포트 › 저장한 곳에 있어요 · Find it under Saved places in your Passport
+                </button>
+              )}
+
+              {/* The one thing this app does, offered from the place it
+                  would happen. "Meet Travelers" used to sit here and go to
+                  a swipe deck that no longer exists; before that the whole
+                  Places half of the app had no route into a table at all,
+                  which left eighteen restaurants sitting outside the
+                  product looking in. */}
+              {onOpenTableHere && (
+                <button className="place-table-cta" onClick={() => onOpenTableHere(restaurant)}>
+                  {/* Worded from the venue's own category rather than fixed:
+                      상 차리기 is *setting a table*, which is the wrong event
+                      at a bakery. See src/domain/policy/venue.js. */}
+                  <span className="place-table-cta__title">{tableCta.title}</span>
+                  <span className="place-table-cta__sub">{tableCta.sub}</span>
+                </button>
+              )}
+
+              {tablesHere.length > 0 && (
+                <div className="place-tables">
+                  <p className="place-tables__label">
+                    {tablesHere.length === 1 ? 'A table here' : `${tablesHere.length} tables here`}
+                  </p>
+                  {tablesHere.map(t => (
+                    <button key={t.id} className="place-tables__row" onClick={() => onOpenTable?.(t.id)}>
+                      <span className="place-tables__dish">{menuById(t.menuId)?.name ?? t.menuId}</span>
+                      <span className="place-tables__when">{t.date} · {t.time}</span>
+                      <ChevronRightIcon size={14} />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Reviews, without pretending we have any.
+                  The 8/4 review asked for Google/Naver/Kakao reviews inline.
+                  Naver and Kakao publish no review text through their APIs,
+                  Google's terms forbid re-rendering theirs, and scraping is
+                  not something this project will do. So the place is handed
+                  over instead — one tap into the app where the reviews, the
+                  photos and the walking directions already live. */}
+              {mapLinks.length > 0 && (
+                <div className="map-links">
+                  <p className="map-links__note">
+                    <strong>{MAP_LINKS_NOTE.kr}</strong> {MAP_LINKS_NOTE.en}
+                  </p>
+                  <div className="map-links__row">
+                    {mapLinks.map(link => (
+                      <a
+                        key={link.id}
+                        className={`map-links__btn map-links__btn--${link.id}`}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {link.kr} · {link.en}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* How you actually get here, said in one line rather than left
+                  for the Location section eight screens down. The station and
+                  the walk were already in the data and only ever appeared in
+                  English inside Quick Info. */}
+              {transit && (
+                <p className="place-actions__transit">
+                  <strong>{transit.kr}</strong> {transit.en}
+                </p>
+              )}
             </div>
 
             {/* Quick Info — hours, transit, phone, links, save/visit/share */}
@@ -498,87 +599,6 @@ function RestaurantDetailInner({
                     Explore Nearby <ChevronRightIcon size={16} />
                   </button>
                 )}
-                <div className="cta-stack__row">
-                  {/* Two words for one thing was the bug: this said "In
-                      Passport" and the list it fills was titled "Saved for
-                      Later", eight screens apart. Both are 저장한 곳 now, and
-                      the button says where the place went rather than only
-                      that something happened. */}
-                  <button
-                    className={`btn-secondary${isBookmarked ? ' is-active' : ''}`}
-                    onClick={() => onToggleBookmark(restaurant.id)}
-                  >
-                    <HeartIcon size={16} filled={isBookmarked} />
-                    {isBookmarked ? '저장됨 · Saved' : '저장하기 · Save this place'}
-                  </button>
-                </div>
-                {isBookmarked && (
-                  <button
-                    className="saved-receipt"
-                    onClick={() => onNavigate?.('journal')}
-                  >
-                    패스포트 › 저장한 곳에 있어요 · Find it under Saved places in your Passport
-                  </button>
-                )}
-
-                {/* The one thing this app does, offered from the place it
-                    would happen. "Meet Travelers" used to sit here and go to
-                    a swipe deck that no longer exists; before that the whole
-                    Places half of the app had no route into a table at all,
-                    which left eighteen restaurants sitting outside the
-                    product looking in. */}
-                {onOpenTableHere && (
-                  <button className="place-table-cta" onClick={() => onOpenTableHere(restaurant)}>
-                    {/* Worded from the venue's own category rather than fixed:
-                        상 차리기 is *setting a table*, which is the wrong event
-                        at a bakery. See src/domain/policy/venue.js. */}
-                    <span className="place-table-cta__title">{tableCta.title}</span>
-                    <span className="place-table-cta__sub">{tableCta.sub}</span>
-                  </button>
-                )}
-
-                {/* Reviews, without pretending we have any.
-                    The 8/4 review asked for Google/Naver/Kakao reviews inline.
-                    Naver and Kakao publish no review text through their APIs,
-                    Google's terms forbid re-rendering theirs, and scraping is
-                    not something this project will do. So the place is handed
-                    over instead — one tap into the app where the reviews, the
-                    photos and the walking directions already live. */}
-                {mapLinks.length > 0 && (
-                  <div className="map-links">
-                    <p className="map-links__note">
-                      <strong>{MAP_LINKS_NOTE.kr}</strong> {MAP_LINKS_NOTE.en}
-                    </p>
-                    <div className="map-links__row">
-                      {mapLinks.map(link => (
-                        <a
-                          key={link.id}
-                          className={`map-links__btn map-links__btn--${link.id}`}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {link.kr} · {link.en}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {tablesHere.length > 0 && (
-                  <div className="place-tables">
-                    <p className="place-tables__label">
-                      {tablesHere.length === 1 ? 'A table here' : `${tablesHere.length} tables here`}
-                    </p>
-                    {tablesHere.map(t => (
-                      <button key={t.id} className="place-tables__row" onClick={() => onOpenTable?.(t.id)}>
-                        <span className="place-tables__dish">{menuById(t.menuId)?.name ?? t.menuId}</span>
-                        <span className="place-tables__when">{t.date} · {t.time}</span>
-                        <ChevronRightIcon size={14} />
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             </section>
 
@@ -689,7 +709,17 @@ function RestaurantDetailInner({
               {lastChecked && (
                 <p>Last verified: {new Date(lastChecked).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
               )}
-              <p>To suggest an edit, email <a href="mailto:hello@kfoodmap.com">hello@kfoodmap.com</a></p>
+              {/* This said hello@kfoodmap.com until 2026-08-04. K-Food Map is
+                  a different product — the one this repository grew out of,
+                  and the one HANDOFF.md opens by warning nobody to push to.
+                  A 밥친구 place page was sending correction requests to another
+                  company's inbox, where nobody on this team would ever read
+                  them. Nothing about it looked broken, which is why it sat at
+                  the foot of the page for months. */}
+              <p>
+                To suggest an edit, email{' '}
+                <a className="practical-link" href="mailto:eatple0701@gmail.com">eatple0701@gmail.com</a>
+              </p>
             </div>
 
           </div>
