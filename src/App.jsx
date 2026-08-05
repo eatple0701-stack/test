@@ -3,6 +3,7 @@ import { restaurants } from './data/restaurants';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
+import { GearIcon } from './components/Icons';
 import JournalPanel from './components/JournalPanel';
 import HomeTab from './components/HomeTab';
 import TravelSummary from './components/TravelSummary';
@@ -733,22 +734,38 @@ export default function App() {
           activeTab={activeTab}
           onSelect={(tab) => { setOpenThemeId(null); goToTab(tab); }}
         />
-        {isMember(auth) ? (
+        {/* Settings left the tab bar and lives here, to the left of 로그인.
+            It is a device preference, not a destination, and as a fifth tab
+            it was crowding four screens somebody actually goes to. Outside
+            the signed-in branch so it is in the same corner either way — a
+            control that moves when you sign in is a control you hunt for. */}
+        <span className="app-chrome__end">
           <button
-            className="app-chrome__me"
-            onClick={() => { setOpenThemeId(null); goToTab('journal'); }}
+            className={`app-chrome__gear${activeTab === 'settings' ? ' is-on' : ''}`}
+            aria-label="설정 · Settings"
+            aria-current={activeTab === 'settings' ? 'page' : undefined}
+            title="설정 · Settings"
+            onClick={() => { setOpenThemeId(null); goToTab('settings'); }}
           >
-            {profile?.avatarUrl
-              ? <img className="app-chrome__avatar" src={profile.avatarUrl} alt="" />
-              : <span className="app-chrome__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
-            <span className="app-chrome__name">{profile?.name?.trim() || 'My passport'}</span>
+            <GearIcon size={20} />
           </button>
-        ) : (
-          <span className="app-chrome__auth">
-            <button className="app-chrome__signin" translate="no" onClick={() => setAuthMode('signin')}>로그인</button>
-            <button className="app-chrome__join" translate="no" onClick={() => setAuthMode('signup')}>가입하기</button>
-          </span>
-        )}
+          {isMember(auth) ? (
+            <button
+              className="app-chrome__me"
+              onClick={() => { setOpenThemeId(null); goToTab('journal'); }}
+            >
+              {profile?.avatarUrl
+                ? <img className="app-chrome__avatar" src={profile.avatarUrl} alt="" />
+                : <span className="app-chrome__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
+              <span className="app-chrome__name">{profile?.name?.trim() || 'My passport'}</span>
+            </button>
+          ) : (
+            <span className="app-chrome__auth">
+              <button className="app-chrome__signin" translate="no" onClick={() => setAuthMode('signin')}>로그인</button>
+              <button className="app-chrome__join" translate="no" onClick={() => setAuthMode('signup')}>가입하기</button>
+            </span>
+          )}
+        </span>
       </header>
 
       {/* Under the chrome and above everything else, because it changes what

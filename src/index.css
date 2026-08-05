@@ -9723,6 +9723,26 @@ body {
   color: var(--ink-title);
   flex: 0 0 auto;
 }
+/* Everything that lives in the top-right corner, in one group so the gear
+   and the auth pair stay together at every width. */
+.app-chrome__end { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+/* The settings gear, to the left of 로그인. Icon-only because the corner is
+   narrow at 375px and the label would push 가입하기 off; the accessible name
+   and the tooltip carry both languages. */
+.app-chrome__gear {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-body);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.app-chrome__gear:hover { background: var(--line); }
+.app-chrome__gear.is-on { color: var(--accent-ink); }
 .app-chrome__auth { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; }
 .app-chrome__signin {
   min-height: 44px;

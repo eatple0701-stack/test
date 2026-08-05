@@ -34,12 +34,6 @@ const icons = {
       <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
     </svg>
   ),
-  settings: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8" />
-    </svg>
-  ),
 };
 
 // The map is no longer a destination. It was a top-level tab while it was
@@ -57,13 +51,12 @@ const tabs = [
   // Passport. Both the 8/2 meeting and a foreign tester asked for the merge,
   // independently — and four labels fit a 375px bar without crowding.
   { id: 'journal', label: 'Passport' },
-  // Back to five (2026-08-04), but not by undoing the merge: what returned is
-  // not Profile — that stays inside the Passport, where a person's values
-  // belong with their record — but device settings, which never belonged to a
-  // profile a host reads in the first place. Today that is one control, the
-  // appearance mode; a tab of one thing is fine when the thing was in the
-  // wrong place before.
-  { id: 'settings', label: 'Settings' },
+  // Settings was a fifth tab here for a day (2026-08-04) and moved out on
+  // 2026-08-05, to the gear in the top-right of the app chrome beside 로그인.
+  // Nothing was removed — the screen is the same screen. But primary
+  // navigation is for places you go to do something, and a device preference
+  // is not one of those; it was the fifth label squeezing four real ones on a
+  // 375px bar down to 10.5px type. Its route, /settings, is unchanged.
 ];
 
 export default function TabBar({ activeTab, onSelect, isCollapsed }) {

@@ -13,13 +13,30 @@ export const THEMES = ['system', 'light', 'dark'];
 
 export const isTheme = (t) => THEMES.includes(t);
 
-/** What the traveller picked, defaulting to 'system' for anyone who never chose. */
+/**
+ * What the app looks like before anybody has an opinion.
+ *
+ * This was 'system', and the screen had already stopped agreeing with it.
+ * SettingsTab offers two buttons, 디폴트 and 다크, where 디폴트 pins light —
+ * the third choice was removed as an abstraction nobody wanted to make. So
+ * the app told a traveller its default was light and then, for anybody who
+ * never opened Settings, followed their phone instead. Roughly half of all
+ * first impressions were of a palette nobody on this team chose to lead with,
+ * and the light one is what every screen was designed and reviewed in.
+ *
+ * 'system' stays in THEMES because devices still hold it from when it was
+ * selectable, and getStoredTheme has to read those back honestly rather than
+ * silently rewriting somebody's stored choice. Nothing offers it any more.
+ */
+export const DEFAULT_THEME = 'light';
+
+/** What the traveller picked, or the default for anyone who never chose. */
 export function getStoredTheme() {
   try {
     const t = localStorage.getItem(THEME_KEY);
-    return isTheme(t) ? t : 'system';
+    return isTheme(t) ? t : DEFAULT_THEME;
   } catch {
-    return 'system';
+    return DEFAULT_THEME;
   }
 }
 
@@ -65,7 +82,7 @@ export function applyTheme(theme) {
 
 /** Saves the traveller's raw choice (including 'system') and applies it immediately. */
 export function setTheme(theme) {
-  const clean = isTheme(theme) ? theme : 'system';
+  const clean = isTheme(theme) ? theme : DEFAULT_THEME;
   try {
     localStorage.setItem(THEME_KEY, clean);
   } catch {

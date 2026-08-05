@@ -15,6 +15,16 @@ export const LeafIcon = ({ size = 18 }) => (
   </svg>
 );
 
+/* The gear left the tab bar for the top-right corner, next to 로그인. It is a
+   device preference, not a fifth destination, and it was crowding four real
+   ones on a 375px bar. Same drawing TabBar carried. */
+export const GearIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8" />
+  </svg>
+);
+
 export const CompassIcon = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
     <path d="M12 2.5 19 21l-7-4-7 4Z" />

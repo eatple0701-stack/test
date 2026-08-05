@@ -70,21 +70,33 @@ const {
   getStoredTheme, resolveTheme, applyTheme, setTheme, watchSystemTheme, systemPrefersDark,
 } = await import('../../data/theme.js');
 
-test('a traveller who never chose reads as system, not a missing key', () => {
+test('a traveller who never chose gets light, not whatever their phone is set to', () => {
+  // This was 'system', which sounds respectful and meant half of all first
+  // visitors — anybody whose phone is in dark mode — saw a palette nobody on
+  // the team chose to lead with, while SettingsTab's own 디폴트 button had
+  // meant light for a day already.
   globalThis.localStorage.clear();
-  assert.equal(getStoredTheme(), 'system');
+  assert.equal(getStoredTheme(), 'light');
+  mqlMatches = true;
+  assert.equal(getStoredTheme(), 'light', 'a dark OS must not decide for somebody who never chose');
+  mqlMatches = false;
 });
 
 test('a stored choice is read back exactly', () => {
   globalThis.localStorage.clear();
   globalThis.localStorage.setItem('bapchingu-theme', 'dark');
   assert.equal(getStoredTheme(), 'dark');
+  // Nothing offers 'system' any more, but devices still hold it from when
+  // Settings had three buttons. Reading it back unchanged is the point: the
+  // app must not quietly rewrite a choice somebody actually made.
+  globalThis.localStorage.setItem('bapchingu-theme', 'system');
+  assert.equal(getStoredTheme(), 'system');
 });
 
-test('garbage in storage reads as system rather than crashing', () => {
+test('garbage in storage reads as the default rather than crashing', () => {
   globalThis.localStorage.clear();
   globalThis.localStorage.setItem('bapchingu-theme', 'sepia');
-  assert.equal(getStoredTheme(), 'system');
+  assert.equal(getStoredTheme(), 'light');
 });
 
 test('light and dark resolve to themselves', () => {
@@ -153,11 +165,11 @@ test('setTheme persists the raw choice and applies it in the same call', () => {
   assert.equal(document.documentElement.getAttribute('data-theme'), 'dark');
 });
 
-test('setTheme falls back to system for anything it does not recognise', () => {
+test('setTheme falls back to the default for anything it does not recognise', () => {
   globalThis.localStorage.clear();
   const saved = setTheme('sepia');
-  assert.equal(saved, 'system');
-  assert.equal(globalThis.localStorage.getItem('bapchingu-theme'), 'system');
+  assert.equal(saved, 'light');
+  assert.equal(globalThis.localStorage.getItem('bapchingu-theme'), 'light');
 });
 
 test('watchSystemTheme is a no-op once an explicit choice is stored', () => {

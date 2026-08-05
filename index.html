@@ -77,9 +77,15 @@
       (function () {
         try {
           var stored = localStorage.getItem('bapchingu-theme');
+          // Only 'system' asks the OS. Anything else — including having never
+          // chosen — is light, matching DEFAULT_THEME in src/data/theme.js.
+          // This used to read the OS for everybody without a stored choice,
+          // which handed half of all first visitors a palette nobody picked.
           var theme = stored === 'light' || stored === 'dark'
             ? stored
-            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            : stored === 'system'
+              ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+              : 'light';
           document.documentElement.setAttribute('data-theme', theme);
           paintBrowserChrome(theme);
         } catch (e) {
@@ -87,12 +93,13 @@
         }
 
         // The two media-scoped theme-color tags above follow the OS, which is
-        // right for anybody who never chose. The moment somebody has chosen,
-        // they are wrong, so the pair is replaced by one unconditional tag —
-        // the same precedence applyTheme() in src/data/theme.js applies, and
-        // the same two colours. Change one, change both.
+        // right only for somebody who asked for 'system'. For everybody else —
+        // a stored light/dark, or the light default — the pair is replaced by
+        // one unconditional tag, the same precedence applyTheme() in
+        // src/data/theme.js applies, and the same two colours. Change one,
+        // change both.
         function paintBrowserChrome(theme) {
-          if (stored !== 'light' && stored !== 'dark') return;
+          if (stored === 'system') return;
           var tags = document.querySelectorAll('meta[name="theme-color"]');
           for (var i = 0; i < tags.length; i++) tags[i].remove();
           var tag = document.createElement('meta');
