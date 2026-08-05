@@ -7,17 +7,28 @@
 // late.
 //
 // This is a formatter, not a policy: no judgement lives here, only RFC 5545.
-// Times are written as floating local time on purpose — no TZID, no Z. The
-// dinner is at 19:00 where the diner is standing, and every phone at that
-// table is already on Korean time. Converting to UTC would be correct in a
-// spec sense and wrong in every practical one the moment somebody's laptop
-// is still on home time.
+//
+// Times go out in UTC, with the Z. They were floating — no TZID, no Z — on the
+// stated grounds that "every phone at that table is already on Korean time",
+// and that premise is false for the only audience this app has. A floating
+// time means the calendar app reads the digits in *its own* zone, so a phone
+// still set to New York saved 19:00 EDT: thirteen hours from the meal, on a
+// screen that looked completely normal.
+//
+// The Google link twenty lines below had this right the whole time, and said
+// so — "without a zone it reads the times in the viewer's zone, which would
+// put a traveller whose laptop is still on home time at the wrong hour". Two
+// paths out of one file disagreeing about the same fact. UTC is how they now
+// agree: the event lands on the right instant everywhere and each calendar
+// renders it in whatever zone its owner is on.
 //
 // Deliberately not folded at 75 octets. RFC 5545 asks for folding; every
 // parser this file will actually meet (Google, Apple, Outlook) accepts long
 // lines, and folding multi-byte Korean safely means counting octets rather
 // than characters — real complexity for a rule nothing enforces. If a parser
 // ever chokes, this comment is where to look.
+
+import { KST_OFFSET_MINUTES } from './policy/clock.js';
 
 /** Comma, semicolon, backslash and newline carry meaning in ICS text. */
 const escapeText = (value) =>
@@ -27,19 +38,24 @@ const escapeText = (value) =>
     .replace(/,/g, '\\,')
     .replace(/\r?\n/g, '\\n');
 
-/** '2026-08-16' + '19:00' → a Date in local time, or null if malformed. */
-const mealDate = (date, time) => {
-  const d = new Date(`${date}T${time ?? '00:00'}`);
-  return Number.isFinite(d.getTime()) ? d : null;
+/**
+ * '2026-08-16' + '19:00' → the instant that is *in Korea*, or null if
+ * malformed.
+ *
+ * Built from the parts rather than `new Date('2026-08-16T19:00')`, which
+ * parses as the device's own local time — the same wrong assumption in a
+ * different place. The table's hour is Korean, always.
+ */
+const mealInstant = (date, time) => {
+  const [y, mo, d] = String(date ?? '').split('-').map(Number);
+  const [h, mi] = String(time ?? '00:00').split(':').map(Number);
+  if (![y, mo, d, h, mi].every(Number.isFinite)) return null;
+  return new Date(Date.UTC(y, mo - 1, d, h, mi) - KST_OFFSET_MINUTES * 60000);
 };
 
 const two = (n) => String(n).padStart(2, '0');
 
-/** A Date → floating local ICS form, 20260816T190000. */
-const icsLocal = (d) =>
-  `${d.getFullYear()}${two(d.getMonth() + 1)}${two(d.getDate())}T${two(d.getHours())}${two(d.getMinutes())}00`;
-
-/** A Date → UTC ICS form for DTSTAMP, which the spec does want in UTC. */
+/** A Date → UTC ICS form. Used for DTSTAMP and, now, for the event itself. */
 const icsUtc = (d) =>
   `${d.getUTCFullYear()}${two(d.getUTCMonth() + 1)}${two(d.getUTCDate())}T${two(d.getUTCHours())}${two(d.getUTCMinutes())}00Z`;
 
@@ -53,7 +69,7 @@ export const MEAL_HOURS = 2;
  * `now` is injectable so a test can pin DTSTAMP; callers pass nothing.
  */
 export function icsForTable(table, menu, { url = '', now = new Date() } = {}) {
-  const start = mealDate(table?.date, table?.time);
+  const start = mealInstant(table?.date, table?.time);
   if (!start || !menu) return null;
   const end = new Date(start.getTime() + MEAL_HOURS * 3600000);
 
@@ -73,8 +89,8 @@ export function icsForTable(table, menu, { url = '', now = new Date() } = {}) {
     'BEGIN:VEVENT',
     `UID:${table.id}@bapchingu`,
     `DTSTAMP:${icsUtc(now)}`,
-    `DTSTART:${icsLocal(start)}`,
-    `DTEND:${icsLocal(end)}`,
+    `DTSTART:${icsUtc(start)}`,
+    `DTEND:${icsUtc(end)}`,
     `SUMMARY:${escapeText(summary)}`,
     `LOCATION:${escapeText(location)}`,
     `DESCRIPTION:${escapeText(description)}`,
@@ -102,28 +118,29 @@ export const icsFilenameFor = (menu) => `bapchingu-${menu?.id ?? 'table'}.ics`;
  * works — it needs no account and no third party — so both are offered and
  * the file stays first.
  *
- * `ctz` is Asia/Seoul rather than the floating time the .ics uses. Google's
- * template has no floating form: without a zone it reads the times in the
- * *viewer's* zone, which would put a traveller whose laptop is still on home
- * time at the wrong hour. Naming the zone is how you say "19:00 in Seoul"
- * here, and it means the same thing the .ics means.
+ * Both paths now write the same UTC instant. This link used to pair local
+ * digits with `ctz=Asia/Seoul`, which Google documents and which was correct;
+ * it is gone because the digits it formatted came out of the *device's* clock,
+ * and once mealInstant started returning a true instant that pairing would
+ * have been wrong twice over. Google documents the Z form too, and one
+ * representation shared with the .ics is one thing to get right rather than
+ * two.
  */
 export function googleCalendarUrl(table, menu, { url = '' } = {}) {
-  const start = mealDate(table?.date, table?.time);
+  const start = mealInstant(table?.date, table?.time);
   if (!start || !menu) return null;
   const end = new Date(start.getTime() + MEAL_HOURS * 3600000);
 
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: `${menu.nameKo} ${menu.name} · 밥친구`,
-    dates: `${icsLocal(start)}/${icsLocal(end)}`,
+    dates: `${icsUtc(start)}/${icsUtc(end)}`,
     location: [table.restaurant, table.place].filter(Boolean).join(' — '),
     details: [
       `Meet at ${table.place}.`,
       table.restaurant ? `Eating at ${table.restaurant}.` : 'Restaurant decided together at the table.',
       url,
     ].filter(Boolean).join('\n'),
-    ctz: 'Asia/Seoul',
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }

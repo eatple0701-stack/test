@@ -38,6 +38,7 @@ import { shareUrlFor } from '../routes.js';
 import { guideById, hostKindLabel, tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../domain/catalog/languages.js';
 import { themeById } from '../domain/catalog/index.js';
+import { timeText, clockWarning } from '../domain/policy/clock.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 
 // One table, and the decision to sit at it.
@@ -449,7 +450,14 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           a day they are even in the city. The prose earns their evening; the
           facts decide whether there is an evening to earn. */}
       <div className="detail-block detail-block--facts">
-        <p className="detail-fact"><ClockIcon size={15} /> {fullDate(table.date)} at {table.time}</p>
+        <p className="detail-fact"><ClockIcon size={15} /> {fullDate(table.date)} at {timeText(table.time)}</p>
+        {/* The page where somebody commits is the one place this must not be
+            missed, so the timezone sentence sits with the hour it explains
+            rather than at the top of the screen. Silent for a device already
+            on Korean time — see ClockPolicy. */}
+        {clockWarning(table.date, table.time) && (
+          <p className="detail-fact detail-fact--muted">{clockWarning(table.date, table.time)}</p>
+        )}
         <p className="detail-fact"><MapPinIcon size={15} /> Meet at {table.place}</p>
         {/* Named or honestly unnamed — a blank line here had guests assuming
             the meeting point was the restaurant. */}

@@ -9,6 +9,9 @@ import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts
 import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { emptyReason, emptyText, hasOtherDays, EMPTY } from '../domain/policy/emptiness.js';
+import { stationForTable, cityOfTables } from '../domain/policy/venue.js';
+import { timeText, clockWarning } from '../domain/policy/clock.js';
+import { restaurants } from '../data/restaurants';
 import { acceptedSignups, askDeadline } from '../domain/policy/seatRequest.js';
 import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
@@ -204,6 +207,25 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </button>
       )}
 
+      {/* The strip had no label, so the list never said what window it was
+          showing or where. Meetup heads its own list "Incheon, KR 근처의
+          이벤트" and 여기어때 makes the region the first thing you fill in;
+          ours could be scrolled end to end without a traveller learning the
+          app was showing them Seoul, this week.
+
+          The city is derived and goes quiet the moment the tables are not
+          all in one — see cityOfTables. The week is always true. */}
+      {tables !== null && (
+        <p className="week-strip__label">
+          {(() => {
+            const city = cityOfTables(open, restaurants);
+            return city
+              ? `이번 주 ${city}의 밥상 · Tables in ${city}, this week`
+              : '이번 주의 밥상 · Tables this week';
+          })()}
+        </p>
+      )}
+
       {tables !== null && (
         <div className="week-strip" role="group" aria-label="Tables by day">
           {week.map(d => (
@@ -371,6 +393,21 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         />
       )}
 
+      {/* Said once above the list rather than on every card, and only to the
+          people it is true for. Somebody who landed yesterday and has not
+          changed their phone reads 19:00 as their own 19:00; on a device
+          still set to New York that is thirteen hours from the meal. The
+          times themselves already say KST — this is the sentence that
+          explains why they need to. See ClockPolicy: it names the device
+          rather than telling anybody off, because keeping home time to call
+          your family is a reason, not a mistake. */}
+      {shown.length > 0 && clockWarning(shown[0].date, shown[0].time) && (
+        <p className="clock-note">
+          <ClockIcon size={14} />
+          {clockWarning(shown[0].date, shown[0].time)}
+        </p>
+      )}
+
       <div className="table-list">
         {shown.map(t => {
           const menu = menuById(t.menuId);
@@ -427,10 +464,27 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   Only on hosted tables: guideSummary returns null when there
                   is nothing ticked, so a 테이블 메이트 card gains no line and
                   no apology. */}
+              {/* The first one, then a count. Spelling out all four — "How to
+                  order · How it is eaten · Table manners · Where the dish
+                  comes from" — was the longest line on the card and pushed it
+                  to 292px, against 4–5 short lines on every card Meetup, 당근
+                  and 여기어때 put in a list.
+
+                  First-plus-count rather than a bare number, and rather than a
+                  written summary: the number is countable and the first is
+                  quoted from the catalogue, so neither can describe guides
+                  this host did not tick. All four are named on the page they
+                  open. Catalogue order, so "the first" is the first thing that
+                  happens at a table, not the first one they tapped. */}
               {guideSummary(t) && (
                 <p className="table-card__guides">
                   <span className="table-card__guides-label">Host shows you</span>
-                  {guideSummary(t).en}
+                  {guideSummary(t).guides[0].en}
+                  {guideSummary(t).guides.length > 1 && (
+                    <span className="table-card__guides-more">
+                      +{guideSummary(t).guides.length - 1}
+                    </span>
+                  )}
                 </p>
               )}
 
@@ -461,10 +515,21 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 );
               })()}
 
+              {/* When and where, in the shape a list is scanned.
+                  The time carries KST because the reader may have landed
+                  yesterday and never changed their phone — Meetup prints
+                  GMT+9 on every card for the same reason.
+                  Where says the station when we hold one, measured on a
+                  walking route rather than guessed. It used to print the
+                  whole postal address: sixty-two characters of "5F Templestay
+                  Information Center, 56 Ujeongguk-ro, Jongno-gu, Seoul" in a
+                  row somebody is skimming. 여기어때 prints "길동역 도보 3분"
+                  in the same slot. The address is still on the page they
+                  open, and is still what shows for a venue nobody measured. */}
               <span className="table-card__meta">
-                <ClockIcon size={13} /> {dayLabel(t.date)} · {t.time}
+                <ClockIcon size={13} /> {dayLabel(t.date)} · {timeText(t.time)}
                 <span className="table-card__dot" aria-hidden="true">·</span>
-                <MapPinIcon size={13} /> {t.place}
+                <MapPinIcon size={13} /> {stationForTable(t, restaurants)?.en ?? t.place}
               </span>
 
               <span className="table-card__foot">

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  venueKind, tableCtaFor, mapLinksFor, transitLine, MAP_LINKS_NOTE,
+  venueKind, tableCtaFor, mapLinksFor, transitLine, stationForTable, cityOfTables, MAP_LINKS_NOTE,
   VENUE_KIND, MEAL_CATEGORIES, OUTING_CATEGORIES,
 } from '../policy/venue.js';
 import { restaurants } from '../../data/restaurants.js';
@@ -127,4 +127,75 @@ test('a venue with no transit data gets no line rather than an empty one', () =>
   assert.equal(transitLine({}), null);
   assert.equal(transitLine(null), null);
   assert.equal(transitLine({ transit: { value: { station: '  ' } } }), null);
+});
+
+test('a table at a venue we hold gets that venue\'s station line', () => {
+  // The join the card needed. A host who pressed 여기서 상 차리기 at Balwoo
+  // Gongyang has "Balwoo Gongyang" stored while the catalogue says
+  // "Balwoo Gongyang (발우공양)" — the parenthetical is what App.jsx strips
+  // when it prefills, so the two must still meet here.
+  const line = stationForTable({ restaurant: 'Balwoo Gongyang' }, restaurants);
+  assert.ok(line, 'the venue is in the catalogue and has transit');
+  assert.equal(line.station, 'Anguk');
+  assert.match(line.en, /Anguk Station/);
+});
+
+test('a typed name meets the catalogue through case and spacing', () => {
+  for (const typed of ['balwoo gongyang', '  Balwoo  Gongyang ', 'Balwoo Gongyang (발우공양)']) {
+    assert.equal(stationForTable({ restaurant: typed }, restaurants)?.station, 'Anguk', typed);
+  }
+});
+
+test('a restaurant nobody measured gets no station rather than a guess', () => {
+  // A host may type any restaurant in Korea. Inventing a station for one we
+  // have never walked is exactly the failure this app exists to avoid — the
+  // address still shows, it is simply not improved.
+  assert.equal(stationForTable({ restaurant: 'Some Place We Never Checked' }, restaurants), null);
+  assert.equal(stationForTable({ restaurant: '' }, restaurants), null);
+  assert.equal(stationForTable({}, restaurants), null);
+  assert.equal(stationForTable(null, restaurants), null);
+  assert.equal(stationForTable({ restaurant: 'Balwoo Gongyang' }), null, 'no catalogue, no claim');
+});
+
+test('a venue in the catalogue with no transit data still claims nothing', () => {
+  // Not every venue was measured. transitLine already returns null for those
+  // and this must pass that through rather than falling back to the name.
+  const untimed = restaurants.filter(r => !(r.transit?.value ?? r.transit)?.station);
+  for (const r of untimed) {
+    assert.equal(stationForTable({ restaurant: r.name }, restaurants), null, r.name);
+  }
+});
+
+test('a list all in one city says which city', () => {
+  // Meetup heads its list "Incheon, KR 근처의 이벤트"; ours said nothing at
+  // all, so somebody could scroll the whole screen without learning the app
+  // was showing them Seoul.
+  const seoul = [{ restaurant: 'Balwoo Gongyang' }, { restaurant: 'Sanchon' }];
+  assert.equal(cityOfTables(seoul, restaurants), 'Seoul');
+});
+
+test('a list spread across cities names none of them', () => {
+  // A heading saying Seoul over a list containing Incheon is worse than a
+  // heading saying nothing.
+  const mixed = [{ restaurant: 'Balwoo Gongyang' }, { restaurant: 'Arabesque' }];
+  const cities = new Set(mixed.map(t => {
+    const r = restaurants.find(x => x.name.split('(')[0].trim() === t.restaurant);
+    return r.zone.split(',').pop().trim();
+  }));
+  assert.equal(cities.size, 2, 'the fixture needs two different cities');
+  assert.equal(cityOfTables(mixed, restaurants), null);
+});
+
+test('one venue we do not hold stops the claim for the whole list', () => {
+  // The address is free text, so a city parsed from it would be a guess. One
+  // unmatched table and the heading goes quiet rather than speaking for it.
+  const partly = [{ restaurant: 'Balwoo Gongyang' }, { restaurant: 'A Place We Never Checked' }];
+  assert.equal(cityOfTables(partly, restaurants), null);
+});
+
+test('an empty or absent list claims no city', () => {
+  assert.equal(cityOfTables([], restaurants), null);
+  assert.equal(cityOfTables(null, restaurants), null);
+  assert.equal(cityOfTables(undefined, undefined), null);
+  assert.equal(cityOfTables([{ restaurant: 'Balwoo Gongyang' }]), null, 'no catalogue, no claim');
 });

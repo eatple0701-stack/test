@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { icsForTable, icsFilenameFor, MEAL_HOURS } from '../calendar.js';
+import { icsForTable, icsFilenameFor, googleCalendarUrl, MEAL_HOURS } from '../calendar.js';
 
-// The calendar file, held to the parts of RFC 5545 that actually bite:
-// CRLF endings, escaped separators, and times that mean the dinner's own
-// wall clock rather than a UTC translation of it.
+// The calendar file, held to the parts of RFC 5545 that actually bite: CRLF
+// endings, escaped separators, and a time that means the instant the diner is
+// sitting down rather than whatever those digits happen to mean on the phone
+// reading them.
 
 const table = (over = {}) => ({
   id: 'tbl-1', date: '2026-08-16', time: '19:00',
@@ -27,18 +28,40 @@ test('lines end in CRLF, the one thing no parser forgives', () => {
   assert.equal(ics.split('\n').length, ics.split('\r\n').length);
 });
 
-test('the dinner is at 19:00 on the wall clock, not a UTC translation', () => {
+test('19:00 in Seoul goes out as the instant it actually is', () => {
+  // This asserted the opposite until 2026-08-05: a floating DTSTART, on the
+  // stated grounds that every phone at the table is already on Korean time.
+  // It is not — the audience landed this week — and a floating time is read
+  // by the calendar app in its own zone, so a phone still on New York saved
+  // 19:00 EDT. Thirteen hours out, on a screen that looked normal.
+  //
+  // 19:00 KST is 10:00 UTC. Written that way, every calendar puts the event
+  // on the right instant and renders it in whatever zone its owner is on.
   const ics = icsForTable(table(), menu, { now: NOW });
-  assert.ok(ics.includes('DTSTART:20260816T190000'), 'start is not floating local 19:00');
-  assert.ok(!ics.includes('DTSTART:20260816T190000Z'), 'start must not claim UTC');
-  // DTSTAMP is the exception the spec wants in UTC, pinned via the injected now.
+  assert.ok(ics.includes('DTSTART:20260816T100000Z'), 'start is not the 19:00 KST instant');
+  assert.ok(!/DTSTART:\d{8}T\d{6}(?!Z)/.test(ics), 'a floating start survived');
   assert.ok(ics.includes('DTSTAMP:20260803T050000Z'));
 });
 
 test(`the meal runs ${MEAL_HOURS} hours, surviving a date rollover`, () => {
+  // 23:00 KST is 14:00 UTC the same day; two hours later is 16:00 UTC, which
+  // is 01:00 KST on the 17th. The rollover the diner experiences is real even
+  // though the UTC date does not change — which is exactly why the instant,
+  // not the digits, is the thing to store.
   const late = icsForTable(table({ time: '23:00' }), menu, { now: NOW });
-  assert.ok(late.includes('DTSTART:20260816T230000'));
-  assert.ok(late.includes('DTEND:20260817T010000'), 'end did not cross midnight correctly');
+  assert.ok(late.includes('DTSTART:20260816T140000Z'));
+  assert.ok(late.includes('DTEND:20260816T160000Z'), 'end did not advance two hours');
+});
+
+test('the same table written twice means the same moment either way out', () => {
+  // The .ics and the Google link are two paths out of one file and used to
+  // disagree about this. Whichever a traveller takes, they must land on the
+  // same instant.
+  const ics = icsForTable(table(), menu, { now: NOW });
+  const gcal = googleCalendarUrl(table(), menu);
+  const fromIcs = /DTSTART:(\d{8}T\d{6}Z)/.exec(ics)[1];
+  const fromGcal = decodeURIComponent(/dates=([^&]+)/.exec(gcal)[1]).split('/')[0];
+  assert.equal(fromGcal, fromIcs);
 });
 
 test('commas and semicolons in real place names are escaped', () => {

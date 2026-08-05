@@ -164,6 +164,77 @@ export function transitLine(restaurant) {
   };
 }
 
+/**
+ * The catalogue name and a host's typed one, reduced to the same thing.
+ *
+ * A host who pressed 여기서 상 차리기 gets `restaurant` prefilled from
+ * `r.name.split('(')[0].trim()` (App.jsx), so "Balwoo Gongyang (발우공양)"
+ * arrives as "Balwoo Gongyang". Everything else — case, stray spacing, a
+ * missing or extra parenthetical — is noise this strips so the two can meet.
+ */
+const venueKey = (name) => String(name ?? '')
+  .split('(')[0]
+  .toLowerCase()
+  .replace(/\s+/g, ' ')
+  .trim();
+
+/**
+ * The station line for a table, from the venue it names.
+ *
+ * A table stores its venue as a free-typed string and its address as another,
+ * so the card was printing "5F Templestay Information Center, 56 Ujeongguk-ro,
+ * Jongno-gu, Seoul" — sixty-two characters of postal address in a list
+ * somebody is scanning. 여기어때, doing the same job, prints "길동역 도보 3분".
+ *
+ * We already hold the better line: restaurants.js carries `transit` for the
+ * venues, measured on a walking route rather than guessed, and transitLine()
+ * has been rendering it on the place page since 8/4. This is the join that
+ * lets the *table* use it too.
+ *
+ * Returns null rather than a guess whenever the venue is not one we hold —
+ * a host may type any restaurant in Korea, and inventing a station for one we
+ * have never measured is the failure this app exists to avoid. The address
+ * still shows in that case; it is simply not improved.
+ */
+export function stationForTable(table, catalogue = []) {
+  const key = venueKey(table?.restaurant);
+  if (!key) return null;
+  const found = catalogue.find(r => venueKey(r?.name) === key);
+  return found ? transitLine(found) : null;
+}
+
+/**
+ * The one city every open table is in, or null when they are not all in one.
+ *
+ * Meetup heads its list "Incheon, KR 근처의 이벤트" and 여기어때 makes the
+ * region the first field you fill. Our list said nothing at all about where
+ * it was — a traveller could scroll the whole screen without learning the
+ * app was showing them Seoul.
+ *
+ * Derived from the catalogue's `zone` ("Jongno, Seoul" → "Seoul") rather than
+ * from the table's typed address, because the address is free text and a city
+ * parsed out of it would be a guess. Tables at venues we do not hold are
+ * skipped, and if any table is skipped or the cities disagree this returns
+ * null: a heading saying Seoul over a list containing Busan is worse than a
+ * heading saying nothing.
+ */
+export function cityOfTables(tables = [], catalogue = []) {
+  if (!Array.isArray(tables) || tables.length === 0) return null;
+
+  const cities = new Set();
+  for (const t of tables) {
+    const key = venueKey(t?.restaurant);
+    const found = key ? catalogue.find(r => venueKey(r?.name) === key) : null;
+    const zone = String(found?.zone ?? '').trim();
+    if (!zone) return null;                  // one unknown venue and we stop claiming
+    const city = zone.split(',').pop().trim();
+    if (!city) return null;
+    cities.add(city);
+    if (cities.size > 1) return null;         // spread across cities, so name none
+  }
+  return cities.size === 1 ? [...cities][0] : null;
+}
+
 /** Said above the links, so nobody reads them as our own reviews. */
 export const MAP_LINKS_NOTE = {
   kr: '후기와 사진은 지도 앱에서 보세요.',

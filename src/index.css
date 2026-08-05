@@ -10069,3 +10069,41 @@ body {
   color: var(--green-ink);
 }
 .table-card__guides-label::after { content: ' · '; }
+/* "+3" after the first guide. A count, set apart so it does not read as part
+   of the guide's own name. */
+.table-card__guides-more {
+  margin-left: 5px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--green-tint);
+  color: var(--green-ink);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* What window the list is showing, and where. Sits directly over the week
+   strip it labels. */
+.week-strip__label {
+  margin: 14px 16px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-title);
+}
+
+/* The timezone sentence, shown only to a device that is not on Korean time.
+   Not an error and not a warning bar — it is a translation, so it reads as
+   quiet information rather than something going wrong. */
+.clock-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 16px 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-body);
+}
+.clock-note svg { flex: 0 0 auto; color: var(--muted-strong); }
