@@ -6,7 +6,7 @@
 // occupies one of the seats they opened, so a four-seat table has three to
 // give away — off-by-one here is somebody standing on a pavement in Jongno.
 
-import { stillHolding, isDeclined } from './seatRequest.js';
+import { stillHolding, isDeclined, acceptedSignups } from './seatRequest.js';
 import { isCancelled } from './cancellation.js';
 
 export const JOIN_BLOCK = {
@@ -37,6 +37,46 @@ export function seatsRemaining(table, signups = [], now = new Date()) {
 }
 
 /** Has the meal already happened? */
+/**
+ * Who is coming, said before how many are missing.
+ *
+ * The card counted only what was absent — "3 seats left" — which is the same
+ * sentence whether nobody has asked or two people are already going, so a
+ * table with momentum and a table with none looked identical in the list.
+ * Every reference the team studied counts the other direction: Meetup prints
+ * 13명의 참석자, 당근 prints 공감 28, 여기어때 prints 11,491명 평가. They
+ * count what is there.
+ *
+ * Confirmed seats only, the same rule the avatar stack already follows: a
+ * pending request holds a seat but is not a person who is coming, and saying
+ * otherwise would inflate a table on somebody's behalf.
+ *
+ * The host is counted, because the host is going — seatsRemaining has said so
+ * since it was written. But a table where the host is alone says exactly that
+ * rather than "1 going", which reads like a crowd of one.
+ */
+export function attendance(table, signups = [], now = new Date()) {
+  if (!table) return null;
+  const guests = acceptedSignups(signups).length;
+  const going = 1 + guests;
+  const left = seatsRemaining(table, signups, now);
+
+  if (left === 0) return { going, guests, left, kr: '자리 참', en: 'Full' };
+  if (guests === 0) {
+    // Honest and more useful than "1 going": it says the host is real, that
+    // nobody has been accepted yet, and — the part somebody deciding cares
+    // about — that being first is available.
+    return { going, guests, left, kr: '호스트만 있어요', en: 'Just the host so far' };
+  }
+  return {
+    going,
+    guests,
+    left,
+    kr: `${going}명 참석`,
+    en: `${going} going`,
+  };
+}
+
 export function isPast(table, now = new Date()) {
   if (!table?.date) return false;
   // Local time on purpose — a meal at 19:00 in Seoul is 19:00 to everyone

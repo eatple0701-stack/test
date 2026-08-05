@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
-import { seatsRemaining, isPast } from '../domain/policy/table.js';
+import { seatsRemaining, isPast, attendance } from '../domain/policy/table.js';
 import {
   listTables, listAllSignups, listBlocks, seedSampleTables, isLocalOnly,
 } from '../data/tableRepository.js';
@@ -18,6 +18,7 @@ import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import TablesMap from './TablesMap';
 import PhraseSheet from './PhraseSheet';
+import DishSheet from './DishSheet';
 import { hostRecord } from '../data/tableRepository.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
@@ -62,6 +63,8 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // Opened only from the bare-week empty state. Local, the way TableDetail and
   // the Passport each hold their own — the sheet takes no state worth lifting.
   const [phrasesOpen, setPhrasesOpen] = useState(false);
+  // The dish being read, from the shelf that appears on a bare week.
+  const [openDish, setOpenDish] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -386,10 +389,46 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         );
       })()}
 
+      {/* The dishes, on the week that has none of them on a table.
+          The filter chips above only render for dishes somebody is actually
+          eating — correct, since a filter returning nothing is a dead end
+          dressed as a choice. But all ten dishes exist whether or not anybody
+          opened a table, and each carries the only cultural writing this app
+          has, reachable until now only through a table's detail page. On a
+          bare week that made it reachable through nothing.
+
+          So these are not filters. They open the dish itself, which is why
+          they render exactly where a filter would be useless. 당근 opens on
+          seventeen 인기 검색어 chips and 여기어때 on twenty 인기 여행지 for
+          the same reason: a blank screen asks what to look for, and a chip
+          answers. */}
+      {tables !== null && emptyReason({ open, shown, menuFilter, womenFilter, dayFilter }) === EMPTY.NONE && (
+        <div className="dish-shelf">
+          <p className="dish-shelf__label">읽을거리 · Read about the dishes</p>
+          <div className="menu-chips" role="group" aria-label="Read about a dish">
+            {menus.map(m => (
+              <button key={m.id} className="menu-chip" onClick={() => setOpenDish(m)}>
+                <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
+                <span className="menu-chip__en">{m.name}</span>
+                <span className="menu-chip__gloss">{m.gloss}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {phrasesOpen && (
         <PhraseSheet
           onClose={() => setPhrasesOpen(false)}
           avoids={profile?.avoids}
+        />
+      )}
+
+      {openDish && (
+        <DishSheet
+          menu={openDish}
+          onClose={() => setOpenDish(null)}
+          onOpenTable={() => { setOpenDish(null); onCreateTable?.(); }}
         />
       )}
 
@@ -442,6 +481,23 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 <span className={`table-card__kind is-${tableKind(t)}`}>
                   <span className="table-card__kind-kr">{tableKindLabel(t).kr}</span>
                   <span className="table-card__kind-en">{tableKindLabel(t).en}</span>
+                </span>
+                {/* Meetup leads every card with 무료 or ₩40,000, because the
+                    first thing anybody checks before joining strangers is
+                    what it costs. This app writes no prices — they move by
+                    district and we cannot verify one — but that rule left the
+                    question unanswered rather than answered, and "does this
+                    app take my money?" is exactly what a traveller asks before
+                    handing over a phone number.
+
+                    So the card states the part we *can* verify, which is not a
+                    price but the absence of one: nothing is charged here. The
+                    fuller sentence — you pay the restaurant, so nobody at the
+                    table owes anybody — is in HOW_STEPS, two screens down the
+                    landing where a card-scanner never reaches it. */}
+                <span className="table-card__free" translate="no">
+                  <span className="table-card__free-kr">앱 결제 없음</span>
+                  <span className="table-card__free-en">No app payment</span>
                 </span>
                 {isMine && <span className="table-card__mine">Your table</span>}
                 {iAmGoing && <span className="table-card__mine">You are going</span>}
@@ -575,8 +631,16 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                       </span>
                     );
                   })()}
+                  {/* Who is coming, then how many are missing — the order
+                      every reference uses and the one this had backwards.
+                      TablePolicy owns both numbers so they cannot disagree. */}
                   <span className={`table-card__seats${left === 0 ? ' is-full' : ''}`}>
-                    {left === 0 ? 'Full' : `${left} seat${left === 1 ? '' : 's'} left`}
+                    <span className="table-card__going">{attendance(t, rows).en}</span>
+                    {left > 0 && (
+                      <span className="table-card__left">
+                        {`${left} seat${left === 1 ? '' : 's'} left`}
+                      </span>
+                    )}
                     <ChevronRightIcon size={14} />
                   </span>
                 </span>

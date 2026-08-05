@@ -9743,6 +9743,21 @@ body {
 }
 .app-chrome__gear:hover { background: var(--line); }
 .app-chrome__gear.is-on { color: var(--accent-ink); }
+/* Beside the name, not buried in Settings. Quieter than 로그인 is for a
+   guest — it is an exit, and an exit does not need to compete with the app. */
+.app-chrome__signout {
+  min-height: 44px;
+  padding: 0 10px;
+  border: none;
+  background: none;
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.app-chrome__signout:hover { color: var(--ink-body); text-decoration: underline; }
 .app-chrome__auth { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; }
 .app-chrome__signin {
   min-height: 44px;
@@ -10107,3 +10122,116 @@ body {
   color: var(--ink-body);
 }
 .clock-note svg { flex: 0 0 auto; color: var(--muted-strong); }
+
+/* ---------- The card's own answers (2026-08-05) ---------- */
+
+/* Meetup's 무료, in the only form this app can verify: not a price but the
+   absence of one. Same shape as the kind badge beside it. */
+.table-card__free {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--green-tint);
+  color: var(--green-ink);
+}
+.table-card__free-kr { font-size: 10.5px; font-weight: 700; }
+.table-card__free-en { font-size: 9.5px; font-weight: 600; opacity: 0.9; }
+
+/* Who is coming reads first and heavier; how many are missing follows it in
+   the quieter voice, because it is the smaller of the two facts. */
+.table-card__going { font-weight: 700; color: var(--green-ink); }
+.table-card__left {
+  margin-left: 6px;
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+.table-card__seats.is-full .table-card__going { color: var(--muted-strong); }
+
+/* The dish shelf, on a week with no tables. */
+.dish-shelf { margin-top: 4px; }
+.dish-shelf__label {
+  margin: 0 16px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-title);
+}
+
+/* ---------- Notice bar ---------- */
+
+.notice-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.notice-bar__kr { font-size: 13px; font-weight: 700; color: var(--ink-title); }
+.notice-bar__en { font-size: 12.5px; line-height: 1.45; color: var(--ink-body); }
+/* Conditions are about tonight; about is about the app. The first earns a
+   warmer ground, the second stays as quiet as a footnote. */
+.notice-bar--conditions {
+  background: var(--orange-tint, var(--surface));
+  border-bottom-color: var(--orange-ink, var(--line));
+}
+
+/* ---------- Dish sheet ---------- */
+
+.dish-sheet__body { padding: 16px 16px 40px; }
+.dish-sheet__gloss {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-title);
+  line-height: 1.4;
+}
+.dish-sheet__roman {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--muted-strong);
+}
+.dish-sheet__block { margin-top: 22px; }
+.dish-sheet__label {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-ink);
+}
+.dish-sheet__block p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+.dish-sheet__contains,
+.dish-sheet__zones {
+  margin-top: 8px !important;
+  font-size: 13px !important;
+  color: var(--muted-strong) !important;
+}
+.dish-sheet__varies {
+  margin-top: 8px !important;
+  padding: 9px 11px;
+  border-radius: var(--radius);
+  background: var(--orange-tint, var(--surface));
+  color: var(--orange-ink, var(--ink-body)) !important;
+  font-size: 13px !important;
+}
+.dish-sheet__zones { margin: 18px 0 0; }
+.dish-sheet__cta {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 26px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  seatsRemaining, isPast, joinBlocker, canJoin, validateNewTable, JOIN_BLOCK,
+  seatsRemaining, isPast, joinBlocker, canJoin, validateNewTable, attendance, JOIN_BLOCK,
 } from '../policy/table.js';
 import { menuById, menus, sharedOnlyMenus, defaultHourFor } from '../catalog/menus.js';
 import { RESTRICTIONS } from '../../data/profile.js';
@@ -203,4 +203,67 @@ test('every dish says in English what it is', () => {
     // It is a name, not a paragraph — it sits under the title on a card.
     assert.ok(m.gloss.length < 40, `${m.id}'s gloss is too long to sit under a name`);
   }
+});
+
+test('a table counts who is coming before it counts who is missing', () => {
+  // "3 seats left" reads the same whether nobody asked or two people are
+  // already going, so a table with momentum and one with none looked
+  // identical in the list. Every reference the team studied counts the other
+  // way: Meetup 13명의 참석자, 당근 공감 28, 여기어때 11,491명 평가.
+  const rows = [
+    { ...signup('a'), status: 'accepted' },
+    { ...signup('b'), status: 'accepted' },
+  ];
+  const a = attendance(table({ seats: 4 }), rows, before);
+  assert.equal(a.going, 3, 'the host is going to their own table');
+  assert.equal(a.guests, 2);
+  assert.equal(a.left, 1);
+  assert.equal(a.en, '3 going');
+  assert.match(a.kr, /3명 참석/);
+});
+
+test('a pending request is a seat held, not a person coming', () => {
+  // Same rule the avatar stack already follows. A request the host has not
+  // answered holds the seat — so it must reduce `left` — but printing it as
+  // somebody who is going would inflate the table on their behalf.
+  const rows = [{ ...signup('a'), status: 'pending' }];
+  const a = attendance(table({ seats: 4 }), rows, before);
+  assert.equal(a.guests, 0, 'a pending guest is not going yet');
+  assert.equal(a.left, 2, 'but their seat is held');
+  assert.match(a.en, /Just the host/);
+});
+
+test('a table nobody has joined says so plainly rather than "1 going"', () => {
+  // True either way; "1 going" reads like a crowd of one. This says the host
+  // is real, nobody is accepted yet, and being first is available.
+  const a = attendance(table({ seats: 4 }), [], before);
+  assert.equal(a.going, 1);
+  assert.equal(a.en, 'Just the host so far');
+  assert.match(a.kr, /[가-힣]/);
+  assert.ok(!/1 going/.test(a.en));
+});
+
+test('a full table says full rather than counting into a wall', () => {
+  const rows = ['a', 'b', 'c'].map(u => ({ ...signup(u), status: 'accepted' }));
+  const a = attendance(table({ seats: 4 }), rows, before);
+  assert.equal(a.left, 0);
+  assert.equal(a.en, 'Full');
+});
+
+test('attendance never disagrees with seatsRemaining', () => {
+  // Two numbers on one card that contradict each other is worse than either
+  // alone, so the left half is the same function the seat rules use.
+  for (const seats of [2, 3, 4, 6]) {
+    for (const accepted of [0, 1, 2]) {
+      const rows = Array.from({ length: accepted }, (_, i) => ({ ...signup(`g${i}`), status: 'accepted' }));
+      const t = table({ seats });
+      assert.equal(attendance(t, rows, before).left, seatsRemaining(t, rows, before), `${seats}/${accepted}`);
+    }
+  }
+});
+
+test('attendance survives a missing table rather than throwing', () => {
+  assert.equal(attendance(null, []), null);
+  assert.equal(attendance(undefined), null);
+  assert.ok(attendance(table(), undefined, before));
 });

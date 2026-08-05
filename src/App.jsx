@@ -25,6 +25,7 @@ import { isMember } from './domain/policy/access.js';
 import AuthSheet from './components/AuthSheet';
 import SettingsTab from './components/SettingsTab';
 import OfflineBar from './components/OfflineBar';
+import NoticeBar from './components/NoticeBar';
 import { MAP_CENTER } from './utils';
 import { pathFor, stateFromPath, hasAuthPayload } from './routes.js';
 import { matchesDietary, isQuarantined } from './data/verification';
@@ -750,15 +751,34 @@ export default function App() {
             <GearIcon size={20} />
           </button>
           {isMember(auth) ? (
-            <button
-              className="app-chrome__me"
-              onClick={() => { setOpenThemeId(null); goToTab('journal'); }}
-            >
-              {profile?.avatarUrl
-                ? <img className="app-chrome__avatar" src={profile.avatarUrl} alt="" />
-                : <span className="app-chrome__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
-              <span className="app-chrome__name">{profile?.name?.trim() || 'My passport'}</span>
-            </button>
+            <>
+              <button
+                className="app-chrome__me"
+                onClick={() => { setOpenThemeId(null); goToTab('journal'); }}
+              >
+                {profile?.avatarUrl
+                  ? <img className="app-chrome__avatar" src={profile.avatarUrl} alt="" />
+                  : <span className="app-chrome__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
+                <span className="app-chrome__name">{profile?.name?.trim() || 'My passport'}</span>
+              </button>
+              {/* Beside the name it ends, which is where every site the team
+                  studied puts it. Signing out lived only inside Settings —
+                  two taps and a scroll from the chip that says who you are,
+                  and on a shared or borrowed phone that distance is the whole
+                  problem. Nothing is confirmed because nothing is lost:
+                  signing back in restores the same account. */}
+              <button
+                className="app-chrome__signout"
+                translate="no"
+                title="로그아웃 · Sign out"
+                onClick={async () => {
+                  await signOutMember().catch(() => {});
+                  await refreshAuth();
+                }}
+              >
+                로그아웃
+              </button>
+            </>
           ) : (
             <span className="app-chrome__auth">
               <button className="app-chrome__signin" translate="no" onClick={() => setAuthMode('signin')}>로그인</button>
@@ -767,6 +787,12 @@ export default function App() {
           )}
         </span>
       </header>
+
+      {/* What the team needs everybody to know today. 제주항공 leads its whole
+          site with operational notices, above every fare — a service people
+          plan a day around says the day-breaking thing first. This app had
+          nowhere to put such a line at all. Renders nothing most days. */}
+      <NoticeBar />
 
       {/* Under the chrome and above everything else, because it changes what
           the screen below it can promise. Renders nothing at all while the
