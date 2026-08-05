@@ -127,6 +127,7 @@ export default function HomeTab({
              One question at a time, at the width of the screen. */}
       <div className="home-section">
         <div className="stack-head">
+          <span className="stack-head__kr" translate="no">문화</span>
           <h2 className="stack-head__title">Seven questions about how Korea eats</h2>
           <p className="stack-head__sub">Each one is a culture you can walk into.</p>
         </div>

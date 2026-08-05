@@ -7228,6 +7228,7 @@ body {
 /* The Korean word becomes a small warm label instead of a wall of type. */
 .screen-head__kr,
 .tables-lead__kr,
+.stack-head__kr,
 .cover__label,
 .detail-hero__cat,
 .today-table__eyebrow,
@@ -7239,6 +7240,12 @@ body {
   text-transform: none;
   color: var(--accent-ink);
 }
+/* Above the sentence, not beside it — the shape 밥친구 and 여권 already have.
+   .tables-lead__kr had a rule here and no element: the label was taken out of
+   TablesLead when the wordmark moved to the app chrome, which left Explore as
+   the one tab opening in English only. */
+.tables-lead__kr,
+.stack-head__kr { display: block; margin-bottom: 3px; }
 
 .screen-head__title,
 .cover__question,

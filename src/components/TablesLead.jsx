@@ -62,6 +62,12 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
               the app chrome now, four lines up the screen, and printing the
               product's own name twice in one viewport is the section
               introducing an app the reader is already inside. */}
+          {/* Every other tab opens with a Korean word over its English
+              sentence — 밥친구, 여권 — and Explore was the one screen that
+              did not. The Korean is a label rather than a translation, which
+              is the same thing 밥친구 and 여권 are: it names the section, and
+              the sentence under it does the explaining. */}
+          <span className="tables-lead__kr" translate="no">이번 주 밥상</span>
           <h2 className="tables-lead__title">
             {open.length > 0
               ? 'Tables you could join this week'

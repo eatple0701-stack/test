@@ -28,7 +28,7 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
       )}
 
       <div className="cover__masthead">
-        <span className="cover__label">Editor&rsquo;s pick</span>
+        <span className="cover__label" translate="no">오늘의 추천 · Editor&rsquo;s pick</span>
         <span className="cover__date">
           {at.toLocaleDateString('en-GB', DATE_FORMAT)}
         </span>
