@@ -1835,6 +1835,51 @@ button {
   cursor: pointer;
 }
 
+/* ---------- 오늘 뭐 먹지 ---------- */
+
+.roulette { display: flex; flex-direction: column; gap: 10px; }
+.roulette__title { margin: 0; display: flex; flex-direction: column; gap: 3px; font-size: 20px; font-weight: 800; color: var(--ink-title); }
+.roulette__title-en { font-size: 14px; font-weight: 600; color: var(--ink-body); }
+.roulette__stage {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 150px;
+  padding: 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  justify-content: center;
+}
+.roulette__idle { font-size: 13.5px; color: var(--muted-strong); text-align: center; }
+.roulette__dish-kr { font-size: 30px; font-weight: 800; line-height: 1.1; color: var(--ink-title); }
+.roulette__dish-en { font-size: 16px; font-weight: 700; color: var(--ink-title); }
+.roulette__gloss { font-size: 13.5px; color: var(--muted-strong); }
+.roulette__why { margin-top: 6px; font-size: 13px; line-height: 1.55; color: var(--ink-body); }
+.roulette__spin {
+  min-height: 50px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.roulette__spin:disabled { opacity: 0.6; cursor: default; }
+.roulette__go,
+.roulette__close {
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-title);
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.roulette__close { border-color: transparent; color: var(--muted-strong); }
+
 .journal-empty__icon {
   font-size: 40px;
   line-height: 1;

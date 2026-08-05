@@ -151,8 +151,8 @@ export default function HomeTab({
             <span className="surprise-btn__label">Culture Cards</span>
           </button>
           <button className="surprise-btn" onClick={() => setShowRoulette(true)}>
-            <span className="surprise-btn__kr">추첨</span>
-            <span className="surprise-btn__label">Food Roulette</span>
+            <span className="surprise-btn__kr">오늘 뭐 먹지</span>
+            <span className="surprise-btn__label">Pick a dish for me</span>
           </button>
         </div>
       </div>
@@ -168,7 +168,13 @@ export default function HomeTab({
           dashboard and the challenge row were already on the Passport, in
           the same words, and printing progress twice does not double it. */}
 
-      {showRoulette && <FoodRoulette onClose={() => setShowRoulette(false)} />}
+      {showRoulette && (
+        <FoodRoulette
+          onClose={() => setShowRoulette(false)}
+          /* A dish with nowhere to go is where this used to stop. */
+          onOpenTables={() => { setShowRoulette(false); onNavigate('match'); }}
+        />
+      )}
       {showCulture && <CultureCards onClose={() => setShowCulture(false)} startIndex={cultureStart} />}
     </section>
   );
