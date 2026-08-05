@@ -34,6 +34,7 @@ export default function MapOverlay({
   onSearchChange,
   selectedFilters,
   onToggleFilter,
+  onResetFilters,
 }) {
   useEffect(() => {
     if (!open) return undefined;
@@ -84,6 +85,7 @@ export default function MapOverlay({
             onReadStory={onReadStory}
             onToggleBookmark={onToggleBookmark}
             sustainabilityLens={sustainabilityLens}
+            onResetFilters={onResetFilters}
           />
         </section>
       </div>

@@ -1020,6 +1020,10 @@ export default function App() {
         onSearchChange={setSearchQuery}
         selectedFilters={selectedFilters}
         onToggleFilter={handleToggleFilter}
+        /* The empty list's way out. It used to call window.location.reload()
+           under a "Reset Filters" label — a full reload standing in for a
+           state change the app can make here in one line. */
+        onResetFilters={() => { setSelectedFilters([]); setSearchQuery(''); }}
       />
 
       {/* Layer 2: Full-Screen Detail Modal */}

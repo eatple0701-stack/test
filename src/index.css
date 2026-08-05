@@ -1771,6 +1771,70 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
 }
+/* Left-aligned rather than centred, because it is now a block in a reading
+   column rather than a poster at the bottom of one. */
+.journal-empty { text-align: left; align-items: stretch; margin: 0 16px; }
+.journal-empty__kr {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink-title);
+}
+.journal-empty__en {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+.journal-empty__ways { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.journal-empty__cta {
+  min-height: 48px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.journal-empty__ask {
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-title);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* The map list's empty state, rebuilt off its inline styles at the same
+   time — same shape, so the two read as one app. */
+.place-list__empty-kr {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink-title);
+}
+.place-list__empty-en {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+.place-list__empty-cta {
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-title);
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .journal-empty__icon {
   font-size: 40px;
   line-height: 1;

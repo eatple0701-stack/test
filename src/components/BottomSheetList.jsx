@@ -105,7 +105,7 @@ function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, l
 
 export default function BottomSheetList({
   restaurants, onRestaurantClick, onReadStory, onToggleBookmark, bookmarkedIds, mapCenter,
-  sustainabilityLens,
+  sustainabilityLens, onResetFilters,
 }) {
   const sorted = useMemo(() =>
     restaurants
@@ -145,12 +145,27 @@ export default function BottomSheetList({
         />
       ))}
 
+      {/* Two things were wrong here and both were inherited rather than
+          decided. A stock photograph of somebody else's travel, loaded from
+          images.unsplash.com — an external host the service worker passes
+          straight through, so the empty state was a broken image on exactly
+          the connection that produced it. And a button labelled Reset Filters
+          that called window.location.reload(): not a reset, a full reload
+          that throws away the session and re-downloads the app to achieve
+          something the caller can do in one line. On a weak signal it left a
+          blank screen. onResetFilters is that one line. */}
       {sorted.length === 0 && (
-        <div className="place-list__empty" style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '16px' }}>
-          <img src="https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&q=80&w=200&h=200" alt="No places" style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', marginBottom: '16px' }} />
-          <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>No Places Found</h3>
-          <p style={{ color: 'var(--muted)', marginBottom: '16px' }}>Try removing a filter or searching a different name or area.</p>
-          <button className="btn-secondary" onClick={() => window.location.reload()}>Reset Filters</button>
+        <div className="place-list__empty">
+          <p className="place-list__empty-kr" translate="no">찾은 곳이 없어요</p>
+          <p className="place-list__empty-en">
+            No place matches all of the filters at once. Removing one usually
+            brings the list back.
+          </p>
+          {onResetFilters && (
+            <button className="place-list__empty-cta" translate="no" onClick={onResetFilters}>
+              필터 모두 끄기 · Clear the filters
+            </button>
+          )}
         </div>
       )}
     </div>

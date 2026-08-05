@@ -580,6 +580,47 @@ export default function JournalPanel({
         </div>
       )}
 
+      {/* Moved here from the bottom of the screen on 2026-08-05, and rewritten
+          on the way.
+
+          It sat below four counters reading 0 and a goal list reading 0/4 —
+          2.2 screens down, so somebody who had just made an account scrolled
+          past every zero the app could show before reaching the sentence that
+          says what to do about them. The order was backwards: this is the one
+          block that is *for* an empty Passport, so it goes where the record
+          would have been.
+
+          What it said was inherited too. A stock photograph from
+          images.unsplash.com — somebody else's travel, on a public-diplomacy
+          project, loaded from a host the service worker passes straight
+          through, so the empty state broke on exactly the connection that
+          produced it. A title-cased English headline with no Korean beside it,
+          on the screen a traveller opens to read Korean. And every rule inline
+          rather than in the stylesheet. All of it dates from the K-Food Map
+          shell this repo grew out of.
+
+          It keeps both doors, because those were right. */}
+      {isEmpty && (
+        <div className="journal-empty">
+          <p className="journal-empty__kr" translate="no">아직 아무것도 없어요</p>
+          <p className="journal-empty__en">
+            This fills itself. Ask for a seat at a table, or read your way
+            through a culture — whatever you do lands here, with the date it
+            happened.
+          </p>
+          {onNavigate && (
+            <div className="journal-empty__ways">
+              <button className="journal-empty__cta" translate="no" onClick={() => onNavigate('match')}>
+                밥상 찾기 · Find a table
+              </button>
+              <button className="journal-empty__ask" translate="no" onClick={() => onNavigate('home')}>
+                문화 읽기 · Read a culture
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Four counts, and each one is something this app helped cause.
           "Areas" and "Saved" were here before — a district total is a tourist
           statistic, and a wishlist is not an achievement. */}
@@ -714,22 +755,6 @@ export default function JournalPanel({
         </div>
       )}
 
-
-      {isEmpty && (
-        <div className="journal-empty" style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '16px', marginTop: '20px' }}>
-          <img src="https://images.unsplash.com/photo-1580651315530-69c8e0026377?auto=format&fit=crop&q=80&w=200&h=200" alt="Empty Passport" style={{ width: 150, height: 150, borderRadius: '50%', objectFit: 'cover', marginBottom: '20px' }} />
-          <h3 style={{ fontSize: '20px', marginBottom: '8px' }}>Your Travel Memories are Waiting</h3>
-          <p style={{ color: 'var(--muted)', marginBottom: '24px', lineHeight: '1.5' }}>
-            Ask for a seat at a table, or explore a culture — whatever you do lands here.
-          </p>
-          {onNavigate && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button className="btn-primary" onClick={() => onNavigate('match')} style={{ width: '100%' }}>Find a table</button>
-              <button className="btn-secondary" onClick={() => onNavigate('home')} style={{ width: '100%' }}>Explore cultures</button>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* "cannot review cultures i read through in passport" — a tester's
           note, and they were right: a theme you finished disappeared from
