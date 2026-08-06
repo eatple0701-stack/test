@@ -37,7 +37,21 @@ const tablePin = (menu, left) => L.divIcon({
   iconAnchor: [30, 46],
 });
 
-export default function TablesMap({ tables = [], signupsFor = {}, onOpenTable, onClose }) {
+export default function TablesMap({
+  tables = [], signupsFor = {}, onOpenTable, onClose,
+  // 'overlay' is the full-screen map. 'preview' is the small one that sits in
+  // the Tables tab where a button used to: a map you have to ask for is a map
+  // most people never see, and "지도로 보기" told somebody a map existed
+  // without showing them the one fact they wanted — whether tonight's dinner
+  // is anywhere near where they are sleeping.
+  //
+  // The preview is deliberately dead to touch. A live Leaflet inside a
+  // scrolling page swallows the drag that was meant to scroll it, which on a
+  // phone means the page stops moving and nobody knows why. So it draws, and
+  // the whole thing is one button into the real map.
+  variant = 'overlay',
+  onOpen,
+}) {
   const placed = useMemo(() => mappable(tables), [tables]);
   const notice = useMemo(() => unplacedNotice(tables), [tables]);
 
@@ -51,6 +65,53 @@ export default function TablesMap({ tables = [], signupsFor = {}, onOpenTable, o
       pts.reduce((s, p) => s + p.lng, 0) / pts.length,
     ];
   }, [placed]);
+
+  const pins = placed.map(t => {
+    const menu = menuById(t.menuId);
+    const p = pointOf(t);
+    const left = seatsRemaining(t, signupsFor[t.id] ?? []);
+    return { t, menu, p, left };
+  });
+
+  if (variant === 'preview') {
+    return (
+      <button
+        className="tables-map-preview"
+        onClick={onOpen}
+        aria-label={placed.length > 0
+          ? `Open the map, ${placed.length} table${placed.length === 1 ? '' : 's'} on it`
+          : 'Open the map'}
+      >
+        <span className="tables-map-preview__canvas" aria-hidden="true">
+          <MapContainer
+            center={center}
+            zoom={12}
+            style={{ height: '100%', width: '100%' }}
+            zoomControl={false}
+            dragging={false}
+            scrollWheelZoom={false}
+            touchZoom={false}
+            doubleClickZoom={false}
+            boxZoom={false}
+            keyboard={false}
+            attributionControl={false}
+          >
+            <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            {pins.map(({ t, menu, p, left }) => (
+              <Marker key={t.id} position={[p.lat, p.lng]} icon={tablePin(menu, left)} interactive={false} />
+            ))}
+          </MapContainer>
+        </span>
+        {/* Attribution still has to be here — the tiles are OpenStreetMap's
+            whether or not the control is drawn, and hiding the control does
+            not make the licence go away. */}
+        <span className="tables-map-preview__credit">© OpenStreetMap</span>
+        <span className="tables-map-preview__cta" translate="no">
+          지도로 보기 · See these on a map
+        </span>
+      </button>
+    );
+  }
 
   return (
     <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label="Tables on the map">

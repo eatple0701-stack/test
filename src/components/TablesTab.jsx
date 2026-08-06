@@ -204,10 +204,20 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           on, and the action is opening a table. */}
       {/* 부장님's 모임 장소 표시. Beside the week rather than in the tab bar,
           because "which day" and "where" are the same decision made twice. */}
+      {/* The map itself, small, where a button used to say one existed.
+          "지도로 보기" asked somebody to take it on faith that a map would
+          help — and the question it answers, is any of this near where I am
+          sleeping, is answered by looking, not by reading that looking is
+          possible. 여기어때 and 야놀자 both draw the map on the list screen
+          for the same reason. The preview does not take touch; the whole
+          card is the way into the real one. */}
       {tables !== null && open.length > 0 && (
-        <button className="tables-map-open" translate="no" onClick={() => setMapOpen(true)}>
-          <MapPinIcon size={15} /> 지도로 보기 · See these on a map
-        </button>
+        <TablesMap
+          variant="preview"
+          tables={open}
+          signupsFor={signupsFor}
+          onOpen={() => setMapOpen(true)}
+        />
       )}
 
       {/* The strip had no label, so the list never said what window it was

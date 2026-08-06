@@ -376,31 +376,26 @@ export default function JournalPanel({
         </p>
       </header>
 
-      {/* The two tools first — 8/4's ordering. The phrasebook and the safety
-          sheet are what somebody standing in a restaurant actually opens this
-          tab for, and they work signed out; nothing on this screen should
-          stand between a person at a counter and the sentence they need. */}
-      <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
-        <span className="journal-tool__kr" translate="no">식탁에서</span>
-        <span className="journal-tool__body">
-          What to say — ordering, what you cannot eat, and something to ask the
-          table. Works with or without a meal booked.
-        </span>
-      </button>
+      {/* The person first, then the two tools, then the record — asked for on
+          2026-08-05 and it reverses 8/4's ordering, which put the phrasebook
+          and the safety sheet above everything on the grounds that they are
+          what somebody standing at a counter opens this tab for.
 
-      {/* Getting help, from a screen that is always two taps away. The
-          emergency numbers, the leave-at-any-point line and the report
-          channel are no use behind a door you can only find while shopping
-          for a specific dinner — which is where this used to live. */}
-      <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
-        <span className="journal-tool__kr" translate="no">도움이 필요하면</span>
-        <span className="journal-tool__body">
-          112, 119, the 24-hour travel helpline, and how to reach the 밥친구
-          team. You can leave any meal at any point.
-        </span>
-      </button>
+          That reason still holds and is the price of this change, so here it
+          is measured rather than waved at: on a 375x812 screen 식탁에서 now
+          starts at 0.82 of a screen and 도움이 필요하면 at 1.00 — the help
+          sheet's own row has crossed the fold. It is one thumb-flick away
+          rather than visible on arrival.
 
-      {/* Then the person, then their record. A member sees the values every
+          What buys that back is that this tab is also where a person's own
+          details live, and a screen called 여권 opening on somebody else's
+          phrasebook instead of on the holder's own name reads like a manual
+          rather than a passport. If the emergency numbers ever need to be
+          reachable without scrolling, the answer is a place in the app chrome,
+          not this screen's running order — this one only ever had room for
+          whichever block came first. */}
+
+      {/* A member sees the values every
           table reads — set during signup, editable here, which is the "개개인이
           설정한 설정값을 볼 수 있게" half of the 8/4 direction. A guest sees
           the door those values live behind: 나만의 프로필 만들기, where 만들기
@@ -488,6 +483,28 @@ export default function JournalPanel({
           </button>
         </div>
       )}
+
+      {/* The two tools, under the person they belong to. Both still work
+          signed out — a guest sees the gate above and these below it, so the
+          sentence somebody needs at a counter is never behind an account. */}
+      <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
+        <span className="journal-tool__kr" translate="no">식탁에서</span>
+        <span className="journal-tool__body">
+          What to say — ordering, what you cannot eat, and something to ask the
+          table. Works with or without a meal booked.
+        </span>
+      </button>
+
+      {/* The emergency numbers, the leave-at-any-point line and the report
+          channel. No use behind a door you can only find while shopping for a
+          specific dinner — which is where they used to live. */}
+      <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
+        <span className="journal-tool__kr" translate="no">도움이 필요하면</span>
+        <span className="journal-tool__body">
+          112, 119, the 24-hour travel helpline, and how to reach the 밥친구
+          team. You can leave any meal at any point.
+        </span>
+      </button>
 
       {/* Above the record, because it has not happened yet. This is also the
           only place a traveller can check what they agreed to — a seat taken
