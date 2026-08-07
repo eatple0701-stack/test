@@ -10734,8 +10734,26 @@ body {
   box-shadow: var(--shadow-2);
   text-align: center;
 }
+/* The close button. 44px of target in the corner, and the text is inset on
+   that side so a long line never runs under it. */
+.main-sticky__close {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: none;
+  color: var(--muted-strong);
+  cursor: pointer;
+  border-radius: 50%;
+}
+.main-sticky__close:hover { background: var(--fill); color: var(--ink-title); }
 .main-sticky__text {
   margin: 0 0 10px;
+  padding-right: 34px;
   font-size: 13.5px;
   font-weight: 700;
   color: var(--ink-title);

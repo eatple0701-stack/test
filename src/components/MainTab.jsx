@@ -5,7 +5,7 @@ import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import { MAIN_PHOTOS } from '../content/mainPhotos.js';
 import TablesLead from './TablesLead';
 import DishSheet from './DishSheet';
-import { ChevronRightIcon } from './Icons';
+import { ChevronRightIcon, XIcon } from './Icons';
 
 // 메인 — the front door, added 2026-08-06 and rebuilt the same day.
 //
@@ -52,10 +52,21 @@ export default function MainTab({
   auth, profile, onNavigate, onOpenTable, onCreateTable, onOpenAuth,
 }) {
   const [openDish, setOpenDish] = useState(null);
+  // Whether the sticky join bar has been waved away. Component state, so it
+  // lasts as long as this visit and no longer — see the bar's own comment.
+  const [stickyClosed, setStickyClosed] = useState(false);
   const member = isMember(auth);
 
+  // The extra bottom padding exists only to clear the sticky bar, so it
+  // leaves with it — otherwise dismissing the bar leaves 190px of nothing
+  // under the footer.
+  const stickyShown = !member && !stickyClosed;
+
   return (
-    <section className={`main-tab${member ? '' : ' main-tab--sticky'}`} aria-label="밥친구 main">
+    <section
+      className={`main-tab${stickyShown ? ' main-tab--sticky' : ''}`}
+      aria-label="밥친구 main"
+    >
 
       {/* ---- Hero. Meetup's phone and desktop heroes are different
               layouts, not one squeezed: the phone puts headline, then CTA,
@@ -239,8 +250,22 @@ export default function MainTab({
           has to earn each pixel it occupies, so it is one line and one
           button. .main-tab--sticky pads the page bottom so the footer's
           last row is never parked underneath it. */}
-      {!member && !openDish && (
+      {stickyShown && !openDish && (
         <div className="main-sticky">
+          {/* Closable, asked for on 2026-08-07. A bar that follows every
+              scroll and cannot be dismissed is not an invitation, it is
+              furniture in the way — and this one sits over the bottom of
+              the footer, which is where the team's own contact line is.
+              Dismissal lasts the session: closing something that comes
+              back on the next scroll is not closing it. It returns on a
+              fresh visit, because the reason for it has not gone away. */}
+          <button
+            className="main-sticky__close"
+            aria-label="닫기 · Dismiss"
+            onClick={() => setStickyClosed(true)}
+          >
+            <XIcon size={16} />
+          </button>
           <p className="main-sticky__text" translate="no">
             가입하고 이번 주 밥상에 앉아보세요 · Join and take a seat
           </p>
