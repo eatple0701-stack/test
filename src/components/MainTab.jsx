@@ -55,27 +55,16 @@ export default function MainTab({
   const member = isMember(auth);
 
   return (
-    <section className="main-tab" aria-label="밥친구 main">
+    <section className={`main-tab${member ? '' : ' main-tab--sticky'}`} aria-label="밥친구 main">
 
-      {/* ---- Hero: a big centred sentence with the dishes floating round
-              it, the way Meetup floats its photographs. ---- */}
+      {/* ---- Hero. Meetup's phone and desktop heroes are different
+              layouts, not one squeezed: the phone puts headline, then CTA,
+              then one big collage blob under it; the desktop floats four
+              blobs around a huge centred headline. The copy comes first in
+              the DOM so the phone's natural flow is already Meetup's order,
+              and the desktop lifts the blobs out with position:absolute
+              where DOM order stops mattering. ---- */}
       <header className="main-hero">
-        <div className="main-hero__blobs" aria-hidden="true">
-          {HERO_BLOBS.map((b, i) => {
-            const photo = MAIN_PHOTOS[i];
-            return (
-              <span key={b.word} className={`main-blob main-blob--${i} ${b.tone}`}>
-                {photo
-                  ? <img className="main-blob__img" src={photo.src} alt="" loading="lazy" />
-                  : <span className="main-blob__word" translate="no">{b.word}</span>}
-                <span className="main-blob__tag" translate="no">{photo?.label ?? b.tag}</span>
-              </span>
-            );
-          })}
-          <Squiggle className="main-hero__squiggle main-hero__squiggle--l" />
-          <Squiggle className="main-hero__squiggle main-hero__squiggle--r" />
-        </div>
-
         <div className="main-hero__copy">
           <span className="main-hero__kr" translate="no">밥친구 · Eatple</span>
           <h1 className="main-hero__title" translate="no">
@@ -93,6 +82,25 @@ export default function MainTab({
           <button className="main-hero__alt" translate="no" onClick={onCreateTable}>
             상 차리기 · Open a table <ChevronRightIcon size={14} />
           </button>
+        </div>
+
+        {/* The collage. One big blob under the CTA on a phone, four floating
+            around the headline on a desktop — Meetup's own split. Photos
+            take these slots the moment mainPhotos.js has any. */}
+        <div className="main-hero__blobs" aria-hidden="true">
+          {HERO_BLOBS.map((b, i) => {
+            const photo = MAIN_PHOTOS[i];
+            return (
+              <span key={b.word} className={`main-blob main-blob--${i} ${b.tone}`}>
+                {photo
+                  ? <img className="main-blob__img" src={photo.src} alt="" loading="lazy" />
+                  : <span className="main-blob__word" translate="no">{b.word}</span>}
+                <span className="main-blob__tag" translate="no">{photo?.label ?? b.tag}</span>
+              </span>
+            );
+          })}
+          <Squiggle className="main-hero__squiggle main-hero__squiggle--l" />
+          <Squiggle className="main-hero__squiggle main-hero__squiggle--r" />
         </div>
       </header>
 
@@ -224,6 +232,23 @@ export default function MainTab({
           © 2026 밥친구 · Eatple — 디지털 공공외교 파일럿 · a digital public diplomacy pilot
         </p>
       </footer>
+
+      {/* Meetup's phone-only sticky join bar, riding just above our tab
+          bar. Guests only, this tab only, and hidden the moment a sheet or
+          the desktop layout takes over — a bar that follows every scroll
+          has to earn each pixel it occupies, so it is one line and one
+          button. .main-tab--sticky pads the page bottom so the footer's
+          last row is never parked underneath it. */}
+      {!member && !openDish && (
+        <div className="main-sticky">
+          <p className="main-sticky__text" translate="no">
+            가입하고 이번 주 밥상에 앉아보세요 · Join and take a seat
+          </p>
+          <button className="main-sticky__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
+            회원 가입 · Join free
+          </button>
+        </div>
+      )}
 
       {openDish && (
         <DishSheet

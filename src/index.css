@@ -10407,32 +10407,31 @@ body {
   cursor: pointer;
 }
 /* ================================================================
-   메인 — the front door (2026-08-06, rebuilt the same day)
+   메인 — the front door (2026-08-06, rebuilt twice the same day)
    ================================================================
-   The first pass carried Meetup's structure and none of its character;
-   the owner put the two side by side and said so. What makes that page
-   that page: a headline set enormous in the centre of a mostly empty
-   screen, photo blobs floating either side with tilted tags, hand-drawn
-   squiggles, a zigzag of steps joined by curly arrows, and a screen of
-   air per section. This is those, in our palette, with type standing in
-   for the photographs until mainPhotos.js has some. */
+   Meetup ships two different heroes, not one squeezed: the phone runs
+   headline → CTA → one big collage blob, a 2-column category grid, a
+   plain join section, a sticky join bar riding the bottom, and an
+   edge-to-edge footer; the desktop floats four blobs around a 64px
+   centred headline, zigzags the steps, and rounds the footer into a
+   slab. These rules are the phone's, and the media query below is the
+   desktop's. Type stands in for photographs until mainPhotos.js has
+   some. */
 
 .main-tab { padding-bottom: 34px; }
-/* A landing breathes wider than an app screen: undo the 720px column the
-   shell gives every tab, then let each band centre itself. */
+/* Room for the sticky join bar, so the footer's last line is never
+   parked underneath it. */
+.main-tab--sticky { padding-bottom: 190px; }
 @media (min-width: 768px) {
   .content-region > .main-tab { max-width: 1100px; }
+  .main-tab--sticky { padding-bottom: 34px; }
 }
 
-/* ---- Hero ---- */
+/* ---- Hero (phone: copy, then the collage under it) ---- */
 .main-hero {
   position: relative;
-  /* Top padding clears the two floating blobs entirely on a phone — the
-     collage sits above the headline the way Meetup's own mobile collapse
-     does, never over it. Measured: blobs end at ~118px. */
-  padding: 132px 20px 58px;
+  padding: 40px 20px 52px;
   text-align: center;
-  overflow: hidden;
 }
 .main-hero__copy {
   position: relative;
@@ -10490,18 +10489,25 @@ body {
   cursor: pointer;
 }
 
-/* The floating blobs — photo-shaped even before there are photos. */
-.main-hero__blobs { position: absolute; inset: 0; pointer-events: none; }
+/* The collage. On a phone it is one big blob under the CTA — Meetup's
+   own mobile collapse — with the squiggles keeping it company. */
+.main-hero__blobs {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-top: 34px;
+  pointer-events: none;
+}
 .main-blob {
-  position: absolute;
+  position: relative;
   display: grid;
   place-items: center;
-  width: 150px;
-  height: 108px;
+  width: 252px;
+  height: 178px;
   border-radius: 54% 46% 58% 42% / 55% 48% 52% 45%;
 }
 .main-blob__word {
-  font-size: 27px;
+  font-size: 46px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -10515,15 +10521,15 @@ body {
 }
 .main-blob__tag {
   position: absolute;
-  left: -8px;
-  bottom: -10px;
-  padding: 5px 10px;
+  left: -10px;
+  bottom: -8px;
+  padding: 6px 11px;
   border-radius: 999px;
   background: var(--surface);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-1);
   color: var(--ink-title);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   white-space: nowrap;
   transform: rotate(-6deg);
@@ -10540,22 +10546,19 @@ body {
 .main-blob.b-pine { background: var(--ex-field); }
 .main-blob.b-pine .main-blob__word { color: var(--ex-brass); }
 
-/* Phone: two blobs above the headline, two tucked low, like Meetup's own
-   mobile collapse — the copy keeps the centre. */
-.main-blob--0 { top: 10px; left: -22px; transform: rotate(-7deg); }
-.main-blob--1 { top: 16px; right: -26px; transform: rotate(6deg); }
-.main-blob--2 { display: none; }
-.main-blob--3 { display: none; }
+/* Phone: the first blob is the collage; the rest wait for the desktop. */
+.main-blob--0 { transform: rotate(-3deg); }
+.main-blob--1, .main-blob--2, .main-blob--3 { display: none; }
 .main-hero__squiggle {
   position: absolute;
-  width: 92px;
+  width: 74px;
   color: var(--ex-brass);
   opacity: 0.75;
 }
-.main-hero__squiggle--l { left: 8px; bottom: 26px; transform: rotate(14deg); }
-.main-hero__squiggle--r { display: none; }
+.main-hero__squiggle--l { left: 4px; bottom: 6px; transform: rotate(18deg); }
+.main-hero__squiggle--r { right: 4px; top: -4px; transform: rotate(-158deg); }
 
-/* ---- Bands: one thought per screenful ---- */
+/* ---- Bands ---- */
 .main-band { padding: 44px 16px 0; }
 .main-band__title {
   margin: 0 0 20px;
@@ -10574,20 +10577,16 @@ body {
   color: var(--muted-strong);
 }
 
-/* ---- Dish tiles — arrow up top, colour standing under like a shadow ---- */
+/* ---- Dish tiles: Meetup's phone grid, two across ---- */
 .main-dishes__row {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  padding: 4px 4px 18px;
-  scrollbar-width: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 4px 4px 14px;
 }
-.main-dishes__row::-webkit-scrollbar { display: none; }
 .main-dish {
   position: relative;
-  flex: 0 0 auto;
-  width: 168px;
-  min-height: 128px;
+  min-height: 132px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -10615,7 +10614,8 @@ body {
 .main-dish__kr { font-size: 21px; font-weight: 800; color: var(--ink-title); }
 .main-dish__en { font-size: 12.5px; font-weight: 600; color: var(--ink-body); }
 
-/* ---- The zigzag ---- */
+/* ---- The steps. Stacked cards on a phone, Meetup's own mobile shape;
+        the zigzag waits for the width to earn it. ---- */
 .main-zig {
   position: relative;
   display: flex;
@@ -10663,16 +10663,12 @@ body {
 }
 .main-how__why strong { color: var(--ink-title); }
 
-/* ---- Join panel: the giant rounded invitation ---- */
+/* ---- Join. Meetup's phone version is a plain centred paragraph; the
+        card and its floating dots belong to the desktop. ---- */
 .main-join {
   position: relative;
-  padding: 52px 24px 48px;
-  border-radius: 28px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-1);
+  padding: 16px 8px;
   text-align: center;
-  overflow: hidden;
 }
 .main-join__title {
   margin: 0;
@@ -10700,18 +10696,7 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
-.main-join__dot {
-  position: absolute;
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 20px;
-  font-weight: 800;
-}
-.main-join__dot--a { top: 22px; left: 20px; background: var(--accent-tint); color: var(--accent-ink); transform: rotate(-8deg); }
-.main-join__dot--b { bottom: 26px; right: 22px; background: var(--green-tint); color: var(--green-ink); transform: rotate(7deg); }
+.main-join__dot { display: none; }
 
 /* ---- Culture door ---- */
 .main-culture {
@@ -10733,12 +10718,49 @@ body {
 .main-culture__kr { font-size: 15px; font-weight: 800; color: var(--accent-ink); flex: 0 0 auto; }
 .main-culture__body { flex: 1; font-size: 13px; line-height: 1.5; color: var(--ink-body); }
 
-/* ---- The dark slab footer. Same dark in both themes, like Meetup's.
-        #E7E4DD on #14161B is 13.4:1; #A8ABB3 is 7.2:1. ---- */
+/* ---- Sticky join bar: phone only, riding just above the tab bar.
+        One line and one button — a bar that follows every scroll has
+        to earn each pixel. ---- */
+.main-sticky {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(var(--tab-h) + 10px);
+  z-index: 150;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-2);
+  text-align: center;
+}
+.main-sticky__text {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-title);
+}
+.main-sticky__cta {
+  width: 100%;
+  min-height: 48px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+@media (min-width: 768px) { .main-sticky { display: none; } }
+
+/* ---- Footer. Edge to edge on a phone with only the top rounded,
+        exactly the way Meetup's mobile footer meets the screen. Fixed
+        dark in both themes: #E7E4DD on #14161B is 13.4:1, #A8ABB3 is
+        7.2:1. ---- */
 .main-footer {
-  margin: 56px 16px 0;
-  padding: 34px 26px 24px;
-  border-radius: 28px;
+  margin: 52px 0 -34px;
+  padding: 34px 24px 28px;
+  border-radius: 26px 26px 0 0;
   background: #14161B;
   color: #E7E4DD;
 }
@@ -10808,45 +10830,66 @@ body {
   color: #A8ABB3;
 }
 
-/* ---- Desktop: the full Meetup spread ---- */
+/* ---- Desktop: the full spread ---- */
 @media (min-width: 768px) {
   .main-hero { padding: 96px 24px 116px; }
   .main-hero__title { font-size: 64px; }
   .main-hero__sub { font-size: 16px; }
 
-  .main-blob { width: 210px; height: 150px; }
+  /* The collage lifts out of the flow and floats around the headline. */
+  .main-hero__blobs { position: absolute; inset: 0; margin: 0; display: block; }
+  .main-blob { position: absolute; width: 210px; height: 150px; }
   .main-blob__word { font-size: 38px; }
   .main-blob--0 { top: 68px; left: 3%; transform: rotate(-7deg); }
-  .main-blob--1 { top: 46px; right: 3.5%; transform: rotate(6deg); }
+  .main-blob--1 { display: grid; top: 46px; right: 3.5%; transform: rotate(6deg); }
   .main-blob--2 { display: grid; bottom: 64px; left: 6%; transform: rotate(5deg); width: 174px; height: 126px; }
   .main-blob--3 { display: grid; bottom: 84px; right: 6.5%; transform: rotate(-5deg); width: 186px; height: 132px; }
+  .main-hero__squiggle { width: 92px; }
   .main-hero__squiggle--l { left: 16%; bottom: 200px; transform: rotate(24deg); }
-  .main-hero__squiggle--r { display: block; right: 15%; top: 210px; transform: rotate(-160deg); }
+  .main-hero__squiggle--r { right: 15%; top: 210px; transform: rotate(-160deg); }
 
   .main-band { padding-top: 84px; }
   .main-band__title { font-size: 33px; margin-bottom: 30px; }
   .main-band__title-en { font-size: 15px; }
 
-  .main-dishes__row { flex-wrap: wrap; justify-content: center; overflow: visible; }
+  .main-dishes__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+  }
+  .main-dish { width: 168px; }
 
-  /* The zigzag earns its name: left, then right, then centre, with the
-     curly arrows drawn between. */
   .main-zig { display: block; min-height: 520px; }
   .main-zig__step { position: absolute; width: 400px; }
   .main-zig__step--0 { left: 0; top: 0; }
   .main-zig__step--1 { right: 0; top: 168px; }
   .main-zig__step--2 { left: 50%; transform: translateX(-50%); top: 356px; }
-  .main-zig { position: relative; }
   .main-zig__arrow { display: block; position: absolute; width: 170px; }
   .main-zig__arrow--0 { left: 42%; top: 52px; }
   .main-zig__arrow--1 { left: 44%; top: 250px; transform: scaleX(-1) rotate(-8deg); }
 
-  .main-join { padding: 72px 40px 64px; }
+  .main-join {
+    padding: 72px 40px 64px;
+    border-radius: 28px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-1);
+  }
   .main-join__title { font-size: 40px; }
   .main-join__body { font-size: 15px; }
-  .main-join__dot { width: 74px; height: 74px; font-size: 25px; }
-  .main-join__dot--a { top: 34px; left: 48px; }
-  .main-join__dot--b { bottom: 40px; right: 52px; }
+  .main-join__dot {
+    display: grid;
+    position: absolute;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    place-items: center;
+    font-size: 25px;
+    font-weight: 800;
+  }
+  .main-join__dot--a { top: 34px; left: 48px; background: var(--accent-tint); color: var(--accent-ink); transform: rotate(-8deg); }
+  .main-join__dot--b { bottom: 40px; right: 52px; background: var(--green-tint); color: var(--green-ink); transform: rotate(7deg); }
 
-  .main-footer { margin-top: 96px; padding: 44px 40px 28px; }
+  .main-footer { margin: 96px 16px 0; padding: 44px 40px 28px; border-radius: 28px; }
 }
