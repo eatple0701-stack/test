@@ -29,12 +29,15 @@ The label is never typed in by a host — it is derived from the guides they
 actually ticked (`src/domain/catalog/hosts.js`), so "Hosted table" cannot be
 claimed by anyone who did not commit to it.
 
-### Four screens
+### Five screens
 
-`Explore` · `Tables` · `Places` · `Passport` (Passport absorbed what used to
-be a separate Profile tab; `/profile` still resolves as an alias).
+`Main` · `Explore` · `Tables` · `Places` · `Passport` (Passport absorbed what
+used to be a separate Profile tab; `/profile` still resolves as an alias).
+Main is the landing at `/`, added 2026-08-06 and styled on the Meetup front
+page the team studied — its photographs live in `src/content/mainPhotos.js`,
+which renders the dish names as typography until the team supplies photos.
 
-No router library — nine paths on the History API (`src/routes.js`).
+No router library — ten paths on the History API (`src/routes.js`).
 `/tables/<id>` is the share link a host sends to fill empty seats.
 
 ## Development

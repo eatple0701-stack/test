@@ -1,11 +1,19 @@
 import React from 'react';
 
 const icons = {
-  home: (
+  // The house went to Main when Main became the front door (2026-08-06);
+  // Explore keeps the compass it always deserved — it is the tab you wander.
+  main: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="m4 10.5 8-6.5 8 6.5" />
       <path d="M6 9.5V20h12V9.5" />
       <path d="M10 20v-6h4v6" />
+    </svg>
+  ),
+  home: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15.5 8.5-2.1 5-5 2.1 2.1-5z" />
     </svg>
   ),
   match: (
@@ -15,10 +23,12 @@ const icons = {
       <path d="M5.5 20.5h12" />
     </svg>
   ),
+  // A pin now, because the compass moved to Explore and two tabs wearing the
+  // same icon is a bar that cannot be told apart at a glance.
   places: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="9" />
-      <path d="m15.5 8.5-2.1 5-5 2.1 2.1-5z" />
+      <path d="M12 21s-6.5-5.4-6.5-10.2A6.5 6.5 0 0 1 12 4.5a6.5 6.5 0 0 1 6.5 6.3C18.5 15.6 12 21 12 21Z" />
+      <circle cx="12" cy="10.8" r="2.2" />
     </svg>
   ),
   journal: (
@@ -44,6 +54,11 @@ const icons = {
 // it. Naming the tab after the thing being offered rather than after the
 // social feature is the difference between a listings app and this one.
 const tabs = [
+  // 메인 — the front door, asked for by name on 2026-08-06 and styled on the
+  // Meetup landing the team studied. The label is English like its four
+  // siblings: the audience reads English, and the calendar already taught us
+  // what one Korean-only label does to the person it matters most to.
+  { id: 'main', label: 'Main' },
   { id: 'home', label: 'Explore' },
   { id: 'match', label: 'Tables' },
   { id: 'places', label: 'Places' },

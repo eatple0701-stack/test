@@ -29,13 +29,15 @@ export function pathFor({ activeTab, tableView, openThemeId, restaurantId }) {
       if (tableView?.screen === 'detail' && tableView.tableId) return `/tables/${tableView.tableId}`;
       if (tableView?.screen === 'create') return '/tables/new';
       if (tableView?.screen === 'request') return '/tables/find';
-      // The table list is the landing page — '/', not '/tables'. Decided
-      // 2026-08-04 against Meetup's logged-out front page: the first thing a
-      // visitor sees is the events themselves, not a splash about them. The
-      // list of meals people actually opened makes the pitch better than any
-      // sentence describing it. '/tables' still parses below, so every link
-      // shared before this keeps working.
-      return '/';
+      return '/tables';
+    // The landing. On 2026-08-04 '/' was given to the table list, against
+    // Meetup's logged-out splash, on the grounds that the meals make the
+    // pitch better than a sentence about them. On 2026-08-06 the owner
+    // reversed it deliberately: with one real table, a list is not a pitch,
+    // and the front door became a Main page that shows the tables *and* the
+    // dishes, the steps and the ways in. '/tables' keeps parsing, so every
+    // link shared under the old rule still lands on the list it named.
+    case 'main': return '/';
     case 'places': return '/places';
     case 'journal': return '/passport';
     case 'settings': return '/settings';
@@ -58,9 +60,10 @@ export function stateFromPath(pathname) {
 
   switch (head) {
     // The landing. '' is what splitting '/' produces, so a bare visit lands
-    // on the table list — the Meetup-shaped decision pathFor explains.
+    // on the Main page — see pathFor for the 8/6 reversal that put it there.
     case '':
-      return { ...base, activeTab: 'match' };
+    case 'main':
+      return { ...base, activeTab: 'main' };
     case 'explore':
       return base;
     case 'settings':

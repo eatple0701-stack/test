@@ -15,14 +15,15 @@ const screen = (over = {}) => ({
 });
 
 test('every screen has an address', () => {
-  // '/' belongs to the table list now — the landing shows the meals, the way
-  // Meetup's front page shows the events. Explore moved to its own address,
-  // and '/tables' lives on as an alias so links shared before this keep
-  // working.
+  // '/' belongs to the Main page now (2026-08-06) — the front door built on
+  // the Meetup landing the team studied. It held the table list for two days
+  // before that, so '/tables' is no longer an alias but the list's own
+  // address, and old links to either keep landing where they meant to.
   assert.equal(pathFor(screen()), '/explore');
-  assert.equal(pathFor(screen({ activeTab: 'match' })), '/');
+  assert.equal(pathFor(screen({ activeTab: 'main' })), '/');
+  assert.equal(stateFromPath('/').activeTab, 'main');
+  assert.equal(pathFor(screen({ activeTab: 'match' })), '/tables');
   assert.equal(stateFromPath('/tables').activeTab, 'match');
-  assert.equal(stateFromPath('/').activeTab, 'match');
   assert.equal(pathFor(screen({ activeTab: 'places' })), '/places');
   assert.equal(pathFor(screen({ activeTab: 'journal' })), '/passport');
   assert.equal(pathFor(screen({ activeTab: 'settings' })), '/settings');
@@ -59,6 +60,7 @@ test('the theme page wins, because it renders over whatever tab is beneath', () 
 test('every path round-trips back to the screen it came from', () => {
   const screens = [
     screen(),
+    screen({ activeTab: 'main' }),
     screen({ activeTab: 'match' }),
     screen({ activeTab: 'match', tableView: { screen: 'create' } }),
     screen({ activeTab: 'match', tableView: { screen: 'request' } }),
@@ -89,7 +91,7 @@ test('a link that no longer means anything opens the app rather than breaking it
   // link should land them somewhere, not on a blank screen.
   for (const junk of ['/nonsense', '', '/culture', '/tables/', undefined]) {
     const s = stateFromPath(junk);
-    assert.ok(['home', 'match'].includes(s.activeTab), `${junk} produced no usable screen`);
+    assert.ok(['home', 'match', 'main'].includes(s.activeTab), `${junk} produced no usable screen`);
   }
   assert.equal(stateFromPath('/nonsense').activeTab, 'home');
   assert.equal(stateFromPath('/culture').openThemeId, null);

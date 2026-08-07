@@ -3,6 +3,7 @@ import { restaurants } from './data/restaurants';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
+import MainTab from './components/MainTab';
 import { GearIcon } from './components/Icons';
 import JournalPanel from './components/JournalPanel';
 import HomeTab from './components/HomeTab';
@@ -815,6 +816,29 @@ export default function App() {
             visitedMarkets={visitedMarkets}
             onToggleMarket={handleToggleMarket}
             onFindTable={() => { setOpenThemeId(null); setActiveTab('match'); setTableView({ screen: 'list' }); }}
+          />
+        )}
+
+        {/* 메인 — the front door (2026-08-06), styled on the Meetup landing
+            the team studied. Every door out of it is a handler that already
+            existed for another tab, so the page can promise nothing the app
+            does not do. */}
+        {!openThemeId && activeTab === 'main' && (
+          <MainTab
+            auth={auth}
+            profile={profile}
+            onNavigate={goToTab}
+            onOpenAuth={(mode) => setAuthMode(mode)}
+            onOpenTable={(id) => {
+              setActiveTab('match');
+              setTableView({ screen: 'detail', tableId: id });
+            }}
+            onCreateTable={() => {
+              if (!requireMember('open-table')) return;
+              setTablePrefill(null);
+              setActiveTab('match');
+              setTableView({ screen: 'create' });
+            }}
           />
         )}
 
