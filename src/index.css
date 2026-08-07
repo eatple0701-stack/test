@@ -10406,263 +10406,241 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
-
 /* ================================================================
-   메인 — the front door (2026-08-06)
+   메인 — the front door (2026-08-06, rebuilt the same day)
    ================================================================
-   Styled on meetup.com/ko-KR's landing: generous radii, one loud CTA,
-   category tiles with a coloured base, a three-step how, and the dark
-   footer every reference site has. Referenced, not copied — and no
-   photography until mainPhotos.js has some, so the hero sets the
-   dishes in type. */
+   The first pass carried Meetup's structure and none of its character;
+   the owner put the two side by side and said so. What makes that page
+   that page: a headline set enormous in the centre of a mostly empty
+   screen, photo blobs floating either side with tilted tags, hand-drawn
+   squiggles, a zigzag of steps joined by curly arrows, and a screen of
+   air per section. This is those, in our palette, with type standing in
+   for the photographs until mainPhotos.js has some. */
 
-.main-tab { padding-bottom: 28px; }
+.main-tab { padding-bottom: 34px; }
+/* A landing breathes wider than an app screen: undo the 720px column the
+   shell gives every tab, then let each band centre itself. */
+@media (min-width: 768px) {
+  .content-region > .main-tab { max-width: 1100px; }
+}
 
+/* ---- Hero ---- */
 .main-hero {
+  position: relative;
+  /* Top padding clears the two floating blobs entirely on a phone — the
+     collage sits above the headline the way Meetup's own mobile collapse
+     does, never over it. Measured: blobs end at ~118px. */
+  padding: 132px 20px 58px;
+  text-align: center;
+  overflow: hidden;
+}
+.main-hero__copy {
+  position: relative;
+  z-index: 1;
+  max-width: 620px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 26px 20px 22px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  align-items: center;
 }
 .main-hero__kr {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--accent-ink);
 }
 .main-hero__title {
-  margin: 6px 0 0;
-  font-size: 27px;
-  line-height: 1.25;
+  margin: 14px 0 0;
+  font-size: 44px;
+  line-height: 1.14;
   font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--ink-title);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.main-hero__title-en {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink-body);
 }
 .main-hero__sub {
-  margin: 10px 0 0;
-  font-size: 14.5px;
-  line-height: 1.6;
-  color: var(--ink-body);
-  max-width: 46ch;
-}
-.main-hero__ways { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
-.main-hero__cta {
-  min-height: 52px;
-  border: none;
-  border-radius: 999px;
-  background: var(--accent-strong, var(--orange-strong));
-  color: #fff;
+  margin: 18px 0 0;
   font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0 22px;
-}
-.main-hero__alt {
-  min-height: 48px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--ink-title);
-  font-size: 14.5px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0 22px;
-}
-
-/* The collage panel. Type now, photographs when the team has them. */
-.main-hero__art {
-  position: relative;
-  min-height: 190px;
-  border-radius: var(--radius-xl);
-  background: var(--accent-tint);
-  border: 1px solid var(--accent-line);
-  overflow: hidden;
-}
-.main-hero__word {
-  position: absolute;
-  font-weight: 800;
-  color: var(--accent-ink);
-  line-height: 1;
-  white-space: nowrap;
-  user-select: none;
-}
-.main-hero__word--0 { top: 16px; left: 16px; font-size: 52px; }
-.main-hero__word--1 { top: 30px; right: 14px; font-size: 30px; opacity: 0.55; }
-.main-hero__word--2 { bottom: 58px; left: 22px; font-size: 26px; opacity: 0.4; }
-.main-hero__word--3 { bottom: 66px; right: 26px; font-size: 38px; opacity: 0.7; }
-.main-hero__art:has(.main-hero__photo) {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  padding: 6px;
-  background: var(--surface);
-  border-color: var(--line);
-}
-.main-hero__photo { position: relative; margin: 0; min-height: 0; }
-.main-hero__photo img {
-  width: 100%;
-  height: 100%;
-  min-height: 110px;
-  object-fit: cover;
-  border-radius: var(--radius);
-  display: block;
-}
-.main-hero__chips {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  z-index: 1;
-}
-.main-hero__chip {
-  padding: 6px 11px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  color: var(--ink-title);
-  font-size: 11.5px;
-  font-weight: 700;
-  box-shadow: var(--shadow-1);
-}
-.main-hero__photo .main-hero__chip {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-}
-
-/* Shared section head */
-.main-section__head { padding: 26px 20px 12px; }
-.main-section__title {
-  margin: 0;
-  font-size: 19px;
-  font-weight: 800;
-  color: var(--ink-title);
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.main-section__title-en {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--ink-body);
-}
-
-/* Join panel — Meetup's big rounded invitation */
-.main-join {
-  margin: 26px 16px 0;
-  padding: 26px 20px;
-  border-radius: var(--radius-xl);
-  background: var(--green-tint);
-  border: 1px solid var(--line);
-  text-align: center;
-}
-.main-join__title {
-  margin: 0;
-  font-size: 21px;
-  font-weight: 800;
-  color: var(--ink-title);
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.main-join__title-en { font-size: 14px; font-weight: 600; color: var(--green-ink); }
-.main-join__body {
-  margin: 10px auto 0;
-  font-size: 13.5px;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--ink-body);
   max-width: 44ch;
 }
-.main-join__cta {
-  min-height: 50px;
-  margin-top: 16px;
-  padding: 0 26px;
+.main-hero__cta {
+  min-height: 56px;
+  margin-top: 26px;
+  padding: 0 30px;
   border: none;
   border-radius: 999px;
   background: var(--ink);
   color: var(--bg);
-  font-size: 14.5px;
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.main-hero__alt {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0 14px;
+  border: none;
+  background: none;
+  color: var(--accent-ink);
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
 
-/* Dish tiles — the 인기 카테고리 slot, in our palette */
+/* The floating blobs — photo-shaped even before there are photos. */
+.main-hero__blobs { position: absolute; inset: 0; pointer-events: none; }
+.main-blob {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 108px;
+  border-radius: 54% 46% 58% 42% / 55% 48% 52% 45%;
+}
+.main-blob__word {
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.main-blob__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+.main-blob__tag {
+  position: absolute;
+  left: -8px;
+  bottom: -10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-1);
+  color: var(--ink-title);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: rotate(-6deg);
+}
+.main-blob--1 .main-blob__tag,
+.main-blob--3 .main-blob__tag { left: auto; right: -8px; transform: rotate(5deg); }
+
+.main-blob.b-orange { background: var(--accent-tint); }
+.main-blob.b-orange .main-blob__word { color: var(--accent-ink); }
+.main-blob.b-green { background: var(--green-tint); }
+.main-blob.b-green .main-blob__word { color: var(--green-ink); }
+.main-blob.b-brass { background: var(--ex-paper); border: 1px solid var(--ex-brass); }
+.main-blob.b-brass .main-blob__word { color: var(--ex-brass-ink); }
+.main-blob.b-pine { background: var(--ex-field); }
+.main-blob.b-pine .main-blob__word { color: var(--ex-brass); }
+
+/* Phone: two blobs above the headline, two tucked low, like Meetup's own
+   mobile collapse — the copy keeps the centre. */
+.main-blob--0 { top: 10px; left: -22px; transform: rotate(-7deg); }
+.main-blob--1 { top: 16px; right: -26px; transform: rotate(6deg); }
+.main-blob--2 { display: none; }
+.main-blob--3 { display: none; }
+.main-hero__squiggle {
+  position: absolute;
+  width: 92px;
+  color: var(--ex-brass);
+  opacity: 0.75;
+}
+.main-hero__squiggle--l { left: 8px; bottom: 26px; transform: rotate(14deg); }
+.main-hero__squiggle--r { display: none; }
+
+/* ---- Bands: one thought per screenful ---- */
+.main-band { padding: 44px 16px 0; }
+.main-band__title {
+  margin: 0 0 20px;
+  text-align: center;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink-title);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.main-band__title-en {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+
+/* ---- Dish tiles — arrow up top, colour standing under like a shadow ---- */
 .main-dishes__row {
   display: flex;
-  gap: 10px;
+  gap: 14px;
   overflow-x: auto;
-  padding: 2px 20px 14px;
+  padding: 4px 4px 18px;
   scrollbar-width: none;
 }
 .main-dishes__row::-webkit-scrollbar { display: none; }
 .main-dish {
+  position: relative;
   flex: 0 0 auto;
-  width: 148px;
-  min-height: 116px;
+  width: 168px;
+  min-height: 128px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: flex-end;
   gap: 2px;
-  padding: 14px 14px 12px;
+  padding: 16px;
   border: 1px solid var(--line);
-  border-bottom-width: 6px;
   border-radius: var(--radius-lg);
   background: var(--surface);
   text-align: left;
   cursor: pointer;
 }
-.main-dish.t-brass  { border-bottom-color: var(--ex-brass); }
-.main-dish.t-green  { border-bottom-color: var(--green); }
-.main-dish.t-orange { border-bottom-color: var(--accent, var(--orange)); }
-.main-dish.t-field  { border-bottom-color: var(--ex-sage); }
-.main-dish__kr { font-size: 19px; font-weight: 800; color: var(--ink-title); }
-.main-dish__en { font-size: 12.5px; font-weight: 700; color: var(--ink-body); }
-.main-dish__gloss {
-  font-size: 11.5px;
-  line-height: 1.4;
+.main-dish.t-brass  { box-shadow: 0 7px 0 -1px var(--ex-brass); }
+.main-dish.t-green  { box-shadow: 0 7px 0 -1px var(--green); }
+.main-dish.t-orange { box-shadow: 0 7px 0 -1px var(--accent, var(--orange)); }
+.main-dish.t-field  { box-shadow: 0 7px 0 -1px var(--ex-sage); }
+.main-dish__arrow {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-size: 17px;
+  font-weight: 800;
   color: var(--muted-strong);
-  margin-top: 3px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
+.main-dish__kr { font-size: 21px; font-weight: 800; color: var(--ink-title); }
+.main-dish__en { font-size: 12.5px; font-weight: 600; color: var(--ink-body); }
 
-/* How it works — three steps, one fact under them */
-.main-how__steps {
-  list-style: none;
-  margin: 0;
-  padding: 0 16px;
+/* ---- The zigzag ---- */
+.main-zig {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  max-width: 860px;
+  margin: 0 auto;
 }
-.main-how__step {
+.main-zig__step {
   display: grid;
-  grid-template-columns: 34px 1fr;
+  grid-template-columns: 36px 1fr;
   grid-template-rows: auto auto;
   column-gap: 12px;
-  row-gap: 2px;
-  padding: 16px;
+  row-gap: 3px;
+  padding: 18px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--surface);
+  box-shadow: var(--shadow-1);
+  max-width: 440px;
 }
-.main-how__num {
+.main-zig__num {
   grid-row: 1 / 3;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--accent-tint);
   color: var(--accent-ink);
@@ -10671,25 +10649,80 @@ body {
   display: grid;
   place-items: center;
 }
-.main-how__kr { font-size: 15px; font-weight: 800; color: var(--ink-title); }
-.main-how__en { font-size: 13px; line-height: 1.55; color: var(--ink-body); }
+.main-zig__kr { font-size: 15.5px; font-weight: 800; color: var(--ink-title); }
+.main-zig__en { font-size: 13px; line-height: 1.55; color: var(--ink-body); }
+.main-zig__arrow { display: none; color: var(--ex-brass); }
 .main-how__why {
-  margin: 14px 20px 0;
+  margin: 22px auto 0;
+  max-width: 60ch;
+  text-align: center;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--ink-body);
+  padding: 0 4px;
 }
 .main-how__why strong { color: var(--ink-title); }
 
-/* One door into the culture */
+/* ---- Join panel: the giant rounded invitation ---- */
+.main-join {
+  position: relative;
+  padding: 52px 24px 48px;
+  border-radius: 28px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-1);
+  text-align: center;
+  overflow: hidden;
+}
+.main-join__title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink-title);
+}
+.main-join__body {
+  margin: 12px auto 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-body);
+  max-width: 46ch;
+}
+.main-join__cta {
+  min-height: 52px;
+  margin-top: 22px;
+  padding: 0 30px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.main-join__dot {
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+}
+.main-join__dot--a { top: 22px; left: 20px; background: var(--accent-tint); color: var(--accent-ink); transform: rotate(-8deg); }
+.main-join__dot--b { bottom: 26px; right: 22px; background: var(--green-tint); color: var(--green-ink); transform: rotate(7deg); }
+
+/* ---- Culture door ---- */
 .main-culture {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: calc(100% - 32px);
-  margin: 26px 16px 0;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
   min-height: 64px;
-  padding: 16px;
+  padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface);
@@ -10700,16 +10733,38 @@ body {
 .main-culture__kr { font-size: 15px; font-weight: 800; color: var(--accent-ink); flex: 0 0 auto; }
 .main-culture__body { flex: 1; font-size: 13px; line-height: 1.5; color: var(--ink-body); }
 
-/* The dark footer — deliberately the same dark in both themes, the way
-   Meetup's is. Fixed colours, measured: #E7E4DD on #14161B is 13.4:1,
-   #A8ABB3 is 7.2:1. */
+/* ---- The dark slab footer. Same dark in both themes, like Meetup's.
+        #E7E4DD on #14161B is 13.4:1; #A8ABB3 is 7.2:1. ---- */
 .main-footer {
-  margin: 30px 16px 0;
-  padding: 26px 20px 20px;
-  border-radius: var(--radius-xl);
+  margin: 56px 16px 0;
+  padding: 34px 26px 24px;
+  border-radius: 28px;
   background: #14161B;
   color: #E7E4DD;
 }
+.main-footer__mast {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 22px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid rgba(231, 228, 221, 0.18);
+}
+.main-footer__brand { font-size: 17px; font-weight: 800; }
+.main-footer__brand-dot { color: var(--ex-brass); }
+.main-footer__mastlink {
+  min-height: 44px;
+  padding: 0 8px;
+  border: none;
+  background: none;
+  color: #E7E4DD;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.main-footer__mastlink:hover { text-decoration: underline; }
 .main-footer__cols {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -10753,17 +10808,45 @@ body {
   color: #A8ABB3;
 }
 
-/* Desktop: the hero becomes Meetup's two columns, the steps a row. */
+/* ---- Desktop: the full Meetup spread ---- */
 @media (min-width: 768px) {
-  .main-hero {
-    flex-direction: row;
-    align-items: center;
-    gap: 28px;
-    padding: 40px 28px 34px;
-  }
-  .main-hero__copy { flex: 1 1 52%; }
-  .main-hero__art { flex: 1 1 48%; min-height: 240px; align-self: stretch; }
-  .main-hero__ways { flex-direction: row; }
-  .main-how__steps { flex-direction: row; }
-  .main-how__step { flex: 1; }
+  .main-hero { padding: 96px 24px 116px; }
+  .main-hero__title { font-size: 64px; }
+  .main-hero__sub { font-size: 16px; }
+
+  .main-blob { width: 210px; height: 150px; }
+  .main-blob__word { font-size: 38px; }
+  .main-blob--0 { top: 68px; left: 3%; transform: rotate(-7deg); }
+  .main-blob--1 { top: 46px; right: 3.5%; transform: rotate(6deg); }
+  .main-blob--2 { display: grid; bottom: 64px; left: 6%; transform: rotate(5deg); width: 174px; height: 126px; }
+  .main-blob--3 { display: grid; bottom: 84px; right: 6.5%; transform: rotate(-5deg); width: 186px; height: 132px; }
+  .main-hero__squiggle--l { left: 16%; bottom: 200px; transform: rotate(24deg); }
+  .main-hero__squiggle--r { display: block; right: 15%; top: 210px; transform: rotate(-160deg); }
+
+  .main-band { padding-top: 84px; }
+  .main-band__title { font-size: 33px; margin-bottom: 30px; }
+  .main-band__title-en { font-size: 15px; }
+
+  .main-dishes__row { flex-wrap: wrap; justify-content: center; overflow: visible; }
+
+  /* The zigzag earns its name: left, then right, then centre, with the
+     curly arrows drawn between. */
+  .main-zig { display: block; min-height: 520px; }
+  .main-zig__step { position: absolute; width: 400px; }
+  .main-zig__step--0 { left: 0; top: 0; }
+  .main-zig__step--1 { right: 0; top: 168px; }
+  .main-zig__step--2 { left: 50%; transform: translateX(-50%); top: 356px; }
+  .main-zig { position: relative; }
+  .main-zig__arrow { display: block; position: absolute; width: 170px; }
+  .main-zig__arrow--0 { left: 42%; top: 52px; }
+  .main-zig__arrow--1 { left: 44%; top: 250px; transform: scaleX(-1) rotate(-8deg); }
+
+  .main-join { padding: 72px 40px 64px; }
+  .main-join__title { font-size: 40px; }
+  .main-join__body { font-size: 15px; }
+  .main-join__dot { width: 74px; height: 74px; font-size: 25px; }
+  .main-join__dot--a { top: 34px; left: 48px; }
+  .main-join__dot--b { bottom: 40px; right: 52px; }
+
+  .main-footer { margin-top: 96px; padding: 44px 40px 28px; }
 }
