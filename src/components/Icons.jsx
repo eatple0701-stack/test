@@ -25,6 +25,21 @@ export const GearIcon = ({ size = 20 }) => (
   </svg>
 );
 
+/* The hero carousel's own two controls. Square-ended so they read as
+   media buttons rather than as the app's rounded chrome. */
+export const PauseIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <rect x="6.5" y="5" width="4" height="14" rx="1" />
+    <rect x="13.5" y="5" width="4" height="14" rx="1" />
+  </svg>
+);
+
+export const PlayIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z" />
+  </svg>
+);
+
 export const CompassIcon = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
     <path d="M12 2.5 19 21l-7-4-7 4Z" />

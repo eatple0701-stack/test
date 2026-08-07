@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { menus } from '../domain/catalog/menus.js';
 import { isMember } from '../domain/policy/access.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import { MAIN_PHOTOS } from '../content/mainPhotos.js';
 import TablesLead from './TablesLead';
 import DishSheet from './DishSheet';
-import { ChevronRightIcon, XIcon } from './Icons';
+import { ChevronRightIcon, XIcon, PauseIcon, PlayIcon } from './Icons';
 
 // 메인 — the front door, added 2026-08-06 and rebuilt the same day.
 //
@@ -36,6 +36,39 @@ const HERO_BLOBS = [
 // Tile accents, cycled through the dish shelf.
 const TILE_TONES = ['t-brass', 't-green', 't-orange', 't-field'];
 
+// How long a hero dish holds the screen. Five seconds is slower than most
+// carousels on purpose: each slide carries Korean somebody may be sounding
+// out for the first time, and the usual four is enough time to read a photo,
+// not a word you have never seen.
+const SLIDE_MS = 5000;
+
+/**
+ * Does this person's device ask for less movement?
+ *
+ * A hero that changes itself is the exact thing `prefers-reduced-motion`
+ * exists for — for some people an auto-advancing panel is not a preference
+ * but nausea or a migraine. The stylesheet already honours the setting in
+ * four places, but a setInterval is invisible to CSS, so the carousel has to
+ * read it here. Listened to rather than sampled once: the setting can be
+ * changed while the app is open.
+ */
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(() =>
+    typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setReduced(mql.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+
+  return reduced;
+}
+
 // Meetup's connector doodle, redrawn by hand: a loose loop that curls off
 // toward the next thing. Stroke only, so the themes colour it.
 const Squiggle = ({ className }) => (
@@ -56,6 +89,24 @@ export default function MainTab({
   // lasts as long as this visit and no longer — see the bar's own comment.
   const [stickyClosed, setStickyClosed] = useState(false);
   const member = isMember(auth);
+
+  // The hero carousel, asked for on 2026-08-07 after the 인하대 정치외교학과
+  // front page: a slide that turns itself, dots to jump between, and a
+  // pause. Autoplay starts on unless the device asked for less motion, in
+  // which case it never starts — the dots still work, so nothing is lost,
+  // it simply waits to be told.
+  const reducedMotion = useReducedMotion();
+  const [slide, setSlide] = useState(0);
+  const [playing, setPlaying] = useState(true);
+
+  // setTimeout keyed on `slide` rather than one long interval: it means a tap
+  // resets the clock, so the dish you just chose gets its full turn instead
+  // of being swept away by a tick that was already half spent.
+  useEffect(() => {
+    if (!playing || reducedMotion) return undefined;
+    const id = setTimeout(() => setSlide(s => (s + 1) % HERO_BLOBS.length), SLIDE_MS);
+    return () => clearTimeout(id);
+  }, [playing, reducedMotion, slide]);
 
   // The extra bottom padding exists only to clear the sticky bar, so it
   // leaves with it — otherwise dismissing the bar leaves 190px of nothing
@@ -98,20 +149,55 @@ export default function MainTab({
         {/* The collage. One big blob under the CTA on a phone, four floating
             around the headline on a desktop — Meetup's own split. Photos
             take these slots the moment mainPhotos.js has any. */}
-        <div className="main-hero__blobs" aria-hidden="true">
+        <div className="main-hero__blobs">
           {HERO_BLOBS.map((b, i) => {
             const photo = MAIN_PHOTOS[i];
             return (
-              <span key={b.word} className={`main-blob main-blob--${i} ${b.tone}`}>
+              <button
+                key={b.word}
+                type="button"
+                className={`main-blob main-blob--${i} ${b.tone}${i === slide ? ' is-on' : ''}`}
+                aria-hidden={i === slide ? undefined : 'true'}
+                tabIndex={i === slide ? 0 : -1}
+                aria-label={`${b.word} — ${b.tag}. 다음 요리 보기`}
+                onClick={() => setSlide((slide + 1) % HERO_BLOBS.length)}
+              >
                 {photo
                   ? <img className="main-blob__img" src={photo.src} alt="" loading="lazy" />
                   : <span className="main-blob__word" translate="no">{b.word}</span>}
                 <span className="main-blob__tag" translate="no">{photo?.label ?? b.tag}</span>
-              </span>
+              </button>
             );
           })}
           <Squiggle className="main-hero__squiggle main-hero__squiggle--l" />
           <Squiggle className="main-hero__squiggle main-hero__squiggle--r" />
+        </div>
+
+        {/* The 인하대 front page's own furniture: a dot per slide, then the
+            pause. Phone only — the desktop shows all four dishes at once,
+            and dots for a thing already fully visible are a control with
+            nothing to control. */}
+        <div className="main-hero__dots">
+          {HERO_BLOBS.map((b, i) => (
+            <button
+              key={b.word}
+              type="button"
+              className={`main-dot${i === slide ? ' is-on' : ''}`}
+              aria-label={`${b.word} 보기`}
+              aria-current={i === slide ? 'true' : undefined}
+              onClick={() => setSlide(i)}
+            />
+          ))}
+          <button
+            type="button"
+            className="main-dots__toggle"
+            aria-label={playing && !reducedMotion
+              ? '자동 넘김 멈추기 · Pause'
+              : '자동 넘김 시작 · Play'}
+            onClick={() => setPlaying(p => !p)}
+          >
+            {playing && !reducedMotion ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
+          </button>
         </div>
       </header>
 

@@ -10496,7 +10496,6 @@ body {
   display: flex;
   justify-content: center;
   margin-top: 34px;
-  pointer-events: none;
 }
 .main-blob {
   position: relative;
@@ -10504,6 +10503,9 @@ body {
   place-items: center;
   width: 252px;
   height: 178px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   border-radius: 54% 46% 58% 42% / 55% 48% 52% 45%;
 }
 .main-blob__word {
@@ -10546,9 +10548,65 @@ body {
 .main-blob.b-pine { background: var(--ex-field); }
 .main-blob.b-pine .main-blob__word { color: var(--ex-brass); }
 
-/* Phone: the first blob is the collage; the rest wait for the desktop. */
-.main-blob--0 { transform: rotate(-3deg); }
-.main-blob--1, .main-blob--2, .main-blob--3 { display: none; }
+/* Phone: one dish at a time — the carousel. Only the live slide is laid
+   out, so the collage never grows to four blobs tall. */
+.main-blob { display: none; transform: rotate(-3deg); }
+.main-blob.is-on { display: grid; }
+
+/* The dots and the pause, under the collage. */
+.main-hero__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 22px;
+}
+.main-dot {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  position: relative;
+}
+/* 9px of dot inside 34px of target — the dot is the mark, the button is
+   the thumb.
+
+   The off state is a ring and the on state is a solid, rather than two
+   shades of the same fill. Measured first as --line-hover at 1.33:1, under
+   WCAG 1.4.11's 3:1 for a control that carries state — and lightness alone
+   is the one difference a colour-blind reader may not get either. Shape
+   says it without depending on either. */
+.main-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--muted);
+}
+.main-dot.is-on::after {
+  background: var(--accent-ink);
+  box-shadow: none;
+}
+.main-dots__toggle {
+  width: 34px;
+  height: 34px;
+  margin-left: 4px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+.main-dots__toggle:hover { background: var(--fill); color: var(--ink-title); }
 .main-hero__squiggle {
   position: absolute;
   width: 74px;
@@ -10854,14 +10912,17 @@ body {
   .main-hero__title { font-size: 64px; }
   .main-hero__sub { font-size: 16px; }
 
-  /* The collage lifts out of the flow and floats around the headline. */
-  .main-hero__blobs { position: absolute; inset: 0; margin: 0; display: block; }
-  .main-blob { position: absolute; width: 210px; height: 150px; }
+  /* The collage lifts out of the flow and floats around the headline. All
+     four at once, so the carousel has nothing left to reveal — its dots and
+     its pause go with it. */
+  .main-hero__blobs { position: absolute; inset: 0; margin: 0; display: block; pointer-events: none; }
+  .main-hero__dots { display: none; }
+  .main-blob { position: absolute; display: grid; width: 210px; height: 150px; cursor: default; }
   .main-blob__word { font-size: 38px; }
   .main-blob--0 { top: 68px; left: 3%; transform: rotate(-7deg); }
-  .main-blob--1 { display: grid; top: 46px; right: 3.5%; transform: rotate(6deg); }
-  .main-blob--2 { display: grid; bottom: 64px; left: 6%; transform: rotate(5deg); width: 174px; height: 126px; }
-  .main-blob--3 { display: grid; bottom: 84px; right: 6.5%; transform: rotate(-5deg); width: 186px; height: 132px; }
+  .main-blob--1 { top: 46px; right: 3.5%; transform: rotate(6deg); }
+  .main-blob--2 { bottom: 64px; left: 6%; transform: rotate(5deg); width: 174px; height: 126px; }
+  .main-blob--3 { bottom: 84px; right: 6.5%; transform: rotate(-5deg); width: 186px; height: 132px; }
   .main-hero__squiggle { width: 92px; }
   .main-hero__squiggle--l { left: 16%; bottom: 200px; transform: rotate(24deg); }
   .main-hero__squiggle--r { right: 15%; top: 210px; transform: rotate(-160deg); }
