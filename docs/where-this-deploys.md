@@ -6,7 +6,7 @@ so this file exists to make the boundary hard to miss.
 
 | Folder | App | Repository | Production URL |
 | --- | --- | --- | --- |
-| `베이스/` | **밥친구 / Eatple** — this one | `github.com/rkdals0121/test`, branch `main` | https://test-umber-phi-78.vercel.app |
+| `베이스/` | **밥친구 잇플 / Eatple** — this one | `github.com/rkdals0121/test`, branch `main` | https://test-umber-phi-78.vercel.app |
 | `../k-food-map/` | **K-Food Map** — a different app | `github.com/rkdals0121/kfoodmap`, branch `master` | https://kfoodmap.vercel.app |
 
 밥친구 grew out of K-Food Map, so the two share early git history. That is why

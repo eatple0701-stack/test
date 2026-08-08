@@ -23,7 +23,7 @@
   Drawn inside a 410px circle so the maskable version survives Android's
   round, squircle and teardrop crops without losing a utensil.
 -->
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="밥친구 Eatple">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="밥친구 잇플 · Eatple">
   <rect width="512" height="512" rx="112" fill="#087F5B"/>
 
   <!-- The shared dish, seen from above. Carries the mark at 16px, where the

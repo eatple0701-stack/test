@@ -84,7 +84,7 @@ export default function TravelSummary({ journey, profile, onClose }) {
         </button>
 
         <div className="summary-card">
-          <p className="summary-card__eyebrow">밥친구 · Eatple</p>
+          <p className="summary-card__eyebrow">밥친구 잇플 · Eatple</p>
           <h2 className="summary-card__title">Solo trip, shared table</h2>
 
           <div className="summary-card__grid">

@@ -128,7 +128,7 @@ export default function MainTab({
               where DOM order stops mattering. ---- */}
       <header className="main-hero">
         <div className="main-hero__copy">
-          <span className="main-hero__kr" translate="no">밥친구 · Eatple</span>
+          <span className="main-hero__kr" translate="no">밥친구 잇플 · Eatple</span>
           <h1 className="main-hero__title" translate="no">
             혼자서는
             <br />주문할 수 없는
@@ -326,7 +326,7 @@ export default function MainTab({
           </div>
         </div>
         <p className="main-footer__base" translate="no">
-          © 2026 밥친구 · Eatple — 디지털 공공외교 파일럿 · a digital public diplomacy pilot
+          © 2026 밥친구 잇플 · Eatple — 디지털 공공외교 파일럿 · a digital public diplomacy pilot
         </p>
       </footer>
 

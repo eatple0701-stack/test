@@ -1,4 +1,4 @@
-# 밥친구 / Eatple
+# 밥친구 잇플 / Eatple
 
 **Solo trip, shared table.** A foreign traveller alone in Korea is blocked
 from most of the menu — not by language, not by price, but because
