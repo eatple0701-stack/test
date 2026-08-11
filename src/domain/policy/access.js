@@ -75,18 +75,21 @@ export const GATE_TEXT = {
     titleKr: '자리를 요청하려면 가입이 필요해요',
     titleEn: 'Asking for a seat needs an account',
     body: 'A seat at a table is a promise to real people, so the team needs a way to reach you if plans change. Browsing every table, dish and tip stays open without an account.',
+    bodyKo: '밥상의 한 자리는 실제 사람들에게 하는 약속이라, 일정이 바뀌면 연락할 방법이 필요합니다. 밥상과 요리와 정보를 둘러보는 건 계정 없이도 계속 열려 있어요.',
     cta: '가입하고 계속 · Join and continue',
   },
   'open-table': {
     titleKr: '상을 차리려면 가입이 필요해요',
     titleEn: 'Opening a table needs an account',
     body: 'Hosting means strangers plan their evening around you, so hosts sign up first. Looking around does not need an account.',
+    bodyKo: '호스트가 된다는 건 처음 보는 사람들이 당신을 기준으로 저녁 계획을 세운다는 뜻이라, 호스트는 먼저 가입합니다. 둘러보는 데는 계정이 필요 없어요.',
     cta: '가입하고 계속 · Join and continue',
   },
   'request-table': {
     titleKr: '찾는 밥상은 가입 후에 쓸 수 있어요',
     titleEn: 'Telling us what you are after needs an account',
     body: 'When the app opens a table for you, somebody has to be reachable when a match lands. Browsing stays open without an account.',
+    bodyKo: '앱이 대신 밥상을 열어 줄 때, 연결이 성사되면 연락이 닿는 사람이 있어야 합니다. 둘러보기는 계정 없이도 열려 있어요.',
     cta: '가입하고 계속 · Join and continue',
   },
   // The one door that guards writing rather than looking. The Passport's
@@ -97,6 +100,7 @@ export const GATE_TEXT = {
     titleKr: '나만의 프로필 · 패스포트 만들기',
     titleEn: 'Make your own profile and Passport',
     body: 'Your profile — name, languages, what you eat — is written once, while joining, and every table reads it from then on. The Passport below fills with your evenings as they happen. Looking around stays open without an account; making yours is one signup.',
+    bodyKo: '프로필 — 이름, 쓰는 언어, 먹는 것 — 은 가입할 때 한 번만 적으면 그 뒤로 모든 밥상이 그것을 읽습니다. 아래 여권은 저녁이 하나씩 지나갈 때마다 채워져요. 둘러보기는 계정 없이도 되고, 내 것을 만드는 건 가입 한 번입니다.',
     cta: '만들기 · Create mine',
   },
 };

@@ -24,6 +24,7 @@ import { hostRecord } from '../data/tableRepository.js';
 import { ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
 import { isMember } from '../domain/policy/access.js';
+import { useText, useLocale } from './localeText.js';
 
 // 밥친구 — the tables you can ask to sit at.
 //
@@ -49,6 +50,8 @@ const dayLabel = (date) => {
 // Passport is the chip in the app chrome now, on every screen rather than
 // this one.
 export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth }) {
+  const say = useText();
+  const locale = useLocale();
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
   const [blockedIds, setBlockedIds] = useState([]);
@@ -158,9 +161,12 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
       <header className="screen-head screen-head--dark">
         <span className="screen-head__kr">밥친구</span>
-        <h1 className="screen-head__title">Dishes you cannot order alone.</h1>
+        <h1 className="screen-head__title">
+          {say('Dishes you cannot order alone.', '혼자서는 주문할 수 없는 음식들.')}
+        </h1>
         <p className="screen-head__sub">
-          Ask to sit at a table, or open one and see who comes.
+          {say('Ask to sit at a table, or open one and see who comes.',
+            '밥상에 자리를 청하거나, 직접 하나 열고 누가 오는지 보세요.')}
         </p>
         {/* One CTA, chosen by who is looking — Meetup's front page asks a
             stranger to join, not to host. A member gets the real verb. The
@@ -297,7 +303,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                     no meaning attached. */}
                 <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
                 <span className="menu-chip__en">{m.name}</span>
-                <span className="menu-chip__gloss">{m.gloss}</span>
+                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo)}</span>
               </button>
             );
           })}
@@ -345,7 +351,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           "Other days have tables" was printed under a bare week. */}
       {tables !== null && emptyReason({ open, shown, menuFilter, womenFilter, dayFilter }) && (() => {
         const reason = emptyReason({ open, shown, menuFilter, womenFilter, dayFilter });
-        const text = emptyText(reason, { otherDays: hasOtherDays(open, dayFilter) });
+        const text = emptyText(reason, { otherDays: hasOtherDays(open, dayFilter), locale });
         return (
           <div className="tables-empty">
             <p className="tables-empty__title">{text.title}</p>
@@ -421,7 +427,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               <button key={m.id} className="menu-chip" onClick={() => setOpenDish(m)}>
                 <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
                 <span className="menu-chip__en">{m.name}</span>
-                <span className="menu-chip__gloss">{m.gloss}</span>
+                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo)}</span>
               </button>
             ))}
           </div>
@@ -518,7 +524,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               </span>
 
               <h2 className="table-card__dish">{menu.name}</h2>
-              <p className="table-card__gloss">{menu.gloss}</p>
+              <p className="table-card__gloss">{say(menu.gloss, menu.glossKo)}</p>
 
               {/* 신보람 교수님's note, answered where it is actually asked.
                   The badge above says 호스트 테이블 — a category. This says
@@ -699,14 +705,14 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         <div className="promises" aria-label={PROMISES_LEAD.kr}>
           <h2 className="promises__lead promises__lead-kr" translate="no">{PROMISES_LEAD.kr}</h2>
           <h2 className="promises__lead l-en-only">{PROMISES_LEAD.titleEn}</h2>
-          <p className="promises__sub">{PROMISES_LEAD.en}</p>
+          <p className="promises__sub">{say(PROMISES_LEAD.en, PROMISES_LEAD.ko)}</p>
           <ul className="promises__list">
             {PROMISES.map(p => (
               <li key={p.id} className="promise">
                 <CheckIcon size={15} />
                 <span className="promise__body">
                   <span className="promise__kr" translate="no">{p.kr}</span>
-                  <span className="promise__en">{p.en}</span>
+                  <span className="promise__en">{say(p.en, p.ko)}</span>
                 </span>
               </li>
             ))}

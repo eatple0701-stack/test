@@ -11,6 +11,7 @@ import { XIcon, ChevronLeftIcon } from './Icons';
 // rules, so quality and bugs cannot drift apart between them.
 import { downscale, AVATAR } from '../data/image.js';
 import ProfileFields from './ProfileFields';
+import { useText } from './localeText.js';
 
 // The door between browsing and belonging.
 //
@@ -50,6 +51,7 @@ function Field({ id, label, bad, problems, markRef, children }) {
 }
 
 export default function AuthSheet({ door, initialMode, profile, onProfileChange, onClose, onAuthed }) {
+  const say = useText();
   // 'signup' → 'signup-email' ┐
   // 'signin' ─────────────────┴→ ('details') → 'profile' → 'avatar' → done
   //
@@ -245,7 +247,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               <span className="auth-title__kr">{gate ? gate.titleKr : '회원가입'}</span>
               <span className="auth-title__en">{gate ? gate.titleEn : 'Join 밥친구'}</span>
             </h2>
-            {gate && <p className="auth-gate__body">{gate.body}</p>}
+            {gate && <p className="auth-gate__body">{say(gate.body, gate.bodyKo)}</p>}
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google
             </button>

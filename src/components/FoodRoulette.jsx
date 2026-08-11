@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { menus, menuById } from '../domain/catalog/menus.js';
+import { useText } from './localeText.js';
 
 // Pick a dish for somebody who cannot decide.
 //
@@ -30,6 +31,7 @@ const WHEEL = menus.filter(m => m.minPeople > 1);
 const SPIN_MS = 900;
 
 export default function FoodRoulette({ onClose, onOpenTables }) {
+  const say = useText();
   const [spinning, setSpinning] = useState(false);
   const [resultId, setResultId] = useState(null);
   const result = resultId ? menuById(resultId) : null;
@@ -57,11 +59,11 @@ export default function FoodRoulette({ onClose, onOpenTables }) {
             <>
               <span className="roulette__dish-kr" translate="no">{result.nameKo}</span>
               <span className="roulette__dish-en">{result.name}</span>
-              <span className="roulette__gloss">{result.gloss}</span>
+              <span className="roulette__gloss">{say(result.gloss, result.glossKo)}</span>
               {/* The reason, in the dish's own words from the catalogue. A
                   wheel that names a dish and stops is a slot machine; this is
                   the line that makes it an answer. */}
-              <span className="roulette__why">{result.whyShared}</span>
+              <span className="roulette__why">{say(result.whyShared, result.whySharedKo)}</span>
             </>
           )}
           {!spinning && !result && (

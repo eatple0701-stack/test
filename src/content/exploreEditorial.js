@@ -22,33 +22,46 @@
 // product has no photography and a placeholder illustration repeated across
 // four cultures would say less than one honest word does.
 
+// `questionKo` is the same question, not a different one. The two constraints
+// above apply to it identically — it has to be answerable from the theme's
+// own narrative, and it has to be a question rather than a headline dressed
+// as one. A translation that quietly promises more than the English does
+// would break the first rule while looking like housekeeping.
+
 export const EDITORIAL = {
   'temple-life': {
     question: 'Why does a monk leave nothing on the plate?',
+    questionKo: '스님은 왜 그릇에 아무것도 남기지 않을까요?',
     word: '사찰음식',
   },
   'street-food': {
     question: 'What does a city eat before it builds dining rooms?',
+    questionKo: '식당이 생기기 전, 도시는 무엇을 먹었을까요?',
     word: '시장',
   },
   'noodle-road': {
     question: 'Which Korean dish is Chinese in name only?',
+    questionKo: '이름만 중국인 한국 음식은 무엇일까요?',
     word: '짜장면',
   },
   'cafe-hopping': {
     question: 'Why will nobody ask you to leave after one cup?',
+    questionKo: '한 잔만 시켜도 왜 아무도 나가라고 하지 않을까요?',
     word: '한 잔',
   },
   'seoul-after-dark': {
     question: 'Why is the second round a different conversation?',
+    questionKo: '2차의 대화는 왜 1차와 다를까요?',
     word: '이차',
   },
   'busan-seafood': {
     question: 'Why wrap the fish instead of dipping it?',
+    questionKo: '회를 찍어 먹지 않고 왜 싸서 먹을까요?',
     word: '자갈치',
   },
   'spring-picnic': {
     question: 'What does a country do with two weeks of blossom?',
+    questionKo: '두 주뿐인 벚꽃철에 온 나라는 무엇을 할까요?',
     word: '벚꽃',
   },
 };

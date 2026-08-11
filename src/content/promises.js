@@ -23,30 +23,35 @@ export const PROMISES = [
     id: 'approval',
     kr: '호스트가 이름을 보고 승인합니다',
     en: 'The host reads who you are and says yes to you, by name. No table fills itself.',
+    ko: '호스트가 당신이 누구인지 읽고, 이름을 보고 승인합니다. 저절로 차는 밥상은 없습니다.',
     backedBy: 'src/domain/policy/seatRequest.js',
   },
   {
     id: 'lapse',
     kr: '답이 없으면 식사 12시간 전에 자리가 풀립니다',
     en: 'An unanswered request releases its seat 12 hours before the meal, so nobody holds a chair by forgetting.',
+    ko: '답이 없는 요청은 식사 12시간 전에 자리를 놓아줍니다. 깜빡했다는 이유로 자리를 붙잡고 있는 사람이 없도록요.',
     backedBy: 'src/domain/policy/seatRequest.js',
   },
   {
     id: 'attendance',
     kr: '오지 않은 사람은 기록에 남습니다',
     en: 'A no-show is recorded — not as a score, but so the record stops calling somebody a person you met.',
+    ko: '오지 않은 것은 기록에 남습니다. 점수를 매기려는 게 아니라, 만나지 않은 사람을 만난 사람이라고 부르지 않기 위해서예요.',
     backedBy: 'src/domain/policy/attendance.js',
   },
   {
     id: 'diet',
     kr: '못 먹는 것은 자리를 요청할 때 미리 전달됩니다',
     en: 'What you cannot eat travels with your seat request. Halal, vegan, an allergy — the host reads it before choosing the shop.',
+    ko: '못 드시는 것은 자리 요청과 함께 전달됩니다. 할랄, 비건, 알레르기 — 호스트가 가게를 고르기 전에 먼저 읽습니다.',
     backedBy: 'src/data/profile.js',
   },
   {
     id: 'safety',
     kr: '언제든 신고하고 차단할 수 있습니다',
     en: 'Report a table to the team, or block somebody so you never share a table again. Neither tells the other person.',
+    ko: '밥상을 팀에 신고하거나, 특정한 사람을 차단해 다시는 같은 상에 앉지 않게 할 수 있습니다. 둘 다 상대에게 알려지지 않습니다.',
     backedBy: 'src/domain/policy/report.js',
   },
 ];
@@ -59,4 +64,5 @@ export const PROMISES_LEAD = {
   // entirely on an English-only screen and became a floating paragraph.
   titleEn: 'What makes Eatple different',
   en: 'Other apps leave these to a paragraph the organiser types out and nobody enforces. Here they are how the app works.',
+  ko: '다른 앱들은 이걸 주최자가 직접 타이핑하고 아무도 지키게 하지 않는 문단에 맡깁니다. 여기서는 이것들이 앱이 작동하는 방식 그 자체입니다.',
 };

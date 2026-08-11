@@ -17,6 +17,7 @@ import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
 import { restrictionLabel, dietById } from '../data/profile';
 import { languageLine } from '../domain/catalog/languages.js';
+import { useText } from './localeText.js';
 
 function formatStampDate(ts) {
   if (!ts) return null;
@@ -43,6 +44,7 @@ export default function JournalPanel({
   // What the app is allowed to claim about the last profile change.
   saveState = 'idle',
 }) {
+  const say = useText();
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
@@ -316,25 +318,33 @@ export default function JournalPanel({
     {
       id: 'first-table',
       name: 'Share one table',
+      nameKo: '밥상 하나를 함께하기',
       hint: 'The whole idea, once.',
+      hintKo: '이 앱의 전부를, 한 번.',
       current: eaten.length, target: 1,
     },
     {
       id: 'three-dishes',
       name: 'Three dishes you could not have ordered alone',
+      nameKo: '혼자서는 못 시켰을 요리 세 가지',
       hint: 'Different dishes, not repeats.',
+      hintKo: '같은 요리 말고, 서로 다른 것으로.',
       current: dishesShared, target: 3,
     },
     {
       id: 'two-countries',
       name: 'Eat with people from two countries',
+      nameKo: '두 나라 사람과 함께 먹기',
       hint: 'Counted from who was at your tables.',
+      hintKo: '당신의 밥상에 실제로 앉았던 사람들로 셉니다.',
       current: distinctNationalities, target: 2,
     },
     {
       id: 'one-culture',
       name: 'Walk one culture end to end',
+      nameKo: '문화 하나를 끝까지 걷기',
       hint: 'Any theme on Explore, finished.',
+      hintKo: '문화 탭의 아무 이야기나, 끝까지.',
       current: journey.experienceCount, target: 2,
     },
   ].map(g => ({
@@ -356,10 +366,14 @@ export default function JournalPanel({
         <div className="screen-head__row">
           <div>
             <span className="screen-head__kr">여권</span>
-            <h1 className="screen-head__title">What this trip has been so far.</h1>
+            <h1 className="screen-head__title">
+              {say('What this trip has been so far.', '이번 여행이 지금까지 어땠는지.')}
+            </h1>
           </div>
           {onOpenSummary && (
-            <button className="screen-head__link" onClick={onOpenSummary}>Share</button>
+            <button className="screen-head__link" onClick={onOpenSummary}>
+              {say('Share', '공유')}
+            </button>
           )}
         </div>
         {/* The masthead counted the record and nothing else, so a traveller
@@ -368,12 +382,15 @@ export default function JournalPanel({
             argument the isEmpty check below avoids, one element higher. */}
         <p className="screen-head__sub">
           {recordCount > 0
-            ? `${recordCount} moment${recordCount === 1 ? '' : 's'} recorded.`
+            ? say(`${recordCount} moment${recordCount === 1 ? '' : 's'} recorded.`,
+              `기록된 순간 ${recordCount}개.`)
             : upcomingTables.length > 0
-              ? `Nothing recorded yet — ${upcomingTables.length === 1
+              ? say(`Nothing recorded yet — ${upcomingTables.length === 1
                   ? 'one table booked. It lands here after.'
-                  : `${upcomingTables.length} tables booked. They land here after.`}`
-              : 'Nothing recorded yet — whatever you do lands here.'}
+                  : `${upcomingTables.length} tables booked. They land here after.`}`,
+              `아직 기록은 없어요 — 잡아 둔 밥상 ${upcomingTables.length}개가 끝나면 여기로 옵니다.`)
+              : say('Nothing recorded yet — whatever you do lands here.',
+                '아직 기록이 없어요 — 무엇을 하시든 여기에 남습니다.')}
         </p>
       </header>
 
@@ -478,7 +495,7 @@ export default function JournalPanel({
             {gateText('passport').titleKr}
             <span className="member-gate__title-en">{gateText('passport').titleEn}</span>
           </h3>
-          <p className="member-gate__body">{gateText('passport').body}</p>
+          <p className="member-gate__body">{say(gateText('passport').body, gateText('passport').bodyKo)}</p>
           <button className="auth-primary" translate="no" onClick={() => onRequireAuth?.('passport')}>
             {gateText('passport').cta}
           </button>
@@ -491,8 +508,8 @@ export default function JournalPanel({
       <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
         <span className="journal-tool__kr" translate="no">식탁에서</span>
         <span className="journal-tool__body">
-          What to say — ordering, what you cannot eat, and something to ask the
-          table. Works with or without a meal booked.
+          {say('What to say — ordering, what you cannot eat, and something to ask the table. Works with or without a meal booked.',
+            '무슨 말을 할지 — 주문할 때, 못 먹는 것을 말할 때, 같이 앉은 사람에게 물어볼 때. 잡아 둔 밥상이 없어도 됩니다.')}
         </span>
       </button>
 
@@ -502,8 +519,8 @@ export default function JournalPanel({
       <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
         <span className="journal-tool__kr" translate="no">도움이 필요하면</span>
         <span className="journal-tool__body">
-          112, 119, the 24-hour travel helpline, and how to reach the 밥친구
-          team. You can leave any meal at any point.
+          {say('112, 119, the 24-hour travel helpline, and how to reach the Eatple team. You can leave any meal at any point.',
+            '112, 119, 24시간 관광통역안내, 그리고 밥친구 팀에 연락하는 방법. 어느 식사든 언제라도 자리를 뜨셔도 됩니다.')}
         </span>
       </button>
 
@@ -644,7 +661,7 @@ export default function JournalPanel({
           statistic, and a wishlist is not an achievement. */}
       <div className="journal-section passport-summary">
         <div className="journal-section-header">
-          <h3>This trip so far</h3>
+          <h3>{say('This trip so far', '이번 여행, 지금까지')}</h3>
         </div>
         <div className="passport-stats">
           <div className="stat-box">
@@ -710,9 +727,11 @@ export default function JournalPanel({
             <li key={g.id} className={`goal${g.done ? ' is-done' : ''}`}>
               <span className="goal__mark" aria-hidden="true">{g.done ? '✓' : ''}</span>
               <span className="goal__body">
-                <span className="goal__name">{g.name}</span>
+                <span className="goal__name">{say(g.name, g.nameKo)}</span>
                 <span className="goal__hint">
-                  {g.done ? 'Done.' : `${g.hint} ${g.current}/${g.target}`}
+                  {g.done
+                    ? say('Done.', '완료.')
+                    : `${say(g.hint, g.hintKo)} ${g.current}/${g.target}`}
                 </span>
               </span>
             </li>

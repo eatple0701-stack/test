@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeftIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // A dish, read on its own.
 //
@@ -20,6 +21,7 @@ import { ChevronLeftIcon } from './Icons';
 // that looks like a clearance.
 
 export default function DishSheet({ menu, onClose, onOpenTable }) {
+  const say = useText();
   if (!menu) return null;
 
   return (
@@ -37,7 +39,7 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
       </header>
 
       <div className="dish-sheet__body">
-        <p className="dish-sheet__gloss">{menu.gloss}</p>
+        <p className="dish-sheet__gloss">{say(menu.gloss, menu.glossKo)}</p>
         <p className="dish-sheet__roman" translate="no">{menu.romanization}</p>
 
         {/* The sentence the whole app rests on: why this one cannot be eaten
@@ -45,12 +47,12 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
             point — the catalogue is allowed to contradict the pitch. */}
         <section className="dish-sheet__block">
           <h2 className="dish-sheet__label">Why it is shared</h2>
-          <p>{menu.whyShared}</p>
+          <p>{say(menu.whyShared, menu.whySharedKo)}</p>
         </section>
 
         <section className="dish-sheet__block">
           <h2 className="dish-sheet__label">What happens at the table</h2>
-          <p>{menu.howItWorks}</p>
+          <p>{say(menu.howItWorks, menu.howItWorksKo)}</p>
           {menu.contains.length > 0 && (
             <p className="dish-sheet__contains">Contains {menu.contains.join(', ')}</p>
           )}
@@ -67,7 +69,7 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
         {menu.culture && (
           <section className="dish-sheet__block">
             <h2 className="dish-sheet__label">Why it is eaten together</h2>
-            <p>{menu.culture}</p>
+            <p>{say(menu.culture, menu.cultureKo)}</p>
           </section>
         )}
 

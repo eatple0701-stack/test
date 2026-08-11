@@ -8,6 +8,7 @@ import { listTables, listAllSignups, listBlocks } from '../data/tableRepository.
 import { visibleTables } from '../domain/policy/blocking.js';
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
+import { useText } from './localeText.js';
 
 // Asking for a meal that may not exist.
 //
@@ -30,6 +31,7 @@ const iso = (offsetDays) =>
   new Date(Date.now() + offsetDays * 86400000).toISOString().slice(0, 10);
 
 export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHost }) {
+  const say = useText();
   const [menuId, setMenuId] = useState(null);
   const [from, setFrom] = useState(iso(0));
   const [to, setTo] = useState(iso(7));
@@ -109,7 +111,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
             >
               <span className="dish-option__kr">{m.nameKo}</span>
               <span className="dish-option__name">{m.name}</span>
-              <span className="dish-option__gloss">{m.gloss}</span>
+              <span className="dish-option__gloss">{say(m.gloss, m.glossKo)}</span>
               <span className="dish-option__min">
                 {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
               </span>

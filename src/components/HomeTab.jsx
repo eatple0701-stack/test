@@ -8,6 +8,7 @@ import TablesLead from './TablesLead';
 import TodayTable from './TodayTable';
 import FoodRoulette from './FoodRoulette';
 import CultureCards from './CultureCards';
+import { useText } from './localeText.js';
 
 // Eight props were still declared here that this component stopped reading
 // when Explore was rebuilt around themes: onOpenRestaurant, onOpenStory,
@@ -23,6 +24,7 @@ export default function HomeTab({
   onOpenTheme, continueTheme, nextExperience, suggestedTheme, suggestedReason,
   themeProgress, profile, onOpenTodayTable, onOpenTable,
 }) {
+  const say = useText();
   const [showRoulette, setShowRoulette] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
   const [cultureStart, setCultureStart] = useState(0);
@@ -128,8 +130,12 @@ export default function HomeTab({
       <div className="home-section">
         <div className="stack-head">
           <span className="stack-head__kr" translate="no">문화</span>
-          <h2 className="stack-head__title">Seven questions about how Korea eats</h2>
-          <p className="stack-head__sub">Each one is a culture you can walk into.</p>
+          <h2 className="stack-head__title">
+            {say('Seven questions about how Korea eats', '한국이 어떻게 먹는지에 대한 일곱 가지 질문')}
+          </h2>
+          <p className="stack-head__sub">
+            {say('Each one is a culture you can walk into.', '하나하나가 걸어 들어가 볼 수 있는 문화입니다.')}
+          </p>
         </div>
         <div className="story-stack">
           {surfacedThemes.map(theme => (
@@ -149,11 +155,11 @@ export default function HomeTab({
         <div className="surprise-row">
           <button className="surprise-btn" onClick={() => { setCultureStart(0); setShowCulture(true); }}>
             <span className="surprise-btn__kr">문화</span>
-            <span className="surprise-btn__label">Culture Cards</span>
+            <span className="surprise-btn__label">{say('Culture Cards', '문화 카드')}</span>
           </button>
           <button className="surprise-btn" onClick={() => setShowRoulette(true)}>
             <span className="surprise-btn__kr">오늘 뭐 먹지</span>
-            <span className="surprise-btn__label">Pick a dish for me</span>
+            <span className="surprise-btn__label">{say('Pick a dish for me', '골라주세요')}</span>
           </button>
         </div>
       </div>

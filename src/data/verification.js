@@ -218,13 +218,34 @@ export const HALAL_LABEL = {
   [HALAL.PORK_FREE]: 'Pork-free',
 };
 
+// The same labels in Korean. Keyed identically, so a level added to one map
+// and forgotten in the other falls back to English rather than to nothing —
+// a badge that silently disappears is worse than a badge in the wrong
+// language, because only one of the two is visible as a mistake.
+export const VEGAN_LABEL_KO = {
+  [VEGAN.FULL]: '완전 채식',
+  [VEGAN.OPTIONS]: '채식 메뉴 있음',
+};
+export const HALAL_LABEL_KO = {
+  [HALAL.CERTIFIED]: '할랄 인증',
+  [HALAL.FRIENDLY]: '할랄 친화',
+  [HALAL.PORK_FREE]: '돼지고기 없음',
+};
+
+/** The three confidence words, as the badges show them. */
+export const TRUST_LABEL_KO = {
+  Official: '공식 확인',
+  Reported: '출처 있음',
+  Inferred: '추정',
+};
+
 /** Dietary badges a card/detail may show, in priority order. */
 export function dietaryBadges(place) {
   const out = [];
   const v = place.dietary?.vegan;
   const h = place.dietary?.halal;
-  if (isKnown(v) && VEGAN_LABEL[v.value]) out.push({ key: 'vegan', label: VEGAN_LABEL[v.value], fact: v });
-  if (isKnown(h) && HALAL_LABEL[h.value]) out.push({ key: 'halal', label: HALAL_LABEL[h.value], fact: h });
+  if (isKnown(v) && VEGAN_LABEL[v.value]) out.push({ key: 'vegan', label: VEGAN_LABEL[v.value], labelKo: VEGAN_LABEL_KO[v.value], fact: v });
+  if (isKnown(h) && HALAL_LABEL[h.value]) out.push({ key: 'halal', label: HALAL_LABEL[h.value], labelKo: HALAL_LABEL_KO[h.value], fact: h });
   return out;
 }
 

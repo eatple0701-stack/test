@@ -40,6 +40,7 @@ import { languageFit, cleanLanguages, languageLine, LANGUAGE_FIT } from '../doma
 import { themeById } from '../domain/catalog/index.js';
 import { timeText, clockWarning } from '../domain/policy/clock.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // One table, and the decision to sit at it.
 //
@@ -63,6 +64,7 @@ const dayLabelShort = (date) => {
 };
 
 export default function TableDetail({ tableId, profile, onProfileChange, onBack, onOpenTheme, onOpenTable, auth, onRequireAuth }) {
+  const say = useText();
   const [table, setTable] = useState(null);
   const [signups, setSignups] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -439,8 +441,8 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         </h2>
         {/* Under the name, above the reason. Somebody who arrived on a shared
             link may be meeting this word for the first time. */}
-        <p className="detail-hero__gloss">{menu.gloss}</p>
-        <p className="detail-hero__why">{menu.whyShared}</p>
+        <p className="detail-hero__gloss">{say(menu.gloss, menu.glossKo)}</p>
+        <p className="detail-hero__why">{say(menu.whyShared, menu.whySharedKo)}</p>
       </div>
 
       {/* When, where, how many — moved directly under the dish on 8/4.
@@ -526,7 +528,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
 
       <div className="detail-block">
         <h3 className="detail-block__label">What happens at the table</h3>
-        <p className="detail-block__body">{menu.howItWorks}</p>
+        <p className="detail-block__body">{say(menu.howItWorks, menu.howItWorksKo)}</p>
         {menu.contains.length > 0 && (
           <p className="detail-block__contains">Contains {menu.contains.join(', ')}</p>
         )}
@@ -573,7 +575,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             Why it is eaten together
             <ChevronRightIcon size={14} />
           </summary>
-          <p className="detail-culture">{menu.culture}</p>
+          <p className="detail-culture">{say(menu.culture, menu.cultureKo)}</p>
 
           {/* Offered only where the catalog genuinely places the dish inside a
               theme. Six of the ten belong to no theme, and manufacturing

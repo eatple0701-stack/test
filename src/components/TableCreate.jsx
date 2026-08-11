@@ -14,6 +14,7 @@ import RulesConsent from './RulesConsent';
 import { PURPOSE } from '../content/safety.js';
 import { agreedToRules } from '../domain/policy/consent.js';
 import { ChevronLeftIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // Opening a table.
 //
@@ -26,6 +27,7 @@ import { ChevronLeftIcon } from './Icons';
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 export default function TableCreate({ profile, onProfileChange, onBack, onCreated, prefill }) {
+  const say = useText();
   // A request arriving from 찾는 밥상 already named the dish and the day.
   const [menuId, setMenuId] = useState(prefill?.menuId ?? null);
   const [date, setDate] = useState(prefill?.date ?? '');
@@ -213,7 +215,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
               <span className="dish-option__name">{m.name}</span>
               {/* The romanisation is a sound, not a meaning. Testers could not
                   tell what half these words were until they opened one. */}
-              <span className="dish-option__gloss">{m.gloss}</span>
+              <span className="dish-option__gloss">{say(m.gloss, m.glossKo)}</span>
               <span className="dish-option__min">
                 {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
               </span>
@@ -226,7 +228,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
         <div className="form-block">
           <div className="dish-brief">
             <span className="dish-brief__cat">{CATEGORY_LABEL[menu.category]?.en}</span>
-            <p className="dish-brief__how">{menu.howItWorks}</p>
+            <p className="dish-brief__how">{say(menu.howItWorks, menu.howItWorksKo)}</p>
             {eatenAtLabels(menu.id).length > 0 && (
               <p className="dish-brief__when">
                 주로 {eatenAtLabels(menu.id).map(l => l.kr).join(' · ')} ·

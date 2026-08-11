@@ -18,6 +18,7 @@ import { getProfile, saveProfile } from './data/profile';
 import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 import { getStoredLocale, setStoredLocale } from './data/locale.js';
 import LocaleFilter from './components/LocaleFilter';
+import { LocaleContext } from './components/localeText.js';
 // From the repository, not the profile module: it is the seam that knows
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
@@ -620,9 +621,10 @@ export default function App() {
         justFinished: justCompletedThemeId ? themeById(justCompletedThemeId) : null,
         untouched: (entry?.done ?? 0) === 0,
         hasAnyProgress: journey.experienceCount > 0,
+        locale,
       });
     },
-    [suggestedTheme, visitedZones, continueTheme, themeProgress, justCompletedThemeId, journey],
+    [suggestedTheme, visitedZones, continueTheme, themeProgress, justCompletedThemeId, journey, locale],
   );
 
   const handleToggleMarket = (marketId) => {
@@ -722,6 +724,11 @@ export default function App() {
       promise; a list of tables somebody actually opened keeps it. */}
 
   return (
+    /* Two halves of one setting. LocaleFilter reduces labels that were
+       already written in both languages; the provider lets content that was
+       written once — the articles, the dish stories, the restaurant
+       write-ups — pick its Korean version where one exists. */
+    <LocaleContext.Provider value={locale}>
     <div className="app-shell">
       {/* App chrome: the name on the left, the tabs, and who you are on the
           right — one row, above the content, on every screen. The wordmark
@@ -1155,5 +1162,6 @@ export default function App() {
       )}
 
     </div>
+    </LocaleContext.Provider>
   );
 }

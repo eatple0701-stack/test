@@ -19,38 +19,68 @@ import { tableCtaFor, mapLinksFor, transitLine, MAP_LINKS_NOTE } from '../domain
 import { featuredZones } from '../data/experiences';
 import { haversineKm, formatDistance, getOpenStatus, todaysHours, directionsUrl, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
 import {
-  dietaryBadges, isKnown, needsCheck, trustBadge, dietaryConfidence, CONFIDENCE, isQuarantined,
-} from '../data/verification';
+  dietaryBadges, isKnown, needsCheck, trustBadge, dietaryConfidence, CONFIDENCE, isQuarantined, TRUST_LABEL_KO } from '../data/verification';
 import { bookable } from '../domain/policy/cancellation.js';
+import { useText } from './localeText.js';
 
 const TRAIT_META = {
-  'Mild Taste': { Icon: MildIcon, label: 'Mild taste' },
-  'Fermented': { Icon: FermentIcon, label: 'Fermented' },
-  'Zero-waste': { Icon: RecycleIcon, label: 'Zero waste' },
-  'Local Sourcing': { Icon: SproutIcon, label: 'Locally sourced' },
+  'Mild Taste': { Icon: MildIcon, label: 'Mild taste', labelKo: '맵지 않음' },
+  'Fermented': { Icon: FermentIcon, label: 'Fermented', labelKo: '발효' },
+  'Zero-waste': { Icon: RecycleIcon, label: 'Zero waste', labelKo: '제로웨이스트' },
+  'Local Sourcing': { Icon: SproutIcon, label: 'Locally sourced', labelKo: '지역 재료' },
 };
 
 const DIETARY_ICON = { vegan: LeafIcon, halal: CrescentIcon };
 
-function SectionHead({ Icon, title, kr }) {
+// `kr` is the small Korean gloss that rides beside an English heading in the
+// bilingual default. `ko` is the heading itself in Korean, for the
+// Korean-only setting — and when that one is in use the gloss is dropped,
+// because "현지 팁 · 현지 팁" is what happens otherwise.
+function SectionHead({ Icon, title, ko, kr }) {
+  const say = useText();
+  const heading = say(title, ko);
+  const glossed = kr && heading === title;
   return (
     <div className="section-head">
       <span className="section-head__icon" aria-hidden="true"><Icon size={17} /></span>
-      <h3>{title}{kr && <span className="section-head__kr"> · {kr}</span>}</h3>
+      <h3>{heading}{glossed && <span className="section-head__kr"> · {kr}</span>}</h3>
     </div>
   );
 }
 
 function Trust({ fact }) {
+  const say = useText();
   const { label, tone, detail } = trustBadge(fact);
-  return <span className={`trust trust--${tone}`} title={detail}>{label}</span>;
+  // The tooltip stays in the language the evidence was written in: it quotes
+  // a source line, and translating a quotation is not translating a label.
+  return <span className={`trust trust--${tone}`} title={detail}>{say(label, TRUST_LABEL_KO[label])}</span>;
 }
 
 const DIET_CAVEAT = {
-  [CONFIDENCE.CONFIRMED]: { title: 'Confirmed with the restaurant.', body: 'The kitchen states this itself. Menus still change, so ask if you have a strict requirement.' },
-  [CONFIDENCE.SUPPORTED]: { title: 'Reported, not confirmed.', body: `These details come from what the restaurant and our research describe. We haven't checked them in person — confirm with staff before ordering.` },
-  [CONFIDENCE.INFERRED]: { title: 'Partly our own reading.', body: 'Some of this we read from the kind of kitchen it is, or from how the venue describes itself — not from a stated fact. Treat it as a lead and ask staff before ordering.' },
-  [CONFIDENCE.UNKNOWN]: { title: 'No dietary information yet.', body: `We haven't established what this kitchen serves, so we don't make a claim either way.` },
+  [CONFIDENCE.CONFIRMED]: {
+    title: 'Confirmed with the restaurant.',
+    titleKo: '식당에 확인했습니다.',
+    body: 'The kitchen states this itself. Menus still change, so ask if you have a strict requirement.',
+    bodyKo: '주방이 직접 밝힌 내용입니다. 그래도 메뉴는 바뀌니, 꼭 지켜야 하는 조건이 있다면 물어보세요.',
+  },
+  [CONFIDENCE.SUPPORTED]: {
+    title: 'Reported, not confirmed.',
+    titleKo: '전해 들었을 뿐, 확인은 못 했습니다.',
+    body: `These details come from what the restaurant and our research describe. We haven't checked them in person — confirm with staff before ordering.`,
+    bodyKo: '식당 소개와 저희 조사에서 가져온 내용입니다. 직접 가서 확인하지는 못했으니, 주문 전에 직원에게 물어보세요.',
+  },
+  [CONFIDENCE.INFERRED]: {
+    title: 'Partly our own reading.',
+    titleKo: '일부는 저희가 읽어 낸 것입니다.',
+    body: 'Some of this we read from the kind of kitchen it is, or from how the venue describes itself — not from a stated fact. Treat it as a lead and ask staff before ordering.',
+    bodyKo: '어떤 종류의 주방인지, 혹은 가게가 스스로를 어떻게 설명하는지에서 읽어 낸 부분이 있습니다. 명시된 사실이 아니에요. 단서로만 보시고 주문 전에 직원에게 확인하세요.',
+  },
+  [CONFIDENCE.UNKNOWN]: {
+    title: 'No dietary information yet.',
+    titleKo: '식단 정보가 아직 없습니다.',
+    body: `We haven't established what this kitchen serves, so we don't make a claim either way.`,
+    bodyKo: '이 주방이 무엇을 내는지 아직 확인하지 못해서, 어느 쪽으로도 주장하지 않습니다.',
+  },
 };
 
 // This screen used to catch its own crashes into a red full-bleed panel with
@@ -76,6 +106,7 @@ function RestaurantDetailInner({
   mapCenter, focusStory, onOpenRestaurant, onExploreZone, bookmarkedIds = [],
   onOpenTableHere, onOpenTable, onNavigate,
 }) {
+  const say = useText();
   // Tables already happening at this restaurant. Read the same way every
   // other screen reads them, so the Supabase swap reaches here for free.
   const [tablesHere, setTablesHere] = useState([]);
@@ -246,9 +277,9 @@ function RestaurantDetailInner({
             {/* 3. Diet Tags */}
             {facts.length > 0 && (
               <ul className="fact-row" aria-label="Dietary and dining facts">
-                {facts.map(({ Icon, label, fact: f }) => (
+                {facts.map(({ Icon, label, labelKo, fact: f }) => (
                   <li key={label} className="fact">
-                    <Icon size={16} aria-hidden="true" /> {label}
+                    <Icon size={16} aria-hidden="true" /> {say(label, labelKo)}
                     {f && <Trust fact={f} />}
                   </li>
                 ))}
@@ -256,8 +287,16 @@ function RestaurantDetailInner({
             )}
 
             <div className="diet-note">
-              <p><strong>{caveat.title}</strong> {caveat.body}</p>
-              {certClaim && <p className="diet-note__cert">Certification claimed: {certClaim.body} — we have not sighted the certificate.</p>}
+              <p>
+                <strong>{say(caveat.title, caveat.titleKo)}</strong>
+                {' '}{say(caveat.body, caveat.bodyKo)}
+              </p>
+              {certClaim && (
+                <p className="diet-note__cert">
+                  {say(`Certification claimed: ${certClaim.body} — we have not sighted the certificate.`,
+                    `인증을 주장합니다: ${certClaim.body} — 저희가 인증서를 직접 확인하지는 못했습니다.`)}
+                </p>
+              )}
             </div>
 
             {/* Everything you can DO with this place, at the top of it.
@@ -362,7 +401,7 @@ function RestaurantDetailInner({
 
             {/* Quick Info — hours, transit, phone, links, save/visit/share */}
             <section className="detail-section">
-              <SectionHead Icon={ClockIcon} title="Quick Info" />
+              <SectionHead Icon={ClockIcon} title="Quick Info" ko="기본 정보" />
               <div className="practical">
                 <div className="practical-row">
                   <ClockIcon size={17} />
@@ -373,7 +412,9 @@ function RestaurantDetailInner({
                       {today && <span className="practical-muted">(today {today})</span>}
                     </span>
                   ) : (
-                    <span className="practical-muted">Opening hours unknown — check before you go</span>
+                    <span className="practical-muted">
+                      {say('Opening hours unknown — check before you go', '영업시간을 알 수 없습니다 — 가시기 전에 확인하세요')}
+                    </span>
                   )}
                 </div>
 
@@ -456,7 +497,7 @@ function RestaurantDetailInner({
             {/* Signature Menu */}
             {isKnown(restaurant.menus) && (
               <section className="detail-section">
-                <SectionHead Icon={MenuIcon} title="Signature Menu" />
+                <SectionHead Icon={MenuIcon} title="Signature Menu" ko="대표 메뉴" />
                 <div className="menu-rows">
                   {restaurant.menus.value.map(m => (
                     <div key={m.name} className="menu-row">
@@ -466,20 +507,23 @@ function RestaurantDetailInner({
                   ))}
                 </div>
                 {needsCheck(restaurant.menus) && (
-                  <p className="section-note">Dishes and prices are unverified and may have changed.</p>
+                  <p className="section-note">
+                    {say('Dishes and prices are unverified and may have changed.',
+                      '메뉴와 가격은 확인되지 않았고 바뀌었을 수 있습니다.')}
+                  </p>
                 )}
               </section>
             )}
 
             {/* Why Locals Love This */}
             <section className="detail-section">
-              <SectionHead Icon={SparkleIcon} title="Why Locals Love This" />
-              <p className="detail-body">{culture.whyLocalsLoveIt}</p>
+              <SectionHead Icon={SparkleIcon} title="Why Locals Love This" ko="현지인이 좋아하는 이유" />
+              <p className="detail-body">{say(culture.whyLocalsLoveIt, culture.whyLocalsLoveItKo)}</p>
             </section>
 
             {/* Local Tips — what someone who eats here would tell you */}
             <section className="detail-section">
-              <SectionHead Icon={SparkleIcon} title="Local Tips" kr="현지 팁" />
+              <SectionHead Icon={SparkleIcon} title="Local Tips" ko="현지 팁" kr="현지 팁" />
               <div className="tip-cards">
                 {tipsFor(restaurant).map(t => (
                   <div key={t.tag} className="tip-card">
@@ -494,12 +538,12 @@ function RestaurantDetailInner({
                 This / Fun Fact, as separate scannable cards rather than one
                 long paragraph. */}
             <section className="detail-hook">
-              <p className="detail-hook__label">Why it's special</p>
+              <p className="detail-hook__label">{say("Why it's special", '왜 특별한가')}</p>
               <p className="detail-hook__quote">&ldquo;{restaurant.vibe}&rdquo;</p>
             </section>
 
             <section className="detail-section" ref={storyRef}>
-              <SectionHead Icon={BookIcon} title="Food Story" kr="이야기" />
+              <SectionHead Icon={BookIcon} title="Food Story" ko="음식 이야기" kr="이야기" />
               <div className="story-grid">
                 <div className="story-mini-card">
                   <p className="story-mini-card__label">📜 Origin</p>
@@ -517,24 +561,24 @@ function RestaurantDetailInner({
                 </div>
                 <div className="story-mini-card">
                   <p className="story-mini-card__label">🌏 Cultural Meaning</p>
-                  <p>{culture.culturalMeaning}</p>
+                  <p>{say(culture.culturalMeaning, culture.culturalMeaningKo)}</p>
                 </div>
                 <div className="story-mini-card">
                   <p className="story-mini-card__label">🍽 When Koreans Eat This</p>
-                  <p>{culture.whenKoreansEatThis}</p>
+                  <p>{say(culture.whenKoreansEatThis, culture.whenKoreansEatThisKo)}</p>
                 </div>
                 <div className="story-mini-card">
                   <p className="story-mini-card__label">✨ Fun Fact</p>
-                  <p>{culture.didYouKnow}</p>
+                  <p>{say(culture.didYouKnow, culture.didYouKnowKo)}</p>
                 </div>
               </div>
             </section>
 
             {/* Dining Etiquette */}
             <section className="detail-section">
-              <SectionHead Icon={SparkleIcon} title="Dining Etiquette" />
+              <SectionHead Icon={SparkleIcon} title="Dining Etiquette" ko="식사 예절" />
               <ul className="tips-list">
-                {culture.diningTips.map(tip => (
+                {(say(culture.diningTips, culture.diningTipsKo)).map(tip => (
                   <li key={tip} className="tip">
                     <span className="tip__dot" aria-hidden="true" />
                     <span>{tip}</span>
@@ -546,7 +590,7 @@ function RestaurantDetailInner({
             {/* Useful Korean */}
             {culture.usefulKorean?.length > 0 && (
               <section className="detail-section">
-                <SectionHead Icon={BookIcon} title="Useful Korean" kr="유용한 한국어" />
+                <SectionHead Icon={BookIcon} title="Useful Korean" ko="유용한 한국어" kr="유용한 한국어" />
                 <div className="phrase-list">
                   {culture.usefulKorean.map(p => (
                     <div key={p.ko} className="phrase-row">
@@ -564,9 +608,9 @@ function RestaurantDetailInner({
             {/* Conversation Tips */}
             {culture.conversationTips?.length > 0 && (
               <section className="detail-section">
-                <SectionHead Icon={SparkleIcon} title="Conversation Tips" />
+                <SectionHead Icon={SparkleIcon} title="Conversation Tips" ko="대화 거리" />
                 <ul className="tips-list">
-                  {culture.conversationTips.map(tip => (
+                  {(say(culture.conversationTips, culture.conversationTipsKo)).map(tip => (
                     <li key={tip} className="tip">
                       <span className="tip__dot" aria-hidden="true" />
                       <span>{tip}</span>
@@ -578,8 +622,8 @@ function RestaurantDetailInner({
 
             {/* Continue Your Journey — the meal is step one, not the end */}
             <section className="detail-section detail-section--route">
-              <SectionHead Icon={CompassIcon} title="Continue Your Journey" kr="여정 잇기" />
-              <p className="section-note">Where this meal leads next.</p>
+              <SectionHead Icon={CompassIcon} title="Continue Your Journey" ko="여정 잇기" kr="여정 잇기" />
+              <p className="section-note">{say('Where this meal leads next.', '이 한 끼가 다음으로 이어지는 곳.')}</p>
               <CulturalRoute
                 place={restaurant}
                 onOpenRestaurant={onOpenRestaurant}
@@ -589,9 +633,12 @@ function RestaurantDetailInner({
 
             {/* Nearby Experiences */}
             <section className="detail-section">
-              <SectionHead Icon={MapPinIcon} title="Nearby Experiences" />
+              <SectionHead Icon={MapPinIcon} title="Nearby Experiences" ko="근처에서 해볼 것" />
               <p className="detail-body">
-                {zoneInfo?.blurb ?? `More of ${restaurant.zone.split(',')[0]} is waiting just outside.`}
+                {zoneInfo
+                  ? say(zoneInfo.blurb, zoneInfo.blurbKo)
+                  : say(`More of ${restaurant.zone.split(',')[0]} is waiting just outside.`,
+                    `${restaurant.zone.split(',')[0]}은(는) 문 밖에 더 있습니다.`)}
               </p>
               <div className="cta-stack">
                 {onExploreZone && (
@@ -605,7 +652,7 @@ function RestaurantDetailInner({
             {/* Related Foods — other places in the same category */}
             {relatedPlaces.length > 0 && (
               <section className="detail-section">
-                <SectionHead Icon={BowlIcon} title="Related Foods" />
+                <SectionHead Icon={BowlIcon} title="Related Foods" ko="관련 음식" />
                 <div className="home-scroll-row" style={{ padding: 0 }}>
                   {relatedPlaces.map(p => (
                     <PlaceCard
@@ -623,15 +670,15 @@ function RestaurantDetailInner({
             {/* Passport Mission */}
             {culture.passportMission && (
               <section className="detail-section">
-                <SectionHead Icon={SparkleIcon} title="Passport Mission" kr="여권 미션" />
+                <SectionHead Icon={SparkleIcon} title="Passport Mission" ko="여권 미션" kr="여권 미션" />
                 <p className="detail-body">
-                  <strong>{culture.passportMission.title}</strong> — {culture.passportMission.detail}
+                  <strong>{say(culture.passportMission, culture.passportMissionKo).title}</strong> — {say(culture.passportMission, culture.passportMissionKo).detail}
                 </p>
                 <div className={`mission-status${isVisited ? ' mission-status--done' : ''}`}>
                   {isVisited ? (
                     <><CheckIcon size={16} /> Mission complete — logged in your Passport</>
                   ) : (
-                    'Mark this place visited to complete the mission'
+                    say('Mark this place visited to complete the mission', '이곳을 가봤다고 표시하면 미션이 완료됩니다')
                   )}
                 </div>
               </section>
@@ -639,7 +686,7 @@ function RestaurantDetailInner({
 
             {/* Location & Directions / Map */}
             <section className="detail-section">
-              <SectionHead Icon={CompassIcon} title="Location & Directions" />
+              <SectionHead Icon={CompassIcon} title="Location & Directions" ko="위치와 길찾기" />
 
               <div className="practical-row">
                 <MapPinIcon size={17} />
@@ -675,39 +722,52 @@ function RestaurantDetailInner({
 
             {/* Footer */}
             <footer className="provenance">
-              <p className="provenance__title">About this information</p>
+              <p className="provenance__title">{say('About this information', '이 정보에 대하여')}</p>
               <p>
-                <strong>Official</strong> means we checked it against a map service or registry;
-                <strong> Reported</strong> means a source states it; <strong>Inferred</strong> means
-                we read it from context. Hours, prices and dietary details change — treat this as
-                a starting point.
+                {say(
+                  <>
+                    <strong>Official</strong> means we checked it against a map service or registry;
+                    <strong> Reported</strong> means a source states it; <strong>Inferred</strong> means
+                    we read it from context. Hours, prices and dietary details change — treat this as
+                    a starting point.
+                  </>,
+                  <>
+                    <strong>공식 확인</strong>은 지도 서비스나 등록 정보와 대조했다는 뜻이고,
+                    <strong> 출처 있음</strong>은 어떤 출처가 그렇게 말한다는 뜻이며,
+                    <strong> 추정</strong>은 저희가 정황에서 읽어 냈다는 뜻입니다. 영업시간, 가격,
+                    식단 정보는 바뀝니다 — 출발점으로만 보세요.
+                  </>,
+                )}
               </p>
               <dl className="provenance__list">
                 <div>
-                  <dt>Location</dt>
+                  <dt>{say('Location', '위치')}</dt>
                   <dd>
                     {restaurant.coordinates.source}
-                    {restaurant.address.precision === 'area' && ' · address is area-level'}
+                    {restaurant.address.precision === 'area' && say(' · address is area-level', ' · 주소는 구역 단위')}
                   </dd>
                 </div>
                 <div>
-                  <dt>Dietary</dt>
+                  <dt>{say('Dietary', '식단')}</dt>
                   <dd>
                     {dietFacts.length > 0
                       ? [...new Set(dietFacts.map(f => f.fact.source))].join(' · ')
-                      : 'Not recorded'}
+                      : say('Not recorded', '기록 없음')}
                   </dd>
                 </div>
                 <div>
-                  <dt>Last checked</dt>
-                  <dd>{lastChecked ?? 'Never'}</dd>
+                  <dt>{say('Last checked', '마지막 확인')}</dt>
+                  <dd>{lastChecked ?? say('Never', '없음')}</dd>
                 </div>
               </dl>
             </footer>
             
             <div className="transparency-log">
               {lastChecked && (
-                <p>Last verified: {new Date(lastChecked).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                <p>
+                  {say('Last verified: ', '마지막 검증: ')}
+                  {new Date(lastChecked).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
               )}
               {/* This said hello@kfoodmap.com until 2026-08-04. K-Food Map is
                   a different product — the one this repository grew out of,
@@ -717,7 +777,7 @@ function RestaurantDetailInner({
                   them. Nothing about it looked broken, which is why it sat at
                   the foot of the page for months. */}
               <p>
-                To suggest an edit, email{' '}
+                {say('To suggest an edit, email ', '수정 제안은 이 주소로 보내주세요: ')}
                 <a className="practical-link" href="mailto:eatple0701@gmail.com">eatple0701@gmail.com</a>
               </p>
             </div>

@@ -10,6 +10,8 @@ import PlaceCard from './PlaceCard';
 import CultureCards from './CultureCards';
 import { CULTURE_CARDS } from '../content/cultureCards.js';
 import { ChevronRightIcon, MapPinIcon, SparkleIcon, CheckIcon } from './Icons';
+import { useText } from './localeText.js';
+import { ZONE_KO } from '../data/culture';
 
 // The index: places, markets and neighbourhoods.
 //
@@ -31,6 +33,16 @@ const storyPicks = storyIds.map(id => restaurants.find(r => r.id === id)).filter
 
 const activePlaces = restaurants.filter(r => !isQuarantined(r));
 
+// Records read "Balwoo Gongyang (발우공양)": romanised name outside the
+// brackets, the sign as it reads inside. Korean mode shows the sign. Kept
+// here and in PlaceCard rather than in the data, because it is a rendering
+// rule about one field rather than a fact about the place.
+const placeName = (place, say) => {
+  const roman = place.name.split('(')[0].trim();
+  const inBrackets = place.name.match(/\(([^)]+)\)/)?.[1]?.trim();
+  return say(roman, inBrackets || roman);
+};
+
 function dayOfYear(date) {
   const start = new Date(date.getFullYear(), 0, 0);
   return Math.floor((date - start) / 86400000);
@@ -40,6 +52,7 @@ export default function PlacesTab({
   onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
   visitedMarkets = [], onToggleMarket, onOpenMap,
 }) {
+  const say = useText();
   const byId = useMemo(() => Object.fromEntries(restaurants.map(r => [r.id, r])), []);
   const [showCulture, setShowCulture] = useState(false);
   const [cultureStart, setCultureStart] = useState(0);
@@ -55,31 +68,36 @@ export default function PlacesTab({
     <section className="places-tab" aria-label="Places">
       <header className="screen-head">
         <span className="screen-head__kr">둘러보기</span>
-        <h1 className="screen-head__title">Places, markets and the city around them.</h1>
+        <h1 className="screen-head__title">
+          {say('Places, markets and the city around them.', '식당과 시장, 그리고 그 주변의 도시.')}
+        </h1>
         <p className="screen-head__sub">
-          {activePlaces.length} verified places, {traditionalMarkets.length} markets.
+          {say(`${activePlaces.length} verified places, ${traditionalMarkets.length} markets.`,
+            `확인된 장소 ${activePlaces.length}곳, 시장 ${traditionalMarkets.length}곳.`)}
         </p>
       </header>
 
       <div className="home-section">
         <div className="home-section__header">
           <span className="panel-icon" aria-hidden="true"><SparkleIcon size={18} /></span>
-          <h2>Today&rsquo;s Korean Experience</h2>
+          <h2>{say('Today\u2019s Korean Experience', '오늘의 한국 경험')}</h2>
         </div>
         <button className="spotlight-card" onClick={() => openStory(todaysPick)}>
           <PlaceImage place={todaysPick} variant="hero" className="spotlight-card__img" />
           <div className="spotlight-card__body">
-            <span className="gather-card__tag">{todaysPick.zone}</span>
-            <h3>{todaysPick.name.split('(')[0].trim()}</h3>
-            <p className="spotlight-card__quote">&ldquo;{todaysPick.vibe}&rdquo;</p>
-            <span className="spotlight-card__cta">Read the story <ChevronRightIcon size={14} /></span>
+            <span className="gather-card__tag">{say(todaysPick.zone, ZONE_KO[todaysPick.zone])}</span>
+            <h3>{placeName(todaysPick, say)}</h3>
+            <p className="spotlight-card__quote">&ldquo;{say(todaysPick.vibe, todaysPick.vibeKo)}&rdquo;</p>
+            <span className="spotlight-card__cta">
+              {say('Read the story', '이야기 읽기')} <ChevronRightIcon size={14} />
+            </span>
           </div>
         </button>
       </div>
 
       <div className="home-section">
         <div className="home-section__header">
-          <h2>Traditional Markets</h2>
+          <h2>{say('Traditional Markets', '전통시장')}</h2>
           <span className="home-section__count">{visitedMarkets.length}/{traditionalMarkets.length}</span>
         </div>
         <div className="home-scroll-row">
@@ -93,9 +111,9 @@ export default function PlacesTab({
                       heading under it is the same market in English and the
                       line under that is where it is. */}
                   <span className="gather-card__tag gather-card__tag-kr" translate="no">{m.nameKo}</span>
-                  <h3>{m.name}</h3>
-                  <p className="gather-card__meta"><MapPinIcon size={14} /> {m.zone}</p>
-                  <p className="gather-card__desc">{m.blurb}</p>
+                  <h3>{say(m.name, m.nameKo)}</h3>
+                  <p className="gather-card__meta"><MapPinIcon size={14} /> {say(m.zone, m.zoneKo)}</p>
+                  <p className="gather-card__desc">{say(m.blurb, m.blurbKo)}</p>
                 </button>
                 {onToggleMarket && (
                   <button
@@ -104,7 +122,9 @@ export default function PlacesTab({
                     aria-label={visited ? `Mark ${m.name} as not visited` : `Mark ${m.name} as visited`}
                     onClick={() => onToggleMarket(m.id)}
                   >
-                    {visited ? <><CheckIcon size={14} /> Visited</> : 'Mark visited'}
+                    {visited
+                      ? <><CheckIcon size={14} /> {say('Visited', '가봤어요')}</>
+                      : say('Mark visited', '가봤다고 표시')}
                   </button>
                 )}
               </div>
@@ -115,7 +135,7 @@ export default function PlacesTab({
 
       <div className="home-section">
         <div className="home-section__header">
-          <h2>Popular with Travelers</h2>
+          <h2>{say('Popular with Travelers', '여행자들이 많이 찾는 곳')}</h2>
         </div>
         <div className="home-scroll-row">
           {spotlightPicks.map(place => (
@@ -126,20 +146,20 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>Food Stories</h2></div>
+        <div className="home-section__header"><h2>{say('Food Stories', '음식에 얽힌 이야기')}</h2></div>
         <div className="home-scroll-row">
           {storyPicks.map(place => (
             <button key={place.id} className="gather-card" onClick={() => openStory(place)}>
-              <span className="gather-card__tag">{place.zone}</span>
-              <h3>{place.name.split('(')[0].trim()}</h3>
-              <p className="gather-card__desc">&ldquo;{place.vibe}&rdquo;</p>
+              <span className="gather-card__tag">{say(place.zone, ZONE_KO[place.zone])}</span>
+              <h3>{placeName(place, say)}</h3>
+              <p className="gather-card__desc">&ldquo;{say(place.vibe, place.vibeKo)}&rdquo;</p>
             </button>
           ))}
         </div>
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>Recommended Courses</h2></div>
+        <div className="home-section__header"><h2>{say('Recommended Courses', '추천 코스')}</h2></div>
         <div className="home-scroll-row">
           {courses.map(c => {
             const stops = c.stopIds.map(id => byId[id]).filter(Boolean);
@@ -151,8 +171,8 @@ export default function PlacesTab({
                     <PlaceImage key={st.id} place={st} variant="thumb" className="course-card__thumb" />
                   ))}
                 </div>
-                <h3>{c.title}</h3>
-                <p className="course-card__meta">{c.duration}</p>
+                <h3>{say(c.title, c.titleKo)}</h3>
+                <p className="course-card__meta">{say(c.duration, c.durationKo)}</p>
               </button>
             );
           })}
@@ -160,7 +180,7 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>Weekend Picks</h2></div>
+        <div className="home-section__header"><h2>{say('Weekend Picks', '주말에 가볼 만한 곳')}</h2></div>
         <div className="home-scroll-row">
           {weekendPicks.map(place => (
             <PlaceCard key={place.id} place={place} onClick={() => onOpenRestaurant(place)}
@@ -170,7 +190,7 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>Local Hidden Gems</h2></div>
+        <div className="home-section__header"><h2>{say('Local Hidden Gems', '현지인만 아는 곳')}</h2></div>
         <div className="home-scroll-row">
           {hiddenGemPicks.map(place => (
             <PlaceCard key={place.id} place={place} onClick={() => onOpenRestaurant(place)}
@@ -180,15 +200,18 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>Seasonal Foods</h2></div>
+        <div className="home-section__header"><h2>{say('Seasonal Foods', '제철 음식')}</h2></div>
         <div className="home-scroll-row">
           {seasonalFoods.map(f => {
             const inSeason = f.months.includes(currentMonth);
             return (
               <div key={f.id} className={`gather-card gather-card--static gather-card--kr${inSeason ? ' is-highlighted' : ''}`} data-kr={f.nameKo}>
-                <span className="gather-card__tag">{f.season}{inSeason ? ' · In season now' : ''}</span>
-                <h3>{f.name} <span className="gather-card__kr">{f.nameKo}</span></h3>
-                <p className="gather-card__desc">{f.blurb}</p>
+                <span className="gather-card__tag">
+                  {say(f.season, f.seasonKo)}
+                  {inSeason ? say(' · In season now', ' · 지금이 제철') : ''}
+                </span>
+                <h3>{say(f.name, f.nameKo)} <span className="gather-card__kr">{f.nameKo}</span></h3>
+                <p className="gather-card__desc">{say(f.blurb, f.blurbKo)}</p>
               </div>
             );
           })}
@@ -196,38 +219,38 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>Festival Picks</h2></div>
+        <div className="home-section__header"><h2>{say('Festival Picks', '축제')}</h2></div>
         <div className="home-scroll-row">
           {festivals.map(f => (
             <div key={f.id} className="gather-card gather-card--static gather-card--kr" data-kr={f.nameKo}>
-              <span className="gather-card__tag">{f.when}</span>
-              <h3>{f.name} <span className="gather-card__kr">{f.nameKo}</span></h3>
-              <p className="gather-card__desc">{f.blurb}</p>
+              <span className="gather-card__tag">{say(f.when, f.whenKo)}</span>
+              <h3>{say(f.name, f.nameKo)} <span className="gather-card__kr">{f.nameKo}</span></h3>
+              <p className="gather-card__desc">{say(f.blurb, f.blurbKo)}</p>
             </div>
           ))}
         </div>
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>Korean Dining Culture</h2></div>
+        <div className="home-section__header"><h2>{say('Korean Dining Culture', '한국의 식문화')}</h2></div>
         <div className="home-scroll-row">
           {CULTURE_CARDS.slice(0, 4).map((c, i) => (
             <button key={c.title} className="zone-card" style={{ flex: '0 0 180px' }}
               onClick={() => { setCultureStart(i); setShowCulture(true); }}>
-              <h3>{c.title}</h3>
-              <p>{c.desc}</p>
+              <h3>{say(c.title, c.titleKo)}</h3>
+              <p>{say(c.desc, c.descKo)}</p>
             </button>
           ))}
         </div>
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>Recommended Neighborhoods</h2></div>
+        <div className="home-section__header"><h2>{say('Recommended Neighborhoods', '동네 추천')}</h2></div>
         <div className="zone-grid">
           {featuredZones.map(z => (
             <button key={z.name} className="zone-card" onClick={() => onExploreZone(z.name)}>
-              <h3>{z.name}</h3>
-              <p>{z.blurb}</p>
+              <h3>{say(z.name, z.nameKo)}</h3>
+              <p>{say(z.blurb, z.blurbKo)}</p>
             </button>
           ))}
         </div>
@@ -238,9 +261,14 @@ export default function PlacesTab({
           className="map-cta"
           onClick={() => onOpenMap?.({ title: 'Every place, plotted', subtitle: 'Filter by zone, diet or vibe' })}
         >
-          <span className="map-cta__title">See it all on the map</span>
-          <span className="map-cta__body">Every place above, plotted — filter by zone, diet or vibe.</span>
-          <span className="map-cta__link">Open the map <ChevronRightIcon size={16} /></span>
+          <span className="map-cta__title">{say('See it all on the map', '지도에서 한눈에 보기')}</span>
+          <span className="map-cta__body">
+            {say('Every place above, plotted — filter by zone, diet or vibe.',
+              '위의 모든 장소가 지도 위에 찍혀 있습니다. 지역, 식단, 분위기로 걸러 보세요.')}
+          </span>
+          <span className="map-cta__link">
+            {say('Open the map', '지도 열기')} <ChevronRightIcon size={16} />
+          </span>
         </button>
       </div>
 

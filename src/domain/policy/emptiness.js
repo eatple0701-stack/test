@@ -59,25 +59,44 @@ export const hasOtherDays = (open = [], dayFilter = null) =>
  * `otherDays` is passed in rather than assumed so the day case can stop
  * promising tables elsewhere when there are none. Every string here is
  * something the caller has actually established.
+ *
+ * `locale` is here for the same reason it is on reasonFor: these sentences
+ * are chosen by the policy, not handed to the component as finished text, so
+ * there is nothing for a caller to translate after the fact. Korean is
+ * returned only when Korean is asked for.
  */
-export function emptyText(reason, { otherDays = false } = {}) {
+export function emptyText(reason, { otherDays = false, locale = 'both' } = {}) {
+  const ko = locale === 'ko';
+  const pick = (en, korean) => (ko ? korean : en);
   switch (reason) {
     case EMPTY.GENDER:
       return {
-        title: 'Nobody has said yet.',
-        body: 'Gender is new here — no host or guest has declared one yet. That is not the same as no table like this existing.',
+        title: pick('Nobody has said yet.', '아직 아무도 밝히지 않았어요.'),
+        body: pick(
+          'Gender is new here — no host or guest has declared one yet. That is not the same as no table like this existing.',
+          '성별 표시는 이제 막 생긴 기능이라, 호스트도 참석자도 아직 아무도 적지 않았습니다. 그런 밥상이 없다는 뜻은 아니에요.',
+        ),
       };
     case EMPTY.DAY:
       return {
-        title: 'Nothing on that day yet.',
+        title: pick('Nothing on that day yet.', '그날은 아직 아무것도 없어요.'),
         body: otherDays
-          ? 'Other days have tables — or open one and own the evening.'
-          : 'No day this week has one yet. Open a table and this is the day it happens.',
+          ? pick(
+            'Other days have tables — or open one and own the evening.',
+            '다른 날에는 밥상이 있어요. 아니면 직접 하나 열어서 그 저녁을 가져가셔도 됩니다.',
+          )
+          : pick(
+            'No day this week has one yet. Open a table and this is the day it happens.',
+            '이번 주에는 아직 어느 날에도 없습니다. 상을 차리시면 그날이 바로 이날이 됩니다.',
+          ),
       };
     case EMPTY.DISH:
       return {
-        title: 'No table for this dish yet.',
-        body: 'Open it yourself and the seats are yours to fill.',
+        title: pick('No table for this dish yet.', '이 요리로 열린 밥상이 아직 없어요.'),
+        body: pick(
+          'Open it yourself and the seats are yours to fill.',
+          '직접 열면 그 자리는 원하는 사람들로 채우실 수 있습니다.',
+        ),
       };
     case EMPTY.NONE:
       // The honest sentence for a week with nothing in it. It does not
@@ -85,8 +104,11 @@ export function emptyText(reason, { otherDays = false } = {}) {
       // does not push an account, because everything named here is free to
       // read without one. See AccessPolicy: browsing was always open.
       return {
-        title: 'No tables open this week.',
-        body: 'Nobody has set one yet — so the first is yours to set. The dishes, the phrases for the table and the places are all here to read meanwhile.',
+        title: pick('No tables open this week.', '이번 주에 열린 밥상이 없어요.'),
+        body: pick(
+          'Nobody has set one yet — so the first is yours to set. The dishes, the phrases for the table and the places are all here to read meanwhile.',
+          '아직 아무도 차리지 않았습니다 — 그러니 첫 상은 당신 몫이에요. 그동안 요리와, 식탁에서 쓰는 말과, 장소는 전부 여기서 읽어보실 수 있습니다.',
+        ),
       };
     default:
       return null;

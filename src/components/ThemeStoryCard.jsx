@@ -1,5 +1,6 @@
 import React from 'react';
 import { editorialFor } from '../content/exploreEditorial.js';
+import { useText } from './localeText.js';
 
 // A culture, presented as something to wonder about rather than something to
 // browse.
@@ -15,6 +16,7 @@ import { editorialFor } from '../content/exploreEditorial.js';
 // be four cultures wearing the same drawing. One true word, set large enough
 // to be a texture rather than a label, says more and lies less.
 export default function ThemeStoryCard({ theme, progress, onOpen }) {
+  const say = useText();
   const editorial = editorialFor(theme.id);
   const done = progress?.done ?? 0;
   const total = progress?.total ?? 0;
@@ -32,7 +34,9 @@ export default function ThemeStoryCard({ theme, progress, onOpen }) {
     <button
       className={`story-card${exhausted ? ' is-complete' : ''}`}
       onClick={() => onOpen(theme.id)}
-      aria-label={editorial ? `${editorial.question} — ${theme.title}` : theme.title}
+      aria-label={editorial
+        ? `${say(editorial.question, editorial.questionKo)} — ${say(theme.title, theme.titleKo)}`
+        : say(theme.title, theme.titleKo)}
     >
       {/* Cropped by the card edge on purpose: a word that fits inside its box
           reads as a label, and a word that runs out of room reads as print. */}
@@ -41,23 +45,27 @@ export default function ThemeStoryCard({ theme, progress, onOpen }) {
       )}
 
       <span className="story-card__eyebrow">
-        {theme.title}
-        {theme.status === 'preview' && <span className="story-card__flag">Preview</span>}
+        {say(theme.title, theme.titleKo)}
+        {theme.status === 'preview' && (
+          <span className="story-card__flag">{say('Preview', '미리보기')}</span>
+        )}
       </span>
 
       {/* The question is the card. Everything else is scale and quiet. */}
       <span className="story-card__question">
-        {editorial ? editorial.question : theme.tagline}
+        {editorial
+          ? say(editorial.question, editorial.questionKo)
+          : say(theme.tagline, theme.taglineKo)}
       </span>
 
       <span className="story-card__foot">
         {exhausted
-          ? 'You have walked this one'
+          ? say('You have walked this one', '이 문화는 다 걸어보셨어요')
           : pathDone
-            ? `A path done · ${total - done} more here`
+            ? say(`A path done · ${total - done} more here`, `한 갈래 완주 · 여기 ${total - done}개 더`)
             : started
-              ? `${done} of ${total} done`
-              : `${total} ${total === 1 ? 'experience' : 'experiences'}`}
+              ? say(`${done} of ${total} done`, `${total}개 중 ${done}개 완료`)
+              : say(`${total} ${total === 1 ? 'experience' : 'experiences'}`, `경험 ${total}개`)}
       </span>
 
       {/* Progress is a hairline, not a widget. It belongs to the traveller,
