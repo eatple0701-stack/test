@@ -14,10 +14,58 @@
 // The list is deliberately short and written in each language's own script,
 // because somebody scanning for their own language finds 日本語 faster than
 // they find "Japanese".
+//
+// That reasoning was right and only half the job, which a reviewer named on
+// 2026-08-07: "언어 종류라던가 음식명만 더 읽고 이해하기 쉬우면". Own-script
+// is how you find *your* language. It is also how a Spanish speaker reads
+// "Hosted by 조강민 · 한국어" and learns nothing — the one fact that decides
+// whether they sit down, printed in an alphabet they cannot read.
+//
+// So each language now carries both: the native name it is stored and
+// scanned by, and an English name anyone can read. The stored value stays
+// the native string, because profiles in the database already hold '한국어'
+// and a catalogue that renames its own keys silently un-sets everybody's
+// languages.
 
+/** The stored values. Order is the order every list renders in. */
 export const LANGUAGES = ['English', '한국어', '日本語', '中文', 'Español', 'Français', 'العربية'];
 
+/**
+ * The English name for each. English's own entry is null rather than
+ * "English · English", which is the sort of thing that makes an interface
+ * look like it is not paying attention.
+ */
+export const LANGUAGE_EN = {
+  English: null,
+  '한국어': 'Korean',
+  '日本語': 'Japanese',
+  '中文': 'Chinese',
+  'Español': 'Spanish',
+  'Français': 'French',
+  'العربية': 'Arabic',
+};
+
 export const isLanguage = (l) => LANGUAGES.includes(l);
+
+/**
+ * One language, ready to print: `{ native, en }`.
+ *
+ * `en` is null when the native name already is English, so a caller can
+ * write `native + (en ? ` · ${en}` : '')` and never produce a doubled label.
+ */
+export const languageLabel = (l) => ({ native: l, en: LANGUAGE_EN[l] ?? null });
+
+/**
+ * A list of languages as one readable line: "한국어 Korean · English".
+ *
+ * Used wherever a reader meets somebody else's languages rather than
+ * choosing their own — a host card, a table's own line — because that is
+ * where the English half is doing the work.
+ */
+export const languageLine = (list) =>
+  cleanLanguages(list)
+    .map(l => (LANGUAGE_EN[l] ? `${l} ${LANGUAGE_EN[l]}` : l))
+    .join(' · ');
 
 /** Only languages this catalog knows, in catalog order so lists read alike. */
 export const cleanLanguages = (list) =>

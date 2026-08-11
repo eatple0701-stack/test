@@ -5,7 +5,7 @@ import {
 import { validateNewTable } from '../domain/policy/table.js';
 import { MEETING_NOTE_MAX } from '../domain/policy/meeting.js';
 import { GUIDES, TABLE_KIND_LABEL } from '../domain/catalog/hosts.js';
-import { LANGUAGES, cleanLanguages } from '../domain/catalog/languages.js';
+import { LANGUAGES, cleanLanguages, languageLabel } from '../domain/catalog/languages.js';
 import { createTable } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import HostBrief from './HostBrief';
@@ -333,7 +333,10 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
                 onClick={() => setLanguages(cur =>
                   cur.includes(l) ? cur.filter(x => x !== l) : [...cur, l])}
               >
-                {l}
+                <span className="lang-pick__native" translate="no">{l}</span>
+                {languageLabel(l).en && (
+                  <span className="lang-pick__en">{languageLabel(l).en}</span>
+                )}
               </button>
             );
           })}

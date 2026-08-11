@@ -7,6 +7,7 @@ import {
 import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
 import { tableIncludesGender } from '../domain/catalog/genders.js';
+import { languageLine } from '../domain/catalog/languages.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { emptyReason, emptyText, hasOtherDays, EMPTY } from '../domain/policy/emptiness.js';
 import { stationForTable, cityOfTables } from '../domain/policy/venue.js';
@@ -612,9 +613,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   )}
                   {t.hostVerified && <span className="table-card__verified">인증 · verified</span>}
                   {/* Scanning a list, the language is the fastest filter a
-                      traveller applies. */}
+                      traveller applies — but only if they can read it. The
+                      card said 한국어 and left a Spanish speaker guessing at
+                      the one fact that decides their evening. */}
                   {(t.languages ?? []).length > 0 && (
-                    <span className="table-card__langs">{t.languages.join(' · ')}</span>
+                    <span className="table-card__langs">{languageLine(t.languages)}</span>
                   )}
                   {t.isSample && <span className="table-card__sample">sample</span>}
                 </span>

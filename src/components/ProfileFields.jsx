@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LANGUAGES } from '../domain/catalog/languages.js';
+import { LANGUAGES, languageLabel } from '../domain/catalog/languages.js';
 import { GENDERS } from '../domain/catalog/genders.js';
 import { RESTRICTIONS, restrictionLabel, DIETS } from '../data/profile';
 
@@ -92,7 +92,13 @@ export default function ProfileFields({ profile, onProfileChange }) {
                 aria-pressed={languages.includes(l)}
                 onClick={() => save({ languages: toggle(languages, l) })}
               >
-                {l}
+                {/* Own script first, so somebody finds their own language by
+                    shape; the English name under it, so they can also read
+                    the six they are not looking for. */}
+                <span className="chip__native" translate="no">{l}</span>
+                {languageLabel(l).en && (
+                  <span className="chip__en">{languageLabel(l).en}</span>
+                )}
               </button>
             ))}
           </div>

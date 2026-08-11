@@ -10972,3 +10972,19 @@ body {
 
   .main-footer { margin: 96px 16px 0; padding: 44px 40px 28px; border-radius: 28px; }
 }
+
+/* ---------- Language pickers: own script, then the English name ----------
+   Own-script alone is how you find your own language and how you fail to
+   read the other six. Both lines, the native one leading. */
+.chip__native,
+.lang-pick__native { display: block; font-weight: 700; }
+.chip__en,
+.lang-pick__en {
+  display: block;
+  margin-top: 1px;
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.82;
+}
+.chip:has(.chip__en),
+.lang-pick:has(.lang-pick__en) { line-height: 1.25; }

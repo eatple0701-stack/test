@@ -36,7 +36,7 @@ import { PURPOSE } from '../content/safety.js';
 import { agreedToRules } from '../domain/policy/consent.js';
 import { shareUrlFor } from '../routes.js';
 import { guideById, hostKindLabel, tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
-import { languageFit, cleanLanguages, LANGUAGE_FIT } from '../domain/catalog/languages.js';
+import { languageFit, cleanLanguages, languageLine, LANGUAGE_FIT } from '../domain/catalog/languages.js';
 import { themeById } from '../domain/catalog/index.js';
 import { timeText, clockWarning } from '../domain/policy/clock.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
@@ -686,8 +686,12 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               : <span className="host-card__initial" aria-hidden="true">{(table.hostName || '?').trim().charAt(0) || '?'}</span>}
             <div className="host-card__facts">
               <span className="host-card__name">{table.hostName}</span>
+              {/* Both names. A traveller reading a host card is meeting
+                  somebody else's languages, not picking their own, so
+                  "한국어" alone tells a Spanish speaker nothing about the
+                  ninety minutes they are deciding on. */}
               {host.languages.length > 0 && (
-                <span className="host-card__langs">{host.languages.join(' · ')}</span>
+                <span className="host-card__langs">{languageLine(host.languages)}</span>
               )}
               <span className="host-card__record">
                 {host.tablesHosted === 0

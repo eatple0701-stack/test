@@ -16,6 +16,7 @@ import ProfileSheet from './ProfileSheet';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
 import { restrictionLabel, dietById } from '../data/profile';
+import { languageLine } from '../domain/catalog/languages.js';
 
 function formatStampDate(ts) {
   if (!ts) return null;
@@ -430,7 +431,7 @@ export default function JournalPanel({
               <dt>언어</dt>
               <dd>
                 {(profile?.languages ?? []).length > 0
-                  ? profile.languages.join(' · ')
+                  ? languageLine(profile.languages)
                   : <span className="profile-summary__empty">아직 없음</span>}
               </dd>
             </div>
