@@ -16,6 +16,8 @@ import TableDetail from './components/TableDetail';
 import TableRequest from './components/TableRequest';
 import { getProfile, saveProfile } from './data/profile';
 import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
+import { getStoredLocale, setStoredLocale } from './data/locale.js';
+import LocaleFilter from './components/LocaleFilter';
 // From the repository, not the profile module: it is the seam that knows
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
@@ -154,6 +156,10 @@ export default function App() {
   const [visitedMarkets, setVisitedMarkets] = useState(loadMarkets);
   const [attestations, setAttestations] = useState(loadAttestations);
   const [activeTab, setActiveTab] = useState(opening.activeTab);
+  // The interface language, held here so Settings can change it and every
+  // screen feels it at once. A device preference like the theme, not a
+  // profile field — see src/data/locale.js.
+  const [locale, setLocaleState] = useState(getStoredLocale);
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
   const [focusStory, setFocusStory] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
@@ -789,6 +795,10 @@ export default function App() {
         </span>
       </header>
 
+      {/* Renders nothing; applies the interface-language setting to whatever
+          is on screen. A no-op on the bilingual default. */}
+      <LocaleFilter locale={locale} />
+
       {/* What the team needs everybody to know today. 제주항공 leads its whole
           site with operational notices, above every fare — a service people
           plan a day around says the day-breaking thing first. This app had
@@ -974,6 +984,8 @@ export default function App() {
         {!openThemeId && activeTab === 'settings' && (
           <SettingsTab
             auth={auth}
+            locale={locale}
+            onLocaleChange={(l) => setLocaleState(setStoredLocale(l))}
             /* Closing an account ends the session inside deleteAccount, so
                this only has to catch the app up — and send them somewhere
                that still exists, since the Passport they were near is gone. */

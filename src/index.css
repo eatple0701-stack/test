@@ -10988,3 +10988,50 @@ body {
 }
 .chip:has(.chip__en),
 .lang-pick:has(.lang-pick__en) { line-height: 1.25; }
+
+/* The language picker's own note — the sentence that says why there are
+   three options and not seven. Quieter than the hint above the chips. */
+.settings-lang__note {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted-strong);
+}
+
+/* ---------- Interface language: the half-elements ----------
+   LocaleFilter splits the 187 labels written as one "한국어 · English"
+   string. The other convention in this app is a pair of elements —
+   .notice-bar__kr beside .notice-bar__en, and 53 more like them — where no
+   single text node holds both halves. Those are hidden here instead, off one
+   attribute the app root carries, so both conventions answer to one setting.
+
+   The exemption is by name, not by [translate="no"]. The first draft used
+   that attribute and hid almost nothing: this app puts translate="no" on
+   Korean text generally, to stop Chrome's auto-translate mangling it, so it
+   marks the Korean half of nearly every pair. What actually needs keeping is
+   narrower — the slots holding a dish's Korean name, which is the name of
+   the thing rather than a translation of it, and is exactly what somebody
+   points at on a menu. Those are listed. */
+[data-locale="ko"] [class$="__en"],
+[data-locale="ko"] [class$="-en"] { display: none; }
+
+[data-locale="en"] [class$="__kr"],
+[data-locale="en"] [class$="-kr"] { display: none; }
+
+/* Proper nouns: a dish's own Korean name survives an English interface. */
+[data-locale="en"] .main-dish__kr,
+[data-locale="en"] .dish-option__kr,
+[data-locale="en"] .gather-card__kr,
+[data-locale="en"] .upcoming-row__kr,
+[data-locale="en"] .req-row__kr,
+[data-locale="en"] .menu-chip__kr,
+[data-locale="en"] .table-card__kind-kr { display: revert; }
+
+/* The picker itself stays bilingual whatever it is set to — it is the one
+   control somebody reaches for because the app is in a language they cannot
+   read. Two attribute selectors on the ancestor, so this outranks the
+   hide rules above rather than tying with them. */
+[data-locale] [data-no-locale] [class$="__en"],
+[data-locale] [data-no-locale] [class$="__kr"],
+[data-locale] [data-no-locale] [class$="-en"],
+[data-locale] [data-no-locale] [class$="-kr"] { display: revert; }

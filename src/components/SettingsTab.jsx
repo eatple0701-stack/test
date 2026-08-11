@@ -3,6 +3,7 @@ import { getStoredTheme, setTheme } from '../data/theme.js';
 import { isMember } from '../domain/policy/access.js';
 import { deleteAccount } from '../data/tableRepository.js';
 import { authError } from '../domain/policy/authError.js';
+import { LOCALES, LOCALE_LABEL } from '../domain/policy/locale.js';
 
 // The fifth tab (2026-08-04). Appearance lived inside the profile form,
 // which put a device preference in the middle of fields a host actually
@@ -18,7 +19,7 @@ const CHOICES = [
   { id: 'dark', kr: '다크', en: 'Dark' },
 ];
 
-export default function SettingsTab({ auth, onSignedOut, onSignOut }) {
+export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLocaleChange }) {
   const [theme, setThemeState] = useState(getStoredTheme);
   // Anything that is not explicitly dark reads as 디폴트 — including the
   // 'system' value older devices stored back when three choices existed.
@@ -47,6 +48,44 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut }) {
         <h1 className="screen-head__title">Settings</h1>
         <p className="screen-head__sub">How the app looks on this device.</p>
       </header>
+
+      {/* The language of the interface. data-no-locale on the whole block:
+          this is the one control somebody reaches for *because* the app is
+          in a language they cannot read, so it has to stay bilingual no
+          matter what it is set to. LocaleFilter honours that attribute. */}
+      <div className="journal-settings" data-no-locale>
+        <div className="journal-section-header">
+          <h3>언어 · Language</h3>
+        </div>
+        <p className="journal-settings__hint">
+          한국어와 영어를 함께 보거나, 하나만 보이게 할 수 있어요.
+          Korean and English together, or just one of them. Stays on this
+          device.
+        </p>
+        <div className="chip-row">
+          {LOCALES.map(l => (
+            <button
+              key={l}
+              className={`chip${locale === l ? ' active' : ''}`}
+              aria-pressed={locale === l}
+              onClick={() => onLocaleChange?.(l)}
+            >
+              <span className="chip__native" translate="no">{LOCALE_LABEL[l].kr}</span>
+              <span className="chip__en">{LOCALE_LABEL[l].en}</span>
+            </button>
+          ))}
+        </div>
+        {/* Said here rather than left for somebody to discover by choosing
+            Español and getting English. The app holds 22,342 Korean
+            characters and their English halves; it holds no third language,
+            and a picker that offered one would be claiming a translation
+            nobody wrote. */}
+        <p className="journal-settings__hint settings-lang__note">
+          다른 언어는 아직 번역이 없어서 넣지 않았습니다.
+          Other languages are not offered yet — the app would only be able to
+          show you English under a Spanish label, and that would not be true.
+        </p>
+      </div>
 
       <div className="journal-settings">
         <div className="journal-section-header">
