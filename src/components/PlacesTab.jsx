@@ -88,7 +88,11 @@ export default function PlacesTab({
             return (
               <div key={m.id} className={`market-card${visited ? ' is-visited' : ''}`}>
                 <button className="market-card__hit" data-kr={m.nameKo} onClick={() => onExploreZone(m.zone)}>
-                  <span className="gather-card__tag">{m.nameKo}</span>
+                  {/* Follows the language setting like every other Korean
+                      name on a card. Nothing is lost when it goes: the
+                      heading under it is the same market in English and the
+                      line under that is where it is. */}
+                  <span className="gather-card__tag gather-card__tag-kr" translate="no">{m.nameKo}</span>
                   <h3>{m.name}</h3>
                   <p className="gather-card__meta"><MapPinIcon size={14} /> {m.zone}</p>
                   <p className="gather-card__desc">{m.blurb}</p>

@@ -35,7 +35,11 @@ export const HOW_STEPS = [
     // removes the hesitation. Worded as what this app does, not as a promise
     // about what a restaurant charges — the app cannot know that.
     kr: '나눠 먹기',
-    en: 'Meet and share the food. 밥친구 handles no money: you pay the restaurant for what you eat, so nobody at the table owes anybody.',
+    // The brand is written Eatple inside an English clause. It was 밥친구,
+    // which no splitter can lift out of a sentence — the whole line read as
+    // Korean to anything measuring script, so it stayed on an English-only
+    // screen and this was one of the last Korean words a traveller saw.
+    en: 'Meet and share the food. Eatple handles no money: you pay the restaurant for what you eat, so nobody at the table owes anybody.',
   },
 ];
 

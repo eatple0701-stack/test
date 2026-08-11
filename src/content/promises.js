@@ -54,5 +54,9 @@ export const PROMISES = [
 /** The line above the list. Says why the list is worth reading. */
 export const PROMISES_LEAD = {
   kr: '밥친구가 다른 이유',
+  // The heading in English. `en` below is the sentence under it, not a
+  // translation of the heading — without this the block lost its title
+  // entirely on an English-only screen and became a floating paragraph.
+  titleEn: 'What makes Eatple different',
   en: 'Other apps leave these to a paragraph the organiser types out and nobody enforces. Here they are how the app works.',
 };

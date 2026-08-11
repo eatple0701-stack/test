@@ -10442,7 +10442,7 @@ body {
   flex-direction: column;
   align-items: center;
 }
-.main-hero__kr {
+.main-hero__eyebrow {
   font-size: 14px;
   font-weight: 700;
   color: var(--accent-ink);
@@ -10634,6 +10634,14 @@ body {
   font-weight: 600;
   color: var(--muted-strong);
 }
+/* With the Korean line gone, the English one is the heading rather than the
+   gloss under it, and has to be sized like one — otherwise every section on
+   an English-only screen is titled in 14px grey. */
+[data-locale="en"] .main-band__title-en {
+  font-size: 25px;
+  font-weight: 800;
+  color: var(--ink-title);
+}
 
 /* ---- Dish tiles: Meetup's phone grid, two across ---- */
 .main-dishes__row {
@@ -10720,6 +10728,13 @@ body {
   padding: 0 4px;
 }
 .main-how__why strong { color: var(--ink-title); }
+/* The em dash joins the two halves and belongs to neither, so it rides on
+   the English one and leaves with it. In Korean-only the Korean half is the
+   last thing in the sentence and needs no punctuation after it. */
+.main-how__why-en::before,
+.how-strip__why-en::before { content: ' — '; }
+[data-locale="en"] .main-how__why-en::before,
+[data-locale="en"] .how-strip__why-en::before { content: none; }
 
 /* ---- Join. Meetup's phone version is a plain centred paragraph; the
         card and its floating dots belong to the desktop. ---- */
@@ -10773,7 +10788,8 @@ body {
   cursor: pointer;
   color: var(--muted-strong);
 }
-.main-culture__kr { font-size: 15px; font-weight: 800; color: var(--accent-ink); flex: 0 0 auto; }
+.main-culture__kr,
+.main-culture__label { font-size: 15px; font-weight: 800; color: var(--accent-ink); flex: 0 0 auto; }
 .main-culture__body { flex: 1; font-size: 13px; line-height: 1.5; color: var(--ink-body); }
 
 /* ---- Sticky join bar: phone only, riding just above the tab bar.
@@ -11018,14 +11034,43 @@ body {
 [data-locale="en"] [class$="__kr"],
 [data-locale="en"] [class$="-kr"] { display: none; }
 
-/* Proper nouns: a dish's own Korean name survives an English interface. */
-[data-locale="en"] .main-dish__kr,
-[data-locale="en"] .dish-option__kr,
-[data-locale="en"] .gather-card__kr,
-[data-locale="en"] .upcoming-row__kr,
-[data-locale="en"] .req-row__kr,
-[data-locale="en"] .menu-chip__kr,
-[data-locale="en"] .table-card__kind-kr { display: revert; }
+/* Text written for one language that has no counterpart on the default
+   screen — an English headline for a hero that was set in Korean, a Korean
+   tab label for a bar that was English-only. Hidden in `both`, so the default
+   screen everybody has reviewed is unchanged, and shown only when somebody
+   asks for that language on its own. This is what makes 한국어 and 영어 real
+   settings rather than a filter over whichever labels happened to already be
+   bilingual.
+
+   Written as "hide unless" rather than "hide, then un-hide". The obvious
+   shape — display:none plus display:revert — loses the element's own display
+   when it comes back, so a flex row becomes an inline span and the layout
+   quietly changes in one setting and not the others. :not() only ever
+   removes; in the chosen language no rule applies at all and the component's
+   own CSS is untouched. It also covers the first paint, before the attribute
+   is on <html>: no attribute means not the chosen language, which is the
+   bilingual default and correct. */
+html:not([data-locale="ko"]) .l-ko-only { display: none; }
+html:not([data-locale="en"]) .l-en-only { display: none; }
+
+/* A pair written as two elements inside one parent. The middot between them
+   belongs to neither language, so it hangs off the English half and leaves
+   with it; in Korean-only the Korean half is last and needs nothing. */
+.l-pair > [class$="-en"]::before,
+.l-pair > [class$="__en"]::before { content: ' · '; }
+[data-locale="en"] .l-pair > [class$="-en"]::before,
+[data-locale="en"] .l-pair > [class$="__en"]::before { content: none; }
+
+/* The dish's Korean name used to survive an English interface everywhere,
+   on the argument that 삼겹살 is the name of the thing rather than a
+   translation of it and is what you point at on a menu. Measured 2026-08-11
+   with the owner: that exemption covered so many of the words on screen that
+   the English setting looked broken — the front page kept 삼겹살 감자탕 보쌈
+   족발 at 40px whatever you chose. The exemption now lives in one honest
+   place instead: the dish sheet, where you go to learn the dish, keeps its
+   Korean name in every setting — it carries data-no-locale on the heading
+   itself, which LocaleFilter honours, so no rule is needed here. Cards and
+   tiles follow the setting. */
 
 /* The picker itself stays bilingual whatever it is set to — it is the one
    control somebody reaches for because the app is in a language they cannot

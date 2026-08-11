@@ -26,11 +26,18 @@ import { ChevronRightIcon, XIcon, PauseIcon, PlayIcon } from './Icons';
 // The four hero blobs: a dish, a tone, and a tilted tag. Every tag repeats a
 // claim the app makes and keeps elsewhere — the hero may not say anything
 // the product does not.
+//
+// Both halves of every word, added 2026-08-11. These were Korean-only, which
+// meant the front page read identically whether you had asked for Korean or
+// for English — four dish names at 40px and four Korean tags, unchanged by
+// the setting. `roman` is the same romanization the catalogue already
+// carries, so an English reader gets something they can say out loud rather
+// than a shape they cannot.
 const HERO_BLOBS = [
-  { word: '삼겹살', tone: 'b-orange', tag: '2인분부터' },
-  { word: '감자탕', tone: 'b-green', tag: '냄비째 나옴' },
-  { word: '보쌈', tone: 'b-brass', tag: '호스트가 안내' },
-  { word: '족발', tone: 'b-pine', tag: '앱 결제 없음' },
+  { word: '삼겹살', roman: 'Samgyeopsal', tone: 'b-orange', tag: '2인분부터', tagEn: 'From two servings' },
+  { word: '감자탕', roman: 'Gamjatang', tone: 'b-green', tag: '냄비째 나옴', tagEn: 'Comes by the pot' },
+  { word: '보쌈', roman: 'Bossam', tone: 'b-brass', tag: '호스트가 안내', tagEn: 'Your host explains' },
+  { word: '족발', roman: 'Jokbal', tone: 'b-pine', tag: '앱 결제 없음', tagEn: 'No in-app payment' },
 ];
 
 // Tile accents, cycled through the dish shelf.
@@ -128,15 +135,39 @@ export default function MainTab({
               where DOM order stops mattering. ---- */}
       <header className="main-hero">
         <div className="main-hero__copy">
-          <span className="main-hero__kr" translate="no">밥친구 잇플 · Eatple</span>
-          <h1 className="main-hero__title" translate="no">
+          {/* The brand, in halves. It was one string in a class ending -kr,
+              which meant an English interface dropped the app's own name off
+              its own front page. Split, so each setting keeps a name. */}
+          <span className="main-hero__eyebrow l-pair" translate="no">
+            <span className="main-hero__eyebrow-kr">밥친구 잇플</span>
+            <span className="main-hero__eyebrow-en">Eatple</span>
+          </span>
+          {/* Two headlines, one shown at a time. The Korean one is the
+              default and stays the default — it is the screen the team
+              reviewed — and the English one exists only for the English
+              setting, where a 64px Korean headline was the single loudest
+              thing the language setting failed to touch. */}
+          <h1 className="main-hero__title main-hero__title-kr" translate="no">
             혼자서는
             <br />주문할 수 없는
             <br />음식들.
           </h1>
-          <p className="main-hero__sub">
+          <h1 className="main-hero__title l-en-only">
+            Some dishes
+            <br />cannot be ordered
+            <br />for one.
+          </h1>
+          {/* Prose gets a line per language rather than one line carrying
+              both, which is how the notice bar has always done it. A
+              sentence with 밥친구 sitting inside an English clause cannot be
+              reduced by any splitter — it has to be written twice. */}
+          <p className="main-hero__sub main-hero__sub-kr" translate="no">
+            삼겹살은 2인분부터, 감자탕은 냄비째 나옵니다. 밥친구 잇플이 그 밥상과,
+            이미 가고 있는 사람들을 찾아드려요.
+          </p>
+          <p className="main-hero__sub main-hero__sub-en">
             Samgyeopsal starts at two servings and gamjatang arrives by the
-            pot. 밥친구 finds you the table — and the people already going.
+            pot. Eatple finds you the table — and the people already going.
           </p>
           <button className="main-hero__cta" translate="no" onClick={() => onNavigate('match')}>
             이번 주 밥상 보기 · See this week&rsquo;s tables
@@ -164,8 +195,16 @@ export default function MainTab({
               >
                 {photo
                   ? <img className="main-blob__img" src={photo.src} alt="" loading="lazy" />
-                  : <span className="main-blob__word" translate="no">{b.word}</span>}
-                <span className="main-blob__tag" translate="no">{photo?.label ?? b.tag}</span>
+                  : (
+                    <>
+                      <span className="main-blob__word main-blob__word-kr" translate="no">{b.word}</span>
+                      <span className="main-blob__word l-en-only">{b.roman}</span>
+                    </>
+                  )}
+                <span className="main-blob__tag">
+                  <span className="main-blob__tag-kr" translate="no">{photo?.label ?? b.tag}</span>
+                  <span className="l-en-only">{b.tagEn}</span>
+                </span>
               </button>
             );
           })}
@@ -212,8 +251,11 @@ export default function MainTab({
 
       {/* ---- The dishes, as Meetup's category tiles ---- */}
       <div className="main-band main-band--dishes">
+        {/* The Korean half was a bare text node with no element of its own,
+            so nothing could hide it and an English interface kept every
+            section heading in Korean. Both halves are spans now. */}
         <h2 className="main-band__title">
-          요리 살펴보기
+          <span className="main-band__title-kr" translate="no">요리 살펴보기</span>
           <span className="main-band__title-en">The dishes this app is about</span>
         </h2>
         <div className="main-dishes__row" role="group" aria-label="Read about a dish">
@@ -230,7 +272,7 @@ export default function MainTab({
       {/* ---- How it happens: the zigzag with curly arrows ---- */}
       <div className="main-band main-band--how">
         <h2 className="main-band__title">
-          밥친구가 이루어지는 방식
+          <span className="main-band__title-kr" translate="no">밥친구가 이루어지는 방식</span>
           <span className="main-band__title-en">How a table happens</span>
         </h2>
         <div className="main-zig">
@@ -252,8 +294,13 @@ export default function MainTab({
             <path d="M18 60 L 10 64 L 15 55" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
+        {/* One sentence, two elements rather than "<strong>한국어</strong> —
+            English" in a single node: the em dash joining them belongs to
+            neither language, so a splitter cannot cut this cleanly and the
+            markup has to do it. */}
         <p className="main-how__why">
-          <strong translate="no">{HOW_WHY.kr}</strong> — {HOW_WHY.en}
+          <strong className="main-how__why-kr" translate="no">{HOW_WHY.kr}</strong>
+          <span className="main-how__why-en">{HOW_WHY.en}</span>
         </p>
       </div>
 
@@ -263,11 +310,15 @@ export default function MainTab({
           <div className="main-join">
             <span className="main-join__dot main-join__dot--a" aria-hidden="true" translate="no">밥</span>
             <span className="main-join__dot main-join__dot--b" aria-hidden="true" translate="no">상</span>
-            <h2 className="main-join__title" translate="no">밥친구 가입하기</h2>
-            <p className="main-join__body">
+            <h2 className="main-join__title main-join__title-kr" translate="no">밥친구 가입하기</h2>
+            <h2 className="main-join__title l-en-only">Join Eatple</h2>
+            <p className="main-join__body main-join__body-kr" translate="no">
               둘러보기는 계정 없이도 됩니다 — 요리, 문화, 장소 전부요.
-              Browsing is free; the seat is what an account is for, and
-              joining is free too.
+              계정은 자리를 잡을 때 필요하고, 가입도 무료입니다.
+            </p>
+            <p className="main-join__body main-join__body-en">
+              Browsing is free — the dishes, the culture, the places, all of
+              it. The seat is what an account is for, and joining is free too.
             </p>
             <button className="main-join__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
               무료로 가입하기 · Join free
@@ -280,7 +331,12 @@ export default function MainTab({
       <div className="main-band">
         <button className="main-culture" onClick={() => onNavigate('home')}>
           <span className="main-culture__kr" translate="no">문화</span>
-          <span className="main-culture__body">
+          <span className="main-culture__label l-en-only">Culture</span>
+          <span className="main-culture__body main-culture__body-kr" translate="no">
+            한국이 어떻게 먹는지에 대한 일곱 가지 질문 — 계정 없이 전부 들어가
+            볼 수 있어요.
+          </span>
+          <span className="main-culture__body main-culture__body-en">
             Seven questions about how Korea eats — each one free to walk into,
             no account.
           </span>
@@ -294,7 +350,8 @@ export default function MainTab({
               not exist is a lie with an underline. ---- */}
       <footer className="main-footer">
         <div className="main-footer__mast">
-          <span className="main-footer__brand" translate="no">밥친구<span className="main-footer__brand-dot">.</span> 같이 먹는 플랫폼</span>
+          <span className="main-footer__brand main-footer__brand-kr" translate="no">밥친구<span className="main-footer__brand-dot">.</span> 같이 먹는 플랫폼</span>
+          <span className="main-footer__brand l-en-only">Eatple<span className="main-footer__brand-dot">.</span> a table you share</span>
           <button className="main-footer__mastlink" translate="no" onClick={onCreateTable}>
             상 차리기 · Open a table →
           </button>
@@ -321,12 +378,21 @@ export default function MainTab({
           <div className="main-footer__col">
             <h3 className="main-footer__head">밥친구 · Team</h3>
             <a className="main-footer__link" href="mailto:eatple0701@gmail.com">eatple0701@gmail.com</a>
-            <span className="main-footer__soon">개인정보 처리방침 · 준비 중</span>
-            <span className="main-footer__soon">이용약관 · 준비 중</span>
+            {/* The middot here separates a page from its status, not two
+                languages — "개인정보 처리방침 · 준비 중" is Korean on both
+                sides of it. Written as halves so each setting gets a whole
+                sentence instead of a splitter guessing wrong. */}
+            <span className="main-footer__soon main-footer__soon-kr" translate="no">개인정보 처리방침 · 준비 중</span>
+            <span className="main-footer__soon l-en-only">Privacy policy · in progress</span>
+            <span className="main-footer__soon main-footer__soon-kr" translate="no">이용약관 · 준비 중</span>
+            <span className="main-footer__soon l-en-only">Terms of use · in progress</span>
           </div>
         </div>
-        <p className="main-footer__base" translate="no">
-          © 2026 밥친구 잇플 · Eatple — 디지털 공공외교 파일럿 · a digital public diplomacy pilot
+        <p className="main-footer__base main-footer__base-kr" translate="no">
+          © 2026 밥친구 잇플 · Eatple — 디지털 공공외교 파일럿
+        </p>
+        <p className="main-footer__base main-footer__base-en">
+          © 2026 Eatple — a digital public diplomacy pilot
         </p>
       </footer>
 

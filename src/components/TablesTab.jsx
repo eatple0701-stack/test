@@ -173,7 +173,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         ) : (
           <>
             <button className="screen-head__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-              무료로 가입하기 · Join 밥친구
+              무료로 가입하기 · Join free
             </button>
             {/* What joining buys, as a number. 야놀자 does not say "join for
                 benefits", it says you get the member price — the reward is
@@ -679,7 +679,8 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             ))}
           </ol>
           <p className="how-strip__why">
-            <span translate="no">{HOW_WHY.kr}</span> — {HOW_WHY.en}
+            <span className="how-strip__why-kr" translate="no">{HOW_WHY.kr}</span>
+            <span className="how-strip__why-en">{HOW_WHY.en}</span>
           </p>
         </div>
       )}
@@ -696,7 +697,8 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           trust before showing anything to trust. */}
       {!isMember(auth) && (
         <div className="promises" aria-label={PROMISES_LEAD.kr}>
-          <h2 className="promises__lead" translate="no">{PROMISES_LEAD.kr}</h2>
+          <h2 className="promises__lead promises__lead-kr" translate="no">{PROMISES_LEAD.kr}</h2>
+          <h2 className="promises__lead l-en-only">{PROMISES_LEAD.titleEn}</h2>
           <p className="promises__sub">{PROMISES_LEAD.en}</p>
           <ul className="promises__list">
             {PROMISES.map(p => (

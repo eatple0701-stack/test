@@ -28,7 +28,12 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
         </button>
-        <h1 translate="no">{menu.nameKo} · {menu.name}</h1>
+        {/* Both names, in every language setting. Cards and tiles follow the
+            setting; this is the screen you open to learn the dish, so it is
+            where the Korean name is kept for somebody who will point at it on
+            a menu — data-no-locale is that exemption, stated in one place
+            rather than scattered across seven card classes. */}
+        <h1 className="dish-sheet__title" translate="no" data-no-locale>{menu.nameKo} · {menu.name}</h1>
       </header>
 
       <div className="dish-sheet__body">

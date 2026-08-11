@@ -776,20 +776,33 @@ export default function App() {
                   signing back in restores the same account. */}
               <button
                 className="app-chrome__signout"
-                translate="no"
                 title="로그아웃 · Sign out"
                 onClick={async () => {
                   await signOutMember().catch(() => {});
                   await refreshAuth();
                 }}
               >
-                로그아웃
+                <span className="app-chrome__word-kr" translate="no">로그아웃</span>
+                <span className="app-chrome__word l-en-only">Sign out</span>
               </button>
             </>
           ) : (
+            /* One word per button, not two: this corner has room for 로그인 or
+               for Sign in, never both. So the Korean is what the bilingual
+               default shows — it is what the team has always seen there — and
+               English replaces it only for somebody who asked for English on
+               its own. Measured 2026-08-11: these were Korean in all three
+               settings, which on a page whose whole audience reads English
+               made the two most important controls the least legible. */
             <span className="app-chrome__auth">
-              <button className="app-chrome__signin" translate="no" onClick={() => setAuthMode('signin')}>로그인</button>
-              <button className="app-chrome__join" translate="no" onClick={() => setAuthMode('signup')}>가입하기</button>
+              <button className="app-chrome__signin" onClick={() => setAuthMode('signin')}>
+                <span className="app-chrome__word-kr" translate="no">로그인</span>
+                <span className="app-chrome__word l-en-only">Sign in</span>
+              </button>
+              <button className="app-chrome__join" onClick={() => setAuthMode('signup')}>
+                <span className="app-chrome__word-kr" translate="no">가입하기</span>
+                <span className="app-chrome__word l-en-only">Join</span>
+              </button>
             </span>
           )}
         </span>

@@ -68,7 +68,18 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
               is the same thing 밥친구 and 여권 are: it names the section, and
               the sentence under it does the explaining. */}
           <span className="tables-lead__kr" translate="no">이번 주 밥상</span>
-          <h2 className="tables-lead__title">
+          {/* Written twice rather than once. These sentences were English
+              only, so a Korean-only interface kept the label above them and
+              lost everything that said what was actually going on this week
+              — which is the whole section. */}
+          <h2 className="tables-lead__title l-ko-only" translate="no">
+            {open.length > 0
+              ? '이번 주에 앉을 수 있는 밥상'
+              : anyUpcoming
+                ? '열려 있는 밥상에는 이미 다 들어가 계세요'
+                : '아직 아무도 밥상을 차리지 않았어요'}
+          </h2>
+          <h2 className="tables-lead__title tables-lead__title-en">
             {open.length > 0
               ? 'Tables you could join this week'
               : anyUpcoming
@@ -77,15 +88,24 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
           </h2>
         </div>
         <button className="tables-lead__all" onClick={onOpenTables}>
-          All <ChevronRightIcon size={13} />
+          <span className="l-ko-only" translate="no">전체</span>
+          <span className="tables-lead__all-en">All</span>
+          <ChevronRightIcon size={13} />
         </button>
       </div>
 
       {open.length === 0 ? (
         <button className="tables-lead__empty" onClick={onOpenTables}>
-          {anyUpcoming
-            ? 'Nothing else to ask for this week. Open a table of your own and see who comes.'
-            : 'Samgyeopsal starts at two servings. Open a table and see who comes.'}
+          <span className="l-ko-only" translate="no">
+            {anyUpcoming
+              ? '이번 주에 더 청할 밥상은 없어요. 직접 상을 차리고 누가 오는지 보세요.'
+              : '삼겹살은 2인분부터예요. 상을 차리고 누가 오는지 보세요.'}
+          </span>
+          <span className="tables-lead__empty-en">
+            {anyUpcoming
+              ? 'Nothing else to ask for this week. Open a table of your own and see who comes.'
+              : 'Samgyeopsal starts at two servings. Open a table and see who comes.'}
+          </span>
         </button>
       ) : (
         <div className="tables-lead__row">

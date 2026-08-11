@@ -53,19 +53,26 @@ const icons = {
 // table: a dish you cannot order alone, and the people already going to eat
 // it. Naming the tab after the thing being offered rather than after the
 // social feature is the difference between a listings app and this one.
+// The Korean label is not a second line. A five-item bar on a 375px screen
+// has about 62px per item, which is one word — so 한국어 replaces the English
+// rather than joining it, and only when somebody has asked for Korean on its
+// own. In the bilingual default the bar reads exactly as it always has.
+// Added 2026-08-11: the bar was English-only, so the one piece of navigation
+// on every single screen was the one thing the language setting could not
+// touch.
 const tabs = [
   // 메인 — the front door, asked for by name on 2026-08-06 and styled on the
-  // Meetup landing the team studied. The label is English like its four
+  // Meetup landing the team studied. English by default, like its four
   // siblings: the audience reads English, and the calendar already taught us
   // what one Korean-only label does to the person it matters most to.
-  { id: 'main', label: 'Main' },
-  { id: 'home', label: 'Explore' },
-  { id: 'match', label: 'Tables' },
-  { id: 'places', label: 'Places' },
+  { id: 'main', label: 'Main', kr: '메인' },
+  { id: 'home', label: 'Explore', kr: '문화' },
+  { id: 'match', label: 'Tables', kr: '밥상' },
+  { id: 'places', label: 'Places', kr: '장소' },
   // Profile was a fifth tab and is now a section at the bottom of the
   // Passport. Both the 8/2 meeting and a foreign tester asked for the merge,
   // independently — and four labels fit a 375px bar without crowding.
-  { id: 'journal', label: 'Passport' },
+  { id: 'journal', label: 'Passport', kr: '여권' },
   // Settings was a fifth tab here for a day (2026-08-04) and moved out on
   // 2026-08-05, to the gear in the top-right of the app chrome beside 로그인.
   // Nothing was removed — the screen is the same screen. But primary
@@ -86,7 +93,8 @@ export default function TabBar({ activeTab, onSelect, isCollapsed }) {
           title={isCollapsed ? t.label : undefined}
         >
           {icons[t.id]}
-          <span className="tab-label">{t.label}</span>
+          <span className="tab-label tab-label--en">{t.label}</span>
+          <span className="tab-label l-ko-only" translate="no">{t.kr}</span>
         </button>
       ))}
     </nav>
