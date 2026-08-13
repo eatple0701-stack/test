@@ -13,6 +13,8 @@ import { restaurants } from '../../data/restaurants.js';
 import { VEGAN_LABEL, VEGAN_LABEL_KO, HALAL_LABEL, HALAL_LABEL_KO } from '../../data/verification.js';
 import { emptyText, EMPTY } from '../policy/emptiness.js';
 import { reasonFor } from '../policy/recommendation.js';
+import { experiences } from '../catalog/experiences.js';
+import { narratives, narrativeSteps } from '../catalog/narratives.js';
 
 // The Korean interface is only as complete as the data behind it. The setting
 // itself has worked since 2026-08-11; what made it look broken was 960 English
@@ -107,5 +109,30 @@ test('the two policies that write their own sentences answer in Korean', () => {
   for (const t of themes) {
     const ko = reasonFor(t, { at: new Date('2026-07-15T12:00:00'), locale: 'ko' });
     assert.ok(hasKorean(ko), `${t.id} has an English reason in Korean mode`);
+  }
+});
+
+test('the theme screens carry Korean, one level below the tab', () => {
+  // These were missed by both language passes for the same reason: the
+  // Explore *tab* measured clean because a narrative, its steps and the 13
+  // experiences live one screen deeper, behind a culture card. A tab-level
+  // measurement cannot see them, so a test has to.
+  for (const e of experiences) {
+    for (const f of ['whyItMatters', 'culturalMeaning', 'whenToExperience']) {
+      assert.ok(hasKorean(e[`${f}Ko`]), `${e.id} has no ${f}Ko`);
+    }
+    assert.ok(hasKorean(e.missionKo?.title), `${e.id} mission has no Korean title`);
+    assert.ok(hasKorean(e.missionKo?.detail), `${e.id} mission has no Korean detail`);
+  }
+  for (const n of narratives) {
+    for (const f of ['title', 'intro', 'outro']) {
+      assert.ok(hasKorean(n[`${f}Ko`]), `${n.id} has no ${f}Ko`);
+    }
+  }
+  for (const step of narrativeSteps.filter(x => x.transition)) {
+    assert.ok(
+      hasKorean(step.transitionKo),
+      `${step.narrativeId}/${step.experienceId} has no Korean transition`,
+    );
   }
 });

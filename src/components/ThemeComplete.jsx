@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { COMPLETION_KIND } from '../domain/policy/completion.js';
+import { useText } from './localeText.js';
 
 // The moment a culture is finished.
 //
@@ -15,6 +16,7 @@ import { COMPLETION_KIND } from '../domain/policy/completion.js';
 export default function ThemeComplete({
   theme, remaining = 0, kind = null, next, nextReason, onClose, onOpenNext,
 }) {
+  const say = useText();
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
@@ -41,13 +43,24 @@ export default function ThemeComplete({
             "culture complete" there would overstate it — and the traveller
             would notice, because Explore still offers to continue this very
             theme. What finished is the path they walked. */}
-        <p className="complete-eyebrow">{remaining > 0 ? 'Path complete' : 'Culture complete'}</p>
-        <h2 className="complete-title">{theme.title}</h2>
-        {theme.titleKo && <p className="complete-title-ko">{theme.titleKo}</p>}
+        <p className="complete-eyebrow">
+          {remaining > 0
+            ? say('Path complete', '길 완주', 'Camino completado')
+            : say('Culture complete', '문화 완주', 'Cultura completada')}
+        </p>
+        <h2 className="complete-title">{say(theme.title, theme.titleKo, theme.titleEs)}</h2>
+        {/* The Korean name under the title is the stamp itself, so it stays
+            in every setting — it is what a passport stamp would actually
+            read. The heading above it follows the language. */}
+        {theme.titleKo && <p className="complete-title-ko" translate="no">{theme.titleKo}</p>}
         <p className="complete-note">
           {remaining > 0
-            ? `Stamped into your passport. There ${remaining === 1 ? 'is 1 experience' : `are ${remaining} experiences`} left in this one if you want more of it.`
-            : 'Stamped into your passport.'}
+            ? say(
+              `Stamped into your passport. There ${remaining === 1 ? 'is 1 experience' : `are ${remaining} experiences`} left in this one if you want more of it.`,
+              `여권에 찍혔습니다. 더 보고 싶으시면 이 문화에 ${remaining}개가 남아 있어요.`,
+              `Sellado en tu pasaporte. ${remaining === 1 ? 'Queda 1 experiencia' : `Quedan ${remaining} experiencias`} en esta si quieres más.`,
+            )
+            : say('Stamped into your passport.', '여권에 찍혔습니다.', 'Sellado en tu pasaporte.')}
         </p>
 
         {/* Said on the stamp itself, because this is the moment the claim is
@@ -58,27 +71,35 @@ export default function ThemeComplete({
             the app was printing one sentence for both. */}
         {kind === COMPLETION_KIND.DECLARED && (
           <p className="complete-basis">
-            Recorded on your word — none of these had a verified place to visit
-            yet.
+            {say(
+              'Recorded on your word — none of these had a verified place to visit yet.',
+              '본인 확인으로 기록되었습니다 — 이 중에는 아직 확인된 방문 장소가 없어요.',
+              'Registrado bajo tu palabra: ninguna de estas tenía todavía un sitio verificado que visitar.',
+            )}
           </p>
         )}
         {kind === COMPLETION_KIND.MIXED && (
           <p className="complete-basis">
-            Part visited, part on your own word.
+            {say('Part visited, part on your own word.',
+              '일부는 방문으로, 일부는 본인 확인으로.',
+              'En parte visitado, en parte bajo tu palabra.')}
           </p>
         )}
 
         {next && (
           <div className="complete-next">
-            <p className="complete-next__label">Where to next</p>
+            <p className="complete-next__label">{say('Where to next', '다음은 어디로', 'Y ahora dónde')}</p>
             <button className="complete-next__btn" onClick={() => onOpenNext(next)}>
-              <span className="complete-next__name">{next.title}</span>
+              <span className="complete-next__name">{say(next.title, next.titleKo, next.titleEs)}</span>
               {nextReason && <span className="complete-next__reason">{nextReason}</span>}
             </button>
           </div>
         )}
 
-        <button className="complete-dismiss" onClick={onClose}>Not now</button>
+        <button className="complete-dismiss" onClick={onClose}>
+          {say('Not now', '나중에', 'Ahora no')}
+        </button>
+
       </div>
     </div>
   );

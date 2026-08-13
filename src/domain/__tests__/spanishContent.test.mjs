@@ -18,6 +18,8 @@ import {
 import { GATE_TEXT } from '../policy/access.js';
 import { emptyText, EMPTY } from '../policy/emptiness.js';
 import { reasonFor } from '../policy/recommendation.js';
+import { experiences } from '../catalog/experiences.js';
+import { narratives, narrativeSteps } from '../catalog/narratives.js';
 
 // The Spanish twin of koreanContent.test.mjs, and the same limitation: these
 // assert that a translation exists, not that it is good. What they catch is
@@ -135,4 +137,26 @@ test('nothing claims Spanish by holding the English string', () => {
     if (c.didYouKnowEs === c.didYouKnow) copied.push(`culture ${key}`);
   }
   assert.deepEqual(copied, []);
+});
+
+test('the theme screens carry Spanish too', () => {
+  for (const e of experiences) {
+    for (const f of ['title', 'whyItMatters', 'culturalMeaning', 'whenToExperience']) {
+      assert.ok(nonEmpty(e[`${f}Es`]), `${e.id} has no ${f}Es`);
+    }
+    assert.ok(nonEmpty(e.missionEs?.title), `${e.id} mission has no Spanish title`);
+    assert.ok(nonEmpty(e.missionEs?.detail), `${e.id} mission has no Spanish detail`);
+  }
+  for (const n of narratives) {
+    for (const f of ['title', 'intro', 'outro']) {
+      assert.ok(nonEmpty(n[`${f}Es`]), `${n.id} has no ${f}Es`);
+    }
+    assert.notEqual(n.introEs, n.intro, `${n.id}'s Spanish intro is the English copied over`);
+  }
+  for (const step of narrativeSteps.filter(x => x.transition)) {
+    assert.ok(
+      nonEmpty(step.transitionEs),
+      `${step.narrativeId}/${step.experienceId} has no Spanish transition`,
+    );
+  }
 });
