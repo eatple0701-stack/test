@@ -24,10 +24,10 @@ import { bookable } from '../domain/policy/cancellation.js';
 import { useText } from './localeText.js';
 
 const TRAIT_META = {
-  'Mild Taste': { Icon: MildIcon, label: 'Mild taste', labelKo: '맵지 않음' },
-  'Fermented': { Icon: FermentIcon, label: 'Fermented', labelKo: '발효' },
-  'Zero-waste': { Icon: RecycleIcon, label: 'Zero waste', labelKo: '제로웨이스트' },
-  'Local Sourcing': { Icon: SproutIcon, label: 'Locally sourced', labelKo: '지역 재료' },
+  'Mild Taste': { Icon: MildIcon, label: 'Mild taste', labelKo: '맵지 않음', labelEs: 'Suave' },
+  'Fermented': { Icon: FermentIcon, label: 'Fermented', labelKo: '발효', labelEs: 'Fermentado' },
+  'Zero-waste': { Icon: RecycleIcon, label: 'Zero waste', labelKo: '제로웨이스트', labelEs: 'Sin residuos' },
+  'Local Sourcing': { Icon: SproutIcon, label: 'Locally sourced', labelKo: '지역 재료', labelEs: 'Producto local' },
 };
 
 const DIETARY_ICON = { vegan: LeafIcon, halal: CrescentIcon };
@@ -191,7 +191,9 @@ function RestaurantDetailInner({
     .slice(0, 6);
   const zoneInfo = featuredZones.find(z => z.zone === restaurant.zone);
 
-  const dietFacts = dietaryBadges(restaurant).map(b => ({ Icon: DIETARY_ICON[b.key], label: b.label, fact: b.fact }));
+  // Spread rather than pick three fields: the badge already carries its own
+  // translations, and naming them here is how labelEs got dropped once.
+  const dietFacts = dietaryBadges(restaurant).map(b => ({ ...b, Icon: DIETARY_ICON[b.key] }));
   const traitFacts = restaurant.traits.map(t => TRAIT_META[t]).filter(Boolean).map(t => ({ ...t, fact: null }));
   const facts = [...dietFacts, ...traitFacts];
   const certClaim = restaurant.dietary?.halalCertClaim;
@@ -277,7 +279,7 @@ function RestaurantDetailInner({
             {/* 3. Diet Tags */}
             {facts.length > 0 && (
               <ul className="fact-row" aria-label="Dietary and dining facts">
-                {facts.map(({ Icon, label, labelKo, fact: f }) => (
+                {facts.map(({ Icon, label, labelKo, labelEs, fact: f }) => (
                   <li key={label} className="fact">
                     <Icon size={16} aria-hidden="true" /> {say(label, labelKo, labelEs)}
                     {f && <Trust fact={f} />}
