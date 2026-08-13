@@ -49,9 +49,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Regulars come back for the quiet as much as the food — a temple meal is one of the few places in Seoul where no one is checking their phone.",
     usefulKorean: [
-      { ko: '잘 먹겠습니다', ro: 'jal meokkesseumnida', en: 'I will eat well (said before the meal)' },
-      { ko: '공양', ro: 'gongyang', en: 'a temple meal offering' },
-      { ko: '맛있어요', ro: 'masisseoyo', en: "It's delicious" },
+      { ko: '잘 먹겠습니다', ro: 'jal meokkesseumnida', en: 'I will eat well (said before the meal)', ko_gloss: '식사 전에 하는 인사', es: 'Comeré bien (se dice antes de comer)' },
+      { ko: '공양', ro: 'gongyang', en: 'a temple meal offering', ko_gloss: "절에서 올리는 공양", es: "la ofrenda de una comida de templo" },
+      { ko: '맛있어요', ro: 'masisseoyo', en: "It's delicious", ko_gloss: "맛있다는 말", es: "Está delicioso" },
     ],
     conversationTips: [
       'Ask the staff what 발우공양 means — most are happy to explain the empty-bowl ritual to curious travelers.',
@@ -106,9 +106,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "It's the food Seoul eats on moving day and lonely nights alike — jajangmyeon is comfort food first, cuisine second.",
     usefulKorean: [
-      { ko: '곱빼기', ro: 'gopbaegi', en: 'double portion' },
-      { ko: '단무지 더 주세요', ro: 'danmuji deo juseyo', en: 'More pickled radish, please' },
-      { ko: '짜장면 하나요', ro: 'jjajangmyeon hanayo', en: 'One jajangmyeon, please' },
+      { ko: '곱빼기', ro: 'gopbaegi', en: 'double portion', ko_gloss: "곱빼기 = 두 배", es: "ración doble" },
+      { ko: '단무지 더 주세요', ro: 'danmuji deo juseyo', en: 'More pickled radish, please', ko_gloss: "단무지를 더 달라는 말", es: "Más rábano encurtido, por favor" },
+      { ko: '짜장면 하나요', ro: 'jjajangmyeon hanayo', en: 'One jajangmyeon, please', ko_gloss: "짜장면 하나 주문", es: "Un jajangmyeon, por favor" },
     ],
     conversationTips: [
       'Ask which noodle shop the staff grew up eating at — everyone in Korea has a childhood jjajangmyeon spot.',
@@ -160,9 +160,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Seoul's plant-based kitchens draw a mixed crowd of monks-in-training, athletes and skeptics — everyone leaves arguing about whether it tasted like meat.",
     usefulKorean: [
-      { ko: '비건이에요', ro: 'bigeon-ieyo', en: "I'm vegan" },
-      { ko: '고기 안 들어가요?', ro: 'gogi an deureogayo?', en: 'Does this have meat in it?' },
-      { ko: '두부', ro: 'dubu', en: 'tofu' },
+      { ko: '비건이에요', ro: 'bigeon-ieyo', en: "I'm vegan", ko_gloss: "비건이라고 밝히는 말", es: "Soy vegano" },
+      { ko: '고기 안 들어가요?', ro: 'gogi an deureogayo?', en: 'Does this have meat in it?', ko_gloss: '고기가 들었는지 묻는 말', es: '¿Lleva carne?' },
+      { ko: '두부', ro: 'dubu', en: 'tofu', ko_gloss: "두부", es: "tofu" },
     ],
     conversationTips: [
       'Ask what the soy-meat is made from — most Seoul vegan kitchens are proud of the technique and love to explain it.',
@@ -217,9 +217,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "For Seoul's Muslim residents, these kitchens are less a novelty and more a lifeline — the one place a home-style Korean meal doesn't require a translated ingredient list.",
     usefulKorean: [
-      { ko: '할랄 음식 있어요?', ro: 'hallal eumsik isseoyo?', en: 'Do you have halal food?' },
-      { ko: '돼지고기 안 들어가요', ro: 'dwaejigogi an deureogayo', en: 'No pork in this' },
-      { ko: '감사합니다', ro: 'gamsahamnida', en: 'Thank you' },
+      { ko: '할랄 음식 있어요?', ro: 'hallal eumsik isseoyo?', en: 'Do you have halal food?', ko_gloss: '할랄 음식이 있는지 묻는 말', es: '¿Tienen comida halal?' },
+      { ko: '돼지고기 안 들어가요', ro: 'dwaejigogi an deureogayo', en: 'No pork in this', ko_gloss: "돼지고기가 없다는 말", es: "Esto no lleva cerdo" },
+      { ko: '감사합니다', ro: 'gamsahamnida', en: 'Thank you', ko_gloss: "고맙다는 인사", es: "Gracias" },
     ],
     conversationTips: [
       "Thank the kitchen for catering to halal diets — it's still rare enough outside Itaewon that staff notice and appreciate it.",
@@ -271,9 +271,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Incheon's halal kitchens feed a genuinely international neighborhood — order here and you're as likely to sit next to a Korean regular as a fellow traveler.",
     usefulKorean: [
-      { ko: '이거 매워요?', ro: 'igeo maewoyo?', en: 'Is this spicy?' },
-      { ko: '포장이요', ro: 'pojang-iyo', en: 'To go, please' },
-      { ko: '물 좀 주세요', ro: 'mul jom juseyo', en: 'Water, please' },
+      { ko: '이거 매워요?', ro: 'igeo maewoyo?', en: 'Is this spicy?', ko_gloss: '매운지 묻는 말', es: '¿Esto pica?' },
+      { ko: '포장이요', ro: 'pojang-iyo', en: 'To go, please', ko_gloss: "포장해 달라는 말", es: "Para llevar, por favor" },
+      { ko: '물 좀 주세요', ro: 'mul jom juseyo', en: 'Water, please', ko_gloss: "물을 달라는 말", es: "Agua, por favor" },
     ],
     conversationTips: [
       "Ask what's different about the Incheon version of the dish versus back home — port-city kitchens often adapt recipes for local ingredients.",
@@ -330,9 +330,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Regulars bring their own containers without being asked — it's less a marketing angle here and more an actual habit the neighborhood has picked up.",
     usefulKorean: [
-      { ko: '텀블러 있어요', ro: 'teombeulleo isseoyo', en: 'I have my own tumbler/cup' },
-      { ko: '일회용품 필요 없어요', ro: 'ilhoeyongpum piryo eopseoyo', en: "I don't need disposables" },
-      { ko: '잘 먹었습니다', ro: 'jal meogeotseumnida', en: 'That was a good meal (said after eating)' },
+      { ko: '텀블러 있어요', ro: 'teombeulleo isseoyo', en: 'I have my own tumbler/cup', ko_gloss: "텀블러를 가져왔다는 말", es: "Traigo mi propio vaso" },
+      { ko: '일회용품 필요 없어요', ro: 'ilhoeyongpum piryo eopseoyo', en: "I don't need disposables", ko_gloss: "일회용품이 필요 없다는 말", es: "No necesito desechables" },
+      { ko: '잘 먹었습니다', ro: 'jal meogeotseumnida', en: 'That was a good meal (said after eating)', ko_gloss: '식사 후에 하는 인사', es: 'He comido muy bien (se dice al terminar)' },
     ],
     conversationTips: [
       "Ask what happens to the food scraps — Korea's food-waste recycling system surprises most first-time visitors.",
@@ -384,9 +384,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Seoul treats weekend brunch as a destination, not a meal — locals will cross the city for a bakery that sold out by noon last week.",
     usefulKorean: [
-      { ko: '오늘 뭐가 맛있어요?', ro: 'oneul mwoga masisseoyo?', en: "What's good today?" },
-      { ko: '여기서 먹을게요', ro: 'yeogiseo meogeulgeyo', en: "I'll eat here (not takeout)" },
-      { ko: '커피 한 잔이요', ro: 'keopi han janiyo', en: 'One coffee, please' },
+      { ko: '오늘 뭐가 맛있어요?', ro: 'oneul mwoga masisseoyo?', en: "What's good today?", ko_gloss: '오늘 뭐가 좋은지 묻는 말', es: '¿Qué está bueno hoy?' },
+      { ko: '여기서 먹을게요', ro: 'yeogiseo meogeulgeyo', en: "I'll eat here (not takeout)", ko_gloss: '매장에서 먹겠다는 말', es: 'Voy a comer aquí (no para llevar)' },
+      { ko: '커피 한 잔이요', ro: 'keopi han janiyo', en: 'One coffee, please', ko_gloss: "커피 한 잔 주문", es: "Un café, por favor" },
     ],
     conversationTips: [
       'Ask what was baked fresh this morning — small-batch bakeries change their lineup daily and love being asked.',
@@ -438,9 +438,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Regulars don't ask for the menu — they ask what's in season, because the kitchen changes it before the printed version catches up.",
     usefulKorean: [
-      { ko: '제철 음식이 뭐예요?', ro: 'jecheol eumsigi mwoyeyo?', en: "What's in season right now?" },
-      { ko: '오늘의 메뉴', ro: 'oneurui menyu', en: "today's menu" },
-      { ko: '잘 먹었습니다', ro: 'jal meogeotseumnida', en: 'That was a good meal (said after eating)' },
+      { ko: '제철 음식이 뭐예요?', ro: 'jecheol eumsigi mwoyeyo?', en: "What's in season right now?", ko_gloss: '제철 음식이 뭔지 묻는 말', es: '¿Qué es de temporada ahora?' },
+      { ko: '오늘의 메뉴', ro: 'oneurui menyu', en: "today's menu", ko_gloss: "오늘의 메뉴", es: "el menú de hoy" },
+      { ko: '잘 먹었습니다', ro: 'jal meogeotseumnida', en: 'That was a good meal (said after eating)', ko_gloss: '식사 후에 하는 인사', es: 'He comido muy bien (se dice al terminar)' },
     ],
     conversationTips: [
       'Ask what\'s harvested nearby this week — 제철 (jecheol, "the season\'s turn") is a genuine point of local pride.',

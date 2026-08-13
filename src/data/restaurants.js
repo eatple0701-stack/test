@@ -43,9 +43,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode per-day schedule (11:30–20:20, break 15:00–18:00, 일요일 휴무); last order 19:10 listed by DiningCode only" }),
     menus: fact([
-      { name: "Michelin Temple Course", price: "45,000 KRW" },
-      { name: "Meditation Set Meal", price: "65,000 KRW" },
-      { name: "Fermented Plum Tea", price: "~8,000 KRW" },
+      { name: "Michelin Temple Course", nameKo: "미쉐린 사찰 코스", nameEs: "Menú de templo con estrella Michelin", price: "45,000 KRW" },
+      { name: "Meditation Set Meal", nameKo: "명상 정식", nameEs: "Menú meditación", price: "65,000 KRW" },
+      { name: "Fermented Plum Tea", nameKo: "매실차", nameEs: "Té de ciruela fermentada", price: "~8,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("02-733-2081", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
@@ -95,9 +95,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode: 11:30–22:00 across every listed day, 연중무휴; no break or last order listed" }),
     menus: fact([
-      { name: "Traditional Temple Banchan Set", price: "33,000 KRW" },
-      { name: "Wild Mountain Greens Rice", price: "22,000 KRW" },
-      { name: "Lotus Root Pancakes", price: "~15,000 KRW" },
+      { name: "Traditional Temple Banchan Set", nameKo: "전통 사찰 반찬 정식", nameEs: "Set tradicional de banchan de templo", price: "33,000 KRW" },
+      { name: "Wild Mountain Greens Rice", nameKo: "산나물 비빔밥", nameEs: "Arroz con verduras silvestres de montaña", price: "22,000 KRW" },
+      { name: "Lotus Root Pancakes", nameKo: "연근전", nameEs: "Tortitas de raíz de loto", price: "~15,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("0507-1393-0312", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing; a 0507 number forwards to the venue's real line" }),
@@ -144,9 +144,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode: 11:30–21:00, break 16:00–17:00, last orders 15:00 and 20:00. Thursday closure stated by a listing summary (월~수, 금~일 / 매주 목요일 정기휴무), not by DiningCode's own schedule block" }),
     menus: fact([
-      { name: "Vegan Jajangmyeon", price: "9,000 KRW" },
-      { name: "Soy Meat Sweet and Sour", price: "18,000 KRW" },
-      { name: "Spicy Vegan Jjamppong", price: "10,000 KRW" },
+      { name: "Vegan Jajangmyeon", nameKo: "비건 짜장면", nameEs: "Jajangmyeon vegano", price: "9,000 KRW" },
+      { name: "Soy Meat Sweet and Sour", nameKo: "콩고기 탕수육", nameEs: "Agridulce de carne de soja", price: "18,000 KRW" },
+      { name: "Spicy Vegan Jjamppong", nameKo: "매운 비건 짬뽕", nameEs: "Jjamppong vegano picante", price: "10,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("02-735-7171", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
@@ -194,9 +194,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The venue's own site: \"Tues-Sun 11am-10pm\", \"Closed every Monday\", last order \"9pm\", \"NO Kitchen break\". The draft never recorded the Monday closure" }),
     menus: fact([
-      { name: "Lentil Veggie Burrito Bowl", price: "14,500 KRW" },
-      { name: "Avocado Burger", price: "15,500 KRW" },
-      { name: "Vegan Chocolate Cake", price: "~8,000 KRW" },
+      { name: "Lentil Veggie Burrito Bowl", nameKo: "렌틸 채소 부리토 볼", nameEs: "Bol burrito de lentejas y verduras", price: "14,500 KRW" },
+      { name: "Avocado Burger", nameKo: "아보카도 버거", nameEs: "Hamburguesa de aguacate", price: "15,500 KRW" },
+      { name: "Vegan Chocolate Cake", nameKo: "비건 초콜릿 케이크", nameEs: "Tarta de chocolate vegana", price: "~8,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("02-749-1981", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The venue's own site" }),
@@ -250,9 +250,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode: 12:00–22:30 every listed day, break 15:00–17:00, last order 21:30, no closing day. The operator's site shows \"C/S 10:00-18:00 … Sat, Sun, Holiday OFF\" — that is customer service, not the dining room, so it is deliberately not used" }),
     menus: fact([
-      { name: "Beyond Meat Burger", price: "~18,000 KRW" },
-      { name: "Vegan Mushroom Risotto", price: "~20,000 KRW" },
-      { name: "Plant-based Steak", price: "~28,000 KRW" },
+      { name: "Beyond Meat Burger", nameKo: "비욘드미트 버거", nameEs: "Hamburguesa Beyond Meat", price: "~18,000 KRW" },
+      { name: "Vegan Mushroom Risotto", nameKo: "비건 버섯 리소토", nameEs: "Risotto de setas vegano", price: "~20,000 KRW" },
+      { name: "Plant-based Steak", nameKo: "식물성 스테이크", nameEs: "Filete vegetal", price: "~28,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate. DiningCode instead lists 비건 비프 치즈 버거 (18,000) and 콰트로 버섯 리조또 (21,000) — same shape, different names, so the draft's wording is unconfirmed" }),
 
     phone: fact("02-790-1108", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The venue's own site; DiningCode lists the same number" }),
@@ -311,9 +311,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode lists 11:00–00:00; several independent visitor write-ups give 매일 11:00~24:00 with a 23:00 last order. No closing day found" }),
     menus: fact([
-      { name: "Vegan Kung Pao Chick'n", price: "~19,000 KRW" },
-      { name: "Plant-based Chow Mein", price: "~16,000 KRW" },
-      { name: "Crispy Mushroom Bites", price: "~12,000 KRW" },
+      { name: "Vegan Kung Pao Chick'n", nameKo: "비건 쿵파오 치킨", nameEs: "Pollo kung pao vegano", price: "~19,000 KRW" },
+      { name: "Plant-based Chow Mein", nameKo: "식물성 차우멘", nameEs: "Chow mein vegetal", price: "~16,000 KRW" },
+      { name: "Crispy Mushroom Bites", nameKo: "바삭 버섯 튀김", nameEs: "Bocaditos crujientes de seta", price: "~12,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft. DiningCode lists KungpaoChicken at 21,000 and 차우면 (Chow Mein) at 9,000 — the dishes exist, the draft's prices do not match" }),
 
     instagram: fact("https://www.instagram.com/camouflage_iteawon", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this account as the venue's own" }),
@@ -363,9 +363,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, lastCheckedAt: "2026-07-17", evidence: "Seoul tourism site: \"12:00 ~ 21:00\", 휴무일 매일 (none); DiningCode independently lists 12:00–21:00. The draft's 11:30 open was wrong" }),
     menus: fact([
-      { name: "Halal Bulgogi", price: "~15,000 KRW" },
-      { name: "Halal Samgyetang", price: "~18,000 KRW" },
-      { name: "Halal Bibimbap", price: "~10,000 KRW" },
+      { name: "Halal Bulgogi", nameKo: "할랄 불고기", nameEs: "Bulgogi halal", price: "~15,000 KRW" },
+      { name: "Halal Samgyetang", nameKo: "할랄 삼계탕", nameEs: "Samgyetang halal", price: "~18,000 KRW" },
+      { name: "Halal Bibimbap", nameKo: "할랄 비빔밥", nameEs: "Bibimbap halal", price: "~10,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate. Seoul's tourism site lists 비빔밥/소불고기/소고기김치볶음밥 in the 1만원대 range, which is consistent but not itemised" }),
 
     phone: fact("0507-1404-8219", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, lastCheckedAt: "2026-07-17", evidence: "Seoul tourism site listing; a 0507 number forwards to the venue's real line" }),
@@ -452,9 +452,9 @@ export const restaurants = [
     address: fact("Near Seoul Central Mosque, Itaewon, Seoul", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Area-level only. An aggregator lists 52 Usadan-ro 10-gil, unconfirmed by either map service, so it is not adopted", precision: "area" }),
     hours: unknownFact("Opening hours never confirmed; no map-service listing exists to check against as of 2026-07-17"),
     menus: fact([
-      { name: "Halal Braised Chicken (Jjimdak)", price: "~10,000 KRW" },
-      { name: "Halal Grilled Mackerel", price: "~10,000 KRW" },
-      { name: "Halal Tteokbokki", price: "~8,000 KRW" },
+      { name: "Halal Braised Chicken (Jjimdak)", nameKo: "할랄 찜닭", nameEs: "Pollo estofado halal (jjimdak)", price: "~10,000 KRW" },
+      { name: "Halal Grilled Mackerel", nameKo: "할랄 고등어구이", nameEs: "Caballa a la parrilla halal", price: "~10,000 KRW" },
+      { name: "Halal Tteokbokki", nameKo: "할랄 떡볶이", nameEs: "Tteokbokki halal", price: "~8,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     dietary: {
@@ -504,9 +504,9 @@ export const restaurants = [
     phone: fact("0507-1380-9249", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
     transit: fact({ station: "Myeongdong", line: "Line 4", exit: null, walkingMinutes: 5, distanceM: 318 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 명동역 4호선: 318 m / 314 s. Exit not given by the routing API" }),
     menus: fact([
-      { name: "Nasi Lemak", price: "9,000–14,000 KRW" },
-      { name: "Nasi Goreng Kampungku", price: "11,000 KRW" },
-      { name: "Budae Jjigae (Army Stew)", price: "24,000 KRW" },
+      { name: "Nasi Lemak", nameKo: "나시 르막", nameEs: "Nasi lemak", price: "9,000–14,000 KRW" },
+      { name: "Nasi Goreng Kampungku", nameKo: "나시 고렝 캄풍쿠", nameEs: "Nasi goreng Kampungku", price: "11,000 KRW" },
+      { name: "Budae Jjigae (Army Stew)", nameKo: "부대찌개", nameEs: "Budae jjigae (guiso del ejército)", price: "24,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nasi Lemak and Nasi Goreng Kampungku from a DiningCode listing, the latter's price matched independently by a visitor write-up. Budae Jjigae and its price come directly from Seoul's official tourism page (visitseoul.net, last modified 2026-06-30). The draft's \"Halal Bibimbap\" is named in no source found" }),
 
     dietary: {
@@ -571,9 +571,9 @@ export const restaurants = [
     instagram: fact("https://www.instagram.com/nonoshop_cafe", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this account as the venue's own" }),
     transit: fact({ station: "Hoehyeon", line: "Line 4", exit: null, walkingMinutes: 4, distanceM: 211 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 회현역 4호선: 211 m / 205 s. Exit not given by the routing API" }),
     menus: fact([
-      { name: "Americano", price: "5,000 KRW" },
-      { name: "Praline Latte", price: "8,000 KRW" },
-      { name: "Lotus Tiramisu", price: "8,500 KRW" },
+      { name: "Americano", nameKo: "아메리카노", nameEs: "Americano", price: "5,000 KRW" },
+      { name: "Praline Latte", nameKo: "프랄린 라떼", nameEs: "Latte de praliné", price: "8,000 KRW" },
+      { name: "Lotus Tiramisu", nameKo: "로투스 티라미수", nameEs: "Tiramisú de Lotus", price: "8,500 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.DIRECTORY_LISTING, lastCheckedAt: "2026-07-17", evidence: "A DiningCode listing for the current location, described as representative, non-exhaustive offerings. None of the draft's three items (Vegan Croissant, Oat Milk Latte, Zero Waste Nut Mix) are named in any source found, at either the old or new address" }),
 
     dietary: {
@@ -666,9 +666,9 @@ export const restaurants = [
     // closing days, so picking one would be a guess dressed as a fact.
     hours: unknownFact("Sources conflict — DiningCode: closed Mon–Tue, Wed–Sat 11:30–20:00 (break 15:00–17:30), Sun 11:30–15:00. A listing summary instead says Mon–Sat 11:00–21:00, Sun 12:00–20:00, break 15:30–17:00. Unresolved"),
     menus: fact([
-      { name: "Temple-style Jang Course", price: "~35,000 KRW" },
-      { name: "Fermented Soybean Stew", price: "~14,000 KRW" },
-      { name: "Seasonal Namul Plate", price: "~12,000 KRW" },
+      { name: "Temple-style Jang Course", nameKo: "사찰식 장 코스", nameEs: "Menú de jang al estilo de templo", price: "~35,000 KRW" },
+      { name: "Fermented Soybean Stew", nameKo: "된장찌개", nameEs: "Guiso de soja fermentada", price: "~14,000 KRW" },
+      { name: "Seasonal Namul Plate", nameKo: "제철 나물 한 접시", nameEs: "Plato de namul de temporada", price: "~12,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("02-536-5228", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "Menupan listing. DiningCode instead lists 0507-1418-5228, a forwarding number — not contradictory, but unconfirmed" }),
@@ -708,10 +708,10 @@ export const restaurants = [
     address: fact("5 Technopark-ro 111beon-gil, Yeonsu-gu, Incheon (Star Building, 1F)", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", precision: "street", evidence: "chaeyuk.com's branch list, Kakao Map and Incheon's public food-business licensing record all give 테크노파크로111번길 5. The licence adds the unit: 스타빌딩 주1동 1층 일부호 (송도동), 지번 송도동 8-12, licensed 2024-05-02" }),
     hours: fact({ raw: "10:00 – 22:00", weekly: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "chaeyuk.com lists the Songdo branch as 10:00–22:00; two independent visitor write-ups give the same window and say daily. Last order is left out on purpose: the operator says 21:00 and the write-ups say 21:30, and a conflict is not averaged. No per-day breakdown is published, so weekly stays null" }),
     menus: fact([
-      { name: "Handon jeyuk jeongsik (한돈 제육 정식) — grade-1 Korean pork", price: null },
-      { name: "U-bulgogi jeongsik (우불고기 정식) — beef", price: null },
-      { name: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — beef brisket", price: null },
-      { name: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — the soy-meat version", price: null },
+      { name: "Handon jeyuk jeongsik (한돈 제육 정식) — grade-1 Korean pork", nameKo: "한돈 제육 정식 — 국내산 1등급 돼지고기", nameEs: "Handon jeyuk jeongsik (한돈 제육 정식) — cerdo coreano de grado 1", price: null },
+      { name: "U-bulgogi jeongsik (우불고기 정식) — beef", nameKo: "우불고기 정식 — 소고기", nameEs: "U-bulgogi jeongsik (우불고기 정식) — ternera", price: null },
+      { name: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — beef brisket", nameKo: "차돌백 순두부찌개 백반 — 차돌양지", nameEs: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — falda de ternera", price: null },
+      { name: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — the soy-meat version", nameKo: "콩고기 제육 정식 — 콩고기 버전", nameEs: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — la versión con carne de soja", price: null },
     ], { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The operator's three featured dishes plus the soy-meat counterpart it pairs them with. Prices are not published on the operator's site and are left unstated rather than carried over from the draft. Replaces a draft list whose \"Mushroom Bulgogi Set\" appears nowhere on the operator's menu" }),
 
     phone: fact("032-833-1554", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "chaeyuk.com's branch list. Visitor write-ups give 0507-1450-1554, a forwarding number; the operator's own landline is recorded instead" }),
@@ -759,9 +759,9 @@ export const restaurants = [
     // rather than picking one — the same call made for `maji` (§2.11).
     hours: unknownFact("Not stated because sources conflict: a directory listing gives 11:00–20:00 with a 15:30–17:30 break, a March 2026 visitor report gives 11:00–21:00. Every source agrees it closes Tuesday and Wednesday, but a set of hours that cannot state its own closing time is not worth stating. The operator publishes no site and orders go through a table QR code, so settling this needs a call to the venue"),
     menus: fact([
-      { name: "Ratatouille (라따뚜이) — the vegan signature", price: "23,000 KRW" },
-      { name: "Fish steak (피쉬 스테이크)", price: "19,000 KRW" },
-      { name: "Cream gnocchi (크림 뇨끼)", price: "19,000 KRW" },
+      { name: "Ratatouille (라따뚜이) — the vegan signature", nameKo: "라따뚜이 — 비건 시그니처", nameEs: "Ratatouille (라따뚜이) — el plato vegano de la casa", price: "23,000 KRW" },
+      { name: "Fish steak (피쉬 스테이크)", nameKo: "피쉬 스테이크", nameEs: "Filete de pescado (피쉬 스테이크)", price: "19,000 KRW" },
+      { name: "Cream gnocchi (크림 뇨끼)", nameKo: "크림 뇨끼", nameEs: "Ñoquis a la crema (크림 뇨끼)", price: "19,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "A directory listing and two independent visitor write-ups give these three dishes at these same prices. Replaces a draft list whose \"Vegetable-forward Brunch Plate\" and \"Fresh Tomato Bruschetta\" appear in no source found, and which priced the ratatouille at ~18,000 where every 2026 source says 23,000. The kitchen changes its menu seasonally, so this is a snapshot, not a fixed card" }),
 
     phone: fact("0507-1393-3312", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing; a 0507 number forwards to the venue's real line" }),
@@ -814,9 +814,9 @@ export const restaurants = [
       sun: [],
     } }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "A directory listing and four independent 2026 visitor reports all give the same window: 월–토 09:00–16:00, 라스트오더 15:00, 일요일 정기휴무. These are the post-renovation hours; the 10:00–21:00 in older write-ups belonged to the à la carte restaurant and is superseded, not in conflict" }),
     menus: fact([
-      { name: "Brunch buffet — adult", price: "15,900 KRW" },
-      { name: "Brunch buffet — elementary school child", price: "9,900 KRW" },
-      { name: "Brunch buffet — preschool child", price: "6,900 KRW" },
+      { name: "Brunch buffet — adult", nameKo: "브런치 뷔페 — 성인", nameEs: "Bufé de brunch — adulto", price: "15,900 KRW" },
+      { name: "Brunch buffet — elementary school child", nameKo: "브런치 뷔페 — 초등학생", nameEs: "Bufé de brunch — niño de primaria", price: "9,900 KRW" },
+      { name: "Brunch buffet — preschool child", nameKo: "브런치 뷔페 — 미취학 아동", nameEs: "Bufé de brunch — niño en edad preescolar", price: "6,900 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Buffet pricing, corroborated by a directory listing, a booking platform and visitor reports. The à la carte list this replaces (Vegan Lasagna / Vegan Gnocchi / Basil Pesto Pasta) no longer exists as a format. Individual dishes are not listed because the buffet rotates weekly — naming them would be stale within days" }),
 
     phone: fact("0507-1330-0619", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing, matched by three independent write-ups; a 0507 number forwards to the venue's real line" }),
@@ -870,9 +870,9 @@ export const restaurants = [
     // one — the same call made for `maji` and `iryonghal` (§2.11).
     hours: unknownFact("Not stated because sources conflict: Incheon's tourism site (last modified 2026-04-23) gives 10:00–19:30, closed Monday; a directory listing dated 2026-07-11 gives daily 10:00–21:00, last order 20:30. A government source and a directory disagree on both the closing time and the weekly pattern, with no third source to break the tie"),
     menus: fact([
-      { name: "Signature vegan cookie (시그니처 비건쿠키)", price: "4,500 KRW" },
-      { name: "Greek yogurt bowl (그릭요거트 볼)", price: "5,800–6,900 KRW" },
-      { name: "Peanut ppotto yellow cheesecake (피넛뽀또 황치즈케이크) — not vegan", price: "7,800 KRW" },
+      { name: "Signature vegan cookie (시그니처 비건쿠키)", nameKo: "시그니처 비건쿠키", nameEs: "Galleta vegana de la casa (시그니처 비건쿠키)", price: "4,500 KRW" },
+      { name: "Greek yogurt bowl (그릭요거트 볼)", nameKo: "그릭요거트 볼", nameEs: "Bol de yogur griego (그릭요거트 볼)", price: "5,800–6,900 KRW" },
+      { name: "Peanut ppotto yellow cheesecake (피넛뽀또 황치즈케이크) — not vegan", nameKo: "피넛뽀또 황치즈케이크 — 비건 아님", nameEs: "Tarta de queso amarillo con peanut ppotto (피넛뽀또 황치즈케이크) — no vegana", price: "7,800 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "A directory listing and an independent visitor write-up agree on these items and prices. The draft's \"Gluten-free Bread\" appears in no source found and is dropped. The cheesecake is listed deliberately: the same visitor write-up labels it \"논비건\" (not vegan), which is why the dietary level below is corrected" }),
 
     dietary: {
@@ -924,9 +924,9 @@ export const restaurants = [
       sun: [{ from: "11:00", to: "16:00" }, { from: "17:00", to: "22:00", lastOrder: "21:00" }],
     } }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "The daily 11:00-22:00 window is corroborated by two independent sources (a DiningCode listing and a Siksinhot listing, both checked 2026-07-17). The break (16:00-17:00) and last order (21:00) come from DiningCode only — that detail is not yet independently corroborated by a second source, unlike the open/close window itself" }),
     menus: fact([
-      { name: "Chicken Curry", price: "14,000 KRW" },
-      { name: "Lamb Curry", price: "16,000 KRW" },
-      { name: "Lamb Kebab", price: null },
+      { name: "Chicken Curry", nameKo: "치킨 커리", nameEs: "Curry de pollo", price: "14,000 KRW" },
+      { name: "Lamb Curry", nameKo: "램 커리", nameEs: "Curry de cordero", price: "16,000 KRW" },
+      { name: "Lamb Kebab", nameKo: "램 케밥", nameEs: "Kebab de cordero", price: null },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Curry names and prices from a DiningCode listing checked 2026-07-17. Lamb Kebab is real and prominent — independently described across nine visitor write-ups from 2015 to 2025 — but the only price found for it dates to 2022, four years stale, so it is left unstated rather than carried forward as current. \"Chicken Tikka Masala\" and \"Fresh Hummus & Pita\" are dropped: neither has current-dated confirmation. \"Halal\" is not used as a dish label — halal-friendliness is a restaurant-level fact (see dietary.halal), not a menu label, the same rule applied to bombay-brau" }),
     phone: fact("032-859-6900", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing; a landline, not a 0507 forwarding number" }),
 
@@ -978,8 +978,8 @@ export const restaurants = [
       sun: [{ from: "11:15", to: "22:00", lastOrder: "21:30" }],
     } }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Two independent visitor posts (2026-07-07, 2026-07-11) agree exactly: daily 11:15–22:00, weekday break 15:00–17:00 (not on weekends), last order 21:30. No conflict found" }),
     menus: fact([
-      { name: "Tandoori Chicken (whole / half)", price: "23,000 / 13,000 KRW" },
-      { name: "Vegetable Samosas", price: null },
+      { name: "Tandoori Chicken (whole / half)", nameKo: "탄두리 치킨 (한 마리 / 반 마리)", nameEs: "Pollo tandoori (entero / medio)", price: "23,000 / 13,000 KRW" },
+      { name: "Vegetable Samosas", nameKo: "채소 사모사", nameEs: "Samosas de verdura", price: null },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.COMMUNITY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Tandoori Chicken and its portion pricing come from a first-hand 2026-07-11 Songdo visit. Samosas are corroborated as this chain's vegan-safe order by two independent, methodical vegan-food blogs cataloguing exact orderable items across branches — no Songdo-specific price found, left unstated rather than carried over from the draft. The draft's \"Vegan Dal Makhani\" is dropped: Makhani-style sauce is butter-and-cream-based (한 상세 후기: \"콩, 버터, 크림\"), and the same vegan-mapping blogs never list it as a vegan-safe order at any branch — one casual post called it vegan on the sole reasoning that it contains no meat, which the ingredient-level accounts contradict. \"Halal Tandoori Chicken\" as a menu label is also dropped: no source names the dish that way — halal-friendliness is a restaurant-level fact (see dietary.halal), not a per-dish label" }),
     transit: fact({ station: "Incheon National University", line: "Incheon Line 1", exit: null, walkingMinutes: 15, distanceM: 921 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 인천대입구역 인천1호선: 921 m / 880 s. Checked against two farther alternatives (센트럴파크역 1,321 m; 테크노파크역 1,834 m). Exit not given by the routing API" }),
 
@@ -1052,8 +1052,8 @@ export const restaurants = [
       evidenceRefs: [evidenceRef("ev-gonghwachun-itour", 1, "not raised to confirmed: the operator's own site could not be reached")],
     }),
     menus: fact([
-      { name: "Gonghwachun Jajangmyeon", price: null },
-      { name: "Jjamppong", price: null },
+      { name: "Gonghwachun Jajangmyeon", nameKo: "공화춘 짜장면", nameEs: "Jajangmyeon de Gonghwachun", price: null },
+      { name: "Jjamppong", nameKo: "짬뽕", nameEs: "Jjamppong", price: null },
     ], {
       confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, lastCheckedAt: "2026-07-17",
       evidence: "The two dishes Incheon city names; it prints no prices, so none are given",
@@ -1160,9 +1160,9 @@ export const restaurants = [
     address: fact("12 Gaehang-ro, Jung-gu, Incheon", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, precision: "street" }),
     hours: unknownFact("Opening hours never confirmed"),
     menus: fact([
-      { name: "Seasonal Donburi", price: "~15,000 KRW" },
-      { name: "Local Greens Set", price: "~13,000 KRW" },
-      { name: "House Tea", price: "~5,000 KRW" },
+      { name: "Seasonal Donburi", nameKo: "제철 덮밥", nameEs: "Donburi de temporada", price: "~15,000 KRW" },
+      { name: "Local Greens Set", nameKo: "지역 나물 정식", nameEs: "Set de verduras locales", price: "~13,000 KRW" },
+      { name: "House Tea", nameKo: "하우스 티", nameEs: "Té de la casa", price: "~5,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     dietary: {

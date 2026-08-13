@@ -52,20 +52,36 @@ export function venueKind(category) {
 const MEET_COPY = {
   [VENUE_KIND.MEAL]: {
     title: '여기서 상 차리기',
+    titleEs: 'Abrir una mesa aquí',
     sub: (name) => `Open a table at ${name} and see who wants to come.`,
+    subKo: (name) => `${name}에서 상을 차리고 누가 오고 싶어 하는지 보세요.`,
+    subEs: (name) => `Abre una mesa en ${name} y mira quién quiere venir.`,
   },
   [VENUE_KIND.OUTING]: {
     title: '여기서 같이 갈 사람 찾기',
+    titleEs: 'Busca con quién ir',
     sub: (name) => `Find someone to go to ${name} with — same idea as a table, no meal to share.`,
+    subKo: (name) => `${name}에 같이 갈 사람을 찾아보세요 — 밥상과 같은 방식이고, 나눠 먹을 음식만 없습니다.`,
+    subEs: (name) => `Encuentra con quién ir a ${name} — la misma idea que una mesa, sin comida que compartir.`,
   },
 };
 
-/** The button that turns a place into a table, worded for that place. */
-export function tableCtaFor(restaurant) {
+/**
+ * The button that turns a place into a table, worded for that place.
+ *
+ * The locale is an argument because the venue's name is substituted into the
+ * middle of the sentence — there is no finished string a component could
+ * hand to a translator, only the shape and the name.
+ */
+export function tableCtaFor(restaurant, locale = 'both') {
   const kind = venueKind(restaurant?.category);
   const copy = MEET_COPY[kind];
   const name = String(restaurant?.name ?? '').split('(')[0].trim() || 'this place';
-  return { kind, title: copy.title, sub: copy.sub(name) };
+  const title = locale === 'es' ? copy.titleEs : copy.title;
+  const sub = locale === 'ko' ? copy.subKo(name)
+    : locale === 'es' ? copy.subEs(name)
+      : copy.sub(name);
+  return { kind, title, sub };
 }
 
 // ── Maps a traveller already has on their phone ───────────────────────────
@@ -161,6 +177,12 @@ export function transitLine(restaurant) {
     en: mins !== null
       ? `${mins} min walk from ${station} Station${enLine}`
       : `Near ${station} Station${enLine}`,
+    // Spanish rather than a third field on every caller: the Korean half is
+    // what a traveller shows a taxi driver, so it stays beside this one in
+    // the bilingual default and Spanish only replaces the English.
+    es: mins !== null
+      ? `${mins} min a pie desde la estación ${station}${enLine}`
+      : `Cerca de la estación ${station}${enLine}`,
   };
 }
 
@@ -238,5 +260,6 @@ export function cityOfTables(tables = [], catalogue = []) {
 /** Said above the links, so nobody reads them as our own reviews. */
 export const MAP_LINKS_NOTE = {
   kr: '후기와 사진은 지도 앱에서 보세요.',
-  en: 'Reviews and photos live in the map apps, kept current by the people who run them. 밥친구 does not copy them here.',
+  en: 'Reviews and photos live in the map apps, kept current by the people who run them. Eatple does not copy them here.',
+  es: 'Las reseñas y las fotos están en las apps de mapas, mantenidas al día por quienes las gestionan. Eatple no las copia aquí.',
 };

@@ -21,7 +21,7 @@ import { haversineKm, formatDistance, getOpenStatus, todaysHours, directionsUrl,
 import {
   dietaryBadges, isKnown, needsCheck, trustBadge, dietaryConfidence, CONFIDENCE, isQuarantined, TRUST_LABEL_KO, TRUST_LABEL_ES } from '../data/verification';
 import { bookable } from '../domain/policy/cancellation.js';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
 
 const TRAIT_META = {
   'Mild Taste': { Icon: MildIcon, label: 'Mild taste', labelKo: '맵지 않음', labelEs: 'Suave' },
@@ -60,26 +60,34 @@ const DIET_CAVEAT = {
   [CONFIDENCE.CONFIRMED]: {
     title: 'Confirmed with the restaurant.',
     titleKo: '식당에 확인했습니다.',
+    titleEs: 'Confirmado con el restaurante.',
     body: 'The kitchen states this itself. Menus still change, so ask if you have a strict requirement.',
     bodyKo: '주방이 직접 밝힌 내용입니다. 그래도 메뉴는 바뀌니, 꼭 지켜야 하는 조건이 있다면 물어보세요.',
+    bodyEs: 'Lo dice la propia cocina. Las cartas cambian igualmente, así que pregunta si tienes un requisito estricto.',
   },
   [CONFIDENCE.SUPPORTED]: {
     title: 'Reported, not confirmed.',
     titleKo: '전해 들었을 뿐, 확인은 못 했습니다.',
+    titleEs: 'Según la fuente, sin confirmar.',
     body: `These details come from what the restaurant and our research describe. We haven't checked them in person — confirm with staff before ordering.`,
     bodyKo: '식당 소개와 저희 조사에서 가져온 내용입니다. 직접 가서 확인하지는 못했으니, 주문 전에 직원에게 물어보세요.',
+    bodyEs: 'Estos datos vienen de lo que describen el restaurante y nuestra investigación. No los hemos comprobado en persona: confírmalo con el personal antes de pedir.',
   },
   [CONFIDENCE.INFERRED]: {
     title: 'Partly our own reading.',
     titleKo: '일부는 저희가 읽어 낸 것입니다.',
+    titleEs: 'En parte es lectura nuestra.',
     body: 'Some of this we read from the kind of kitchen it is, or from how the venue describes itself — not from a stated fact. Treat it as a lead and ask staff before ordering.',
     bodyKo: '어떤 종류의 주방인지, 혹은 가게가 스스로를 어떻게 설명하는지에서 읽어 낸 부분이 있습니다. 명시된 사실이 아니에요. 단서로만 보시고 주문 전에 직원에게 확인하세요.',
+    bodyEs: 'Parte de esto lo hemos deducido del tipo de cocina que es, o de cómo se describe el local — no de un dato declarado. Tómalo como una pista y pregunta al personal antes de pedir.',
   },
   [CONFIDENCE.UNKNOWN]: {
     title: 'No dietary information yet.',
     titleKo: '식단 정보가 아직 없습니다.',
+    titleEs: 'Todavía no hay información de dieta.',
     body: `We haven't established what this kitchen serves, so we don't make a claim either way.`,
     bodyKo: '이 주방이 무엇을 내는지 아직 확인하지 못해서, 어느 쪽으로도 주장하지 않습니다.',
+    bodyEs: 'No hemos establecido qué sirve esta cocina, así que no afirmamos nada en ninguna dirección.',
   },
 };
 
@@ -107,6 +115,7 @@ function RestaurantDetailInner({
   onOpenTableHere, onOpenTable, onNavigate,
 }) {
   const say = useText();
+  const locale = useLocale();
   // Tables already happening at this restaurant. Read the same way every
   // other screen reads them, so the Supabase swap reaches here for free.
   const [tablesHere, setTablesHere] = useState([]);
@@ -173,7 +182,7 @@ function RestaurantDetailInner({
   const name = restaurant.name.split('(')[0].trim();
   // Both derived from the venue rather than fixed — see venue.js for why a
   // bakery must not be offered 상 차리기, and why no review is quoted here.
-  const tableCta = tableCtaFor(restaurant);
+  const tableCta = tableCtaFor(restaurant, locale);
   const mapLinks = mapLinksFor(restaurant);
   const transit = transitLine(restaurant);
   const status = getOpenStatus(restaurant.hours);
@@ -258,7 +267,7 @@ function RestaurantDetailInner({
     <>
       <div className="detail-backdrop" onClick={onClose} />
       <div className="detail-sheet" role="dialog" aria-modal="true" aria-label={name} ref={sheetRef} tabIndex={-1}>
-        <button className="detail-close" aria-label="Close" onClick={onClose}>
+        <button className="detail-close" aria-label={say('Close', '닫기', 'Cerrar')} onClick={onClose}>
           <XIcon size={18} />
         </button>
 
@@ -278,7 +287,7 @@ function RestaurantDetailInner({
 
             {/* 3. Diet Tags */}
             {facts.length > 0 && (
-              <ul className="fact-row" aria-label="Dietary and dining facts">
+              <ul className="fact-row" aria-label={say('Dietary and dining facts', '식단과 식사 정보', 'Datos de dieta y de mesa')}>
                 {facts.map(({ Icon, label, labelKo, labelEs, fact: f }) => (
                   <li key={label} className="fact">
                     <Icon size={16} aria-hidden="true" /> {say(label, labelKo, labelEs)}
@@ -323,7 +332,9 @@ function RestaurantDetailInner({
                   onClick={() => onToggleBookmark(restaurant.id)}
                 >
                   <HeartIcon size={16} filled={isBookmarked} />
-                  {isBookmarked ? '저장됨 · Saved' : '저장하기 · Save this place'}
+                  {isBookmarked
+                    ? say('저장됨 · Saved', null, 'Guardado')
+                    : say('저장하기 · Save this place', null, 'Guardar este sitio')}
                 </button>
               </div>
               {isBookmarked && (
@@ -373,7 +384,7 @@ function RestaurantDetailInner({
               {mapLinks.length > 0 && (
                 <div className="map-links">
                   <p className="map-links__note">
-                    <strong>{MAP_LINKS_NOTE.kr}</strong> {MAP_LINKS_NOTE.en}
+                    <strong>{MAP_LINKS_NOTE.kr}</strong> {say(MAP_LINKS_NOTE.en, null, MAP_LINKS_NOTE.es)}
                   </p>
                   <div className="map-links__row">
                     {mapLinks.map(link => (
@@ -504,7 +515,7 @@ function RestaurantDetailInner({
                 <div className="menu-rows">
                   {restaurant.menus.value.map(m => (
                     <div key={m.name} className="menu-row">
-                      <span>{m.name}</span>
+                      <span>{say(m.name, m.nameKo, m.nameEs)}</span>
                       <span className="menu-row__price">{m.price ?? 'Price not listed'}</span>
                     </div>
                   ))}
@@ -530,8 +541,8 @@ function RestaurantDetailInner({
               <div className="tip-cards">
                 {tipsFor(restaurant).map(t => (
                   <div key={t.tag} className="tip-card">
-                    <span className="tip-card__tag">{t.tag}</span>
-                    <span className="tip-card__detail">{t.detail}</span>
+                    <span className="tip-card__tag">{say(t.tag, t.tagKo, t.tagEs)}</span>
+                    <span className="tip-card__detail">{say(t.detail, t.detailKo, t.detailEs)}</span>
                   </div>
                 ))}
               </div>
@@ -542,14 +553,14 @@ function RestaurantDetailInner({
                 long paragraph. */}
             <section className="detail-hook">
               <p className="detail-hook__label">{say("Why it's special", '왜 특별한가', 'Por qué es especial')}</p>
-              <p className="detail-hook__quote">&ldquo;{restaurant.vibe}&rdquo;</p>
+              <p className="detail-hook__quote">&ldquo;{say(restaurant.vibe, restaurant.vibeKo, restaurant.vibeEs)}&rdquo;</p>
             </section>
 
             <section className="detail-section" ref={storyRef}>
               <SectionHead Icon={BookIcon} title="Food Story" ko="음식 이야기" es="La historia del plato" kr="이야기" />
               <div className="story-grid">
                 <div className="story-mini-card">
-                  <p className="story-mini-card__label">📜 Origin</p>
+                  <p className="story-mini-card__label">{say('📜 Origin', '📜 유래', '📜 Origen')}</p>
                   <p>{restaurant.story}</p>
                   {restaurant.timeline?.length > 0 && (
                     <ol className="timeline">
@@ -563,15 +574,15 @@ function RestaurantDetailInner({
                   )}
                 </div>
                 <div className="story-mini-card">
-                  <p className="story-mini-card__label">🌏 Cultural Meaning</p>
+                  <p className="story-mini-card__label">{say('🌏 Cultural Meaning', '🌏 문화적 의미', '🌏 Significado cultural')}</p>
                   <p>{say(culture.culturalMeaning, culture.culturalMeaningKo, culture.culturalMeaningEs)}</p>
                 </div>
                 <div className="story-mini-card">
-                  <p className="story-mini-card__label">🍽 When Koreans Eat This</p>
+                  <p className="story-mini-card__label">{say('🍽 When Koreans Eat This', '🍽 한국 사람들은 언제 먹나', '🍽 Cuándo lo comen los coreanos')}</p>
                   <p>{say(culture.whenKoreansEatThis, culture.whenKoreansEatThisKo, culture.whenKoreansEatThisEs)}</p>
                 </div>
                 <div className="story-mini-card">
-                  <p className="story-mini-card__label">✨ Fun Fact</p>
+                  <p className="story-mini-card__label">{say('✨ Fun Fact', '✨ 알아두면 좋은 것', '✨ Un dato curioso')}</p>
                   <p>{say(culture.didYouKnow, culture.didYouKnowKo, culture.didYouKnowEs)}</p>
                 </div>
               </div>
@@ -601,7 +612,7 @@ function RestaurantDetailInner({
                         <span className="phrase-ko">{p.ko}</span>
                         <span className="phrase-ro">{p.ro}</span>
                       </div>
-                      <span className="phrase-en">{p.en}</span>
+                      <span className="phrase-en">{say(p.en, p.ko_gloss, p.es)}</span>
                     </div>
                   ))}
                 </div>
@@ -647,7 +658,7 @@ function RestaurantDetailInner({
               <div className="cta-stack">
                 {onExploreZone && (
                   <button className="btn-primary" onClick={() => onExploreZone(restaurant.zone)}>
-                    Explore Nearby <ChevronRightIcon size={16} />
+                    {say('Explore Nearby', '근처 둘러보기', 'Explorar la zona')} <ChevronRightIcon size={16} />
                   </button>
                 )}
               </div>
@@ -680,7 +691,7 @@ function RestaurantDetailInner({
                 </p>
                 <div className={`mission-status${isVisited ? ' mission-status--done' : ''}`}>
                   {isVisited ? (
-                    <><CheckIcon size={16} /> Mission complete — logged in your Passport</>
+                    <><CheckIcon size={16} /> {say('Mission complete — logged in your Passport', '미션 완료 — 여권에 기록되었습니다', 'Misión cumplida — registrada en tu Pasaporte')}</>
                   ) : (
                     say('Mark this place visited to complete the mission', '이곳을 가봤다고 표시하면 미션이 완료됩니다', 'Marca este sitio como visitado para completar la misión')
                   )}
@@ -697,7 +708,7 @@ function RestaurantDetailInner({
                 <span>
                   {restaurant.address.value}
                   {restaurant.address.precision === 'area' && (
-                    <span className="practical-muted"> — area only</span>
+                    <span className="practical-muted"> {say('— area only', '— 구역 단위', '— solo la zona')}</span>
                   )}
                 </span>
                 <button className="practical-copy" onClick={handleCopy}>
@@ -805,7 +816,7 @@ function RestaurantDetailInner({
           
           <div className="gallery-slider" onClick={e => e.stopPropagation()}>
             {galleryImages.map((img, i) => (
-              <img key={i} src={img} className="gallery-slide" alt="Gallery item" />
+              <img key={i} src={img} className="gallery-slide" alt="" />
             ))}
           </div>
         </div>

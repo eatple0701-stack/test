@@ -1,11 +1,13 @@
 import React from 'react';
 import { routeFor } from '../data/journey';
 import { ChevronRightIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // "Continue Your Journey" — the meal is step one, not the destination.
 // Steps that resolve to a real record are tappable; steps that are a
 // suggestion about the neighborhood are shown as such, not as a venue.
 export default function CulturalRoute({ place, onOpenRestaurant, onExploreZone }) {
+  const say = useText();
   const steps = routeFor(place);
   if (steps.length === 0) return null;
 
@@ -21,7 +23,7 @@ export default function CulturalRoute({ place, onOpenRestaurant, onExploreZone }
         <span className="route-step__dot" aria-hidden="true" />
         <div className="route-step__body">
           <span className="route-step__label">{place.name.split('(')[0].trim()}</span>
-          <span className="route-step__note">You are here</span>
+          <span className="route-step__note">{say('You are here', '지금 여기', 'Estás aquí')}</span>
         </div>
       </li>
       {steps.map((step, i) => (
@@ -29,10 +31,12 @@ export default function CulturalRoute({ place, onOpenRestaurant, onExploreZone }
           <span className="route-step__dot" aria-hidden="true" />
           <button className="route-step__body route-step__body--tappable" onClick={() => handle(step)}>
             <span className="route-step__label">
-              {step.place ? step.place.name.split('(')[0].trim() : step.label}
+              {step.place
+                ? step.place.name.split('(')[0].trim()
+                : say(step.label, step.labelKo, step.labelEs)}
               <ChevronRightIcon size={14} />
             </span>
-            <span className="route-step__note">{step.note}</span>
+            <span className="route-step__note">{say(step.note, step.noteKo, step.noteEs)}</span>
           </button>
         </li>
       ))}
