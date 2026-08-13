@@ -204,12 +204,12 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
       <p className="auth-error__en">{error.en}</p>
       {error.action === AUTH_ACTION.SIGNIN && (
         <button className="auth-error__go" onClick={() => { setMode('signin'); setError(null); }}>
-          로그인하기 · Go to sign in
+          {say('로그인하기 · Go to sign in', '로그인하기', 'Ir a iniciar sesión', 'Aller à la connexion')}
         </button>
       )}
       {error.action === AUTH_ACTION.SIGNUP && (
         <button className="auth-error__go" onClick={() => { setMode('signup'); setError(null); }}>
-          회원가입하기 · Create an account
+          {say('회원가입하기 · Create an account', '회원가입하기', 'Crear una cuenta', 'Créer un compte')}
         </button>
       )}
     </div>
@@ -253,20 +253,20 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             </h2>
             {gate && <p className="auth-gate__body">{say(gate.body, gate.bodyKo, gate.bodyEs, gate.bodyFr)}</p>}
             <button className="auth-google" onClick={google} translate="no">
-              Google로 계속 · Continue with Google
+              {say('Google로 계속 · Continue with Google', 'Google로 계속', 'Continuar con Google', 'Continuer avec Google')}
             </button>
-            <p className="auth-or"><span>또는 · or</span></p>
+            <p className="auth-or"><span>{say('또는 · or', '또는', 'o', 'ou')}</span></p>
             {/* The email path is a step, not a wall of fields. Five inputs
                 on arrival is what the 8/4 review called 존나 불편 — and it is
                 also what Meetup avoids by putting one line here instead. */}
             <button className="auth-email-link" onClick={() => setMode('signup-email')} translate="no">
-              이메일로 가입 · Sign up with email
+              {say('이메일로 가입 · Sign up with email', '이메일로 가입', 'Registrarse con correo', "S'inscrire par e-mail")}
             </button>
             {errorLine}
             <p className="auth-foot">
-              <span className="auth-foot__ask">이미 계정이 있으신가요? · Already have an account?</span>
+              <span className="auth-foot__ask">{say('이미 계정이 있으신가요? · Already have an account?', '이미 계정이 있으신가요?', '¿Ya tienes cuenta?', 'Vous avez déjà un compte ?')}</span>
               <button className="auth-foot__link" onClick={() => { setMode('signin'); setError(null); }}>
-                로그인 · Sign in
+                {say('로그인 · Sign in', '로그인', 'Entrar', 'Se connecter')}
               </button>
             </p>
           </div>
@@ -280,23 +280,23 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             </h2>
 
             <Field id="email" bad={bad} problems={problems} markRef={markRef}
-              label="이메일 · Email — this is your login ID">
+              label={say('이메일 · Email — this is your login ID', '이메일 — 로그인 ID입니다', 'Correo — es tu identificador', "E-mail — c'est votre identifiant")}>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={say('you@example.com', 'you@example.com', 'tu@ejemplo.com', 'vous@exemple.com')} autoComplete="email" />
             </Field>
             <Field id="password" bad={bad} problems={problems} markRef={markRef}
-              label="비밀번호 · Password">
+              label={say('비밀번호 · Password', '비밀번호', 'Contraseña', 'Mot de passe')}>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={say('8+ characters', '8자 이상', '8 caracteres o más', '8 caractères ou plus')} autoComplete="new-password" />
             </Field>
             <Field id="name" bad={bad} problems={problems} markRef={markRef}
-              label="이름 · Name — what a table calls you">
+              label={say('이름 · Name — what a table calls you', '이름 — 밥상에서 불릴 이름', 'Nombre — cómo te llamará una mesa', 'Nom — comment une table vous appellera')}>
               <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Aya" autoComplete="name" />
             </Field>
             <Field id="phone" bad={bad} problems={problems} markRef={markRef}
-              label="전화번호 · Phone">
+              label={say('전화번호 · Phone', '전화번호', 'Teléfono', 'Téléphone')}>
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+82 10-0000-0000" autoComplete="tel" />
             </Field>
             <Field id="birthdate" bad={bad} problems={problems} markRef={markRef}
-              label="생년월일 · Date of birth">
+              label={say('생년월일 · Date of birth', '생년월일', 'Fecha de nacimiento', 'Date de naissance')}>
               <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} />
             </Field>
             <p className="auth-note">
@@ -323,15 +323,15 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               <span className="auth-title__en">{say('Sign in', null, 'Entrar', 'Se connecter')}</span>
             </h2>
             <button className="auth-google" onClick={google} translate="no">
-              Google로 계속 · Continue with Google
+              {say('Google로 계속 · Continue with Google', 'Google로 계속', 'Continuar con Google', 'Continuer avec Google')}
             </button>
-            <p className="auth-or"><span>또는 · or</span></p>
+            <p className="auth-or"><span>{say('또는 · or', '또는', 'o', 'ou')}</span></p>
             <Field id="email" bad={signinBad} problems={validateSignin({ email, password })}
-              label="이메일 · Email">
+              label={say('이메일 · Email', '이메일', 'Correo', 'E-mail')}>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
             </Field>
             <Field id="password" bad={signinBad} problems={validateSignin({ email, password })}
-              label="비밀번호 · Password">
+              label={say('비밀번호 · Password', '비밀번호', 'Contraseña', 'Mot de passe')}>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" />
             </Field>
             {errorLine}
@@ -352,18 +352,18 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             {/* Whoever arrives missing contact details — a Google account by
                 nature, or a signup the first deploy cut in half — is asked
                 once, here, before the doors open. */}
-            <h2 className="form-label">거의 다 됐어요 · Almost there</h2>
+            <h2 className="form-label">{say('거의 다 됐어요 · Almost there', '거의 다 됐어요', 'Ya casi está', 'On y est presque')}</h2>
             <p className="auth-note">
               {say('Your account exists but two details are missing — Google sign-ins arrive without them, and an interrupted signup can too. The team needs a phone number and a date of birth to run matching; nobody at a table ever sees either.',
                 '계정은 있는데 두 가지가 비어 있습니다. 구글 로그인은 이 정보 없이 들어오고, 중간에 끊긴 가입도 그렇습니다. 팀이 매칭을 돌리려면 전화번호와 생년월일이 필요하고, 밥상에서는 아무도 이 둘을 보지 않습니다.',
                 'Tu cuenta existe pero faltan dos datos: los accesos con Google llegan sin ellos, y un registro interrumpido también. El equipo necesita un teléfono y una fecha de nacimiento para hacer los emparejamientos; nadie en una mesa los ve nunca.', "Votre compte existe mais deux informations manquent : les connexions Google arrivent sans elles, et une inscription interrompue aussi. L'équipe a besoin d'un numéro de téléphone et d'une date de naissance pour faire les mises en relation ; personne à une table ne les voit jamais.")}
             </p>
             <label className="field">
-              <span className="field__label">전화번호 · Phone</span>
+              <span className="field__label">{say('전화번호 · Phone', '전화번호', 'Teléfono', 'Téléphone')}</span>
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+82 10-0000-0000" autoComplete="tel" />
             </label>
             <label className="field">
-              <span className="field__label">생년월일 · Date of birth</span>
+              <span className="field__label">{say('생년월일 · Date of birth', '생년월일', 'Fecha de nacimiento', 'Date de naissance')}</span>
               <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} />
             </label>
             {errorLine}
@@ -379,7 +379,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
                 structure. Saved on every tap through onProfileChange exactly
                 as they are when edited later on the Passport, so skipping
                 ahead loses nothing that was already touched. */}
-            <h2 className="form-label">프로필 · Your profile</h2>
+            <h2 className="form-label">{say('프로필 · Your profile', '프로필', 'Tu perfil', 'Votre profil')}</h2>
             <p className="auth-note">
               {say('This is what a table sees and what the app cooks with — languages, what you cannot eat, how you eat. Change any of it later on your Passport.',
                 '밥상이 보는 것이자 앱이 쓰는 재료입니다 — 쓰는 언어, 못 드시는 것, 드시는 방식. 나중에 여권에서 언제든 바꾸실 수 있어요.',
@@ -387,14 +387,14 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             </p>
             <ProfileFields profile={profile} onProfileChange={onProfileChange} />
             <button className="auth-primary" onClick={() => setMode('avatar')}>
-              계속 · Continue
+              {say('계속 · Continue', '계속', 'Continuar', 'Continuer')}
             </button>
           </div>
         )}
 
         {mode === 'avatar' && (
           <div className="auth-form auth-avatar">
-            <h2 className="form-label">프로필 사진 · A photo to be recognised by</h2>
+            <h2 className="form-label">{say('프로필 사진 · A photo to be recognised by', '프로필 사진', 'Una foto para reconocerte', 'Une photo pour vous reconnaître')}</h2>
             <p className="auth-note">
               {say('This is how a table spots you at the station exit — the app has no chat, so a face does real work here. Square-cropped, shrunk small, shown beside your name.',
                 '역 출구에서 밥상 사람들이 당신을 알아보는 방법입니다. 이 앱에는 채팅이 없어서 얼굴이 실제로 일을 합니다. 정사각형으로 잘라 작게 줄여서, 이름 옆에 보입니다.',
@@ -412,7 +412,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               {busy ? 'Uploading…' : '사진 고르기 · Choose a photo'}
             </button>
             <button className="auth-switch" onClick={finish} disabled={busy}>
-              나중에 · Later — you can add one any time
+              {say('나중에 · Later — you can add one any time', '나중에 — 언제든 추가할 수 있어요', 'Más tarde — puedes añadirla cuando quieras', 'Plus tard — vous pourrez en ajouter une à tout moment')}
             </button>
           </div>
         )}

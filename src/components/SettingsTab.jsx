@@ -94,7 +94,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
 
       <div className="journal-settings">
         <div className="journal-section-header">
-          <h3>화면 모드 · Appearance</h3>
+          <h3>{say('화면 모드 · Appearance', '화면 모드', 'Apariencia', 'Apparence')}</h3>
         </div>
         <p className="journal-settings__hint">
           {say('Stays on this device — it changes your screen and nobody else\u2019s.',
@@ -124,7 +124,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
       {isMember(auth) && (
         <div className="journal-settings danger-zone">
           <div className="journal-section-header">
-            <h3>계정 · Your account</h3>
+            <h3>{say('계정 · Your account', '계정', 'Tu cuenta', 'Votre compte')}</h3>
           </div>
           {!confirming ? (
             <>
@@ -142,7 +142,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
                   'Cerrar sesión deja todo donde está: tu Pasaporte, tus sitios y las mesas que organizas.', 'Se déconnecter laisse tout en place : votre Passeport, vos places, les tables que vous organisez.')}
               </p>
               <button className="settings-signout" translate="no" onClick={onSignOut}>
-                로그아웃 · Sign out
+                {say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter')}
               </button>
               <p className="journal-settings__hint danger-zone__hint">
                 {say('Closing your account is different: it removes everything you gave us — your name, email, phone and date of birth — and everything you made here.',
@@ -150,12 +150,12 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
                   'Cerrar la cuenta es otra cosa: borra todo lo que nos diste — nombre, correo, teléfono y fecha de nacimiento — y todo lo que has creado aquí.', 'Fermer votre compte est autre chose : cela supprime tout ce que vous nous avez donné — nom, e-mail, téléphone et date de naissance — et tout ce que vous avez créé ici.')}
               </p>
               <button className="danger-open" translate="no" onClick={() => setConfirming(true)}>
-                회원 탈퇴 · Close my account
+                {say('회원 탈퇴 · Close my account', '회원 탈퇴', 'Cerrar mi cuenta', 'Fermer mon compte')}
               </button>
             </>
           ) : (
             <div className="cancel-confirm">
-              <p className="cancel-confirm__title">계정을 지울까요? · Close this account?</p>
+              <p className="cancel-confirm__title">{say('계정을 지울까요? · Close this account?', '계정을 지울까요?', '¿Cerrar esta cuenta?', 'Fermer ce compte ?')}</p>
               <p className="cancel-confirm__body">
                 {say('Gone for good, right away: your contact details, your Passport, any tables you host and the seats you hold — people going to them will see the table disappear. The lines you left on other people\u2019s tables go too. This cannot be undone, and signing up again starts an empty account.',
                   '즉시, 영구히 사라집니다. 연락처, 여권, 차리신 밥상과 잡아 두신 자리까지 — 그 밥상에 가려던 사람들에게는 밥상이 없어진 것으로 보입니다. 다른 사람 밥상에 남기신 한 줄도 함께 사라집니다. 되돌릴 수 없고, 다시 가입하시면 빈 계정으로 시작합니다.',
@@ -169,7 +169,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
               )}
               <div className="cancel-confirm__row">
                 <button className="cancel-confirm__no" onClick={() => setConfirming(false)} disabled={busy}>
-                  그냥 둘게요 · Keep it
+                  {say('그냥 둘게요 · Keep it', '그냥 둘게요', 'Dejarla', 'La garder')}
                 </button>
                 <button className="cancel-confirm__yes" onClick={close} disabled={busy}>
                   {busy ? 'Closing…' : '탈퇴 · Close it'}

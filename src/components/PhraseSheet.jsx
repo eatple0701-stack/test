@@ -25,7 +25,7 @@ const QUIZ = 'quiz';
 const GROUPS = [PHRASE_GROUP.ORDER, PHRASE_GROUP.DIETARY, PHRASE_GROUP.TABLE, PHRASE_GROUP.TALK, QUIZ];
 // Korean on top, English under it — the shape every other label in the app
 // has. The Korean was already sitting in GROUP_LABEL and this file threw it
-// away, so the sheet titled 식탁에서 · What to say at the table was followed
+// away, so the sheet titled {say('식탁에서 · What to say at the table', '식탁에서', 'Qué decir en la mesa', 'Quoi dire à table')} was followed
 // by five tabs that had stopped speaking Korean. Two lines rather than a
 // middot because five tabs share one row: 주문할 때 · Ordering, side by side,
 // would not fit at 375px.
@@ -90,7 +90,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
         </button>
-        <h1>식탁에서 · At the table</h1>
+        <h1>{say('식탁에서 · At the table', '식탁에서', 'En la mesa', 'À table')}</h1>
       </header>
 
       <p className="phrase-intro">
@@ -152,7 +152,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
           </div>
 
           <button className="ask-next" onClick={() => setAskAt(i => (i + 1) % deck.length)}>
-            다음 질문 · Another
+            {say('다음 질문 · Another', '다음 질문', 'Otra', 'Une autre')}
           </button>
           <p className="ask-count">{askAt + 1} / {deck.length}</p>
         </div>
@@ -176,7 +176,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
                   onClick={() => speak(p)}
                   aria-label={`Say "${p.en}" in Korean`}
                 >
-                  소리 · Say it
+                  {say('소리 · Say it', '소리', 'Escúchala', 'Écouter')}
                 </button>
               )}
             </div>

@@ -48,7 +48,7 @@ export default function ProfileSheet({ profile, onSave, onClose }) {
 
         <div className="profile-sheet__foot">
           <button className="auth-switch" onClick={onClose} disabled={saving}>
-            취소 · Cancel
+            {say('취소 · Cancel', '취소', 'Cancelar', 'Annuler')}
           </button>
           <button className="auth-primary" onClick={save} disabled={saving} translate="no">
             {saving ? '저장 중…' : '저장하기 · Save'}

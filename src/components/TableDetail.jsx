@@ -513,7 +513,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         {!isCancelled(table) && !isPast(table) && (
           <>
             <button className="detail-share detail-calendar" translate="no" onClick={addToCalendar}>
-              캘린더에 추가 · Add to your calendar
+              {say('캘린더에 추가 · Add to your calendar', '캘린더에 추가', 'Añadir a tu calendario', 'Ajouter à votre agenda')}
             </button>
             {/* The same event as a link, because the file above does not always
                 arrive. Reported from a real phone: opened inside KakaoTalk, the
@@ -522,7 +522,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 still do. Second, not first — the file needs no account. */}
             {gcalUrl && (
               <a className="detail-share detail-calendar--google" href={gcalUrl} target="_blank" rel="noopener noreferrer">
-                구글 캘린더로 추가 · Add with Google Calendar
+                {say('구글 캘린더로 추가 · Add with Google Calendar', '구글 캘린더로 추가', 'Añadir con Google Calendar', 'Ajouter avec Google Agenda')}
               </a>
             )}
             {/* Only ever an extra sentence, never a removed button — the
@@ -612,7 +612,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           meal with no shared language, and that is their call to make with
           the fact in front of them rather than ours to make by omission. */}
       <div className="detail-block">
-        <h3 className="detail-block__label">언어 · What this table runs in</h3>
+        <h3 className="detail-block__label">{say('언어 · What this table runs in', '언어', 'En qué idioma va esta mesa', 'La langue de cette table')}</h3>
         {tableLanguages.length > 0 ? (
           <p className="lang-row">
             {tableLanguages.map(l => <span key={l} className="lang-chip">{l}</span>)}
@@ -698,7 +698,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           than dressed in zeros. */}
       {host && (
         <div className="detail-block host-card">
-          <h3 className="detail-block__label">호스트 · Who is cooking this evening</h3>
+          <h3 className="detail-block__label">{say('호스트 · Who is cooking this evening', '호스트', 'Quién organiza esta noche', 'Qui reçoit ce soir')}</h3>
           <div className="host-card__row">
             {host.avatarUrl
               ? <img className="host-card__avatar" src={host.avatarUrl} alt="" />
@@ -728,7 +728,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           strangers is weighing exactly this. */}
       {guidesOffered.length > 0 && (
         <div className="detail-block">
-          <h3 className="detail-block__label">문화 가이드 · What the host will show you</h3>
+          <h3 className="detail-block__label">{say('문화 가이드 · What the host will show you', '문화 가이드', 'Lo que te enseñará el anfitrión', "Ce que l'hôte vous montrera")}</h3>
           <ul className="guide-list">
             {guidesOffered.map(g => (
               <li key={g.id} className="guide-line">
@@ -772,7 +772,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               not an https link, on both write and read. */}
           {table.chatUrl && (
             <a className="meeting-chat" translate="no" href={table.chatUrl} target="_blank" rel="noopener noreferrer">
-              오픈채팅 참여 · Join this table’s open chat
+              {say('오픈채팅 참여 · Join this table’s open chat', '오픈채팅 참여', 'Entrar en el chat abierto de esta mesa', 'Rejoindre le chat ouvert de cette table')}
             </a>
           )}
         </div>
@@ -797,7 +797,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 wanting", which is a claim nobody made. */}
             {table.hostVerified && (
               <span className="who-row__verified">
-                인증 · verified
+                {say('인증 · verified', '인증', 'verificado', 'vérifié')}
                 {hostKindLabel(table.hostKind) && ` · ${hostKindLabel(table.hostKind).en}`}
               </span>
             )}
@@ -910,7 +910,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                     disabled={deciding === s.id || !canAccept({ signup: s, signups, table, userId: profile?.userId })}
                     onClick={() => decide(s, SEAT_STATUS.ACCEPTED)}
                   >
-                    자리 드리기 · Give the seat
+                    {say('자리 드리기 · Give the seat', '자리 드리기', 'Dar el sitio', 'Donner la place')}
                   </button>
                   <button
                     className="decide-row__no"
@@ -1118,7 +1118,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               only ever produce the backend's "already called off" error. */}
           {isCancelled(table) ? null : !confirmCancel ? (
             <button className="join-leave" onClick={() => setConfirmCancel(true)}>
-              이 상 취소 · Call off this table
+              {say('이 상 취소 · Call off this table', '이 상 취소', 'Cancelar esta mesa', 'Annuler cette table')}
             </button>
           ) : (
             <div className="cancel-confirm">
@@ -1290,7 +1290,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               vanishes exactly when a distressed person looks up to check what
               they were being asked. */}
           <label className={`field${reportProblems.some(p => p.field === 'note') ? ' is-bad' : ''}`}>
-            <span className="field__label">무슨 일이 있었나요? · What happened, in your words</span>
+            <span className="field__label">{say('무슨 일이 있었나요? · What happened, in your words', '무슨 일이 있었나요?', 'Qué pasó, con tus palabras', "Ce qui s'est passé, avec vos mots")}</span>
             <textarea
               className="report-panel__note"
               rows={3}
@@ -1317,7 +1317,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       {/* Quiet, at the bottom, and always there — not a scare on the way in,
           but not something to go hunting for either. */}
       <button className="safety-open" translate="no" onClick={() => setSafetyOpen(true)}>
-        도움이 필요하면 · Feeling unsafe or need help?
+        {say('도움이 필요하면 · Feeling unsafe or need help?', '도움이 필요하면', '¿No te sientes seguro o necesitas ayuda?', "Vous ne vous sentez pas en sécurité ou besoin d'aide ?")}
       </button>
 
       {/* The page's last word looks forward. A full table, a wrong date, a
@@ -1325,7 +1325,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           stop when other evenings are open. Same dish first, then soonest. */}
       {onOpenTable && similar.length > 0 && (
         <div className="detail-block similar-block">
-          <h3 className="detail-block__label">이런 밥상은 어때요 · Other tables open now</h3>
+          <h3 className="detail-block__label">{say('이런 밥상은 어때요 · Other tables open now', '이런 밥상은 어때요', 'Otras mesas abiertas ahora', "D'autres tables ouvertes en ce moment")}</h3>
           <ul className="similar-list">
             {similar.map(t => {
               const m = menuById(t.menuId);
@@ -1366,7 +1366,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                a button that does nothing is worse than a jump cut. */
             onClick={() => joinRef.current?.scrollIntoView({ block: 'start' })}
           >
-            자리 요청 · Take a seat
+            {say('자리 요청 · Take a seat', '자리 요청', 'Pedir sitio', 'Demander une place')}
           </button>
         </div>
       )}

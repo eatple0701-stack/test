@@ -175,7 +175,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             they are the landing page. */}
         {isMember(auth) ? (
           <button className="screen-head__cta" translate="no" onClick={onCreateTable}>
-            상 차리기 · Open a table
+            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')}
           </button>
         ) : (
           <>
@@ -376,17 +376,17 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             {/* The way out is whatever the reader can actually undo. */}
             {reason === EMPTY.GENDER && (
               <button className="tables-empty__cta" translate="no" onClick={() => setWomenFilter(false)}>
-                필터 끄기 · Turn this filter off
+                {say('필터 끄기 · Turn this filter off', '필터 끄기', 'Quitar este filtro', 'Retirer ce filtre')}
               </button>
             )}
             {reason === EMPTY.DAY && (
               <button className="tables-empty__cta" translate="no" onClick={() => setDayFilter(null)}>
-                이번 주 전체 보기 · Show the whole week
+                {say('이번 주 전체 보기 · Show the whole week', '이번 주 전체 보기', 'Ver la semana entera', 'Voir toute la semaine')}
               </button>
             )}
             {reason === EMPTY.DISH && (
               <button className="tables-empty__cta" translate="no" onClick={() => setMenuFilter(null)}>
-                요리 전체 보기 · Show every dish
+                {say('요리 전체 보기 · Show every dish', '요리 전체 보기', 'Ver todos los platos', 'Voir tous les plats')}
               </button>
             )}
 
@@ -397,7 +397,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               translate="no"
               onClick={onCreateTable}
             >
-              상 차리기 · Open a table
+              {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')}
             </button>
             {/* Say what you wanted and let the app either find it or hand it
                 back as a table — the other half of an empty screen. */}
@@ -416,7 +416,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 the part that works with no signal. */}
             {reason === EMPTY.NONE && (
               <button className="tables-empty__ask" translate="no" onClick={() => setPhrasesOpen(true)}>
-                식탁에서 · What to say at the table
+                {say('식탁에서 · What to say at the table', '식탁에서', 'Qué decir en la mesa', 'Quoi dire à table')}
               </button>
             )}
           </div>
@@ -635,7 +635,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                       밥상 {hostRecords[t.hostId].tablesHosted}번
                     </span>
                   )}
-                  {t.hostVerified && <span className="table-card__verified">인증 · verified</span>}
+                  {t.hostVerified && <span className="table-card__verified">{say('인증 · verified', '인증', 'verificado', 'vérifié')}</span>}
                   {/* Scanning a list, the language is the fastest filter a
                       traveller applies — but only if they can read it. The
                       card said 한국어 and left a Spanish speaker guessing at

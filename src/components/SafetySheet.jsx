@@ -22,7 +22,7 @@ export default function SafetySheet({ onClose }) {
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
         </button>
-        <h1>도움 · Getting help</h1>
+        <h1>{say('도움 · Getting help', '도움', 'Cómo pedir ayuda', "Obtenir de l'aide")}</h1>
       </header>
 
       {/* Above the emergency numbers, because most of what this screen is
@@ -44,11 +44,11 @@ export default function SafetySheet({ onClose }) {
         </a>
         <a className="safety__call" href="tel:119">
           <span className="safety__call-num">119</span>
-          <span className="safety__call-label">Fire · ambulance</span>
+          <span className="safety__call-label">{say('Fire · ambulance', '화재 · 구급', 'Bomberos y ambulancia', 'Pompiers et ambulance')}</span>
         </a>
         <a className="safety__call safety__call--wide" href="tel:1330">
           <span className="safety__call-num">1330</span>
-          <span className="safety__call-label">Korea Travel Helpline · 24h, English</span>
+          <span className="safety__call-label">{say('Korea Travel Helpline · 24h, English', '관광통역안내 · 24시간', 'Línea de ayuda al viajero · 24 h, en inglés', 'Assistance aux voyageurs · 24 h, en anglais')}</span>
         </a>
       </div>
 

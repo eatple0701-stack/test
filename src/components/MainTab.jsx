@@ -446,7 +446,7 @@ export default function MainTab({
               fresh visit, because the reason for it has not gone away. */}
           <button
             className="main-sticky__close"
-            aria-label="닫기 · Dismiss"
+            aria-label={say('닫기 · Dismiss', '닫기', 'Descartar', 'Fermer')}
             onClick={() => setStickyClosed(true)}
           >
             <XIcon size={16} />

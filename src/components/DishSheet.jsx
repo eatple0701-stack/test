@@ -83,7 +83,7 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
         {/* The way out of reading and into doing. Reading was always free;
             this is the one thing on the screen that is not. */}
         <button className="dish-sheet__cta" translate="no" onClick={() => onOpenTable?.(menu.id)}>
-          이 요리로 상 차리기 · Open a table for this
+          이 요리로 {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')} for this
         </button>
       </div>
     </div>

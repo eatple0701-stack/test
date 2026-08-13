@@ -171,6 +171,8 @@ export function transitLine(restaurant) {
   const lineNo = /(\d+)/.exec(String(t?.line ?? ''))?.[1] ?? null;
   const krLine = lineNo ? `지하철 ${lineNo}호선 ` : '';
   const enLine = t?.line ? `, ${t.line}` : '';
+  const esLine = lineNo ? `, línea ${lineNo}` : enLine;
+  const frLine = lineNo ? `, ligne ${lineNo}` : enLine;
   const mins = Number.isFinite(t?.walkingMinutes) ? t.walkingMinutes : null;
 
   return {
@@ -188,11 +190,11 @@ export function transitLine(restaurant) {
     // what a traveller shows a taxi driver, so it stays beside this one in
     // the bilingual default and Spanish only replaces the English.
     es: mins !== null
-      ? `${mins} min a pie desde la estación ${station}${enLine}`
-      : `Cerca de la estación ${station}${enLine}`,
+      ? `${mins} min a pie desde la estación ${station}${esLine}`
+      : `Cerca de la estación ${station}${esLine}`,
     fr: mins !== null
-      ? `${mins} min à pied depuis la station ${station}${enLine}`
-      : `Près de la station ${station}${enLine}`,
+      ? `${mins} min à pied depuis la station ${station}${frLine}`
+      : `Près de la station ${station}${frLine}`,
   };
 }
 

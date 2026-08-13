@@ -349,7 +349,7 @@ function RestaurantDetailInner({
               </div>
               {isBookmarked && (
                 <button className="saved-receipt" onClick={() => onNavigate?.('journal')}>
-                  패스포트 › 저장한 곳에 있어요 · Find it under Saved places in your Passport
+                  {say('패스포트 › 저장한 곳에 있어요 · Find it under Saved places in your Passport', '패스포트 › 저장한 곳에 있어요', 'Lo tienes en Sitios guardados, en tu Pasaporte', 'Vous le retrouverez dans Lieux enregistrés, dans votre Passeport')}
                 </button>
               )}
 
@@ -437,7 +437,11 @@ function RestaurantDetailInner({
                     <span>
                       <strong className={status.open ? 'is-open' : 'is-closed'}>{status.label}</strong>
                       {' '}· {status.detail}{' '}
-                      {today && <span className="practical-muted">(today {today})</span>}
+                      {today && (
+                        <span className="practical-muted">
+                          ({say('today', '오늘', 'hoy', "aujourd'hui")} {today})
+                        </span>
+                      )}
                     </span>
                   ) : (
                     <span className="practical-muted">
@@ -751,10 +755,10 @@ function RestaurantDetailInner({
                   Google
                 </button>
                 <button className="btn-primary btn-map--naver" onClick={() => window.open(naverMapUrl(restaurant, mapCenter), '_blank')}>
-                  네이버 · Naver
+                  {say('네이버 · Naver', '네이버', 'Naver', 'Naver')}
                 </button>
                 <button className="btn-primary btn-map--kakao" onClick={() => window.open(kakaoMapUrl(restaurant, mapCenter), '_blank')}>
-                  카카오 · Kakao
+                  {say('카카오 · Kakao', '카카오', 'Kakao', 'Kakao')}
                 </button>
               </div>
             </section>

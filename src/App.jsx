@@ -165,6 +165,16 @@ export default function App() {
   // The top-right corner fits one word per button, so this picks rather than
   // pairs — the Korean is the bilingual default because that is what the team
   // has always seen there, and each single-language setting replaces it.
+  // The same picker useText() hands every component, written out here
+  // because App renders the provider and so sits outside it. Same order,
+  // same English fallback — a second implementation that disagreed would be
+  // worse than none.
+  const say = (en, ko, es, fr) => {
+    if (locale === LOCALE.KO && ko) return ko;
+    if (locale === LOCALE.ES && es) return es;
+    if (locale === LOCALE.FR && fr) return fr;
+    return en;
+  };
   const chromeWord = (kr, en, es, fr) => {
     if (locale === LOCALE.EN) return en;
     if (locale === LOCALE.ES) return es;
@@ -767,9 +777,9 @@ export default function App() {
         <span className="app-chrome__end">
           <button
             className={`app-chrome__gear${activeTab === 'settings' ? ' is-on' : ''}`}
-            aria-label="설정 · Settings"
+            aria-label={say('설정 · Settings', '설정', 'Ajustes', 'Réglages')}
             aria-current={activeTab === 'settings' ? 'page' : undefined}
-            title="설정 · Settings"
+            title={say('설정 · Settings', '설정', 'Ajustes', 'Réglages')}
             onClick={() => { setOpenThemeId(null); goToTab('settings'); }}
           >
             <GearIcon size={20} />
@@ -793,7 +803,7 @@ export default function App() {
                   signing back in restores the same account. */}
               <button
                 className="app-chrome__signout"
-                title="로그아웃 · Sign out"
+                title={say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter')}
                 onClick={async () => {
                   await signOutMember().catch(() => {});
                   await refreshAuth();

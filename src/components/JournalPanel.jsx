@@ -445,10 +445,10 @@ export default function JournalPanel({
       {isMemberAuth ? (
         <div className="journal-settings">
           <div className="journal-section-header">
-            <h3>프로필 · Profile</h3>
-            {saveState === 'saved' && <span className="save-state is-saved" role="status">✓ 저장됨 · Saved</span>}
+            <h3>{say('프로필 · Profile', '프로필', 'Perfil', 'Profil')}</h3>
+            {saveState === 'saved' && <span className="save-state is-saved" role="status">{say('✓ 저장됨 · Saved', '✓ 저장됨', '✓ Guardado', '✓ Enregistré')}</span>}
             {saveState === 'device' && (
-              <span className="save-state is-offline">이 기기에만 저장됨 · Saved here, will sync</span>
+              <span className="save-state is-offline">{say('이 기기에만 저장됨 · Saved here, will sync', '이 기기에만 저장됨', 'Guardado aquí, se sincronizará', 'Enregistré ici, sera synchronisé')}</span>
             )}
           </div>
 
@@ -490,7 +490,7 @@ export default function JournalPanel({
           </dl>
 
           <button className="profile-edit" onClick={() => setProfileOpen(true)} translate="no">
-            프로필 설정 · Edit profile
+            {say('프로필 설정 · Edit profile', '프로필 설정', 'Editar perfil', 'Modifier le profil')}
           </button>
 
           {/* The account row. The email is the one the team can reach;
@@ -507,7 +507,7 @@ export default function JournalPanel({
             <div className="account-block__body">
               <span className="account-block__email">{auth.email || '(no email on file)'}</span>
               <button className="account-signout" onClick={onSignOut}>
-                로그아웃 · Sign out
+                {say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter')}
               </button>
             </div>
           </div>
@@ -720,7 +720,7 @@ export default function JournalPanel({
       {savedList.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>저장한 곳 · Saved places</h3>
+            <h3>{say('저장한 곳 · Saved places', '저장한 곳', 'Sitios guardados', 'Lieux enregistrés')}</h3>
           </div>
           <p className="journal-settings__hint">
             {savedList.length}곳을 패스포트에 저장했어요 · Saved from a place page. Tap one to

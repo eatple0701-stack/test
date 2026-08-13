@@ -169,7 +169,7 @@ export default function BottomSheetList({
           </p>
           {onResetFilters && (
             <button className="place-list__empty-cta" translate="no" onClick={onResetFilters}>
-              필터 모두 끄기 · Clear the filters
+              {say('필터 모두 끄기 · Clear the filters', '필터 모두 끄기', 'Quitar los filtros', 'Effacer les filtres')}
             </button>
           )}
         </div>

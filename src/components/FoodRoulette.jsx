@@ -54,7 +54,7 @@ export default function FoodRoulette({ onClose, onOpenTables }) {
         </h2>
 
         <div className="roulette__stage" aria-live="polite">
-          {spinning && <span className="roulette__idle">고르는 중 · Picking…</span>}
+          {spinning && <span className="roulette__idle">{say('고르는 중 · Picking…', '고르는 중', 'Eligiendo…', 'Choix en cours…')}</span>}
           {!spinning && result && (
             <>
               <span className="roulette__dish-kr" translate="no">{result.nameKo}</span>
@@ -78,10 +78,10 @@ export default function FoodRoulette({ onClose, onOpenTables }) {
         </button>
         {result && onOpenTables && (
           <button className="roulette__go" translate="no" onClick={() => onOpenTables(result.id)}>
-            이 요리 밥상 보기 · See tables for this
+            {say('이 요리 밥상 보기 · See tables for this', '이 요리 밥상 보기', 'Ver mesas de este plato', 'Voir les tables pour ce plat')}
           </button>
         )}
-        <button className="roulette__close" onClick={onClose} translate="no">닫기 · Close</button>
+        <button className="roulette__close" onClick={onClose} translate="no">{say('닫기 · Close', '닫기', 'Cerrar', 'Fermer')}</button>
       </div>
     </div>
   );

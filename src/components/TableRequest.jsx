@@ -87,7 +87,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
         <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour')}>
           <ChevronLeftIcon size={20} />
         </button>
-        <h1>찾는 밥상 · What are you after?</h1>
+        <h1>{say('찾는 밥상 · What are you after?', '찾는 밥상', '¿Qué buscas?', 'Que cherchez-vous ?')}</h1>
       </header>
 
       <div className="form-block">
@@ -198,7 +198,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
                 className="form-submit"
                 onClick={() => onOpenAsHost(requestAsTable(request))}
               >
-                상 차리기 · Open it myself
+                {say('상 차리기 · Open it myself', '상 차리기', 'Abrirla yo mismo', "L'ouvrir moi-même")}
               </button>
             </div>
           )}

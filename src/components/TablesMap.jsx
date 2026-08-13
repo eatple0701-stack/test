@@ -109,7 +109,7 @@ export default function TablesMap({
             not make the licence go away. */}
         <span className="tables-map-preview__credit">© OpenStreetMap</span>
         <span className="tables-map-preview__cta" translate="no">
-          지도로 보기 · See these on a map
+          {say('지도로 보기 · See these on a map', '지도로 보기', 'Verlas en el mapa', 'Les voir sur la carte')}
         </span>
       </button>
     );
@@ -119,7 +119,7 @@ export default function TablesMap({
     <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label={say('Tables on the map', '지도 위의 밥상', 'Mesas en el mapa', 'Les tables sur la carte')}>
       <header className="map-overlay__bar">
         <div className="map-overlay__heading">
-          <h2>밥상 지도 · Tables near you</h2>
+          <h2>{say('밥상 지도 · Tables near you', '밥상 지도', 'Mesas cerca de ti', 'Les tables près de vous')}</h2>
           <p>
             {placed.length > 0
               ? `${placed.length} table${placed.length === 1 ? '' : 's'} placed by their host`

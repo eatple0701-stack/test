@@ -60,7 +60,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
     <div className="profile-body">
         <Field
           control
-          label="이름 · Your name"
+          label={say('이름 · Your name', '이름', 'Tu nombre', 'Votre nom')}
           hint="What the table looks for when you arrive."
         >
           <input
@@ -72,7 +72,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
           />
         </Field>
 
-        <Field control label="출신 · Where you are from" hint="Optional. Shown to the table, nowhere else.">
+        <Field control label={say('출신 · Where you are from', '출신', 'De dónde eres', "D'où vous venez")} hint="Optional. Shown to the table, nowhere else.">
           <input
             type="text"
             className="profile-input"
@@ -83,7 +83,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
         </Field>
 
         <Field
-          label="할 수 있는 언어 · Languages you speak"
+          label={say('할 수 있는 언어 · Languages you speak', '할 수 있는 언어', 'Idiomas que hablas', 'Langues que vous parlez')}
           hint="So a host knows what the table will run in."
         >
           <div className="chip-row">
@@ -111,7 +111,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             The one place it changes another screen: the Tables filter
             (TablesTab.jsx), which is the feature this field exists for. */}
         <Field
-          label="성별 · Gender (optional)"
+          label={say('성별 · Gender (optional)', '성별 (선택)', 'Género (opcional)', 'Genre (facultatif)')}
           hint="Not verified — just what you tell the table. Used only for the 'tables with another woman' filter on Tables."
         >
           <div className="chip-row">
@@ -134,7 +134,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             조건에 적합한 한식 메뉴 우선 제시, and a preference the app never
             acts on is decoration. */}
         <Field
-          label="못 먹는 것 · What you do not eat"
+          label={say('못 먹는 것 · What you do not eat', '못 먹는 것', 'Lo que no comes', 'Ce que vous ne mangez pas')}
           hint="Tables serving these are flagged before you ask for a seat. Nothing is hidden from you — the warning is on the card."
         >
           <div className="chip-row">
@@ -159,7 +159,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             instead of five checkboxes. */}
         <Field
           control
-          label="그 밖에 못 먹는 것 · Anything else you cannot eat? (optional)"
+          label={say('그 밖에 못 먹는 것 · Anything else you cannot eat? (optional)', '그 밖에 못 먹는 것 (선택)', '¿Algo más que no puedas comer? (opcional)', 'Autre chose que vous ne pouvez pas manger ? (facultatif)')}
           hint="Free text, sent to the host with your seat request — not checked against any menu, just carried."
         >
           <textarea
@@ -180,7 +180,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             app cannot rule on whether a 한상 is halal and does not try — it
             passes the word to somebody who can ask the kitchen. */}
         <Field
-          label="식사 방식 · How you eat"
+          label={say('식사 방식 · How you eat', '식사 방식', 'Cómo comes', 'Comment vous mangez')}
           hint="Sent to the host with your seat request. The app does not judge dishes by this — it tells the person who can ask."
         >
           <div className="chip-row">

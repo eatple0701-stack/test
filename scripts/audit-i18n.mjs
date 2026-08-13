@@ -86,6 +86,11 @@ const EXEMPT_VALUES = new Set([
   // as it is written; translating it would be a licence problem, not a
   // localisation improvement.
   'OpenStreetMap', '© OpenStreetMap',
+  // The wordmark, and the Korean-only copyright line beneath it. Both are
+  // the brand written out; the copyright line also carries a -kr class, so
+  // the stylesheet already hides it wherever Korean is not wanted.
+  '밥친구 잇플 · Eatple',
+  '© 2026 밥친구 잇플 · Eatple — 디지털 공공외교 파일럿',
 ]);
 
 const EXEMPT_FILES = new Set([
