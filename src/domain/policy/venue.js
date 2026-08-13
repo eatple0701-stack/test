@@ -53,16 +53,20 @@ const MEET_COPY = {
   [VENUE_KIND.MEAL]: {
     title: '여기서 상 차리기',
     titleEs: 'Abrir una mesa aquí',
+    titleFr: 'Ouvrir une table ici',
     sub: (name) => `Open a table at ${name} and see who wants to come.`,
     subKo: (name) => `${name}에서 상을 차리고 누가 오고 싶어 하는지 보세요.`,
     subEs: (name) => `Abre una mesa en ${name} y mira quién quiere venir.`,
+    subFr: (name) => `Ouvrez une table à ${name} et voyez qui veut venir.`,
   },
   [VENUE_KIND.OUTING]: {
     title: '여기서 같이 갈 사람 찾기',
     titleEs: 'Busca con quién ir',
+    titleFr: 'Trouver avec qui y aller',
     sub: (name) => `Find someone to go to ${name} with — same idea as a table, no meal to share.`,
     subKo: (name) => `${name}에 같이 갈 사람을 찾아보세요 — 밥상과 같은 방식이고, 나눠 먹을 음식만 없습니다.`,
     subEs: (name) => `Encuentra con quién ir a ${name} — la misma idea que una mesa, sin comida que compartir.`,
+    subFr: (name) => `Trouvez quelqu'un avec qui aller à ${name} — la même idée qu'une table, sans repas à partager.`,
   },
 };
 
@@ -77,10 +81,13 @@ export function tableCtaFor(restaurant, locale = 'both') {
   const kind = venueKind(restaurant?.category);
   const copy = MEET_COPY[kind];
   const name = String(restaurant?.name ?? '').split('(')[0].trim() || 'this place';
-  const title = locale === 'es' ? copy.titleEs : copy.title;
+  const title = locale === 'es' ? copy.titleEs
+    : locale === 'fr' ? copy.titleFr
+      : copy.title;
   const sub = locale === 'ko' ? copy.subKo(name)
     : locale === 'es' ? copy.subEs(name)
-      : copy.sub(name);
+      : locale === 'fr' ? copy.subFr(name)
+        : copy.sub(name);
   return { kind, title, sub };
 }
 
@@ -183,6 +190,9 @@ export function transitLine(restaurant) {
     es: mins !== null
       ? `${mins} min a pie desde la estación ${station}${enLine}`
       : `Cerca de la estación ${station}${enLine}`,
+    fr: mins !== null
+      ? `${mins} min à pied depuis la station ${station}${enLine}`
+      : `Près de la station ${station}${enLine}`,
   };
 }
 
@@ -262,4 +272,5 @@ export const MAP_LINKS_NOTE = {
   kr: '후기와 사진은 지도 앱에서 보세요.',
   en: 'Reviews and photos live in the map apps, kept current by the people who run them. Eatple does not copy them here.',
   es: 'Las reseñas y las fotos están en las apps de mapas, mantenidas al día por quienes las gestionan. Eatple no las copia aquí.',
+  fr: "Les avis et les photos vivent dans les applications de cartes, tenus à jour par ceux qui les gèrent. Eatple ne les recopie pas ici.",
 };

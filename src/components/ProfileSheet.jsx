@@ -30,7 +30,7 @@ export default function ProfileSheet({ profile, onSave, onClose }) {
   };
 
   return (
-    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Edit profile', '프로필 수정', 'Editar perfil')}>
+    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Edit profile', '프로필 수정', 'Editar perfil', 'Modifier le profil')}>
       <div className="auth-sheet profile-sheet">
         <button className="auth-close" onClick={onClose} aria-label="Close">
           <XIcon size={18} />

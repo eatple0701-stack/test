@@ -82,16 +82,16 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
   const wanted = menuId ? menuById(menuId) : null;
 
   return (
-    <section className="sheet-page" aria-label={say('Ask for a table', '밥상 요청하기', 'Pedir una mesa')}>
+    <section className="sheet-page" aria-label={say('Ask for a table', '밥상 요청하기', 'Pedir una mesa', 'Demander une table')}>
       <header className="sheet-page__head">
-        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás')}>
+        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour')}>
           <ChevronLeftIcon size={20} />
         </button>
         <h1>찾는 밥상 · What are you after?</h1>
       </header>
 
       <div className="form-block">
-        <h2 className="form-label">{say('What do you want to eat?', '무엇을 드시고 싶나요?', '¿Qué te apetece comer?')}</h2>
+        <h2 className="form-label">{say('What do you want to eat?', '무엇을 드시고 싶나요?', '¿Qué te apetece comer?', 'Que voulez-vous manger ?')}</h2>
         <div className="dish-grid">
           {/* First, and a real answer. "Anything" is what most people want on
               a first night, and a dish-first app is worst at exactly that. */}
@@ -100,8 +100,8 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
             onClick={() => setMenuId(null)}
           >
             <span className="dish-option__kr">아무거나</span>
-            <span className="dish-option__name">{say('Anything', '아무거나', 'Lo que sea')}</span>
-            <span className="dish-option__min">{say('Surprise me', '알아서 골라주세요', 'Sorpréndeme')}</span>
+            <span className="dish-option__name">{say('Anything', '아무거나', 'Lo que sea', "N'importe quoi")}</span>
+            <span className="dish-option__min">{say('Surprise me', '알아서 골라주세요', 'Sorpréndeme', 'Surprenez-moi')}</span>
           </button>
           {menus.map(m => (
             <button
@@ -111,7 +111,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
             >
               <span className="dish-option__kr">{m.nameKo}</span>
               <span className="dish-option__name">{m.name}</span>
-              <span className="dish-option__gloss">{say(m.gloss, m.glossKo, m.glossEs)}</span>
+              <span className="dish-option__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr)}</span>
               <span className="dish-option__min">
                 {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
               </span>
@@ -121,23 +121,23 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
       </div>
 
       <div className="form-block">
-        <h2 className="form-label">{say('When are you free?', '언제 시간이 되나요?', '¿Cuándo tienes hueco?')}</h2>
+        <h2 className="form-label">{say('When are you free?', '언제 시간이 되나요?', '¿Cuándo tienes hueco?', 'Quand êtes-vous libre ?')}</h2>
         <div className="field-row">
           <label className="field">
-            <span className="field__label">{say('From', '부터', 'Desde')}</span>
+            <span className="field__label">{say('From', '부터', 'Desde', 'À partir de')}</span>
             <input type="date" value={from} min={iso(0)} onChange={e => setFrom(e.target.value)} />
           </label>
           <label className="field">
-            <span className="field__label">{say('Until', '까지', 'Hasta')}</span>
+            <span className="field__label">{say('Until', '까지', 'Hasta', "Jusqu'à")}</span>
             <input type="date" value={to} min={from} onChange={e => setTo(e.target.value)} />
           </label>
         </div>
         <label className="field">
-          <span className="field__label">{say('Where would suit you? (optional)', '어디가 좋으세요? (선택)', '¿Dónde te vendría bien? (opcional)')}</span>
+          <span className="field__label">{say('Where would suit you? (optional)', '어디가 좋으세요? (선택)', '¿Dónde te vendría bien? (opcional)', 'Où cela vous arrangerait ? (facultatif)')}</span>
           <input
             type="text"
             value={place}
-            placeholder={say('Hongdae, or anywhere on line 2', '홍대, 또는 2호선 어디든', 'Hongdae, o cualquier sitio de la línea 2')}
+            placeholder={say('Hongdae, or anywhere on line 2', '홍대, 또는 2호선 어디든', 'Hongdae, o cualquier sitio de la línea 2', "Hongdae, ou n'importe où sur la ligne 2")}
             onChange={e => setPlace(e.target.value)}
           />
         </label>
@@ -166,7 +166,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
 
           {exact.length === 0 && near.length > 0 && (
             <>
-              <h2 className="req-results__head">{say('Nothing exactly, but these are close.', '딱 맞는 건 없지만, 이런 것들이 가깝습니다.', 'Nada exacto, pero estas se acercan.')}</h2>
+              <h2 className="req-results__head">{say('Nothing exactly, but these are close.', '딱 맞는 건 없지만, 이런 것들이 가깝습니다.', 'Nada exacto, pero estas se acercan.', "Rien d'exact, mais celles-ci s'en approchent.")}</h2>
               {/* Offered rather than hidden: somebody who wanted 곱창 on
                   Saturday will often take 곱창 on Sunday, and dropping it
                   would show a blank screen beside a table they would have
@@ -192,7 +192,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
               <p className="req-none__body">
                 {say('Which makes you the person who can. Everything you just said is carried over — pick a time and it is open.',
                   '그러니 열 수 있는 사람이 당신입니다. 방금 적으신 내용은 그대로 넘어가니, 시간만 고르시면 열립니다.',
-                  'Lo que te convierte en quien puede. Todo lo que acabas de decir se traslada: elige una hora y queda abierta.')}
+                  'Lo que te convierte en quien puede. Todo lo que acabas de decir se traslada: elige una hora y queda abierta.', 'Ce qui fait de vous la personne qui peut. Tout ce que vous venez de dire est repris — choisissez une heure et elle est ouverte.')}
               </p>
               <button
                 className="form-submit"

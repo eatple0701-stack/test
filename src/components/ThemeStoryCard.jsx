@@ -35,8 +35,8 @@ export default function ThemeStoryCard({ theme, progress, onOpen }) {
       className={`story-card${exhausted ? ' is-complete' : ''}`}
       onClick={() => onOpen(theme.id)}
       aria-label={editorial
-        ? `${say(editorial.question, editorial.questionKo, editorial.questionEs)} — ${say(theme.title, theme.titleKo, theme.titleEs)}`
-        : say(theme.title, theme.titleKo, theme.titleEs)}
+        ? `${say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr)} — ${say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr)}`
+        : say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr)}
     >
       {/* Cropped by the card edge on purpose: a word that fits inside its box
           reads as a label, and a word that runs out of room reads as print. */}
@@ -45,29 +45,29 @@ export default function ThemeStoryCard({ theme, progress, onOpen }) {
       )}
 
       <span className="story-card__eyebrow">
-        {say(theme.title, theme.titleKo, theme.titleEs)}
+        {say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr)}
         {theme.status === 'preview' && (
-          <span className="story-card__flag">{say('Preview', '미리보기', 'Vista previa')}</span>
+          <span className="story-card__flag">{say('Preview', '미리보기', 'Vista previa', 'Aperçu')}</span>
         )}
       </span>
 
       {/* The question is the card. Everything else is scale and quiet. */}
       <span className="story-card__question">
         {editorial
-          ? say(editorial.question, editorial.questionKo, editorial.questionEs)
-          : say(theme.tagline, theme.taglineKo, theme.taglineEs)}
+          ? say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr)
+          : say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr)}
       </span>
 
       <span className="story-card__foot">
         {exhausted
-          ? say('You have walked this one', '이 문화는 다 걸어보셨어요', 'Ya has recorrido esta')
+          ? say('You have walked this one', '이 문화는 다 걸어보셨어요', 'Ya has recorrido esta', 'Vous avez déjà parcouru celle-ci')
           : pathDone
             ? say(`A path done · ${total - done} more here`, `한 갈래 완주 · 여기 ${total - done}개 더`,
-              `Un camino hecho · ${total - done} más aquí`)
+              `Un camino hecho · ${total - done} más aquí`, `Un chemin fait · ${total - done} de plus ici`)
             : started
-              ? say(`${done} of ${total} done`, `${total}개 중 ${done}개 완료`, `${done} de ${total} hechas`)
+              ? say(`${done} of ${total} done`, `${total}개 중 ${done}개 완료`, `${done} de ${total} hechas`, `${done} sur ${total} faites`)
               : say(`${total} ${total === 1 ? 'experience' : 'experiences'}`, `경험 ${total}개`,
-                `${total} ${total === 1 ? 'experiencia' : 'experiencias'}`)}
+                `${total} ${total === 1 ? 'experiencia' : 'experiencias'}`, `${total} ${total === 1 ? 'expérience' : 'expériences'}`)}
       </span>
 
       {/* Progress is a hairline, not a widget. It belongs to the traveller,

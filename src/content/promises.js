@@ -25,6 +25,7 @@ export const PROMISES = [
     en: 'The host reads who you are and says yes to you, by name. No table fills itself.',
     ko: '호스트가 당신이 누구인지 읽고, 이름을 보고 승인합니다. 저절로 차는 밥상은 없습니다.',
     es: 'El anfitrión lee quién eres y te dice que sí, por tu nombre. Ninguna mesa se llena sola.',
+    fr: "L'hôte lit qui vous êtes et vous dit oui, par votre nom. Aucune table ne se remplit toute seule.",
     backedBy: 'src/domain/policy/seatRequest.js',
   },
   {
@@ -33,6 +34,7 @@ export const PROMISES = [
     en: 'An unanswered request releases its seat 12 hours before the meal, so nobody holds a chair by forgetting.',
     ko: '답이 없는 요청은 식사 12시간 전에 자리를 놓아줍니다. 깜빡했다는 이유로 자리를 붙잡고 있는 사람이 없도록요.',
     es: 'Una solicitud sin responder libera su sitio 12 horas antes de la comida, para que nadie retenga una silla por olvido.',
+    fr: "Une demande restée sans réponse libère sa place 12 heures avant le repas, pour que personne ne garde une chaise par oubli.",
     backedBy: 'src/domain/policy/seatRequest.js',
   },
   {
@@ -41,6 +43,7 @@ export const PROMISES = [
     en: 'A no-show is recorded — not as a score, but so the record stops calling somebody a person you met.',
     ko: '오지 않은 것은 기록에 남습니다. 점수를 매기려는 게 아니라, 만나지 않은 사람을 만난 사람이라고 부르지 않기 위해서예요.',
     es: 'Una ausencia queda registrada — no como puntuación, sino para que el registro deje de llamar conocido a alguien a quien no conociste.',
+    fr: "Une absence est consignée — non comme une note, mais pour que le carnet cesse d'appeler « rencontré » quelqu'un que vous n'avez pas rencontré.",
     backedBy: 'src/domain/policy/attendance.js',
   },
   {
@@ -49,6 +52,7 @@ export const PROMISES = [
     en: 'What you cannot eat travels with your seat request. Halal, vegan, an allergy — the host reads it before choosing the shop.',
     ko: '못 드시는 것은 자리 요청과 함께 전달됩니다. 할랄, 비건, 알레르기 — 호스트가 가게를 고르기 전에 먼저 읽습니다.',
     es: 'Lo que no puedes comer viaja con tu solicitud. Halal, vegano, una alergia: el anfitrión lo lee antes de elegir el local.',
+    fr: "Ce que vous ne pouvez pas manger voyage avec votre demande. Halal, végétalien, une allergie : l'hôte le lit avant de choisir l'adresse.",
     backedBy: 'src/data/profile.js',
   },
   {
@@ -57,6 +61,7 @@ export const PROMISES = [
     en: 'Report a table to the team, or block somebody so you never share a table again. Neither tells the other person.',
     ko: '밥상을 팀에 신고하거나, 특정한 사람을 차단해 다시는 같은 상에 앉지 않게 할 수 있습니다. 둘 다 상대에게 알려지지 않습니다.',
     es: 'Puedes reportar una mesa al equipo o bloquear a alguien para no volver a compartir mesa. Ninguna de las dos cosas se le comunica a la otra persona.',
+    fr: "Vous pouvez signaler une table à l'équipe, ou bloquer quelqu'un pour ne plus jamais partager de table. Ni l'un ni l'autre n'est communiqué à la personne concernée.",
     backedBy: 'src/domain/policy/report.js',
   },
 ];
@@ -71,5 +76,7 @@ export const PROMISES_LEAD = {
   en: 'Other apps leave these to a paragraph the organiser types out and nobody enforces. Here they are how the app works.',
   ko: '다른 앱들은 이걸 주최자가 직접 타이핑하고 아무도 지키게 하지 않는 문단에 맡깁니다. 여기서는 이것들이 앱이 작동하는 방식 그 자체입니다.',
   es: 'Otras apps dejan esto en un párrafo que el organizador escribe y que nadie hace cumplir. Aquí es el funcionamiento mismo de la app.',
+  fr: "D'autres applications laissent cela à un paragraphe que l'organisateur tape et que personne ne fait respecter. Ici, c'est le fonctionnement même de l'application.",
+  titleFr: 'Ce qui rend Eatple différent',
   titleEs: 'Qué hace distinto a Eatple',
 };

@@ -21,8 +21,8 @@ export default function FilterBar({ selectedFilters, onToggleFilter, searchQuery
         </svg>
         <input
           type="search"
-          placeholder={say('Search restaurants or neighborhoods', '식당이나 동네 검색', 'Busca restaurantes o barrios')}
-          aria-label={say('Search restaurants or neighborhoods', '식당이나 동네 검색', 'Busca restaurantes o barrios')}
+          placeholder={say('Search restaurants or neighborhoods', '식당이나 동네 검색', 'Busca restaurantes o barrios', 'Cherchez un restaurant ou un quartier')}
+          aria-label={say('Search restaurants or neighborhoods', '식당이나 동네 검색', 'Busca restaurantes o barrios', 'Cherchez un restaurant ou un quartier')}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />

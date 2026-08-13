@@ -57,7 +57,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
   const anyUpcoming = tables.some(t => !isPast(t));
 
   return (
-    <section className="tables-lead" aria-label={say('Open tables', '열린 밥상', 'Mesas abiertas')}>
+    <section className="tables-lead" aria-label={say('Open tables', '열린 밥상', 'Mesas abiertas', 'Tables ouvertes')}>
       <div className="tables-lead__head">
         <div>
           {/* The 밥친구 label above this heading is gone: the wordmark is in
@@ -83,15 +83,15 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
           </h2>
           <h2 className="tables-lead__title tables-lead__title-en">
             {open.length > 0
-              ? 'Tables you could join this week'
+              ? say('Tables you could join this week', null, 'Mesas a las que podrías unirte esta semana', 'Des tables où vous pourriez vous asseoir cette semaine')
               : anyUpcoming
-                ? 'You are in every table that is open'
-                : 'Nobody has set a table yet'}
+                ? say('You are in every table that is open', null, 'Ya estás en todas las mesas abiertas', 'Vous êtes déjà à toutes les tables ouvertes')
+                : say('Nobody has set a table yet', null, 'Todavía nadie ha puesto una mesa', "Personne n'a encore dressé de table")}
           </h2>
         </div>
         <button className="tables-lead__all" onClick={onOpenTables}>
           <span className="l-ko-only" translate="no">전체</span>
-          <span className="tables-lead__all-en">All</span>
+          <span className="tables-lead__all-en">{say('All', null, 'Todas', 'Toutes')}</span>
           <ChevronRightIcon size={13} />
         </button>
       </div>
@@ -105,8 +105,12 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
           </span>
           <span className="tables-lead__empty-en">
             {anyUpcoming
-              ? 'Nothing else to ask for this week. Open a table of your own and see who comes.'
-              : 'Samgyeopsal starts at two servings. Open a table and see who comes.'}
+              ? say('Nothing else to ask for this week. Open a table of your own and see who comes.', null,
+                'Nada más que pedir esta semana. Abre una mesa tuya y mira quién viene.',
+                "Rien d'autre à demander cette semaine. Ouvrez votre propre table et voyez qui vient.")
+              : say('Samgyeopsal starts at two servings. Open a table and see who comes.', null,
+                'El samgyeopsal empieza en dos raciones. Abre una mesa y mira quién viene.',
+                'Le samgyeopsal commence à deux parts. Ouvrez une table et voyez qui vient.')}
           </span>
         </button>
       ) : (
@@ -134,7 +138,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
                       seeded; this screen never did, which meant the first
                       three tables anybody ever saw were invented and unlabelled
                       on the highest-traffic screen in the app. */}
-                  {t.isSample && <span className="lead-table__sample">{say('sample', '샘플', 'ejemplo')}</span>}
+                  {t.isSample && <span className="lead-table__sample">{say('sample', '샘플', 'ejemplo', 'exemple')}</span>}
                 </span>
               </button>
             );

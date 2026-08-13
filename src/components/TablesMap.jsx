@@ -116,7 +116,7 @@ export default function TablesMap({
   }
 
   return (
-    <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label={say('Tables on the map', '지도 위의 밥상', 'Mesas en el mapa')}>
+    <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label={say('Tables on the map', '지도 위의 밥상', 'Mesas en el mapa', 'Les tables sur la carte')}>
       <header className="map-overlay__bar">
         <div className="map-overlay__heading">
           <h2>밥상 지도 · Tables near you</h2>
@@ -126,7 +126,7 @@ export default function TablesMap({
               : 'No host has dropped a pin yet'}
           </p>
         </div>
-        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa')} onClick={onClose}>
+        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte')} onClick={onClose}>
           <XIcon size={18} />
         </button>
       </header>

@@ -45,7 +45,7 @@ export default function OfflineBar() {
       <p className="offline-bar__en">
         {say('Phrases, the help numbers and dish pages still work. Asking for a seat or opening a table will have to wait for signal.',
           '회화, 도움 번호, 요리 페이지는 그대로 됩니다. 자리를 청하거나 상을 차리는 건 신호가 돌아와야 해요.',
-          'Las frases, los números de ayuda y las páginas de platos siguen funcionando. Pedir sitio o abrir una mesa tendrá que esperar a la cobertura.')}
+          'Las frases, los números de ayuda y las páginas de platos siguen funcionando. Pedir sitio o abrir una mesa tendrá que esperar a la cobertura.', "Les phrases, les numéros d'urgence et les pages de plats fonctionnent toujours. Demander une place ou ouvrir une table devra attendre le réseau.")}
       </p>
     </div>
   );

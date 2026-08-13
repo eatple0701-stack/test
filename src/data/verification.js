@@ -240,6 +240,15 @@ export const HALAL_LABEL_ES = {
   [HALAL.FRIENDLY]: 'Apto para halal',
   [HALAL.PORK_FREE]: 'Sin cerdo',
 };
+export const VEGAN_LABEL_FR = {
+  [VEGAN.FULL]: 'Entièrement végétalien',
+  [VEGAN.OPTIONS]: 'Options végétaliennes',
+};
+export const HALAL_LABEL_FR = {
+  [HALAL.CERTIFIED]: 'Certifié halal',
+  [HALAL.FRIENDLY]: 'Adapté au halal',
+  [HALAL.PORK_FREE]: 'Sans porc',
+};
 
 /** The three confidence words, as the badges show them. */
 export const TRUST_LABEL_KO = {
@@ -252,14 +261,19 @@ export const TRUST_LABEL_ES = {
   Reported: 'Según la fuente',
   Inferred: 'Deducido',
 };
+export const TRUST_LABEL_FR = {
+  Official: 'Vérifié',
+  Reported: 'Selon la source',
+  Inferred: 'Déduit',
+};
 
 /** Dietary badges a card/detail may show, in priority order. */
 export function dietaryBadges(place) {
   const out = [];
   const v = place.dietary?.vegan;
   const h = place.dietary?.halal;
-  if (isKnown(v) && VEGAN_LABEL[v.value]) out.push({ key: 'vegan', label: VEGAN_LABEL[v.value], labelKo: VEGAN_LABEL_KO[v.value], labelEs: VEGAN_LABEL_ES[v.value], fact: v });
-  if (isKnown(h) && HALAL_LABEL[h.value]) out.push({ key: 'halal', label: HALAL_LABEL[h.value], labelKo: HALAL_LABEL_KO[h.value], labelEs: HALAL_LABEL_ES[h.value], fact: h });
+  if (isKnown(v) && VEGAN_LABEL[v.value]) out.push({ key: 'vegan', label: VEGAN_LABEL[v.value], labelKo: VEGAN_LABEL_KO[v.value], labelEs: VEGAN_LABEL_ES[v.value], labelFr: VEGAN_LABEL_FR[v.value], fact: v });
+  if (isKnown(h) && HALAL_LABEL[h.value]) out.push({ key: 'halal', label: HALAL_LABEL[h.value], labelKo: HALAL_LABEL_KO[h.value], labelEs: HALAL_LABEL_ES[h.value], labelFr: HALAL_LABEL_FR[h.value], fact: h });
   return out;
 }
 

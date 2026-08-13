@@ -48,7 +48,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
       <header className="screen-head screen-head--dark">
         <span className="screen-head__kr" translate="no">설정</span>
         <h1 className="screen-head__title">Settings</h1>
-        <p className="screen-head__sub">{say('How the app looks on this device.', '이 기기에서 앱이 보이는 방식.', 'Cómo se ve la app en este dispositivo.')}</p>
+        <p className="screen-head__sub">{say('How the app looks on this device.', '이 기기에서 앱이 보이는 방식.', 'Cómo se ve la app en este dispositivo.', "À quoi ressemble l'application sur cet appareil.")}</p>
       </header>
 
       {/* The language of the interface. data-no-locale on the whole block:
@@ -60,10 +60,9 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
           <h3>언어 · Language</h3>
         </div>
         <p className="journal-settings__hint">
-          한국어와 영어를 함께 보거나, 하나만 보이게 할 수 있어요. 스페인어도 됩니다.
-          Korean and English together, one of them on its own, or Spanish.
-          Stays on this device. · Coreano e inglés juntos, uno de los dos, o
-          español. Se guarda en este dispositivo.
+          한국어와 영어를 함께 보거나, 하나만 보이게 할 수 있어요. 스페인어와
+          프랑스어도 됩니다. Korean and English together, one of them on its
+          own, Spanish, or French. Stays on this device.
         </p>
         <div className="chip-row">
           {LOCALES.map(l => (
@@ -85,12 +84,11 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
             still true instead: a few corners fall back to English rather
             than to a blank. */}
         <p className="journal-settings__hint settings-lang__note">
-          스페인어는 본문·요리·장소까지 번역되어 있고, 아직 번역되지 않은 일부
-          화면은 영어로 나옵니다.
-          Spanish covers the articles, the dishes and the places; a few
-          corners still fall back to English rather than to a blank. ·
-          El español cubre los artículos, los platos y los sitios; algunos
-          rincones todavía recurren al inglés en lugar de quedarse en blanco.
+          스페인어와 프랑스어는 본문·요리·장소까지 전부 번역되어 있습니다.
+          번역이 없는 자리는 빈칸 대신 영어로 나옵니다.
+          Spanish and French cover the articles, the dishes and the places.
+          Anything without a translation falls back to English rather than to
+          a blank.
         </p>
       </div>
 
@@ -101,7 +99,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
         <p className="journal-settings__hint">
           {say('Stays on this device — it changes your screen and nobody else\u2019s.',
             '이 기기에만 저장됩니다 — 당신 화면만 바뀌고 다른 사람 것은 그대로예요.',
-            'Se queda en este dispositivo: cambia tu pantalla y la de nadie más.')}
+            'Se queda en este dispositivo: cambia tu pantalla y la de nadie más.', "Reste sur cet appareil : cela change votre écran et celui de personne d'autre.")}
         </p>
         <div className="chip-row">
           {CHOICES.map(c => (
@@ -141,7 +139,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
               <p className="journal-settings__hint">
                 {say('Signing out leaves everything where it is — your Passport, your seats, the tables you host.',
                   '로그아웃해도 계정과 기록은 그대로 있어요. 여권도, 잡아 둔 자리도, 차린 밥상도요.',
-                  'Cerrar sesión deja todo donde está: tu Pasaporte, tus sitios y las mesas que organizas.')}
+                  'Cerrar sesión deja todo donde está: tu Pasaporte, tus sitios y las mesas que organizas.', 'Se déconnecter laisse tout en place : votre Passeport, vos places, les tables que vous organisez.')}
               </p>
               <button className="settings-signout" translate="no" onClick={onSignOut}>
                 로그아웃 · Sign out
@@ -149,7 +147,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
               <p className="journal-settings__hint danger-zone__hint">
                 {say('Closing your account is different: it removes everything you gave us — your name, email, phone and date of birth — and everything you made here.',
                   '회원 탈퇴는 다릅니다. 주신 것 전부 — 이름, 이메일, 전화번호, 생년월일 — 과 여기서 만드신 것 전부가 사라집니다.',
-                  'Cerrar la cuenta es otra cosa: borra todo lo que nos diste — nombre, correo, teléfono y fecha de nacimiento — y todo lo que has creado aquí.')}
+                  'Cerrar la cuenta es otra cosa: borra todo lo que nos diste — nombre, correo, teléfono y fecha de nacimiento — y todo lo que has creado aquí.', 'Fermer votre compte est autre chose : cela supprime tout ce que vous nous avez donné — nom, e-mail, téléphone et date de naissance — et tout ce que vous avez créé ici.')}
               </p>
               <button className="danger-open" translate="no" onClick={() => setConfirming(true)}>
                 회원 탈퇴 · Close my account
@@ -161,7 +159,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
               <p className="cancel-confirm__body">
                 {say('Gone for good, right away: your contact details, your Passport, any tables you host and the seats you hold — people going to them will see the table disappear. The lines you left on other people\u2019s tables go too. This cannot be undone, and signing up again starts an empty account.',
                   '즉시, 영구히 사라집니다. 연락처, 여권, 차리신 밥상과 잡아 두신 자리까지 — 그 밥상에 가려던 사람들에게는 밥상이 없어진 것으로 보입니다. 다른 사람 밥상에 남기신 한 줄도 함께 사라집니다. 되돌릴 수 없고, 다시 가입하시면 빈 계정으로 시작합니다.',
-                  'Desaparece para siempre y al instante: tus datos de contacto, tu Pasaporte, las mesas que organizas y los sitios que ocupas — quien iba a ellas verá que la mesa desaparece. Las líneas que dejaste en mesas de otros también se van. No se puede deshacer, y registrarse de nuevo empieza una cuenta vacía.')}
+                  'Desaparece para siempre y al instante: tus datos de contacto, tu Pasaporte, las mesas que organizas y los sitios que ocupas — quien iba a ellas verá que la mesa desaparece. Las líneas que dejaste en mesas de otros también se van. No se puede deshacer, y registrarse de nuevo empieza una cuenta vacía.', "Perdu pour de bon, immédiatement : vos coordonnées, votre Passeport, les tables que vous organisez et les places que vous occupez — ceux qui devaient y aller verront la table disparaître. Les lignes que vous avez laissées sur les tables des autres partent aussi. C'est irréversible, et se réinscrire ouvre un compte vide.")}
               </p>
               {error && (
                 <div className="auth-error" role="alert">

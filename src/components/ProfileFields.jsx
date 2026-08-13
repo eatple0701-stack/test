@@ -77,7 +77,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             type="text"
             className="profile-input"
             value={nationality}
-            placeholder={say('Japan', '일본', 'Japón')}
+            placeholder={say('Japan', '일본', 'Japón', 'Japon')}
             onChange={e => { setNationality(e.target.value); save({ nationality: e.target.value.trim() }); }}
           />
         </Field>
@@ -166,7 +166,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             rows={2}
             className="profile-input"
             value={allergyNote}
-            placeholder={say('Severe shellfish allergy, and no sesame please', '갑각류 알레르기가 심하고, 참깨는 빼 주세요', 'Alergia grave al marisco, y sin sésamo por favor')}
+            placeholder={say('Severe shellfish allergy, and no sesame please', '갑각류 알레르기가 심하고, 참깨는 빼 주세요', 'Alergia grave al marisco, y sin sésamo por favor', "Allergie grave aux fruits de mer, et sans sésame s'il vous plaît")}
             onChange={e => {
               setAllergyNote(e.target.value);
               save({ allergyNote: e.target.value.trim() });

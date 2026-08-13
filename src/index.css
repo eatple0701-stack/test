@@ -10638,7 +10638,8 @@ body {
    gloss under it, and has to be sized like one — otherwise every section on
    an English-only screen is titled in 14px grey. */
 [data-locale="en"] .main-band__title-en,
-[data-locale="es"] .main-band__title-en {
+[data-locale="es"] .main-band__title-en,
+[data-locale="fr"] .main-band__title-en {
   font-size: 25px;
   font-weight: 800;
   color: var(--ink-title);
@@ -10737,7 +10738,9 @@ body {
 [data-locale="en"] .main-how__why-en::before,
 [data-locale="en"] .how-strip__why-en::before,
 [data-locale="es"] .main-how__why-en::before,
-[data-locale="es"] .how-strip__why-en::before { content: none; }
+[data-locale="es"] .how-strip__why-en::before,
+[data-locale="fr"] .main-how__why-en::before,
+[data-locale="fr"] .how-strip__why-en::before { content: none; }
 
 /* ---- Join. Meetup's phone version is a plain centred paragraph; the
         card and its floating dots belong to the desktop. ---- */
@@ -11041,7 +11044,9 @@ body {
    the Korean half and the one somebody can read. The Spanish words themselves
    come from the data through useText(), not from splitting a label. */
 [data-locale="es"] [class$="__kr"],
-[data-locale="es"] [class$="-kr"] { display: none; }
+[data-locale="es"] [class$="-kr"],
+[data-locale="fr"] [class$="__kr"],
+[data-locale="fr"] [class$="-kr"] { display: none; }
 
 /* Text written for one language that has no counterpart on the default
    screen — an English headline for a hero that was set in Korean, a Korean
@@ -11063,7 +11068,7 @@ html:not([data-locale="ko"]) .l-ko-only { display: none; }
 /* .l-en-only is "the half that is not Korean", so Spanish keeps it — hiding
    it there would blank the hero headline and the corner buttons on a screen
    that has no Korean to fall back on. */
-html:not([data-locale="en"]):not([data-locale="es"]) .l-en-only { display: none; }
+html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]) .l-en-only { display: none; }
 
 /* A pair written as two elements inside one parent. The middot between them
    belongs to neither language, so it hangs off the English half and leaves
@@ -11073,7 +11078,9 @@ html:not([data-locale="en"]):not([data-locale="es"]) .l-en-only { display: none;
 [data-locale="en"] .l-pair > [class$="-en"]::before,
 [data-locale="en"] .l-pair > [class$="__en"]::before,
 [data-locale="es"] .l-pair > [class$="-en"]::before,
-[data-locale="es"] .l-pair > [class$="__en"]::before { content: none; }
+[data-locale="es"] .l-pair > [class$="__en"]::before,
+[data-locale="fr"] .l-pair > [class$="-en"]::before,
+[data-locale="fr"] .l-pair > [class$="__en"]::before { content: none; }
 
 /* The dish's Korean name used to survive an English interface everywhere,
    on the argument that 삼겹살 is the name of the thing rather than a

@@ -165,9 +165,10 @@ export default function App() {
   // The top-right corner fits one word per button, so this picks rather than
   // pairs — the Korean is the bilingual default because that is what the team
   // has always seen there, and each single-language setting replaces it.
-  const chromeWord = (kr, en, es) => {
+  const chromeWord = (kr, en, es, fr) => {
     if (locale === LOCALE.EN) return en;
     if (locale === LOCALE.ES) return es;
+    if (locale === LOCALE.FR) return fr;
     return kr;
   };
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
@@ -798,7 +799,7 @@ export default function App() {
                   await refreshAuth();
                 }}
               >
-                <span className="app-chrome__word">{chromeWord('로그아웃', 'Sign out', 'Cerrar sesión')}</span>
+                <span className="app-chrome__word">{chromeWord('로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter')}</span>
               </button>
             </>
           ) : (
@@ -811,10 +812,10 @@ export default function App() {
                made the two most important controls the least legible. */
             <span className="app-chrome__auth">
               <button className="app-chrome__signin" onClick={() => setAuthMode('signin')}>
-                <span className="app-chrome__word">{chromeWord('로그인', 'Sign in', 'Entrar')}</span>
+                <span className="app-chrome__word">{chromeWord('로그인', 'Sign in', 'Entrar', 'Se connecter')}</span>
               </button>
               <button className="app-chrome__join" onClick={() => setAuthMode('signup')}>
-                <span className="app-chrome__word">{chromeWord('가입하기', 'Join', 'Únete')}</span>
+                <span className="app-chrome__word">{chromeWord('가입하기', 'Join', 'Únete', "S'inscrire")}</span>
               </button>
             </span>
           )}

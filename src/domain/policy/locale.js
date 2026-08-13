@@ -11,7 +11,9 @@
 // interface was not a switch but a translation project, and this file said so
 // out loud rather than offering Español and quietly serving English.
 //
-// Español is here now (2026-08-12) because the words are. It arrived the way
+// Français joined on 2026-08-14, by the same route and on the same terms.
+//
+// Español is here since 2026-08-12 because the words are. It arrived the way
 // Korean-only content did: a second string in the data for every article,
 // dish and card, picked by useText(). What it does not have is the pair
 // convention — nothing in this app is written "Abrir una mesa · Open a
@@ -33,9 +35,10 @@ export const LOCALE = {
   KO: 'ko',       // 한국어만
   EN: 'en',       // English only
   ES: 'es',       // Solo español
+  FR: 'fr',       // Français seulement
 };
 
-export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES];
+export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES, LOCALE.FR];
 
 export const isLocale = (l) => LOCALES.includes(l);
 
@@ -52,6 +55,7 @@ export const LOCALE_LABEL = {
   // in a list of options is scanning for the word "Español", not for its
   // English name.
   [LOCALE.ES]: { kr: '스페인어', en: 'Español' },
+  [LOCALE.FR]: { kr: '프랑스어', en: 'Français' },
 };
 
 /**
@@ -63,7 +67,21 @@ export const LOCALE_LABEL = {
  * splitter and the stylesheet agree on which locales are "English underneath"
  * instead of each deciding separately and drifting.
  */
-export const ENGLISH_FALLBACK = [LOCALE.EN, LOCALE.ES];
+export const ENGLISH_FALLBACK = [LOCALE.EN, LOCALE.ES, LOCALE.FR];
+
+/**
+ * The BCP-47 tag toLocaleDateString should use for a setting.
+ *
+ * en-GB rather than en-US for the default because this app writes 17 July
+ * 2026, not July 17 — and the bilingual default keeps that, since the Korean
+ * half of a date is the numerals either way.
+ */
+export const DATE_LOCALE = {
+  [LOCALE.KO]: 'ko-KR',
+  [LOCALE.ES]: 'es-ES',
+  [LOCALE.FR]: 'fr-FR',
+};
+export const dateLocale = (locale) => DATE_LOCALE[locale] ?? 'en-GB';
 export const fallsBackToEnglish = (l) => ENGLISH_FALLBACK.includes(l);
 
 const HANGUL = /[가-힣ㄱ-ㅎㅏ-ㅣ]/;
@@ -117,12 +135,14 @@ export function localeText(text, locale = DEFAULT_LOCALE) {
  * Returns the joined form for `both`, so a caller can print one value
  * regardless of the setting.
  */
-export function localePair({ kr, en, es } = {}, locale = DEFAULT_LOCALE) {
+export function localePair({ kr, en, es, fr } = {}, locale = DEFAULT_LOCALE) {
   const k = String(kr ?? '').trim();
   const e = String(en ?? '').trim();
   const sp = String(es ?? '').trim();
+  const f = String(fr ?? '').trim();
   if (locale === LOCALE.KO) return k || e;
   if (locale === LOCALE.ES) return sp || e || k;
+  if (locale === LOCALE.FR) return f || e || k;
   if (locale === LOCALE.EN) return e || k;
   return [k, e].filter(Boolean).join(' · ');
 }

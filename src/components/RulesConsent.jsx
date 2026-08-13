@@ -42,7 +42,7 @@ export default function RulesConsent({ profile, onProfileChange, action }) {
       <p className="rules-consent__note">
         {say('Asked once. You can read this again any time under 도움이 필요하면.',
           '한 번만 여쭙니다. 도움이 필요하면 메뉴에서 언제든 다시 읽으실 수 있어요.',
-          'Se pregunta una sola vez. Puedes volver a leerlo cuando quieras en 도움이 필요하면.')}
+          'Se pregunta una sola vez. Puedes volver a leerlo cuando quieras en 도움이 필요하면.', 'Demandé une seule fois. Vous pouvez le relire à tout moment dans 도움이 필요하면.')}
       </p>
     </div>
   );

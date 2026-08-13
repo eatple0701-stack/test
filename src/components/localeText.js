@@ -25,11 +25,11 @@ import { LOCALE, DEFAULT_LOCALE } from '../domain/policy/locale.js';
 
 export const LocaleContext = createContext(DEFAULT_LOCALE);
 
-/** The current setting: 'both', 'ko', 'en' or 'es'. */
+/** The current setting: 'both', 'ko', 'en', 'es' or 'fr'. */
 export const useLocale = () => useContext(LocaleContext);
 
 /**
- * say(en, ko, es) — the text in whichever language was asked for.
+ * say(en, ko, es, fr) — the text in whichever language was asked for.
  *
  * English is both the first argument and the fallback, which is deliberate on
  * two counts. `both` is the screen the team has reviewed, and this app's
@@ -48,9 +48,14 @@ export const useLocale = () => useContext(LocaleContext);
  */
 export function useText() {
   const locale = useLocale();
-  return useMemo(() => (en, ko, es) => {
+  // Positional rather than an object, because it started as two arguments and
+  // every one of the 423 call sites already reads left to right in the order
+  // the languages arrived. An object would be tidier and would mean editing
+  // all of them to gain nothing a reader of one line can see.
+  return useMemo(() => (en, ko, es, fr) => {
     if (locale === LOCALE.KO && ko) return ko;
     if (locale === LOCALE.ES && es) return es;
+    if (locale === LOCALE.FR && fr) return fr;
     return en;
   }, [locale]);
 }

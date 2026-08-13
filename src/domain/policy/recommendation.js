@@ -31,24 +31,28 @@ const SEASON = {
     line: 'Blossom season is short — this is the fortnight it is worth planning around.',
     lineKo: '벚꽃철은 짧습니다. 계획을 세워 볼 만한 두 주가 바로 지금입니다.',
     lineEs: 'La temporada de los cerezos es corta: estas son las dos semanas por las que merece la pena organizarse.',
+    lineFr: "La saison des cerisiers est courte — c'est la quinzaine autour de laquelle il vaut la peine de s'organiser.",
   },
   'busan-seafood': {
     months: [6, 7, 8],
     line: 'Summer is the season this one is written for, and the market opens at dawn.',
     lineKo: '이 이야기는 여름을 위해 쓰였고, 시장은 새벽에 문을 엽니다.',
     lineEs: 'Esta historia está escrita para el verano, y el mercado abre al amanecer.',
+    lineFr: "Cette histoire est écrite pour l'été, et le marché ouvre à l'aube.",
   },
   'street-food': {
     months: [10, 11, 12, 1, 2],
     line: 'Winter is when the griddles come out — the season the stalls are built for.',
     lineKo: '겨울이면 철판이 나옵니다. 노점이 만들어진 이유가 되는 계절입니다.',
     lineEs: 'En invierno salen las planchas: la estación para la que existen los puestos.',
+    lineFr: "L'hiver, les plaques sortent — la saison pour laquelle les étals existent.",
   },
   'cafe-hopping': {
     months: [12, 1, 2],
     line: 'The season for staying indoors over one long coffee.',
     lineKo: '커피 한 잔을 길게 붙들고 실내에 머무는 계절입니다.',
     lineEs: 'La estación de quedarse dentro con un café largo.',
+    lineFr: "La saison où l'on reste à l'intérieur autour d'un long café.",
   },
 };
 
@@ -58,6 +62,7 @@ const EVENING = {
     line: 'It is evening — this is the hour the theme is about.',
     lineKo: '지금은 저녁입니다. 이 이야기가 다루는 바로 그 시간이에요.',
     lineEs: 'Es de noche: justo la hora de la que trata esta historia.',
+    lineFr: "C'est le soir — l'heure même dont parle cette histoire.",
   },
   // Not "busiest now": how full a market is at this moment is not something
   // the app can see. When the stalls are open is a fact about the theme.
@@ -65,6 +70,7 @@ const EVENING = {
     line: 'The stalls are open — most of this one does not exist before dark.',
     lineKo: '노점이 문을 열 시간입니다. 이 이야기의 대부분은 해가 지기 전에는 존재하지 않아요.',
     lineEs: 'Los puestos están abiertos: casi todo esto no existe antes de que anochezca.',
+    lineFr: "Les étals sont ouverts — presque rien de tout cela n'existe avant la tombée du jour.",
   },
 };
 
@@ -107,9 +113,11 @@ export function reasonFor(theme, {
   const hour = at.getHours();
   const ko = locale === 'ko';
   const es = locale === 'es';
-  const pick = (en, korean, spanish) => {
+  const fr = locale === 'fr';
+  const pick = (en, korean, spanish, french) => {
     if (ko && korean) return korean;
     if (es && spanish) return spanish;
+    if (fr && french) return french;
     return en;
   };
   // Theme and collection names have their own Korean and Spanish in the
@@ -117,6 +125,7 @@ export function reasonFor(theme, {
   const name = (x) => {
     if (ko && x?.titleKo) return x.titleKo;
     if (es && x?.titleEs) return x.titleEs;
+    if (fr && x?.titleFr) return x.titleFr;
     return x?.title;
   };
 
@@ -132,20 +141,22 @@ export function reasonFor(theme, {
         `You have just finished ${justFinished.title}. This carries on through ${collection.title}.`,
         `방금 ${name(justFinished)}을(를) 마치셨어요. 이건 ${name(collection)}(으)로 이어집니다.`,
         `Acabas de terminar ${name(justFinished)}. Esto continúa por ${name(collection)}.`,
+        `Vous venez de terminer ${name(justFinished)}. Cela se poursuit par ${name(collection)}.`,
       )
       : pick(
         `You have just finished ${justFinished.title} — this goes somewhere different.`,
         `방금 ${name(justFinished)}을(를) 마치셨어요. 이건 조금 다른 곳으로 갑니다.`,
         `Acabas de terminar ${name(justFinished)} — esto va a otra parte.`,
+        `Vous venez de terminer ${name(justFinished)} — celle-ci va ailleurs.`,
       );
   }
 
   if (inSeason(theme.id, month)) {
-    return pick(SEASON[theme.id].line, SEASON[theme.id].lineKo, SEASON[theme.id].lineEs);
+    return pick(SEASON[theme.id].line, SEASON[theme.id].lineKo, SEASON[theme.id].lineEs, SEASON[theme.id].lineFr);
   }
 
   if (hour >= 18 && EVENING[theme.id]) {
-    return pick(EVENING[theme.id].line, EVENING[theme.id].lineKo, EVENING[theme.id].lineEs);
+    return pick(EVENING[theme.id].line, EVENING[theme.id].lineKo, EVENING[theme.id].lineEs, EVENING[theme.id].lineFr);
   }
 
   // Proximity, from zones the traveller has actually been to.
@@ -159,6 +170,7 @@ export function reasonFor(theme, {
         `You have already eaten in ${where} — this picks up where you were.`,
         `${where}에서 이미 드셔 보셨죠. 그 자리에서 이어집니다.`,
         `Ya has comido en ${where} — esto retoma donde lo dejaste.`,
+        `Vous avez déjà mangé à ${where} — ceci reprend là où vous en étiez.`,
       );
     }
   }
@@ -167,7 +179,7 @@ export function reasonFor(theme, {
   // to a traveller on their first day every theme is unvisited, and pointing
   // it out says nothing.
   if (untouched && hasAnyProgress) {
-    return pick('You have not opened this one yet.', '이건 아직 열어보지 않으셨어요.', 'Esta todavía no la has abierto.');
+    return pick('You have not opened this one yet.', '이건 아직 열어보지 않으셨어요.', 'Esta todavía no la has abierto.', "Vous n'avez pas encore ouvert celle-ci.");
   }
 
   if (!hasStarted && theme.status === STATUS.PUBLISHED) {
@@ -175,6 +187,7 @@ export function reasonFor(theme, {
       'Every stop on this one has a verified place to eat, so it is an easy first path.',
       '이 길은 모든 지점에 확인된 식당이 있어서, 처음 걷기에 편합니다.',
       'Cada parada de esta ruta tiene un sitio verificado donde comer, así que es un primer camino fácil.',
+      "Chaque étape de ce chemin a une adresse vérifiée où manger : un premier parcours facile.",
     );
   }
 
@@ -183,6 +196,7 @@ export function reasonFor(theme, {
       'The culture is written up in full; the places are still being verified.',
       '이야기는 다 쓰였고, 장소는 아직 확인 중입니다.',
       'La historia está escrita entera; los sitios siguen en verificación.',
+      "L'histoire est écrite en entier ; les adresses sont encore en cours de vérification.",
     );
   }
 
@@ -196,9 +210,10 @@ export function reasonFor(theme, {
       `${venues} verified ${venues === 1 ? 'place' : 'places'} to eat across this theme — you could walk it today.`,
       `이 이야기 전체에 확인된 식당이 ${venues}곳 있어요. 오늘 안에 다 걸어볼 수 있습니다.`,
       `${venues} ${venues === 1 ? 'sitio verificado' : 'sitios verificados'} donde comer en esta historia — podrías recorrerla hoy.`,
+      `${venues} ${venues === 1 ? 'adresse vérifiée' : 'adresses vérifiées'} où manger sur ce thème — vous pourriez le parcourir aujourd'hui.`,
     );
   }
-  return pick('A short path you can finish in an afternoon.', '오후 한나절이면 끝나는 짧은 길입니다.', 'Un camino corto que puedes terminar en una tarde.');
+  return pick('A short path you can finish in an afternoon.', '오후 한나절이면 끝나는 짧은 길입니다.', 'Un camino corto que puedes terminar en una tarde.', "Un chemin court que vous pouvez finir en un après-midi.");
 }
 
 /**

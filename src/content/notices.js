@@ -46,6 +46,7 @@ export const NOTICES = [
     kr: '지금은 파일럿 기간이에요.',
     en: 'This is a pilot, so there are only a few tables yet — and opening one yourself is the fastest way to get a table on your week.',
     es: 'Esto es un piloto, así que todavía hay pocas mesas — y abrir una tú mismo es la forma más rápida de tener mesa esta semana.',
+    fr: "C'est un pilote, il y a donc encore peu de tables — et en ouvrir une vous-même est le moyen le plus rapide d'avoir une table cette semaine.",
     until: '2026-09-01',
   },
 ];

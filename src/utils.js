@@ -69,28 +69,34 @@ function statusFromRaw(raw, cur, locale = 'both') {
  */
 // The four words this function can say, in every language the app offers.
 // Kept together rather than inline so a fifth state cannot be added in one
-// language and forgotten in the other two.
+// language and forgotten in the others.
 const HOURS_WORD = {
-  Open: ['Open', '영업 중', 'Abierto'],
-  Closed: ['Closed', '영업 종료', 'Cerrado'],
+  Open: ['Open', '영업 중', 'Abierto', 'Ouvert'],
+  Closed: ['Closed', '영업 종료', 'Cerrado', 'Fermé'],
 };
 const hoursPhrase = {
-  closedToday: ['closed today', '오늘 휴무', 'cerrado hoy'],
-  closedForToday: ['closed for today', '오늘 영업 종료', 'cerrado por hoy'],
-  until: (t) => [`until ${t}`, `${t}까지`, `hasta las ${t}`],
+  closedToday: ['closed today', '오늘 휴무', 'cerrado hoy', "fermé aujourd'hui"],
+  closedForToday: ['closed for today', '오늘 영업 종료', 'cerrado por hoy', "fermé pour aujourd'hui"],
+  until: (t) => [`until ${t}`, `${t}까지`, `hasta las ${t}`, `jusqu'à ${t}`],
   untilLastOrder: (t, lo) => [
     `until ${t} · last order ${lo}`,
     `${t}까지 · 라스트오더 ${lo}`,
     `hasta las ${t} · último pedido ${lo}`,
+    `jusqu'à ${t} · dernière commande ${lo}`,
   ],
   lastOrderPassed: (t) => [
     `last order passed, closes ${t}`,
     `라스트오더 마감, ${t}에 닫습니다`,
     `último pedido pasado, cierra a las ${t}`,
+    `dernière commande passée, ferme à ${t}`,
   ],
-  opens: (t) => [`opens ${t}`, `${t}에 엽니다`, `abre a las ${t}`],
+  opens: (t) => [`opens ${t}`, `${t}에 엽니다`, `abre a las ${t}`, `ouvre à ${t}`],
 };
-const pickWord = (triple, locale) => (locale === 'ko' ? triple[1] : locale === 'es' ? triple[2] : triple[0]);
+const pickWord = (words, locale) => (
+  locale === 'ko' ? words[1]
+    : locale === 'es' ? words[2]
+      : locale === 'fr' ? words[3]
+        : words[0]);
 
 export function getOpenStatus(hoursFact, now = new Date(), locale = 'both') {
   if (!isKnown(hoursFact)) return null;
@@ -120,7 +126,7 @@ export function getOpenStatus(hoursFact, now = new Date(), locale = 'both') {
         label: pickWord(HOURS_WORD.Open, locale),
         detail: slot.lastOrder
           ? pickWord(hoursPhrase.untilLastOrder(fromMinutes(to), fromMinutes(lo)), locale)
-          : `until ${fromMinutes(to)}`,
+          : pickWord(hoursPhrase.until(fromMinutes(to)), locale),
       };
     }
   }

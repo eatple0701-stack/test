@@ -25,7 +25,7 @@ export default function NoticeBar() {
   return (
     <p className={`notice-bar notice-bar--${notice.kind}`} role="status">
       <span className="notice-bar__kr" translate="no">{notice.kr}</span>
-      <span className="notice-bar__en">{say(notice.en, notice.kr, notice.es)}</span>
+      <span className="notice-bar__en">{say(notice.en, notice.kr, notice.es, notice.fr)}</span>
     </p>
   );
 }

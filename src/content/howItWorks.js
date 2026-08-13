@@ -24,12 +24,14 @@ export const HOW_STEPS = [
     kr: '밥상 찾기',
     en: 'Find a table serving a dish nobody can order alone.',
     es: 'Encuentra una mesa con un plato que nadie puede pedir solo.',
+    fr: "Trouvez une table servant un plat que personne ne peut commander seul.",
   },
   {
     id: 'ask',
     kr: '자리 요청',
     en: 'Ask for the seat. The host reads who you are and says yes by name — your name is the whole form.',
     es: 'Pide el sitio. El anfitrión lee quién eres y dice que sí por tu nombre: tu nombre es todo el formulario.',
+    fr: "Demandez la place. L'hôte lit qui vous êtes et dit oui par votre nom : votre nom est tout le formulaire.",
   },
   {
     id: 'eat',
@@ -43,6 +45,7 @@ export const HOW_STEPS = [
     // screen and this was one of the last Korean words a traveller saw.
     en: 'Meet and share the food. Eatple handles no money: you pay the restaurant for what you eat, so nobody at the table owes anybody.',
     es: 'Os veis y compartís la comida. Eatple no toca el dinero: pagas al restaurante lo que comes, así que nadie en la mesa le debe nada a nadie.',
+    fr: "Vous vous retrouvez et vous partagez le repas. Eatple ne touche pas à l'argent : vous payez au restaurant ce que vous mangez, donc personne à table ne doit rien à personne.",
   },
 ];
 
@@ -51,4 +54,5 @@ export const HOW_WHY = {
   kr: '한국 밥상은 나눠 먹도록 차려집니다',
   en: 'A Korean table is laid to be shared. Browsing every dish and tip is free; the seat is what an account is for.',
   es: 'Una mesa coreana se pone para compartirla. Mirar los platos y los consejos es gratis; la cuenta es para el sitio en la mesa.',
+  fr: "Une table coréenne se dresse pour être partagée. Parcourir les plats et les conseils est gratuit ; le compte sert à avoir la place.",
 };

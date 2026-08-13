@@ -216,7 +216,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
   );
 
   return (
-    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Sign in', '로그인', 'Entrar')}>
+    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Sign in', '로그인', 'Entrar', 'Se connecter')}>
       <div className="auth-sheet">
         <button className="auth-close" onClick={onClose} aria-label="Close">
           <XIcon size={18} />
@@ -227,7 +227,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             only way out of a form somebody opened by mistake is closing the
             whole modal and starting again. */}
         {(mode === 'signup-email') && (
-          <button className="auth-back" onClick={() => { setMode('signup'); setError(null); }} aria-label={say('Back', '뒤로', 'Atrás')}>
+          <button className="auth-back" onClick={() => { setMode('signup'); setError(null); }} aria-label={say('Back', '뒤로', 'Atrás', 'Retour')}>
             <ChevronLeftIcon size={20} />
           </button>
         )}
@@ -247,11 +247,11 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               <span className="auth-title__kr">{gate ? gate.titleKr : '회원가입'}</span>
               <span className="auth-title__en">
                 {gate
-                  ? say(gate.titleEn, null, gate.titleEs)
-                  : say('Join Eatple', null, 'Únete a Eatple')}
+                  ? say(gate.titleEn, null, gate.titleEs, gate.titleFr)
+                  : say('Join Eatple', null, 'Únete a Eatple', 'Rejoindre Eatple')}
               </span>
             </h2>
-            {gate && <p className="auth-gate__body">{say(gate.body, gate.bodyKo, gate.bodyEs)}</p>}
+            {gate && <p className="auth-gate__body">{say(gate.body, gate.bodyKo, gate.bodyEs, gate.bodyFr)}</p>}
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google
             </button>
@@ -276,16 +276,16 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <div className="auth-form">
             <h2 className="auth-title">
               <span className="auth-title__kr">가입을 완료해 주세요</span>
-              <span className="auth-title__en">{say('Finish signing up', null, 'Termina el registro')}</span>
+              <span className="auth-title__en">{say('Finish signing up', null, 'Termina el registro', "Terminer l'inscription")}</span>
             </h2>
 
             <Field id="email" bad={bad} problems={problems} markRef={markRef}
               label="이메일 · Email — this is your login ID">
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={say('you@example.com', 'you@example.com', 'tu@ejemplo.com')} autoComplete="email" />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={say('you@example.com', 'you@example.com', 'tu@ejemplo.com', 'vous@exemple.com')} autoComplete="email" />
             </Field>
             <Field id="password" bad={bad} problems={problems} markRef={markRef}
               label="비밀번호 · Password">
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={say('8+ characters', '8자 이상', '8 caracteres o más')} autoComplete="new-password" />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={say('8+ characters', '8자 이상', '8 caracteres o más', '8 caractères ou plus')} autoComplete="new-password" />
             </Field>
             <Field id="name" bad={bad} problems={problems} markRef={markRef}
               label="이름 · Name — what a table calls you">
@@ -302,7 +302,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             <p className="auth-note">
               {say('No code is sent to your email or phone — they are contact details for the team running the pilot, seen by nobody else at any table. Type them carefully; nothing checks them for you.',
                 '이메일이나 전화로 인증 코드를 보내지 않습니다 — 파일럿을 운영하는 팀의 연락처일 뿐이고, 어느 밥상에서도 다른 사람에게 보이지 않습니다. 확인해 주는 장치가 없으니 정확히 입력해 주세요.',
-                'No se envía ningún código a tu correo ni a tu teléfono: son datos de contacto para el equipo que lleva el piloto, y nadie más los ve en ninguna mesa. Escríbelos con cuidado; nada los comprueba por ti.')}
+                'No se envía ningún código a tu correo ni a tu teléfono: son datos de contacto para el equipo que lleva el piloto, y nadie más los ve en ninguna mesa. Escríbelos con cuidado; nada los comprueba por ti.', "Aucun code n'est envoyé à votre e-mail ni à votre téléphone : ce sont des coordonnées pour l'équipe qui mène le pilote, que personne d'autre ne voit à aucune table. Saisissez-les avec soin ; rien ne les vérifie pour vous.")}
             </p>
             {errorLine}
             <button className="auth-primary" onClick={submitSignup} disabled={busy} translate="no">
@@ -320,7 +320,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <div className="auth-form">
             <h2 className="auth-title">
               <span className="auth-title__kr">로그인</span>
-              <span className="auth-title__en">{say('Sign in', null, 'Entrar')}</span>
+              <span className="auth-title__en">{say('Sign in', null, 'Entrar', 'Se connecter')}</span>
             </h2>
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google
@@ -356,7 +356,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             <p className="auth-note">
               {say('Your account exists but two details are missing — Google sign-ins arrive without them, and an interrupted signup can too. The team needs a phone number and a date of birth to run matching; nobody at a table ever sees either.',
                 '계정은 있는데 두 가지가 비어 있습니다. 구글 로그인은 이 정보 없이 들어오고, 중간에 끊긴 가입도 그렇습니다. 팀이 매칭을 돌리려면 전화번호와 생년월일이 필요하고, 밥상에서는 아무도 이 둘을 보지 않습니다.',
-                'Tu cuenta existe pero faltan dos datos: los accesos con Google llegan sin ellos, y un registro interrumpido también. El equipo necesita un teléfono y una fecha de nacimiento para hacer los emparejamientos; nadie en una mesa los ve nunca.')}
+                'Tu cuenta existe pero faltan dos datos: los accesos con Google llegan sin ellos, y un registro interrumpido también. El equipo necesita un teléfono y una fecha de nacimiento para hacer los emparejamientos; nadie en una mesa los ve nunca.', "Votre compte existe mais deux informations manquent : les connexions Google arrivent sans elles, et une inscription interrompue aussi. L'équipe a besoin d'un numéro de téléphone et d'une date de naissance pour faire les mises en relation ; personne à une table ne les voit jamais.")}
             </p>
             <label className="field">
               <span className="field__label">전화번호 · Phone</span>
@@ -383,7 +383,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             <p className="auth-note">
               {say('This is what a table sees and what the app cooks with — languages, what you cannot eat, how you eat. Change any of it later on your Passport.',
                 '밥상이 보는 것이자 앱이 쓰는 재료입니다 — 쓰는 언어, 못 드시는 것, 드시는 방식. 나중에 여권에서 언제든 바꾸실 수 있어요.',
-                'Esto es lo que ve una mesa y con lo que trabaja la app: idiomas, lo que no puedes comer, cómo comes. Puedes cambiarlo después en tu Pasaporte.')}
+                'Esto es lo que ve una mesa y con lo que trabaja la app: idiomas, lo que no puedes comer, cómo comes. Puedes cambiarlo después en tu Pasaporte.', "Voici ce qu'une table voit et ce avec quoi l'application travaille : les langues, ce que vous ne pouvez pas manger, comment vous mangez. Vous pourrez tout modifier ensuite dans votre Passeport.")}
             </p>
             <ProfileFields profile={profile} onProfileChange={onProfileChange} />
             <button className="auth-primary" onClick={() => setMode('avatar')}>
@@ -398,7 +398,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             <p className="auth-note">
               {say('This is how a table spots you at the station exit — the app has no chat, so a face does real work here. Square-cropped, shrunk small, shown beside your name.',
                 '역 출구에서 밥상 사람들이 당신을 알아보는 방법입니다. 이 앱에는 채팅이 없어서 얼굴이 실제로 일을 합니다. 정사각형으로 잘라 작게 줄여서, 이름 옆에 보입니다.',
-                'Así te reconoce una mesa a la salida del metro: la app no tiene chat, así que aquí una cara hace trabajo de verdad. Recortada en cuadrado, reducida y mostrada junto a tu nombre.')}
+                'Así te reconoce una mesa a la salida del metro: la app no tiene chat, así que aquí una cara hace trabajo de verdad. Recortada en cuadrado, reducida y mostrada junto a tu nombre.', "C'est ainsi qu'une table vous repère à la sortie du métro : l'application n'a pas de messagerie, alors ici un visage fait un vrai travail. Recadré en carré, réduit, affiché à côté de votre nom.")}
             </p>
             <input
               ref={fileRef}

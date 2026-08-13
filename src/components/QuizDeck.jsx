@@ -34,7 +34,7 @@ export default function QuizDeck({ menuId }) {
     <div className="quiz">
       <p className="quiz__count">
         {i + 1} of {questions.length}
-        {q.menuId && <span className="quiz__tag">{say('this dish', '이 요리', 'este plato')}</span>}
+        {q.menuId && <span className="quiz__tag">{say('this dish', '이 요리', 'este plato', 'ce plat')}</span>}
       </p>
 
       <div className="quiz__card">
@@ -43,13 +43,13 @@ export default function QuizDeck({ menuId }) {
         {!answered ? (
           <div className="quiz__choices">
             {/* O and X, the way the question would be written in Korean. */}
-            <button className="quiz__choice" onClick={() => setPicked(true)} aria-label={say('True', '맞다', 'Verdadero')}>
+            <button className="quiz__choice" onClick={() => setPicked(true)} aria-label={say('True', '맞다', 'Verdadero', 'Vrai')}>
               <span className="quiz__mark">○</span>
-              <span className="quiz__word">{say('True', '맞다', 'Verdadero')}</span>
+              <span className="quiz__word">{say('True', '맞다', 'Verdadero', 'Vrai')}</span>
             </button>
-            <button className="quiz__choice" onClick={() => setPicked(false)} aria-label={say('False', '아니다', 'Falso')}>
+            <button className="quiz__choice" onClick={() => setPicked(false)} aria-label={say('False', '아니다', 'Falso', 'Faux')}>
               <span className="quiz__mark">✕</span>
-              <span className="quiz__word">{say('False', '아니다', 'Falso')}</span>
+              <span className="quiz__word">{say('False', '아니다', 'Falso', 'Faux')}</span>
             </button>
           </div>
         ) : (
@@ -68,7 +68,7 @@ export default function QuizDeck({ menuId }) {
               </a>
             ))}
 
-            <button className="quiz__next" onClick={next}>{say('Next question', '다음 문제', 'Siguiente pregunta')}</button>
+            <button className="quiz__next" onClick={next}>{say('Next question', '다음 문제', 'Siguiente pregunta', 'Question suivante')}</button>
           </div>
         )}
       </div>

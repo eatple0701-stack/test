@@ -46,11 +46,11 @@ export default function FoodRoulette({ onClose, onOpenTables }) {
   };
 
   return (
-    <div className="match-modal-backdrop" role="dialog" aria-label={say('Pick a dish', '요리 고르기', 'Elegir un plato')} onClick={onClose}>
+    <div className="match-modal-backdrop" role="dialog" aria-label={say('Pick a dish', '요리 고르기', 'Elegir un plato', 'Choisir un plat')} onClick={onClose}>
       <div className="match-modal roulette" onClick={e => e.stopPropagation()}>
         <h2 className="roulette__title">
           <span translate="no">오늘 뭐 먹지</span>
-          <span className="roulette__title-en">{say('Cannot decide? Let it pick one.', '못 고르겠나요? 대신 골라 드릴게요.', '¿No te decides? Deja que elija por ti.')}</span>
+          <span className="roulette__title-en">{say('Cannot decide? Let it pick one.', '못 고르겠나요? 대신 골라 드릴게요.', '¿No te decides? Deja que elija por ti.', 'Vous hésitez ? Laissez-le choisir.')}</span>
         </h2>
 
         <div className="roulette__stage" aria-live="polite">
@@ -59,11 +59,11 @@ export default function FoodRoulette({ onClose, onOpenTables }) {
             <>
               <span className="roulette__dish-kr" translate="no">{result.nameKo}</span>
               <span className="roulette__dish-en">{result.name}</span>
-              <span className="roulette__gloss">{say(result.gloss, result.glossKo, result.glossEs)}</span>
+              <span className="roulette__gloss">{say(result.gloss, result.glossKo, result.glossEs, result.glossFr)}</span>
               {/* The reason, in the dish's own words from the catalogue. A
                   wheel that names a dish and stops is a slot machine; this is
                   the line that makes it an answer. */}
-              <span className="roulette__why">{say(result.whyShared, result.whySharedKo, result.whySharedEs)}</span>
+              <span className="roulette__why">{say(result.whyShared, result.whySharedKo, result.whySharedEs, result.whySharedFr)}</span>
             </>
           )}
           {!spinning && !result && (
