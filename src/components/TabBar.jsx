@@ -1,4 +1,5 @@
 import React from 'react';
+import { useText } from './localeText.js';
 
 const icons = {
   // The house went to Main when Main became the front door (2026-08-06);
@@ -65,14 +66,14 @@ const tabs = [
   // Meetup landing the team studied. English by default, like its four
   // siblings: the audience reads English, and the calendar already taught us
   // what one Korean-only label does to the person it matters most to.
-  { id: 'main', label: 'Main', kr: '메인' },
-  { id: 'home', label: 'Explore', kr: '문화' },
-  { id: 'match', label: 'Tables', kr: '밥상' },
-  { id: 'places', label: 'Places', kr: '장소' },
+  { id: 'main', label: 'Main', kr: '메인', es: 'Inicio' },
+  { id: 'home', label: 'Explore', kr: '문화', es: 'Cultura' },
+  { id: 'match', label: 'Tables', kr: '밥상', es: 'Mesas' },
+  { id: 'places', label: 'Places', kr: '장소', es: 'Sitios' },
   // Profile was a fifth tab and is now a section at the bottom of the
   // Passport. Both the 8/2 meeting and a foreign tester asked for the merge,
   // independently — and four labels fit a 375px bar without crowding.
-  { id: 'journal', label: 'Passport', kr: '여권' },
+  { id: 'journal', label: 'Passport', kr: '여권', es: 'Pasaporte' },
   // Settings was a fifth tab here for a day (2026-08-04) and moved out on
   // 2026-08-05, to the gear in the top-right of the app chrome beside 로그인.
   // Nothing was removed — the screen is the same screen. But primary
@@ -82,6 +83,7 @@ const tabs = [
 ];
 
 export default function TabBar({ activeTab, onSelect, isCollapsed }) {
+  const say = useText();
   return (
     <nav className="tab-bar" aria-label="Primary">
       {tabs.map(t => (
@@ -90,11 +92,13 @@ export default function TabBar({ activeTab, onSelect, isCollapsed }) {
           className={`tab-item${activeTab === t.id ? ' active' : ''}`}
           aria-current={activeTab === t.id ? 'page' : undefined}
           onClick={() => onSelect(t.id)}
-          title={isCollapsed ? t.label : undefined}
+          title={isCollapsed ? say(t.label, t.kr, t.es) : undefined}
         >
           {icons[t.id]}
-          <span className="tab-label tab-label--en">{t.label}</span>
-          <span className="tab-label l-ko-only" translate="no">{t.kr}</span>
+          {/* One element, not one per language. The two-span version came
+              from the CSS pass and could only ever hold two; a third would
+              have meant a third span and a third rule. */}
+          <span className="tab-label">{say(t.label, t.kr, t.es)}</span>
         </button>
       ))}
     </nav>

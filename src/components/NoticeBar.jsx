@@ -1,5 +1,6 @@
 import React from 'react';
 import { activeNotice } from '../content/notices.js';
+import { useText } from './localeText.js';
 
 // The team's one line, at the top of every screen.
 //
@@ -12,13 +13,19 @@ import { activeNotice } from '../content/notices.js';
 // that always has something in it stops being read within a week.
 
 export default function NoticeBar() {
+  const say = useText();
   const notice = activeNotice();
   if (!notice) return null;
 
+  // The two halves stay separate elements, because the bilingual default
+  // shows both and the stylesheet is what hides one. Spanish replaces the
+  // English half rather than adding a third line: three languages stacked
+  // above the content is a banner nobody reads, which is the rule this file
+  // opens with.
   return (
     <p className={`notice-bar notice-bar--${notice.kind}`} role="status">
       <span className="notice-bar__kr" translate="no">{notice.kr}</span>
-      <span className="notice-bar__en">{notice.en}</span>
+      <span className="notice-bar__en">{say(notice.en, notice.kr, notice.es)}</span>
     </p>
   );
 }

@@ -66,36 +66,43 @@ export const hasOtherDays = (open = [], dayFilter = null) =>
  * returned only when Korean is asked for.
  */
 export function emptyText(reason, { otherDays = false, locale = 'both' } = {}) {
-  const ko = locale === 'ko';
-  const pick = (en, korean) => (ko ? korean : en);
+  const pick = (en, korean, spanish) => {
+    if (locale === 'ko') return korean;
+    if (locale === 'es' && spanish) return spanish;
+    return en;
+  };
   switch (reason) {
     case EMPTY.GENDER:
       return {
-        title: pick('Nobody has said yet.', '아직 아무도 밝히지 않았어요.'),
+        title: pick('Nobody has said yet.', '아직 아무도 밝히지 않았어요.', 'Todavía no lo ha indicado nadie.'),
         body: pick(
           'Gender is new here — no host or guest has declared one yet. That is not the same as no table like this existing.',
           '성별 표시는 이제 막 생긴 기능이라, 호스트도 참석자도 아직 아무도 적지 않았습니다. 그런 밥상이 없다는 뜻은 아니에요.',
+          'El género es nuevo aquí: ningún anfitrión ni invitado lo ha declarado todavía. Eso no significa que no exista una mesa así.',
         ),
       };
     case EMPTY.DAY:
       return {
-        title: pick('Nothing on that day yet.', '그날은 아직 아무것도 없어요.'),
+        title: pick('Nothing on that day yet.', '그날은 아직 아무것도 없어요.', 'Ese día todavía no hay nada.'),
         body: otherDays
           ? pick(
             'Other days have tables — or open one and own the evening.',
             '다른 날에는 밥상이 있어요. 아니면 직접 하나 열어서 그 저녁을 가져가셔도 됩니다.',
+            'Otros días sí tienen mesas — o abre una tú y quédate con la noche.',
           )
           : pick(
             'No day this week has one yet. Open a table and this is the day it happens.',
             '이번 주에는 아직 어느 날에도 없습니다. 상을 차리시면 그날이 바로 이날이 됩니다.',
+            'Ningún día de esta semana tiene una todavía. Abre una mesa y ese será el día.',
           ),
       };
     case EMPTY.DISH:
       return {
-        title: pick('No table for this dish yet.', '이 요리로 열린 밥상이 아직 없어요.'),
+        title: pick('No table for this dish yet.', '이 요리로 열린 밥상이 아직 없어요.', 'Aún no hay mesa para este plato.'),
         body: pick(
           'Open it yourself and the seats are yours to fill.',
           '직접 열면 그 자리는 원하는 사람들로 채우실 수 있습니다.',
+          'Ábrela tú y los sitios son tuyos para llenarlos.',
         ),
       };
     case EMPTY.NONE:
@@ -104,10 +111,11 @@ export function emptyText(reason, { otherDays = false, locale = 'both' } = {}) {
       // does not push an account, because everything named here is free to
       // read without one. See AccessPolicy: browsing was always open.
       return {
-        title: pick('No tables open this week.', '이번 주에 열린 밥상이 없어요.'),
+        title: pick('No tables open this week.', '이번 주에 열린 밥상이 없어요.', 'Esta semana no hay mesas abiertas.'),
         body: pick(
           'Nobody has set one yet — so the first is yours to set. The dishes, the phrases for the table and the places are all here to read meanwhile.',
           '아직 아무도 차리지 않았습니다 — 그러니 첫 상은 당신 몫이에요. 그동안 요리와, 식탁에서 쓰는 말과, 장소는 전부 여기서 읽어보실 수 있습니다.',
+          'Todavía no la ha puesto nadie, así que la primera es tuya. Mientras tanto, los platos, las frases para la mesa y los sitios están aquí para leerlos.',
         ),
       };
     default:

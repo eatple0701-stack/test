@@ -6,11 +6,19 @@
 // The honest scope, measured before writing a line of this: the app holds
 // 22,342 Korean characters across 106 files, of which 187 are bilingual pairs
 // written as "상 차리기 · Open a table". Korean and English are the only two
-// languages every one of those pairs already contains — so those two can be
-// separated today, with no translation and nothing invented. A Spanish or
-// Japanese interface is a translation project, not a switch, and a picker
-// offering Español that silently served English would be the app lying about
-// what it is. Those options are not here until the words are.
+// languages every one of those pairs already contains — so those two could be
+// separated on day one, with no translation and nothing invented. A Spanish
+// interface was not a switch but a translation project, and this file said so
+// out loud rather than offering Español and quietly serving English.
+//
+// Español is here now (2026-08-12) because the words are. It arrived the way
+// Korean-only content did: a second string in the data for every article,
+// dish and card, picked by useText(). What it does not have is the pair
+// convention — nothing in this app is written "Abrir una mesa · Open a
+// table" — so the splitter below has no Spanish half to find, and a Spanish
+// screen falls back to English wherever a translation is still missing.
+// That fallback is the honest failure mode: an English sentence somebody can
+// read, rather than a blank where one should be.
 //
 // The mechanism is a split rather than a lookup table, and that is a
 // deliberate trade. A lookup table of 187 keys would be tidier and would
@@ -24,9 +32,10 @@ export const LOCALE = {
   BOTH: 'both',   // 한국어 · English — what the app has always shown
   KO: 'ko',       // 한국어만
   EN: 'en',       // English only
+  ES: 'es',       // Solo español
 };
 
-export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN];
+export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES];
 
 export const isLocale = (l) => LOCALES.includes(l);
 
@@ -39,7 +48,23 @@ export const LOCALE_LABEL = {
   [LOCALE.BOTH]: { kr: '한국어 + 영어', en: 'Korean + English' },
   [LOCALE.KO]: { kr: '한국어', en: 'Korean only' },
   [LOCALE.EN]: { kr: '영어', en: 'English only' },
+  // Named in its own language as well, because somebody looking for Spanish
+  // in a list of options is scanning for the word "Español", not for its
+  // English name.
+  [LOCALE.ES]: { kr: '스페인어', en: 'Español' },
 };
+
+/**
+ * Languages that fall back to English where a translation is missing.
+ *
+ * Korean does not need this — the app was bilingual from the start, so the
+ * Korean half exists for every label. Spanish arrived later and covers the
+ * content, not yet every corner of every sheet. Naming the set here means the
+ * splitter and the stylesheet agree on which locales are "English underneath"
+ * instead of each deciding separately and drifting.
+ */
+export const ENGLISH_FALLBACK = [LOCALE.EN, LOCALE.ES];
+export const fallsBackToEnglish = (l) => ENGLISH_FALLBACK.includes(l);
 
 const HANGUL = /[가-힣ㄱ-ㅎㅏ-ㅣ]/;
 
@@ -72,6 +97,9 @@ export function localeText(text, locale = DEFAULT_LOCALE) {
   if (locale === LOCALE.BOTH || !s.includes(' · ')) return s;
 
   const parts = s.split(' · ');
+  // Spanish takes the same half English does. These pairs were written as
+  // Korean-and-English and hold no third language, so the choice is between
+  // the Korean half and the readable one.
   const wanted = locale === LOCALE.KO
     ? parts.filter(p => isKorean(p))
     : parts.filter(p => !isKorean(p));
@@ -89,10 +117,12 @@ export function localeText(text, locale = DEFAULT_LOCALE) {
  * Returns the joined form for `both`, so a caller can print one value
  * regardless of the setting.
  */
-export function localePair({ kr, en } = {}, locale = DEFAULT_LOCALE) {
+export function localePair({ kr, en, es } = {}, locale = DEFAULT_LOCALE) {
   const k = String(kr ?? '').trim();
   const e = String(en ?? '').trim();
+  const sp = String(es ?? '').trim();
   if (locale === LOCALE.KO) return k || e;
+  if (locale === LOCALE.ES) return sp || e || k;
   if (locale === LOCALE.EN) return e || k;
   return [k, e].filter(Boolean).join(' · ');
 }

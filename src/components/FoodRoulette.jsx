@@ -59,11 +59,11 @@ export default function FoodRoulette({ onClose, onOpenTables }) {
             <>
               <span className="roulette__dish-kr" translate="no">{result.nameKo}</span>
               <span className="roulette__dish-en">{result.name}</span>
-              <span className="roulette__gloss">{say(result.gloss, result.glossKo)}</span>
+              <span className="roulette__gloss">{say(result.gloss, result.glossKo, result.glossEs)}</span>
               {/* The reason, in the dish's own words from the catalogue. A
                   wheel that names a dish and stops is a slot machine; this is
                   the line that makes it an answer. */}
-              <span className="roulette__why">{say(result.whyShared, result.whySharedKo)}</span>
+              <span className="roulette__why">{say(result.whyShared, result.whySharedKo, result.whySharedEs)}</span>
             </>
           )}
           {!spinning && !result && (

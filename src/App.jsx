@@ -19,6 +19,7 @@ import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 import { getStoredLocale, setStoredLocale } from './data/locale.js';
 import LocaleFilter from './components/LocaleFilter';
 import { LocaleContext } from './components/localeText.js';
+import { LOCALE } from './domain/policy/locale.js';
 // From the repository, not the profile module: it is the seam that knows
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
@@ -161,6 +162,14 @@ export default function App() {
   // screen feels it at once. A device preference like the theme, not a
   // profile field — see src/data/locale.js.
   const [locale, setLocaleState] = useState(getStoredLocale);
+  // The top-right corner fits one word per button, so this picks rather than
+  // pairs — the Korean is the bilingual default because that is what the team
+  // has always seen there, and each single-language setting replaces it.
+  const chromeWord = (kr, en, es) => {
+    if (locale === LOCALE.EN) return en;
+    if (locale === LOCALE.ES) return es;
+    return kr;
+  };
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
   const [focusStory, setFocusStory] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
@@ -789,8 +798,7 @@ export default function App() {
                   await refreshAuth();
                 }}
               >
-                <span className="app-chrome__word-kr" translate="no">로그아웃</span>
-                <span className="app-chrome__word l-en-only">Sign out</span>
+                <span className="app-chrome__word">{chromeWord('로그아웃', 'Sign out', 'Cerrar sesión')}</span>
               </button>
             </>
           ) : (
@@ -803,12 +811,10 @@ export default function App() {
                made the two most important controls the least legible. */
             <span className="app-chrome__auth">
               <button className="app-chrome__signin" onClick={() => setAuthMode('signin')}>
-                <span className="app-chrome__word-kr" translate="no">로그인</span>
-                <span className="app-chrome__word l-en-only">Sign in</span>
+                <span className="app-chrome__word">{chromeWord('로그인', 'Sign in', 'Entrar')}</span>
               </button>
               <button className="app-chrome__join" onClick={() => setAuthMode('signup')}>
-                <span className="app-chrome__word-kr" translate="no">가입하기</span>
-                <span className="app-chrome__word l-en-only">Join</span>
+                <span className="app-chrome__word">{chromeWord('가입하기', 'Join', 'Únete')}</span>
               </button>
             </span>
           )}

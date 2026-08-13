@@ -21,7 +21,9 @@
 //
 //   One at a time. A banner stack is a banner nobody reads.
 //   Say what it means for the reader, not what happened to us.
-//   Every notice carries both languages, like everything else here.
+//   Every notice carries every language the app offers — a banner is the
+//   one thing on screen that cannot be skipped, so it must not be the one
+//   thing somebody cannot read.
 //   A notice with an `until` disappears on its own; nobody has to remember.
 
 export const NOTICE_KIND = {
@@ -43,6 +45,7 @@ export const NOTICES = [
     kind: NOTICE_KIND.ABOUT,
     kr: '지금은 파일럿 기간이에요.',
     en: 'This is a pilot, so there are only a few tables yet — and opening one yourself is the fastest way to get a table on your week.',
+    es: 'Esto es un piloto, así que todavía hay pocas mesas — y abrir una tú mismo es la forma más rápida de tener mesa esta semana.',
     until: '2026-09-01',
   },
 ];

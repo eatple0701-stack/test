@@ -1,7 +1,7 @@
 import React from 'react';
 import PlaceImage from './PlaceImage';
 import { HeartIcon } from './Icons';
-import { CATEGORY_LABEL, CATEGORY_LABEL_KO, ZONE_KO } from '../data/culture';
+import { CATEGORY_LABEL, CATEGORY_LABEL_KO, CATEGORY_LABEL_ES, ZONE_KO, ZONE_ES } from '../data/culture';
 import { useText } from './localeText.js';
 
 // The shared card for every place-scroll-row (Popular, Hidden Gems, Weekend
@@ -18,8 +18,11 @@ export default function PlaceCard({ place, onClick, isSaved, onToggleSave }) {
   // Cafe & Kitchen) keeps the one name it has in both.
   const roman = place.name.split('(')[0].trim();
   const inBrackets = place.name.match(/\(([^)]+)\)/)?.[1]?.trim();
-  const name = say(roman, inBrackets || roman);
-  const category = say(CATEGORY_LABEL[place.category], CATEGORY_LABEL_KO[place.category]);
+  // Spanish gets the romanisation, not the sign: a Spanish reader cannot
+  // read 발우공양 any more than an English one can, and the point of the
+  // romanised name is that it can be said out loud.
+  const name = say(roman, inBrackets || roman, roman);
+  const category = say(CATEGORY_LABEL[place.category], CATEGORY_LABEL_KO[place.category], CATEGORY_LABEL_ES[place.category]);
 
   return (
     <div className="place-card">
@@ -30,8 +33,8 @@ export default function PlaceCard({ place, onClick, isSaved, onToggleSave }) {
         </div>
         <div className="place-card__body">
           <h3>{name}</h3>
-          <p className="place-card__zone">{say(place.zone, ZONE_KO[place.zone])}</p>
-          {place.vibe && <p className="place-card__blurb">{say(place.vibe, place.vibeKo)}</p>}
+          <p className="place-card__zone">{say(place.zone, ZONE_KO[place.zone], ZONE_ES[place.zone])}</p>
+          {place.vibe && <p className="place-card__blurb">{say(place.vibe, place.vibeKo, place.vibeEs)}</p>}
         </div>
       </button>
       {onToggleSave && (

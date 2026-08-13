@@ -319,32 +319,40 @@ export default function JournalPanel({
       id: 'first-table',
       name: 'Share one table',
       nameKo: '밥상 하나를 함께하기',
+      nameEs: 'Compartir una mesa',
       hint: 'The whole idea, once.',
       hintKo: '이 앱의 전부를, 한 번.',
+      hintEs: 'La idea entera, una vez.',
       current: eaten.length, target: 1,
     },
     {
       id: 'three-dishes',
       name: 'Three dishes you could not have ordered alone',
       nameKo: '혼자서는 못 시켰을 요리 세 가지',
+      nameEs: 'Tres platos que no habrías podido pedir solo',
       hint: 'Different dishes, not repeats.',
       hintKo: '같은 요리 말고, 서로 다른 것으로.',
+      hintEs: 'Platos distintos, sin repetir.',
       current: dishesShared, target: 3,
     },
     {
       id: 'two-countries',
       name: 'Eat with people from two countries',
       nameKo: '두 나라 사람과 함께 먹기',
+      nameEs: 'Comer con gente de dos países',
       hint: 'Counted from who was at your tables.',
       hintKo: '당신의 밥상에 실제로 앉았던 사람들로 셉니다.',
+      hintEs: 'Se cuenta por quién estuvo en tus mesas.',
       current: distinctNationalities, target: 2,
     },
     {
       id: 'one-culture',
       name: 'Walk one culture end to end',
       nameKo: '문화 하나를 끝까지 걷기',
+      nameEs: 'Recorrer una cultura de principio a fin',
       hint: 'Any theme on Explore, finished.',
       hintKo: '문화 탭의 아무 이야기나, 끝까지.',
+      hintEs: 'Cualquier historia de Cultura, terminada.',
       current: journey.experienceCount, target: 2,
     },
   ].map(g => ({
@@ -367,12 +375,12 @@ export default function JournalPanel({
           <div>
             <span className="screen-head__kr">여권</span>
             <h1 className="screen-head__title">
-              {say('What this trip has been so far.', '이번 여행이 지금까지 어땠는지.')}
+              {say('What this trip has been so far.', '이번 여행이 지금까지 어땠는지.', 'Lo que ha sido este viaje hasta ahora.')}
             </h1>
           </div>
           {onOpenSummary && (
             <button className="screen-head__link" onClick={onOpenSummary}>
-              {say('Share', '공유')}
+              {say('Share', '공유', 'Compartir')}
             </button>
           )}
         </div>
@@ -383,14 +391,15 @@ export default function JournalPanel({
         <p className="screen-head__sub">
           {recordCount > 0
             ? say(`${recordCount} moment${recordCount === 1 ? '' : 's'} recorded.`,
-              `기록된 순간 ${recordCount}개.`)
+              `기록된 순간 ${recordCount}개.`,
+              `${recordCount} ${recordCount === 1 ? 'momento registrado' : 'momentos registrados'}.`)
             : upcomingTables.length > 0
               ? say(`Nothing recorded yet — ${upcomingTables.length === 1
                   ? 'one table booked. It lands here after.'
                   : `${upcomingTables.length} tables booked. They land here after.`}`,
               `아직 기록은 없어요 — 잡아 둔 밥상 ${upcomingTables.length}개가 끝나면 여기로 옵니다.`)
               : say('Nothing recorded yet — whatever you do lands here.',
-                '아직 기록이 없어요 — 무엇을 하시든 여기에 남습니다.')}
+                '아직 기록이 없어요 — 무엇을 하시든 여기에 남습니다.', 'Todavía no hay nada registrado — lo que hagas aparecerá aquí.')}
         </p>
       </header>
 
@@ -492,10 +501,12 @@ export default function JournalPanel({
       ) : (
         <div className="member-gate member-gate--inline">
           <h3 className="member-gate__title">
-            {gateText('passport').titleKr}
-            <span className="member-gate__title-en">{gateText('passport').titleEn}</span>
+            <span className="member-gate__title-kr" translate="no">{gateText('passport').titleKr}</span>
+            <span className="member-gate__title-en">
+              {say(gateText('passport').titleEn, null, gateText('passport').titleEs)}
+            </span>
           </h3>
-          <p className="member-gate__body">{say(gateText('passport').body, gateText('passport').bodyKo)}</p>
+          <p className="member-gate__body">{say(gateText('passport').body, gateText('passport').bodyKo, gateText('passport').bodyEs)}</p>
           <button className="auth-primary" translate="no" onClick={() => onRequireAuth?.('passport')}>
             {gateText('passport').cta}
           </button>
@@ -509,7 +520,7 @@ export default function JournalPanel({
         <span className="journal-tool__kr" translate="no">식탁에서</span>
         <span className="journal-tool__body">
           {say('What to say — ordering, what you cannot eat, and something to ask the table. Works with or without a meal booked.',
-            '무슨 말을 할지 — 주문할 때, 못 먹는 것을 말할 때, 같이 앉은 사람에게 물어볼 때. 잡아 둔 밥상이 없어도 됩니다.')}
+            '무슨 말을 할지 — 주문할 때, 못 먹는 것을 말할 때, 같이 앉은 사람에게 물어볼 때. 잡아 둔 밥상이 없어도 됩니다.', 'Qué decir: para pedir, para explicar lo que no puedes comer y para preguntar algo en la mesa. Funciona con o sin comida reservada.')}
         </span>
       </button>
 
@@ -520,7 +531,7 @@ export default function JournalPanel({
         <span className="journal-tool__kr" translate="no">도움이 필요하면</span>
         <span className="journal-tool__body">
           {say('112, 119, the 24-hour travel helpline, and how to reach the Eatple team. You can leave any meal at any point.',
-            '112, 119, 24시간 관광통역안내, 그리고 밥친구 팀에 연락하는 방법. 어느 식사든 언제라도 자리를 뜨셔도 됩니다.')}
+            '112, 119, 24시간 관광통역안내, 그리고 밥친구 팀에 연락하는 방법. 어느 식사든 언제라도 자리를 뜨셔도 됩니다.', '112, 119, la línea de ayuda al viajero 24 horas y cómo contactar con el equipo de Eatple. Puedes irte de cualquier comida en cualquier momento.')}
         </span>
       </button>
 
@@ -639,17 +650,19 @@ export default function JournalPanel({
         <div className="journal-empty">
           <p className="journal-empty__kr" translate="no">아직 아무것도 없어요</p>
           <p className="journal-empty__en">
-            This fills itself. Ask for a seat at a table, or read your way
-            through a culture — whatever you do lands here, with the date it
-            happened.
+            {say(
+              'This fills itself. Ask for a seat at a table, or read your way through a culture — whatever you do lands here, with the date it happened.',
+              null,
+              'Esto se llena solo. Pide sitio en una mesa, o recorre una cultura leyendo — hagas lo que hagas aparece aquí, con la fecha en que pasó.',
+            )}
           </p>
           {onNavigate && (
             <div className="journal-empty__ways">
               <button className="journal-empty__cta" translate="no" onClick={() => onNavigate('match')}>
-                밥상 찾기 · Find a table
+                {say('밥상 찾기 · Find a table', null, 'Buscar una mesa')}
               </button>
               <button className="journal-empty__ask" translate="no" onClick={() => onNavigate('home')}>
-                문화 읽기 · Read a culture
+                {say('문화 읽기 · Read a culture', null, 'Leer una cultura')}
               </button>
             </div>
           )}
@@ -661,7 +674,7 @@ export default function JournalPanel({
           statistic, and a wishlist is not an achievement. */}
       <div className="journal-section passport-summary">
         <div className="journal-section-header">
-          <h3>{say('This trip so far', '이번 여행, 지금까지')}</h3>
+          <h3>{say('This trip so far', '이번 여행, 지금까지', 'Este viaje hasta ahora')}</h3>
         </div>
         <div className="passport-stats">
           <div className="stat-box">
@@ -727,11 +740,11 @@ export default function JournalPanel({
             <li key={g.id} className={`goal${g.done ? ' is-done' : ''}`}>
               <span className="goal__mark" aria-hidden="true">{g.done ? '✓' : ''}</span>
               <span className="goal__body">
-                <span className="goal__name">{say(g.name, g.nameKo)}</span>
+                <span className="goal__name">{say(g.name, g.nameKo, g.nameEs)}</span>
                 <span className="goal__hint">
                   {g.done
-                    ? say('Done.', '완료.')
-                    : `${say(g.hint, g.hintKo)} ${g.current}/${g.target}`}
+                    ? say('Done.', '완료.', 'Hecho.')
+                    : `${say(g.hint, g.hintKo, g.hintEs)} ${g.current}/${g.target}`}
                 </span>
               </span>
             </li>

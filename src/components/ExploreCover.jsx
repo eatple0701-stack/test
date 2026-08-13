@@ -6,6 +6,14 @@ import { LOCALE } from '../domain/policy/locale.js';
 
 const DATE_FORMAT = { weekday: 'long', day: 'numeric', month: 'long' };
 
+// "Friday 14 August" on an otherwise Spanish cover is the one line that gives
+// away that the screen was translated rather than written. Intl already knows
+// every one of these; the only decision here is which tag to hand it.
+const DATE_LOCALE = {
+  [LOCALE.KO]: 'ko-KR',
+  [LOCALE.ES]: 'es-ES',
+};
+
 // The cover of the issue.
 //
 // What stood here before was a hero that explained the app — "Experience Korea
@@ -32,36 +40,40 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
       )}
 
       <div className="cover__masthead">
-        <span className="cover__label" translate="no">오늘의 추천 · Editor&rsquo;s pick</span>
+        <span className="cover__label" translate="no">
+          {say('오늘의 추천 · Editor\u2019s pick', null, 'La elección del editor')}
+        </span>
         {/* The date follows the setting too. "Tuesday, 11 August" on an
             otherwise Korean cover is the one line that gives away that this
             screen was translated rather than written. */}
         <span className="cover__date">
-          {at.toLocaleDateString(locale === LOCALE.KO ? 'ko-KR' : 'en-GB', DATE_FORMAT)}
+          {at.toLocaleDateString(DATE_LOCALE[locale] ?? 'en-GB', DATE_FORMAT)}
         </span>
       </div>
 
       <h1 className="cover__question">
         {editorial
-          ? say(editorial.question, editorial.questionKo)
-          : say(theme.tagline, theme.taglineKo)}
+          ? say(editorial.question, editorial.questionKo, editorial.questionEs)
+          : say(theme.tagline, theme.taglineKo, theme.taglineEs)}
       </h1>
 
       {/* Just the name. A tagline sat here through the first build, between
           the question and the reason, and it read as a third voice competing
           with two better ones — the question is the hook and the note is the
           judgement. Neither needs a subtitle explaining it. */}
-      <p className="cover__theme">{say(theme.title, theme.titleKo)}</p>
+      <p className="cover__theme">{say(theme.title, theme.titleKo, theme.titleEs)}</p>
 
       {reason && (
         <div className="cover__note">
-          <span className="cover__note-label">{say('Why this, today', '오늘 이걸 고른 이유')}</span>
+          <span className="cover__note-label">{say('Why this, today', '오늘 이걸 고른 이유', 'Por qué esto, hoy')}</span>
           <p className="cover__note-body">{reason}</p>
         </div>
       )}
 
       <button className="cover__cta" onClick={() => onOpen(theme.id)}>
-        {progress?.done > 0 ? '이어서 보기 · Pick it back up' : '들어가기 · Enter this culture'}
+        {progress?.done > 0
+          ? say('이어서 보기 · Pick it back up', null, 'Retomarlo')
+          : say('들어가기 · Enter this culture', null, 'Entrar en esta cultura')}
         <ChevronRightIcon size={16} />
       </button>
     </section>

@@ -32,36 +32,43 @@ export const EDITORIAL = {
   'temple-life': {
     question: 'Why does a monk leave nothing on the plate?',
     questionKo: '스님은 왜 그릇에 아무것도 남기지 않을까요?',
+    questionEs: '¿Por qué un monje no deja nada en el plato?',
     word: '사찰음식',
   },
   'street-food': {
     question: 'What does a city eat before it builds dining rooms?',
     questionKo: '식당이 생기기 전, 도시는 무엇을 먹었을까요?',
+    questionEs: '¿Qué come una ciudad antes de construir comedores?',
     word: '시장',
   },
   'noodle-road': {
     question: 'Which Korean dish is Chinese in name only?',
     questionKo: '이름만 중국인 한국 음식은 무엇일까요?',
+    questionEs: '¿Qué plato coreano solo es chino en el nombre?',
     word: '짜장면',
   },
   'cafe-hopping': {
     question: 'Why will nobody ask you to leave after one cup?',
     questionKo: '한 잔만 시켜도 왜 아무도 나가라고 하지 않을까요?',
+    questionEs: '¿Por qué nadie te pedirá que te vayas tras una sola taza?',
     word: '한 잔',
   },
   'seoul-after-dark': {
     question: 'Why is the second round a different conversation?',
     questionKo: '2차의 대화는 왜 1차와 다를까요?',
+    questionEs: '¿Por qué la segunda ronda es otra conversación?',
     word: '이차',
   },
   'busan-seafood': {
     question: 'Why wrap the fish instead of dipping it?',
     questionKo: '회를 찍어 먹지 않고 왜 싸서 먹을까요?',
+    questionEs: '¿Por qué se envuelve el pescado en vez de mojarlo?',
     word: '자갈치',
   },
   'spring-picnic': {
     question: 'What does a country do with two weeks of blossom?',
     questionKo: '두 주뿐인 벚꽃철에 온 나라는 무엇을 할까요?',
+    questionEs: '¿Qué hace un país con dos semanas de flor de cerezo?',
     word: '벚꽃',
   },
 };

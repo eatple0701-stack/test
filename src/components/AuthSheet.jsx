@@ -245,9 +245,13 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
                 traveller who does not read Korean. */}
             <h2 className="auth-title">
               <span className="auth-title__kr">{gate ? gate.titleKr : '회원가입'}</span>
-              <span className="auth-title__en">{gate ? gate.titleEn : 'Join 밥친구'}</span>
+              <span className="auth-title__en">
+                {gate
+                  ? say(gate.titleEn, null, gate.titleEs)
+                  : say('Join Eatple', null, 'Únete a Eatple')}
+              </span>
             </h2>
-            {gate && <p className="auth-gate__body">{say(gate.body, gate.bodyKo)}</p>}
+            {gate && <p className="auth-gate__body">{say(gate.body, gate.bodyKo, gate.bodyEs)}</p>}
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google
             </button>
@@ -272,7 +276,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <div className="auth-form">
             <h2 className="auth-title">
               <span className="auth-title__kr">가입을 완료해 주세요</span>
-              <span className="auth-title__en">Finish signing up</span>
+              <span className="auth-title__en">{say('Finish signing up', null, 'Termina el registro')}</span>
             </h2>
 
             <Field id="email" bad={bad} problems={problems} markRef={markRef}
@@ -316,7 +320,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <div className="auth-form">
             <h2 className="auth-title">
               <span className="auth-title__kr">로그인</span>
-              <span className="auth-title__en">Sign in</span>
+              <span className="auth-title__en">{say('Sign in', null, 'Entrar')}</span>
             </h2>
             <button className="auth-google" onClick={google} translate="no">
               Google로 계속 · Continue with Google

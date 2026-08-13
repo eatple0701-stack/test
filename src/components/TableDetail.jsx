@@ -441,8 +441,8 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         </h2>
         {/* Under the name, above the reason. Somebody who arrived on a shared
             link may be meeting this word for the first time. */}
-        <p className="detail-hero__gloss">{say(menu.gloss, menu.glossKo)}</p>
-        <p className="detail-hero__why">{say(menu.whyShared, menu.whySharedKo)}</p>
+        <p className="detail-hero__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs)}</p>
+        <p className="detail-hero__why">{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs)}</p>
       </div>
 
       {/* When, where, how many — moved directly under the dish on 8/4.
@@ -528,7 +528,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
 
       <div className="detail-block">
         <h3 className="detail-block__label">What happens at the table</h3>
-        <p className="detail-block__body">{say(menu.howItWorks, menu.howItWorksKo)}</p>
+        <p className="detail-block__body">{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs)}</p>
         {menu.contains.length > 0 && (
           <p className="detail-block__contains">Contains {menu.contains.join(', ')}</p>
         )}
@@ -575,7 +575,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             Why it is eaten together
             <ChevronRightIcon size={14} />
           </summary>
-          <p className="detail-culture">{say(menu.culture, menu.cultureKo)}</p>
+          <p className="detail-culture">{say(menu.culture, menu.cultureKo, menu.cultureEs)}</p>
 
           {/* Offered only where the catalog genuinely places the dish inside a
               theme. Six of the ten belong to no theme, and manufacturing

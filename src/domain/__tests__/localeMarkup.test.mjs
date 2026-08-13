@@ -82,24 +82,39 @@ test('the front page says every hero word in both languages', () => {
   assert.equal(main.split('main-band__title-en').length - 1, 2);
 });
 
-test('every tab in the bar has a Korean label as well as an English one', () => {
+test('every tab in the bar is labelled in every language the app offers', () => {
   const bar = read('components/TabBar.jsx');
   const list = bar.slice(bar.indexOf('const tabs = ['), bar.indexOf('export default'));
   const ids = list.match(/id: '/g) ?? [];
-  const krs = list.match(/kr: '/g) ?? [];
   assert.equal(ids.length, 5, 'the bar should still be five tabs');
-  assert.equal(krs.length, ids.length, 'a tab without a Korean label cannot follow the setting');
-  // Shown instead of the English word, never beside it: five items share a
-  // 375px bar and two words per item do not fit.
-  assert.match(bar, /tab-label l-ko-only/);
+  for (const field of ['kr', 'es']) {
+    const found = list.match(new RegExp(`${field}: '`, 'g')) ?? [];
+    assert.equal(found.length, ids.length, `a tab without a ${field} label cannot follow the setting`);
+  }
+  // One element, not one per language. The two-span version was a CSS trick
+  // that could hold exactly two; the bar has three languages now, and five
+  // items sharing a 375px screen still have room for one word each.
+  assert.ok(
+    bar.includes('<span className="tab-label">{say(t.label, t.kr, t.es)}</span>'),
+    'the label should be one element asking say() for the right language',
+  );
+  assert.equal(bar.includes('l-ko-only'), false, 'the CSS-pair version should be gone');
 });
 
-test('the two buttons in the top corner are not Korean-only', () => {
+test('the three buttons in the top corner speak every setting', () => {
   // 로그인 and 가입하기 sat in every setting, including the English one, and
-  // they are the first thing a traveller has to find.
+  // they are the first thing a traveller has to find. The corner fits one
+  // word, so these pick rather than pair — chromeWord, not say().
   const app = read('App.jsx');
-  for (const [korean, english] of [['로그인', 'Sign in'], ['가입하기', 'Join'], ['로그아웃', 'Sign out']]) {
-    assert.ok(app.includes(korean), `${korean} should still be the default label`);
-    assert.match(app, new RegExp(`l-en-only">${english}<`), `${korean} has no English half`);
+  for (const [korean, english, spanish] of [
+    ['로그인', 'Sign in', 'Entrar'],
+    ['가입하기', 'Join', 'Únete'],
+    ['로그아웃', 'Sign out', 'Cerrar sesión'],
+  ]) {
+    assert.ok(
+      app.includes(`chromeWord('${korean}', '${english}', '${spanish}')`),
+      `${korean} is not offered in all three`,
+    );
   }
+  assert.ok(app.includes('const chromeWord = (kr, en, es) =>'));
 });

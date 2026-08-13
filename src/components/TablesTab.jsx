@@ -162,11 +162,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       <header className="screen-head screen-head--dark">
         <span className="screen-head__kr">밥친구</span>
         <h1 className="screen-head__title">
-          {say('Dishes you cannot order alone.', '혼자서는 주문할 수 없는 음식들.')}
+          {say('Dishes you cannot order alone.', '혼자서는 주문할 수 없는 음식들.', 'Platos que no puedes pedir solo.')}
         </h1>
         <p className="screen-head__sub">
           {say('Ask to sit at a table, or open one and see who comes.',
-            '밥상에 자리를 청하거나, 직접 하나 열고 누가 오는지 보세요.')}
+            '밥상에 자리를 청하거나, 직접 하나 열고 누가 오는지 보세요.', 'Pide sitio en una mesa, o abre una y mira quién viene.')}
         </p>
         {/* One CTA, chosen by who is looking — Meetup's front page asks a
             stranger to join, not to host. A member gets the real verb. The
@@ -179,7 +179,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         ) : (
           <>
             <button className="screen-head__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-              무료로 가입하기 · Join free
+              {say('무료로 가입하기 · Join free', null, 'Únete gratis')}
             </button>
             {/* What joining buys, as a number. 야놀자 does not say "join for
                 benefits", it says you get the member price — the reward is
@@ -188,8 +188,16 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 than promising a full one. */}
             <p className="screen-head__reward">
               {open.length > 0
-                ? `가입하면 지금 열려 있는 밥상 ${open.length}곳에 자리를 요청할 수 있어요 · ${open.length} table${open.length === 1 ? '' : 's'} open right now`
-                : '가입하면 첫 밥상을 직접 열 수 있어요 · Join and open the first table yourself'}
+                ? say(
+                  `가입하면 지금 열려 있는 밥상 ${open.length}곳에 자리를 요청할 수 있어요 · ${open.length} table${open.length === 1 ? '' : 's'} open right now`,
+                  null,
+                  `Con una cuenta puedes pedir sitio en ${open.length} mesa${open.length === 1 ? '' : 's'} abierta${open.length === 1 ? '' : 's'} ahora mismo`,
+                )
+                : say(
+                  '가입하면 첫 밥상을 직접 열 수 있어요 · Join and open the first table yourself',
+                  null,
+                  'Con una cuenta puedes abrir tú mismo la primera mesa',
+                )}
             </p>
           </>
         )}
@@ -303,7 +311,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                     no meaning attached. */}
                 <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
                 <span className="menu-chip__en">{m.name}</span>
-                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo)}</span>
+                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo, m.glossEs)}</span>
               </button>
             );
           })}
@@ -320,7 +328,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           aria-pressed={womenFilter}
           onClick={() => setWomenFilter(w => !w)}
         >
-          여성 동석 · Tables with another woman going
+          {say('여성 동석 · Tables with another woman going', null, 'Mesas con otra mujer apuntada')}
         </button>
       </div>
 
@@ -427,7 +435,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               <button key={m.id} className="menu-chip" onClick={() => setOpenDish(m)}>
                 <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
                 <span className="menu-chip__en">{m.name}</span>
-                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo)}</span>
+                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo, m.glossEs)}</span>
               </button>
             ))}
           </div>
@@ -524,7 +532,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               </span>
 
               <h2 className="table-card__dish">{menu.name}</h2>
-              <p className="table-card__gloss">{say(menu.gloss, menu.glossKo)}</p>
+              <p className="table-card__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs)}</p>
 
               {/* 신보람 교수님's note, answered where it is actually asked.
                   The badge above says 호스트 테이블 — a category. This says
@@ -680,13 +688,13 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               <li key={s.id} className="how-strip__step">
                 <span className="how-strip__num" aria-hidden="true">{i + 1}</span>
                 <span className="how-strip__kr" translate="no">{s.kr}</span>
-                <span className="how-strip__en">{s.en}</span>
+                <span className="how-strip__en">{say(s.en, null, s.es)}</span>
               </li>
             ))}
           </ol>
           <p className="how-strip__why">
             <span className="how-strip__why-kr" translate="no">{HOW_WHY.kr}</span>
-            <span className="how-strip__why-en">{HOW_WHY.en}</span>
+            <span className="how-strip__why-en">{say(HOW_WHY.en, null, HOW_WHY.es)}</span>
           </p>
         </div>
       )}
@@ -704,15 +712,17 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       {!isMember(auth) && (
         <div className="promises" aria-label={PROMISES_LEAD.kr}>
           <h2 className="promises__lead promises__lead-kr" translate="no">{PROMISES_LEAD.kr}</h2>
-          <h2 className="promises__lead l-en-only">{PROMISES_LEAD.titleEn}</h2>
-          <p className="promises__sub">{say(PROMISES_LEAD.en, PROMISES_LEAD.ko)}</p>
+          <h2 className="promises__lead l-en-only">
+            {say(PROMISES_LEAD.titleEn, null, PROMISES_LEAD.titleEs)}
+          </h2>
+          <p className="promises__sub">{say(PROMISES_LEAD.en, PROMISES_LEAD.ko, PROMISES_LEAD.es)}</p>
           <ul className="promises__list">
             {PROMISES.map(p => (
               <li key={p.id} className="promise">
                 <CheckIcon size={15} />
                 <span className="promise__body">
                   <span className="promise__kr" translate="no">{p.kr}</span>
-                  <span className="promise__en">{say(p.en, p.ko)}</span>
+                  <span className="promise__en">{say(p.en, p.ko, p.es)}</span>
                 </span>
               </li>
             ))}

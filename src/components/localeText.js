@@ -11,7 +11,8 @@ import { LOCALE, DEFAULT_LOCALE } from '../domain/policy/locale.js';
 // It cannot help with content, because content was written once, in English:
 // the seven culture questions, the theme narratives, the restaurant write-ups,
 // the quiz. There is no Korean half to keep. Those need a second string in the
-// data and a component that picks one, which is what this is.
+// data and a component that picks one, which is what this is — and a third
+// once Español arrived, which needed no new mechanism, only a third argument.
 //
 // Why a context rather than a prop threaded down: the render sites are deep
 // (PlacesTab → PlaceCard → RestaurantDetail → the culture block inside it),
@@ -24,25 +25,32 @@ import { LOCALE, DEFAULT_LOCALE } from '../domain/policy/locale.js';
 
 export const LocaleContext = createContext(DEFAULT_LOCALE);
 
-/** The current setting: 'both', 'ko' or 'en'. */
+/** The current setting: 'both', 'ko', 'en' or 'es'. */
 export const useLocale = () => useContext(LocaleContext);
 
 /**
- * Picks the Korean text when Korean is what was asked for and Korean exists.
+ * say(en, ko, es) — the text in whichever language was asked for.
  *
- * Falls back to English in every other case, including the bilingual default
- * — which is deliberate. `both` is the screen the team has reviewed, and this
- * app's content was written for English readers; showing a Korean paragraph
- * above every English one would double the length of every article on the
- * argument that the setting is called "both". Korean-only is the setting that
- * asks for Korean, and it is the setting that gets it.
+ * English is both the first argument and the fallback, which is deliberate on
+ * two counts. `both` is the screen the team has reviewed, and this app's
+ * content was written for English readers: showing a Korean paragraph above
+ * every English one would double the length of every article on the argument
+ * that the setting is called "both". And a missing translation returns the
+ * English rather than a blank — an untranslated paragraph is worth reading,
+ * an empty one is a bug on screen.
  *
- * A missing Korean string returns the English rather than a blank: an
- * untranslated paragraph is worth reading, an empty one is a bug on screen.
- * That fallback is also what lets this land one screen at a time instead of
- * in one commit that has to translate everything before anything works.
+ * That fallback is also what let Korean land one screen at a time rather than
+ * in one commit that had to translate everything before anything worked, and
+ * it is what lets Spanish do the same now. The cost is that a missing
+ * translation is invisible to the reader, so the suite asserts the twins
+ * exist instead — see src/domain/__tests__/koreanContent.test.mjs and its
+ * Spanish sibling.
  */
 export function useText() {
   const locale = useLocale();
-  return useMemo(() => (en, ko) => (locale === LOCALE.KO && ko ? ko : en), [locale]);
+  return useMemo(() => (en, ko, es) => {
+    if (locale === LOCALE.KO && ko) return ko;
+    if (locale === LOCALE.ES && es) return es;
+    return en;
+  }, [locale]);
 }

@@ -58,9 +58,10 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
           <h3>언어 · Language</h3>
         </div>
         <p className="journal-settings__hint">
-          한국어와 영어를 함께 보거나, 하나만 보이게 할 수 있어요.
-          Korean and English together, or just one of them. Stays on this
-          device.
+          한국어와 영어를 함께 보거나, 하나만 보이게 할 수 있어요. 스페인어도 됩니다.
+          Korean and English together, one of them on its own, or Spanish.
+          Stays on this device. · Coreano e inglés juntos, uno de los dos, o
+          español. Se guarda en este dispositivo.
         </p>
         <div className="chip-row">
           {LOCALES.map(l => (
@@ -75,15 +76,19 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
             </button>
           ))}
         </div>
-        {/* Said here rather than left for somebody to discover by choosing
-            Español and getting English. The app holds 22,342 Korean
-            characters and their English halves; it holds no third language,
-            and a picker that offered one would be claiming a translation
-            nobody wrote. */}
+        {/* This used to say Español was not offered, because offering it
+            and serving English would have been the app claiming a
+            translation nobody wrote. The translation exists now — the
+            articles, the dishes, the places — so the note says what is
+            still true instead: a few corners fall back to English rather
+            than to a blank. */}
         <p className="journal-settings__hint settings-lang__note">
-          다른 언어는 아직 번역이 없어서 넣지 않았습니다.
-          Other languages are not offered yet — the app would only be able to
-          show you English under a Spanish label, and that would not be true.
+          스페인어는 본문·요리·장소까지 번역되어 있고, 아직 번역되지 않은 일부
+          화면은 영어로 나옵니다.
+          Spanish covers the articles, the dishes and the places; a few
+          corners still fall back to English rather than to a blank. ·
+          El español cubre los artículos, los platos y los sitios; algunos
+          rincones todavía recurren al inglés en lugar de quedarse en blanco.
         </p>
       </div>
 

@@ -39,7 +39,7 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
       </header>
 
       <div className="dish-sheet__body">
-        <p className="dish-sheet__gloss">{say(menu.gloss, menu.glossKo)}</p>
+        <p className="dish-sheet__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs)}</p>
         <p className="dish-sheet__roman" translate="no">{menu.romanization}</p>
 
         {/* The sentence the whole app rests on: why this one cannot be eaten
@@ -47,12 +47,12 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
             point — the catalogue is allowed to contradict the pitch. */}
         <section className="dish-sheet__block">
           <h2 className="dish-sheet__label">Why it is shared</h2>
-          <p>{say(menu.whyShared, menu.whySharedKo)}</p>
+          <p>{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs)}</p>
         </section>
 
         <section className="dish-sheet__block">
           <h2 className="dish-sheet__label">What happens at the table</h2>
-          <p>{say(menu.howItWorks, menu.howItWorksKo)}</p>
+          <p>{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs)}</p>
           {menu.contains.length > 0 && (
             <p className="dish-sheet__contains">Contains {menu.contains.join(', ')}</p>
           )}
@@ -69,7 +69,7 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
         {menu.culture && (
           <section className="dish-sheet__block">
             <h2 className="dish-sheet__label">Why it is eaten together</h2>
-            <p>{say(menu.culture, menu.cultureKo)}</p>
+            <p>{say(menu.culture, menu.cultureKo, menu.cultureEs)}</p>
           </section>
         )}
 

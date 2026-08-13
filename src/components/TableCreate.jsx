@@ -215,7 +215,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
               <span className="dish-option__name">{m.name}</span>
               {/* The romanisation is a sound, not a meaning. Testers could not
                   tell what half these words were until they opened one. */}
-              <span className="dish-option__gloss">{say(m.gloss, m.glossKo)}</span>
+              <span className="dish-option__gloss">{say(m.gloss, m.glossKo, m.glossEs)}</span>
               <span className="dish-option__min">
                 {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
               </span>
@@ -228,7 +228,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
         <div className="form-block">
           <div className="dish-brief">
             <span className="dish-brief__cat">{CATEGORY_LABEL[menu.category]?.en}</span>
-            <p className="dish-brief__how">{say(menu.howItWorks, menu.howItWorksKo)}</p>
+            <p className="dish-brief__how">{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs)}</p>
             {eatenAtLabels(menu.id).length > 0 && (
               <p className="dish-brief__when">
                 주로 {eatenAtLabels(menu.id).map(l => l.kr).join(' · ')} ·

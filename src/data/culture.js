@@ -5,6 +5,23 @@
 
 export const cultureByCategory = {
   temple: {
+    didYouKnowEs: "La cocina de templo coreana no usa ajo, cebolla, cebollino, puerro ni cebolleta — las llamadas cinco verduras picantes — porque los monjes consideran que agitan las emociones. Todo el sabor profundo que notas aquí viene de la fermentación y de la paciencia.",
+    diningTipsEs: [
+          "Come como un monje: terminar lo que hay en el cuenco es el sentido de la práctica — el 발우공양 no deja ni un grano de arroz.",
+          "Prueba las guarniciones una a una. Cada banchan está sazonado para comerse con arroz, no por separado.",
+          "Aquí se come en silencio y sin prisa: la gente lo trata como meditación, no como un almuerzo."
+    ],
+    whyLocalsLoveItEs: "Los habituales vuelven tanto por el silencio como por la comida: una mesa de templo es de los pocos sitios de Seúl donde nadie mira el móvil.",
+    conversationTipsEs: [
+          "Pregunta al personal qué significa 발우공양 — casi siempre les gusta explicar el ritual del cuenco vacío.",
+          "Baja la voz: el comedor de un templo se trata como una extensión de la sala de meditación."
+    ],
+    passportMissionEs: {
+          "title": "El cuenco vacío",
+          "detail": "Termina hasta el último grano de arroz, como manda el 발우공양. No dejar nada no es buena educación: es la práctica entera."
+    },
+    culturalMeaningEs: "La comida de templo encarna una idea budista de comer con atención: nada se desperdicia, nada es exceso, todo es intencionado.",
+    whenKoreansEatThisEs: "Durante un templestay, en una fiesta budista, o cuando alguien quiere un respiro tranquilo de la comida de ciudad.",
     didYouKnowKo: "한국의 사찰음식은 마늘, 양파, 부추, 파, 달래 — 이른바 오신채 — 를 쓰지 않습니다. 스님들이 이것들이 강한 감정을 일으킨다고 보기 때문이에요. 여기서 느끼는 깊은 맛은 전부 발효와 오래 기다린 시간에서 옵니다.",
     diningTipsKo: [
           "스님처럼 드세요. 그릇을 비우는 것이 핵심입니다 — 발우공양은 밥알 하나 남기지 않는 수행이에요.",
@@ -45,6 +62,23 @@ export const cultureByCategory = {
     whenKoreansEatThis: 'During a templestay, on a Buddhist holiday, or whenever someone wants a quiet reset from city food.',
   },
   'korean-chinese': {
+    didYouKnowEs: "El jajangmyeon nació en el barrio chino de Incheon hacia 1905, inventado por estibadores chinos lejos de casa. Hoy los coreanos comen millones de cuencos al día, y sigue siendo la comida de mudanza que se pide al suelo del piso nuevo.",
+    diningTipsEs: [
+          "Mezcla bien la salsa de judía negra con los fideos antes del primer bocado, y come rápido, antes de que se hinchen.",
+          "El rábano amarillo encurtido (danmuji) está para cortar la grasa. Alterna bocados.",
+          "Sorber es perfectamente educado aquí: enfría los fideos y señala que te están gustando."
+    ],
+    whyLocalsLoveItEs: "Es lo que come Seúl el día de la mudanza y también las noches solitarias: el jajangmyeon es consuelo antes que cocina.",
+    conversationTipsEs: [
+          "Pregunta al personal en qué local comían de pequeños — todo el mundo en Corea tiene su jjajangmyeon de la infancia.",
+          "Saca el tema de 짜장 contra 짬뽕: esa rivalidad rompe el hielo sin fallo."
+    ],
+    passportMissionEs: {
+          "title": "Pedir como un local",
+          "detail": "Pide un jjajangmyeon y un jjamppong para la mesa e intercambiadlos a mitad: la solución coreana estándar a una elección imposible."
+    },
+    culturalMeaningEs: "El jajangmyeon guarda la memoria de la comunidad china de Corea: un plato que se volvió del todo coreano conservando su nombre extranjero.",
+    whenKoreansEatThisEs: "El día de la mudanza, después de trabajar hasta tarde, o cualquier día en que nadie quiere decidir.",
     didYouKnowKo: "짜장면은 1905년 무렵 인천 차이나타운에서, 고향을 멀리 떠나온 중국인 부두 노동자들의 손에서 태어났습니다. 지금 한국 사람들은 하루에 수백만 그릇을 먹고, 여전히 이사하는 날 새 집 바닥에 배달시켜 먹는 음식이에요.",
     diningTipsKo: [
           "첫 젓가락 전에 춘장을 면에 골고루 비비세요. 그리고 면이 붇기 전에 빨리 드세요.",
@@ -85,6 +119,22 @@ export const cultureByCategory = {
     whenKoreansEatThis: 'Moving day, the day report cards come out, or any weeknight nobody wants to cook.',
   },
   'vegan-dining': {
+    didYouKnowEs: "La escena vegetal de Corea se apoya en una idea muy antigua: 나물, el arte de aliñar verduras silvestres. Mucho antes de que existiera la palabra \"vegano\", una mesa coreana en condiciones ya se construía sobre decenas de platos de verdura.",
+    diningTipsEs: [
+          "Prueba los platos de carne de soja aunque te den reparo: las cocinas coreanas llevan décadas afinando esa textura en la cocina de templo.",
+          "Las guarniciones (banchan) suelen rellenarse. Pedir más es un cumplido a la cocina, no un desliz."
+    ],
+    whyLocalsLoveItEs: "Las cocinas vegetales de Seúl juntan a novicios, atletas y escépticos: todos salen discutiendo si sabía o no a carne.",
+    conversationTipsEs: [
+          "Pregunta de qué está hecha la carne de soja: casi todas las cocinas veganas de Seúl están orgullosas de la técnica y les encanta explicarla.",
+          "Los veganos coreanos siguen siendo una comunidad pequeña y unida; el personal suele conocer todos los demás sitios vegetales de la ciudad."
+    ],
+    passportMissionEs: {
+          "title": "Pregunta en la cocina",
+          "detail": "Pregunta de qué está hecha la carne de soja. Las cocinas vegetales coreanas están orgullosas de la técnica y te la explicarán encantadas."
+    },
+    culturalMeaningEs: "Comer vegetal en Corea se remonta siglos más atrás que la palabra \"vegano\": las cocinas de hoy están recuperando una mesa mucho más antigua y centrada en la verdura.",
+    whenKoreansEatThisEs: "Cada vez, cualquier día: la escena vegana de Seúl ha pasado de nicho a categoría propia en la última década.",
     didYouKnowKo: "한국의 식물성 식문화를 떠받치는 건 아주 오래된 개념입니다. 나물, 즉 들에서 난 푸성귀를 무쳐 내는 기술이요. 비건이라는 말이 생기기 훨씬 전부터 제대로 차린 한국 밥상은 이미 수십 가지 채소 요리로 이루어져 있었습니다.",
     diningTipsKo: [
           "콩고기 요리는 의심이 들더라도 한 번 드셔 보세요. 한국 주방은 사찰음식을 거치며 수십 년 동안 그 식감을 다듬어 왔습니다.",
@@ -123,6 +173,23 @@ export const cultureByCategory = {
     whenKoreansEatThis: "Increasingly, any day — Seoul's vegan scene has grown from a niche to a genuine dining category over the last decade.",
   },
   'halal-korean': {
+    didYouKnowEs: "La cocina coreana halal de Seúl creció en Usadan-ro, la calle en cuesta junto a la Mezquita Central: un barrio que acoge a comerciantes y viajeros musulmanes desde los años setenta.",
+    diningTipsEs: [
+          "El bulgogi y el samgyetang son la entrada más suave a los sabores coreanos: muy sabrosos y sin sobresalto de picante.",
+          "La comida coreana es comunitaria: los platos van al centro de la mesa y se comparten.",
+          "Busca el certificado de la KMF (Federación Musulmana de Corea) junto a la caja si quieres una garantía halal formal."
+    ],
+    whyLocalsLoveItEs: "Para los musulmanes que viven en Seúl estas cocinas son menos una novedad que un salvavidas: el único sitio donde una comida coreana casera no exige traducir una lista de ingredientes.",
+    conversationTipsEs: [
+          "Agradece a la cocina que atienda dietas halal: fuera de Itaewon aún es lo bastante raro como para que el personal lo note y lo agradezca.",
+          "Pregunta cuánto lleva la familia con el restaurante; varias de estas cocinas son historias de inmigración de primera generación."
+    ],
+    passportMissionEs: {
+          "title": "Escucha la historia de la familia",
+          "detail": "Pregunta cuánto lleva la familia con esta cocina. Muchas son de primera generación, y la respuesta suele ser lo mejor que te llevas a casa."
+    },
+    culturalMeaningEs: "Estas cocinas son una negociación silenciosa entre la comida casera coreana y la ley alimentaria islámica: la prueba de que nunca estuvieron tan lejos como parecía.",
+    whenKoreansEatThisEs: "Para la comunidad musulmana de Seúl esto es sencillamente la cena entre semana; para los visitantes suele ser el primer puente hacia los sabores coreanos.",
     didYouKnowKo: "서울의 할랄 한식은 서울중앙성원 옆 비탈길, 우사단로에서 자랐습니다. 1970년대부터 무슬림 상인과 여행자를 맞아 온 동네예요.",
     diningTipsKo: [
           "불고기와 삼계탕이 한국 맛으로 들어가는 가장 부드러운 입구입니다. 깊고 구수하며, 매운맛의 충격이 없어요.",
@@ -163,6 +230,22 @@ export const cultureByCategory = {
     whenKoreansEatThis: "For Seoul's Muslim community, this is simply weekday dinner — for visitors, it's often a first bridge into Korean flavors.",
   },
   'world-halal': {
+    didYouKnowEs: "Incheon lleva más de un siglo siendo la puerta de entrada de la comida global a Corea: su puerto abrió el primer barrio chino del país, y hoy sus cocinas halal alimentan a uno de los distritos más internacionales de Corea.",
+    diningTipsEs: [
+          "Las raciones están pensadas para compartir: pide varios platos para la mesa, al estilo coreano.",
+          "Muchos locales sirven encurtidos coreanos junto al curry y el kebab, una pequeña fusión local que vale la pena probar."
+    ],
+    whyLocalsLoveItEs: "Las cocinas halal de Incheon alimentan a un barrio genuinamente internacional: aquí es tan probable sentarte junto a un habitual coreano como junto a otro viajero.",
+    conversationTipsEs: [
+          "Pregunta en qué se diferencia la versión de Incheon de la de su país de origen: las cocinas de ciudad portuaria suelen adaptar las recetas a los ingredientes locales.",
+          "La escena halal de Incheon es lo bastante pequeña como para que los dueños se conozcan entre sí: pide otra recomendación cerca."
+    ],
+    passportMissionEs: {
+          "title": "Pregunta por el siguiente",
+          "detail": "Los dueños halal de Incheon suelen conocerse. Pregunta dónde comen en su día libre y ve allí."
+    },
+    culturalMeaningEs: "Las cocinas halal de Incheon son la prueba viva del oficio de una ciudad portuaria: absorber la comida del mundo y hacerle sitio en la mesa.",
+    whenKoreansEatThisEs: "La hora de comer de los trabajadores y estudiantes internacionales que forman los distritos más diversos de Incheon.",
     didYouKnowKo: "인천은 백 년 넘게 한국이 세계의 음식을 받아들이는 관문이었습니다. 이 항구가 한국 최초의 차이나타운을 열었고, 지금은 그 할랄 주방들이 한국에서 가장 국제적인 동네를 먹이고 있어요.",
     diningTipsKo: [
           "양이 나눠 먹기에 맞춰져 있습니다. 한국식으로 여러 가지를 상에 시키세요.",
@@ -201,6 +284,22 @@ export const cultureByCategory = {
     whenKoreansEatThis: "Lunch break for the international workers and students who make up Incheon's most diverse districts.",
   },
   'zero-waste': {
+    didYouKnowEs: "Corea recicla cerca del 95% de sus residuos de comida, y separarlos es obligatorio desde 2013: los hogares pagan por peso, con bolsas designadas o un contenedor con tarjeta. Los cafés sin residuos van un paso más allá: nada desechable cruza el mostrador, para empezar.",
+    diningTipsEs: [
+          "Lleva tu propio vaso o recipiente: casi todas las tiendas sin residuos hacen un pequeño descuento.",
+          "La cocina de raíz a hoja hace que aparezcan en el plato partes de la verdura que no sueles comer. Fíate de la cocina."
+    ],
+    whyLocalsLoveItEs: "Los habituales traen sus propios recipientes sin que nadie se lo pida: aquí es menos un argumento de marketing que una costumbre que el barrio ha adoptado de verdad.",
+    conversationTipsEs: [
+          "Pregunta qué pasa con los restos de comida: el sistema coreano de reciclaje sorprende a casi todos los que llegan por primera vez.",
+          "Lleva un vaso reutilizable si tienes uno; la mayoría de estos sitios lo premian discretamente con un descuento."
+    ],
+    passportMissionEs: {
+          "title": "No dejes nada",
+          "detail": "Rechaza un desechable: un vaso, una bolsa, una pajita. Y ya que estás, pregunta qué pasa con los restos de comida."
+    },
+    culturalMeaningEs: "Comer sin residuos recoge un instinto muy coreano de ahorro y aprovechamiento, apuntado ahora al clima y no solo al bolsillo.",
+    whenKoreansEatThisEs: "Siempre que alguien quiere que su comida deje atrás lo menos posible: cada vez más una elección diaria, no una ocasión especial.",
     didYouKnowKo: "한국은 음식물 쓰레기의 약 95%를 재활용하고, 2013년부터 분리배출이 의무입니다. 가정은 전용 봉투나 카드형 수거함으로 무게만큼 값을 냅니다. 제로웨이스트 카페는 한 걸음 더 나아가, 애초에 일회용품이 계산대를 넘어오지 않게 합니다.",
     diningTipsKo: [
           "텀블러나 용기를 들고 가세요. 대부분의 제로웨이스트 가게가 작은 할인을 해 줍니다.",
@@ -244,6 +343,22 @@ export const cultureByCategory = {
     whenKoreansEatThis: 'Whenever a diner wants their meal to leave as little behind as it can — a growing everyday choice, not a special occasion.',
   },
   'brunch-bakery': {
+    didYouKnowEs: "Seúl tiene una de las densidades de cafeterías más altas del mundo, y el brunch de fin de semana está más cerca de un ritual que de una comida. La versión coreana se apoya en verdura de temporada y horneado lento más que en salsas pesadas.",
+    diningTipsEs: [
+          "Las cafeterías son sitios para quedarse: una consumición te compra cómodamente la silla toda la tarde.",
+          "Pregunta qué se ha horneado hoy; las panaderías de producción corta agotan lo mejor antes del mediodía."
+    ],
+    whyLocalsLoveItEs: "Seúl trata el brunch del fin de semana como un destino, no como una comida: la gente cruza la ciudad por una panadería que la semana pasada agotó a mediodía.",
+    conversationTipsEs: [
+          "Pregunta qué se ha horneado esta mañana: las panaderías pequeñas cambian el surtido a diario y agradecen la pregunta.",
+          "Aquí la cultura de café es de quedarse; nadie te echará después de una consumición."
+    ],
+    passportMissionEs: {
+          "title": "Horneado esta mañana",
+          "detail": "Pregunta qué ha salido hoy del horno y pide eso en lugar de lo que tenías pensado. El surtido cambia a diario y rara vez llega a la carta."
+    },
+    culturalMeaningEs: "La cafetería de Seúl es una institución social por derecho propio: un sitio para dejarse ver, trabajar y quedarse, construido sobre tradiciones de panadería tomadas prestadas y rehechas.",
+    whenKoreansEatThisEs: "A media mañana del fin de semana, casi como un rito: es la comida más lenta y deliberada de la semana.",
     didYouKnowKo: "서울은 지구에서 카페 밀도가 가장 높은 도시 중 하나이고, 주말 브런치는 끼니라기보다 의식에 가깝습니다. 한국식은 무거운 소스보다 제철 채소와 느린 베이킹 쪽으로 기울어요.",
     diningTipsKo: [
           "한국에서 카페는 머무는 공간입니다. 한 잔이면 오후 내내 그 자리가 편안히 내 것이 돼요.",
@@ -282,6 +397,22 @@ export const cultureByCategory = {
     whenKoreansEatThis: "Weekend late mornings, almost ritually — it's when the week's slowest, most deliberate meal happens.",
   },
   'local-seasonal': {
+    didYouKnowEs: "La cocina coreana sigue el 제철, \"el giro de la estación\". Las cartas cambian sin ruido según entran los ingredientes de temporada, y por eso los locales preguntan \"¿qué está bueno hoy?\" en vez de leer el menú.",
+    diningTipsEs: [
+          "Pregunta qué es de temporada: el mejor plato muchas veces no está en la carta impresa.",
+          "Con un recorrido tan corto, la verdura de tu plato se recogió probablemente hace un día o dos."
+    ],
+    whyLocalsLoveItEs: "Los habituales no piden la carta: preguntan qué es de temporada, porque la cocina lo cambia antes de que la versión impresa se entere.",
+    conversationTipsEs: [
+          "Pregunta qué se ha recogido cerca esta semana: el 제철 es un motivo de orgullo local muy real.",
+          "Si un plato no está en la carta impresa, pregunta igualmente: lo mejor de temporada casi nunca aparece escrito."
+    ],
+    passportMissionEs: {
+          "title": "Que pida la estación",
+          "detail": "Pregunta 제철 음식이 뭐예요? y pide lo que te contesten, aunque todavía no sepas pronunciarlo."
+    },
+    culturalMeaningEs: "Comer con el 제철 convierte el calendario en la carta de verdad: comer al paso de lo que la tierra está dando ahora mismo.",
+    whenKoreansEatThisEs: "Cada vez que gira la estación: el plato que hay hoy en tu mesa no estará dentro de seis semanas.",
     didYouKnowKo: "한국 요리는 제철을 따릅니다. 재료가 철을 맞으면 메뉴가 조용히 바뀌고, 그래서 현지 사람들은 메뉴판을 읽는 대신 \"오늘 뭐가 좋아요?\"라고 묻습니다.",
     diningTipsKo: [
           "제철이 뭔지 물어보세요. 가장 좋은 요리는 인쇄된 메뉴판에 없는 경우가 많습니다.",
@@ -348,6 +479,17 @@ export const CATEGORY_LABEL_KO = {
   'local-seasonal': '제철',
 };
 
+export const CATEGORY_LABEL_ES = {
+  temple: 'Cocina de templo',
+  'korean-chinese': 'Coreano-chino',
+  'vegan-dining': 'Cocina vegetal',
+  'halal-korean': 'Coreano halal',
+  'world-halal': 'Halal del mundo',
+  'zero-waste': 'Sin residuos',
+  'brunch-bakery': 'Brunch y panadería',
+  'local-seasonal': 'De temporada',
+};
+
 // Neighbourhood names as Koreans write them. An address is not prose, so
 // this is transliteration rather than translation — and a zone missing from
 // here falls back to the romanised form, which is still readable.
@@ -365,6 +507,26 @@ export const ZONE_KO = {
   'Yeonsu, Incheon': '인천 연수',
   'Chinatown, Jemulpo-gu, Incheon': '인천 제물포구 차이나타운',
   'Gaehang-ro, Incheon': '인천 개항로',
+};
+
+// Neighbourhood names in Spanish. Almost all of them are the same word — a
+// district is a proper noun, not a phrase — so only the city part changes.
+// Kept as a full map rather than a "translate Seoul, keep the rest" rule,
+// because that rule is one exception away from being wrong.
+export const ZONE_ES = {
+  'Jongno, Seoul': 'Jongno, Seúl',
+  'Insadong, Seoul': 'Insadong, Seúl',
+  'Itaewon, Seoul': 'Itaewon, Seúl',
+  'Myeongdong, Seoul': 'Myeongdong, Seúl',
+  'Hoehyeon, Seoul': 'Hoehyeon, Seúl',
+  'Bukchon, Seoul': 'Bukchon, Seúl',
+  'Seochon, Seoul': 'Seochon, Seúl',
+  'Songdo, Incheon': 'Songdo, Incheon',
+  'Guwol-dong, Incheon': 'Guwol-dong, Incheon',
+  'Cheongna, Incheon': 'Cheongna, Incheon',
+  'Yeonsu, Incheon': 'Yeonsu, Incheon',
+  'Chinatown, Jemulpo-gu, Incheon': 'Barrio chino, Jemulpo-gu, Incheon',
+  'Gaehang-ro, Incheon': 'Gaehang-ro, Incheon',
 };
 
 export function getCulture(place) {
@@ -393,5 +555,14 @@ export function getCulture(place) {
     passportMissionKo: place.passportMission ? place.passportMissionKo : base.passportMissionKo,
     culturalMeaningKo: place.culturalMeaning ? place.culturalMeaningKo : base.culturalMeaningKo,
     whenKoreansEatThisKo: place.whenKoreansEatThis ? place.whenKoreansEatThisKo : base.whenKoreansEatThisKo,
+
+    // Spanish, through the same override chain and for the same reason.
+    didYouKnowEs: place.didYouKnow ? place.didYouKnowEs : base.didYouKnowEs,
+    diningTipsEs: place.diningTips ? place.diningTipsEs : base.diningTipsEs,
+    whyLocalsLoveItEs: place.whyLocalsLoveIt ? place.whyLocalsLoveItEs : base.whyLocalsLoveItEs,
+    conversationTipsEs: place.conversationTips ? place.conversationTipsEs : base.conversationTipsEs,
+    passportMissionEs: place.passportMission ? place.passportMissionEs : base.passportMissionEs,
+    culturalMeaningEs: place.culturalMeaning ? place.culturalMeaningEs : base.culturalMeaningEs,
+    whenKoreansEatThisEs: place.whenKoreansEatThis ? place.whenKoreansEatThisEs : base.whenKoreansEatThisEs,
   };
 }

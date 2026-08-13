@@ -23,11 +23,13 @@ export const HOW_STEPS = [
     id: 'find',
     kr: '밥상 찾기',
     en: 'Find a table serving a dish nobody can order alone.',
+    es: 'Encuentra una mesa con un plato que nadie puede pedir solo.',
   },
   {
     id: 'ask',
     kr: '자리 요청',
     en: 'Ask for the seat. The host reads who you are and says yes by name — your name is the whole form.',
+    es: 'Pide el sitio. El anfitrión lee quién eres y dice que sí por tu nombre: tu nombre es todo el formulario.',
   },
   {
     id: 'eat',
@@ -40,6 +42,7 @@ export const HOW_STEPS = [
     // Korean to anything measuring script, so it stayed on an English-only
     // screen and this was one of the last Korean words a traveller saw.
     en: 'Meet and share the food. Eatple handles no money: you pay the restaurant for what you eat, so nobody at the table owes anybody.',
+    es: 'Os veis y compartís la comida. Eatple no toca el dinero: pagas al restaurante lo que comes, así que nadie en la mesa le debe nada a nadie.',
   },
 ];
 
@@ -47,4 +50,5 @@ export const HOW_STEPS = [
 export const HOW_WHY = {
   kr: '한국 밥상은 나눠 먹도록 차려집니다',
   en: 'A Korean table is laid to be shared. Browsing every dish and tip is free; the seat is what an account is for.',
+  es: 'Una mesa coreana se pone para compartirla. Mirar los platos y los consejos es gratis; la cuenta es para el sitio en la mesa.',
 };

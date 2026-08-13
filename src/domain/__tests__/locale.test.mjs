@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   LOCALE, LOCALES, isLocale, DEFAULT_LOCALE, LOCALE_LABEL,
-  isKorean, localeText, localePair,
+  isKorean, localeText, localePair, fallsBackToEnglish,
 } from '../policy/locale.js';
 
 test('the default is what everybody has been reading, and it changes nothing', () => {
@@ -89,14 +89,42 @@ test('a kr/en pair held as two fields reduces the same way', () => {
   assert.equal(localePair(undefined, LOCALE.EN), '');
 });
 
-test('only the three languages the app actually holds words for are offered', () => {
-  // 22,342 Korean characters and 187 bilingual pairs exist; a Spanish
-  // interface does not. Offering Español here and serving English would be
-  // the app claiming a translation nobody wrote.
-  assert.deepEqual(LOCALES, ['both', 'ko', 'en']);
-  assert.equal(isLocale('es'), false);
+test('only the languages the app actually holds words for are offered', () => {
+  // This asserted three for as long as three was the truth: a Spanish
+  // interface did not exist, and offering Español while serving English
+  // would have been the app claiming a translation nobody wrote. Español
+  // is here now because the words are — the articles, the dishes, the
+  // places — and the guard moved rather than loosened: 日本語 still is not
+  // offered, for exactly the reason Español was not.
+  assert.deepEqual(LOCALES, ['both', 'ko', 'en', 'es']);
+  assert.equal(isLocale('es'), true);
   assert.equal(isLocale('ja'), false);
+  assert.equal(isLocale('fr'), false);
   assert.equal(isLocale(null), false);
+});
+
+test('Spanish reads the half of a pair that is not Korean', () => {
+  // The 187 middot pairs are Korean-and-English and hold no third language,
+  // so a Spanish screen shows the readable half rather than the Hangul one.
+  // The Spanish words come from the data through useText(), not from here.
+  assert.equal(localeText('상 차리기 · Open a table', LOCALE.ES), 'Open a table');
+  assert.equal(localeText('밥상 · tables', LOCALE.ES), 'tables');
+  // And the same rule as everywhere: nothing is emptied.
+  assert.equal(localeText('조강민', LOCALE.ES), '조강민');
+  assert.ok(fallsBackToEnglish(LOCALE.ES));
+  assert.ok(fallsBackToEnglish(LOCALE.EN));
+  assert.equal(fallsBackToEnglish(LOCALE.KO), false);
+  assert.equal(fallsBackToEnglish(LOCALE.BOTH), false);
+});
+
+test('a kr/en/es triple picks Spanish when Spanish exists', () => {
+  const p = { kr: '밥상 찾기', en: 'Find a table', es: 'Buscar una mesa' };
+  assert.equal(localePair(p, LOCALE.ES), 'Buscar una mesa');
+  // Missing Spanish falls back to English, never to Korean and never blank.
+  assert.equal(localePair({ kr: '밥상 찾기', en: 'Find a table' }, LOCALE.ES), 'Find a table');
+  assert.equal(localePair({ kr: '한국어만' }, LOCALE.ES), '한국어만');
+  // The default is still the joined pair, untouched by any of this.
+  assert.equal(localePair(p, LOCALE.BOTH), '밥상 찾기 · Find a table');
 });
 
 test('the picker names every option in both languages, whatever is selected', () => {
