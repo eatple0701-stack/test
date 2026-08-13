@@ -11094,3 +11094,7 @@ html:not([data-locale="en"]):not([data-locale="es"]) .l-en-only { display: none;
 [data-locale] [data-no-locale] [class$="__kr"],
 [data-locale] [data-no-locale] [class$="-en"],
 [data-locale] [data-no-locale] [class$="-kr"] { display: revert; }
+
+/* The station line, split so each language setting keeps one half. The
+   Korean is what you show a taxi driver; the other is what you read. */
+.place-actions__transit-kr + .place-actions__transit-en::before { content: " "; }

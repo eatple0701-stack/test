@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ProfileFields from './ProfileFields';
 import { XIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // Editing your profile, the way every site does it: open a form, change what
 // you came to change, press Save.
@@ -17,6 +18,7 @@ import { XIcon } from './Icons';
 // nothing happened.
 
 export default function ProfileSheet({ profile, onSave, onClose }) {
+  const say = useText();
   const [draft, setDraft] = useState(profile ?? {});
   const [saving, setSaving] = useState(false);
 
@@ -28,7 +30,7 @@ export default function ProfileSheet({ profile, onSave, onClose }) {
   };
 
   return (
-    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label="Edit profile">
+    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Edit profile', '프로필 수정', 'Editar perfil')}>
       <div className="auth-sheet profile-sheet">
         <button className="auth-close" onClick={onClose} aria-label="Close">
           <XIcon size={18} />

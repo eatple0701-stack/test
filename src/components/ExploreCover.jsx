@@ -34,7 +34,7 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
   const editorial = editorialFor(theme.id);
 
   return (
-    <section className="cover" aria-label="Editor's pick">
+    <section className="cover" aria-label={say("Editor's pick", '오늘의 추천', 'La elección del editor')}>
       {editorial && (
         <span className="cover__word" aria-hidden="true">{editorial.word}</span>
       )}

@@ -39,12 +39,46 @@ const isProse = (s) => /[A-Za-z]{2}/.test(s) && /\s|[A-Za-z]{4}/.test(s.trim());
 // A string already carrying both languages is handled by LocaleFilter.
 const isPair = (s) => s.includes(' · ');
 
+// JSX that is a fragment handed to say() as an argument — the provenance
+// paragraph and the hero headline are written that way, because they contain
+// <strong> and <br /> and cannot be a plain string. The text inside is
+// already translated; only the say() call above it is.
+const sayLines = (lines) => {
+  // Every line that falls inside an open say(…) / crashText(…) call, by
+  // counting that call's own parentheses rather than guessing a distance —
+  // the Spanish argument of a three-language call starts a dozen lines in.
+  const inside = new Set();
+  for (let i = 0; i < lines.length; i += 1) {
+    const m = lines[i].match(/\b(?:say|crashText)\(/);
+    if (!m) continue;
+    let depth = 0;
+    for (let k = i; k < lines.length; k += 1) {
+      const text = k === i ? lines[k].slice(m.index) : lines[k];
+      for (const ch of text) {
+        if (ch === '(') depth += 1;
+        else if (ch === ')') depth -= 1;
+      }
+      if (k > i) inside.add(k);
+      if (depth <= 0) break;
+    }
+  }
+  return inside;
+};
+
+// JavaScript, not text: the audit's > … < scan catches JSX control flow like
+// ") : blocker ? (" because a ternary sits between two tags.
+const isCode = (t) => /^[)(}{]|=>|\?\s*\(|&&|\breturn\b/.test(t.trim());
+
 const EXEMPT_VALUES = new Set([
   // Brand and proper nouns.
   'Eatple', 'Google', 'Naver Map', 'Kakao Map', 'Instagram', 'Website',
   'eatple0701@gmail.com',
   // Accessibility-only, never painted.
   'Close', 'Primary', 'Places', 'Home', 'Settings',
+  // Map attribution. OpenStreetMap's licence requires the credit to appear
+  // as it is written; translating it would be a licence problem, not a
+  // localisation improvement.
+  'OpenStreetMap', '© OpenStreetMap',
 ]);
 
 const EXEMPT_FILES = new Set([
@@ -58,6 +92,7 @@ for (const file of files) {
   if (EXEMPT_FILES.has(file.replace(/\\/g, '/'))) continue;
   const src = fs.readFileSync(file, 'utf8');
   const lines = src.split('\n');
+  const inSay = sayLines(lines);
 
   lines.forEach((line, i) => {
     const trimmed = line.trim();
@@ -68,6 +103,7 @@ for (const file of files) {
     for (const m of line.matchAll(/>([^<>{}\n]{3,})</g)) {
       const text = m[1].trim();
       if (!isProse(text) || isPair(text) || EXEMPT_VALUES.has(text)) continue;
+      if (isCode(text) || inSay.has(i)) continue;
       findings.push({ file, line: i + 1, kind: 'jsx-text', text });
     }
 
@@ -88,7 +124,9 @@ for (const file of files) {
     const text = b[1].split('\n').map(x => x.trim()).filter(Boolean).join(' ');
     if (!isProse(text) || isPair(text) || EXEMPT_VALUES.has(text)) continue;
     if (text.startsWith('//') || text.startsWith('*')) continue;
+    if (isCode(text)) continue;
     const line = src.slice(0, b.index).split('\n').length;
+    if (inSay.has(line - 1)) continue;
     findings.push({ file, line, kind: 'jsx-block', text });
   }
 }

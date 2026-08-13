@@ -3,6 +3,7 @@ import MapComponent from './MapComponent';
 import FilterBar from './FilterBar';
 import BottomSheetList from './BottomSheetList';
 import { XIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // The map as a tool rather than a substrate.
 //
@@ -36,6 +37,7 @@ export default function MapOverlay({
   onToggleFilter,
   onResetFilters,
 }) {
+  const say = useText();
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -55,7 +57,7 @@ export default function MapOverlay({
           <h2>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
         </div>
-        <button className="map-overlay__close" aria-label="Close map" onClick={onClose}>
+        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa')} onClick={onClose}>
           <XIcon size={18} />
         </button>
       </header>
@@ -76,7 +78,7 @@ export default function MapOverlay({
           selectedFilters={selectedFilters}
           onToggleFilter={onToggleFilter}
         />
-        <section className="map-overlay__list" aria-label="Places on the map">
+        <section className="map-overlay__list" aria-label={say('Places on the map', '지도 위의 장소', 'Sitios en el mapa')}>
           <BottomSheetList
             restaurants={restaurants}
             mapCenter={mapCenter}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { PURPOSE, RULES } from '../content/safety.js';
 import { rulesAgreement } from '../domain/policy/consent.js';
+import { useText } from './localeText.js';
 
 // The 동의 교수님 asked for, at the moment it means something.
 //
@@ -14,6 +15,7 @@ import { rulesAgreement } from '../domain/policy/consent.js';
 // flow it governs, immediately above the button it gates, so the sentence
 // being agreed to is on screen at the moment the decision is real.
 export default function RulesConsent({ profile, onProfileChange, action }) {
+  const say = useText();
   return (
     <div className="rules-consent">
       <p className="rules-consent__head">
@@ -38,7 +40,9 @@ export default function RulesConsent({ profile, onProfileChange, action }) {
       {/* Said plainly, because the alternative is somebody discovering it
           only when they look for the button and there isn't one. */}
       <p className="rules-consent__note">
-        Asked once. You can read this again any time under 도움이 필요하면.
+        {say('Asked once. You can read this again any time under 도움이 필요하면.',
+          '한 번만 여쭙니다. 도움이 필요하면 메뉴에서 언제든 다시 읽으실 수 있어요.',
+          'Se pregunta una sola vez. Puedes volver a leerlo cuando quieras en 도움이 필요하면.')}
       </p>
     </div>
   );

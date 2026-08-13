@@ -281,7 +281,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
 
             <Field id="email" bad={bad} problems={problems} markRef={markRef}
               label="이메일 · Email — this is your login ID">
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={say('you@example.com', 'you@example.com', 'tu@ejemplo.com')} autoComplete="email" />
             </Field>
             <Field id="password" bad={bad} problems={problems} markRef={markRef}
               label="비밀번호 · Password">
@@ -354,8 +354,9 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
                 once, here, before the doors open. */}
             <h2 className="form-label">거의 다 됐어요 · Almost there</h2>
             <p className="auth-note">
-              Your account exists but two details are missing — Google sign-ins arrive without them, and an interrupted signup can too. The team needs a phone number and a
-              date of birth to run matching; nobody at a table ever sees either.
+              {say('Your account exists but two details are missing — Google sign-ins arrive without them, and an interrupted signup can too. The team needs a phone number and a date of birth to run matching; nobody at a table ever sees either.',
+                '계정은 있는데 두 가지가 비어 있습니다. 구글 로그인은 이 정보 없이 들어오고, 중간에 끊긴 가입도 그렇습니다. 팀이 매칭을 돌리려면 전화번호와 생년월일이 필요하고, 밥상에서는 아무도 이 둘을 보지 않습니다.',
+                'Tu cuenta existe pero faltan dos datos: los accesos con Google llegan sin ellos, y un registro interrumpido también. El equipo necesita un teléfono y una fecha de nacimiento para hacer los emparejamientos; nadie en una mesa los ve nunca.')}
             </p>
             <label className="field">
               <span className="field__label">전화번호 · Phone</span>
@@ -380,8 +381,9 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
                 ahead loses nothing that was already touched. */}
             <h2 className="form-label">프로필 · Your profile</h2>
             <p className="auth-note">
-              This is what a table sees and what the app cooks with — languages, what you
-              cannot eat, how you eat. Change any of it later on your Passport.
+              {say('This is what a table sees and what the app cooks with — languages, what you cannot eat, how you eat. Change any of it later on your Passport.',
+                '밥상이 보는 것이자 앱이 쓰는 재료입니다 — 쓰는 언어, 못 드시는 것, 드시는 방식. 나중에 여권에서 언제든 바꾸실 수 있어요.',
+                'Esto es lo que ve una mesa y con lo que trabaja la app: idiomas, lo que no puedes comer, cómo comes. Puedes cambiarlo después en tu Pasaporte.')}
             </p>
             <ProfileFields profile={profile} onProfileChange={onProfileChange} />
             <button className="auth-primary" onClick={() => setMode('avatar')}>
@@ -394,8 +396,9 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <div className="auth-form auth-avatar">
             <h2 className="form-label">프로필 사진 · A photo to be recognised by</h2>
             <p className="auth-note">
-              This is how a table spots you at the station exit — the app has no chat, so a
-              face does real work here. Square-cropped, shrunk small, shown beside your name.
+              {say('This is how a table spots you at the station exit — the app has no chat, so a face does real work here. Square-cropped, shrunk small, shown beside your name.',
+                '역 출구에서 밥상 사람들이 당신을 알아보는 방법입니다. 이 앱에는 채팅이 없어서 얼굴이 실제로 일을 합니다. 정사각형으로 잘라 작게 줄여서, 이름 옆에 보입니다.',
+                'Así te reconoce una mesa a la salida del metro: la app no tiene chat, así que aquí una cara hace trabajo de verdad. Recortada en cuadrado, reducida y mostrada junto a tu nombre.')}
             </p>
             <input
               ref={fileRef}

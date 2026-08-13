@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { quizFor } from '../content/quiz.js';
 import { sourcesFor } from '../content/sources.js';
+import { useText } from './localeText.js';
 
 // 문화 퀴즈 — one question at a time, at the table.
 //
@@ -13,6 +14,7 @@ import { sourcesFor } from '../content/sources.js';
 // Questions for the dish on the table come first. If a table is eating 보쌈,
 // the 김장 question is the one that lands.
 export default function QuizDeck({ menuId }) {
+  const say = useText();
   const questions = useMemo(() => quizFor(menuId), [menuId]);
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState(null);
@@ -32,7 +34,7 @@ export default function QuizDeck({ menuId }) {
     <div className="quiz">
       <p className="quiz__count">
         {i + 1} of {questions.length}
-        {q.menuId && <span className="quiz__tag">this dish</span>}
+        {q.menuId && <span className="quiz__tag">{say('this dish', '이 요리', 'este plato')}</span>}
       </p>
 
       <div className="quiz__card">
@@ -41,13 +43,13 @@ export default function QuizDeck({ menuId }) {
         {!answered ? (
           <div className="quiz__choices">
             {/* O and X, the way the question would be written in Korean. */}
-            <button className="quiz__choice" onClick={() => setPicked(true)} aria-label="True">
+            <button className="quiz__choice" onClick={() => setPicked(true)} aria-label={say('True', '맞다', 'Verdadero')}>
               <span className="quiz__mark">○</span>
-              <span className="quiz__word">True</span>
+              <span className="quiz__word">{say('True', '맞다', 'Verdadero')}</span>
             </button>
-            <button className="quiz__choice" onClick={() => setPicked(false)} aria-label="False">
+            <button className="quiz__choice" onClick={() => setPicked(false)} aria-label={say('False', '아니다', 'Falso')}>
               <span className="quiz__mark">✕</span>
-              <span className="quiz__word">False</span>
+              <span className="quiz__word">{say('False', '아니다', 'Falso')}</span>
             </button>
           </div>
         ) : (
@@ -66,7 +68,7 @@ export default function QuizDeck({ menuId }) {
               </a>
             ))}
 
-            <button className="quiz__next" onClick={next}>Next question</button>
+            <button className="quiz__next" onClick={next}>{say('Next question', '다음 문제', 'Siguiente pregunta')}</button>
           </div>
         )}
       </div>

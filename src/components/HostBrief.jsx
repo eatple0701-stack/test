@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { listTables } from '../data/tableRepository.js';
+import { useText } from './localeText.js';
 
 // What a host is agreeing to, before they agree to it.
 //
@@ -52,6 +53,7 @@ const POINTS = [
 ];
 
 export default function HostBrief({ profile }) {
+  const say = useText();
   // Only for somebody who has never set a table. A host on their second one
   // has already learned all of this the direct way.
   const [firstTime, setFirstTime] = useState(false);
@@ -69,9 +71,9 @@ export default function HostBrief({ profile }) {
   if (!firstTime) return null;
 
   return (
-    <section className="host-brief" aria-label="Before you set a table">
+    <section className="host-brief" aria-label={say('Before you set a table', '상을 차리기 전에', 'Antes de poner una mesa')}>
       <p className="host-brief__kr">밥상을 열기 전에</p>
-      <h2 className="host-brief__title">Before you set a table</h2>
+      <h2 className="host-brief__title">{say('Before you set a table', '상을 차리기 전에', 'Antes de poner una mesa')}</h2>
 
       <dl className="host-brief__list">
         {POINTS.map(p => (

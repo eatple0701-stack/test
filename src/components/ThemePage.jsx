@@ -164,8 +164,9 @@ export default function ThemePage({
 
         {!venues.length && !markets.length && !canAttest(exp) && (
           <p className="next-step__hint">
-            No verified place yet, and this step needs one — it will open up as
-            venues are confirmed.
+            {say('No verified place yet, and this step needs one — it will open up as venues are confirmed.',
+              '아직 확인된 장소가 없고 이 단계에는 장소가 필요합니다 — 장소가 확인되는 대로 열립니다.',
+              'Aún no hay un sitio verificado y este paso lo necesita: se abrirá según se confirmen locales.')}
           </p>
         )}
       </div>
@@ -213,7 +214,7 @@ export default function ThemePage({
             className="step-row__undo"
             onClick={() => onToggleAttestation(exp.id)}
           >
-            undo
+            {say('undo', '되돌리기', 'deshacer')}
           </button>
         )}
       </li>

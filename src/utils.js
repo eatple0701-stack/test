@@ -50,15 +50,15 @@ const fromMinutes = (mins) => {
 
 // Fall back to reading a free-text range like "11:30 AM – 9:30 PM". Only used
 // for places whose hours haven't been structured yet.
-function statusFromRaw(raw, cur) {
+function statusFromRaw(raw, cur, locale = 'both') {
   const parts = String(raw).split('–').map(s => s.trim());
   if (parts.length !== 2) return null;
   const opens = toMinutes(parts[0]);
   const closes = toMinutes(parts[1]);
   if (opens == null || closes == null) return null;
   return cur >= opens && cur < closes
-    ? { open: true, label: 'Open', detail: `until ${parts[1]}` }
-    : { open: false, label: 'Closed', detail: `opens ${parts[0]}` };
+    ? { open: true, label: pickWord(HOURS_WORD.Open, locale), detail: pickWord(hoursPhrase.until(parts[1]), locale) }
+    : { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.opens(parts[0]), locale) };
 }
 
 /**
@@ -67,17 +67,42 @@ function statusFromRaw(raw, cur) {
  * Never guesses. A day absent from `weekly` means we don't know that day's
  * hours, and returns null rather than assuming the venue is shut.
  */
-export function getOpenStatus(hoursFact, now = new Date()) {
+// The four words this function can say, in every language the app offers.
+// Kept together rather than inline so a fifth state cannot be added in one
+// language and forgotten in the other two.
+const HOURS_WORD = {
+  Open: ['Open', '영업 중', 'Abierto'],
+  Closed: ['Closed', '영업 종료', 'Cerrado'],
+};
+const hoursPhrase = {
+  closedToday: ['closed today', '오늘 휴무', 'cerrado hoy'],
+  closedForToday: ['closed for today', '오늘 영업 종료', 'cerrado por hoy'],
+  until: (t) => [`until ${t}`, `${t}까지`, `hasta las ${t}`],
+  untilLastOrder: (t, lo) => [
+    `until ${t} · last order ${lo}`,
+    `${t}까지 · 라스트오더 ${lo}`,
+    `hasta las ${t} · último pedido ${lo}`,
+  ],
+  lastOrderPassed: (t) => [
+    `last order passed, closes ${t}`,
+    `라스트오더 마감, ${t}에 닫습니다`,
+    `último pedido pasado, cierra a las ${t}`,
+  ],
+  opens: (t) => [`opens ${t}`, `${t}에 엽니다`, `abre a las ${t}`],
+};
+const pickWord = (triple, locale) => (locale === 'ko' ? triple[1] : locale === 'es' ? triple[2] : triple[0]);
+
+export function getOpenStatus(hoursFact, now = new Date(), locale = 'both') {
   if (!isKnown(hoursFact)) return null;
   const { raw, weekly } = hoursFact.value;
   const cur = now.getHours() * 60 + now.getMinutes();
 
-  if (!weekly) return raw ? statusFromRaw(raw, cur) : null;
+  if (!weekly) return raw ? statusFromRaw(raw, cur, locale) : null;
 
   const today = weekly[DAY_KEYS[now.getDay()]];
   if (!today) return null; // day not recorded — say nothing
 
-  if (today.length === 0) return { open: false, label: 'Closed', detail: 'closed today' };
+  if (today.length === 0) return { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.closedToday, locale) };
 
   for (const slot of today) {
     const from = toMinutes(slot.from);
@@ -88,13 +113,13 @@ export function getOpenStatus(hoursFact, now = new Date()) {
       // Once last order has passed, "open until close" would mislead someone
       // deciding whether it's worth the trip.
       if (lo != null && cur >= lo) {
-        return { open: true, label: 'Open', detail: `last order passed, closes ${fromMinutes(to)}` };
+        return { open: true, label: pickWord(HOURS_WORD.Open, locale), detail: pickWord(hoursPhrase.lastOrderPassed(fromMinutes(to)), locale) };
       }
       return {
         open: true,
-        label: 'Open',
+        label: pickWord(HOURS_WORD.Open, locale),
         detail: slot.lastOrder
-          ? `until ${fromMinutes(to)} · last order ${fromMinutes(lo)}`
+          ? pickWord(hoursPhrase.untilLastOrder(fromMinutes(to), fromMinutes(lo)), locale)
           : `until ${fromMinutes(to)}`,
       };
     }
@@ -105,8 +130,8 @@ export function getOpenStatus(hoursFact, now = new Date()) {
     .filter(m => m != null && m > cur)
     .sort((a, b) => a - b)[0];
   return next != null
-    ? { open: false, label: 'Closed', detail: `opens ${fromMinutes(next)}` }
-    : { open: false, label: 'Closed', detail: 'closed for today' };
+    ? { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.opens(fromMinutes(next)), locale) }
+    : { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.closedForToday, locale) };
 }
 
 /** Today's printed hours, e.g. "11:30 AM – 3:00 PM, 6:00 PM – 8:20 PM". */
@@ -116,7 +141,7 @@ export function todaysHours(hoursFact, now = new Date()) {
   if (!weekly) return hoursFact.value.raw ?? null;
   const today = weekly[DAY_KEYS[now.getDay()]];
   if (!today) return null;
-  if (today.length === 0) return 'Closed today';
+  if (today.length === 0) return 'Closed today';   // eslint-disable-line -- see getOpenStatus for the translated pair
   return today.map(s => `${fromMinutes(toMinutes(s.from))} – ${fromMinutes(toMinutes(s.to))}`).join(', ');
 }
 

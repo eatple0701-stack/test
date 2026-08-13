@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useText } from './localeText.js';
 
 // What the app says when the signal goes.
 //
@@ -20,6 +21,7 @@ import React, { useEffect, useState } from 'react';
 // a write actually fails. Two honest signals beat one clever one.
 
 export default function OfflineBar() {
+  const say = useText();
   const [offline, setOffline] = useState(
     () => typeof navigator !== 'undefined' && navigator.onLine === false,
   );
@@ -41,8 +43,9 @@ export default function OfflineBar() {
     <div className="offline-bar" role="status">
       <p className="offline-bar__kr">인터넷에 연결되어 있지 않아요.</p>
       <p className="offline-bar__en">
-        Phrases, the help numbers and dish pages still work. Asking for a seat
-        or opening a table will have to wait for signal.
+        {say('Phrases, the help numbers and dish pages still work. Asking for a seat or opening a table will have to wait for signal.',
+          '회화, 도움 번호, 요리 페이지는 그대로 됩니다. 자리를 청하거나 상을 차리는 건 신호가 돌아와야 해요.',
+          'Las frases, los números de ayuda y las páginas de platos siguen funcionando. Pedir sitio o abrir una mesa tendrá que esperar a la cobertura.')}
       </p>
     </div>
   );

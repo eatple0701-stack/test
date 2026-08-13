@@ -14,6 +14,21 @@ import React from 'react';
 // instead of on a blank page, and the traveller gets a way back rather than
 // losing the table they were about to join.
 
+// This is a class component, so it cannot call useText() — and it is the one
+// screen that must not depend on anything, because it is what renders when
+// something else has already failed. It reads the attribute LocaleFilter puts
+// on <html> instead: no context, no hook, no import that could itself throw.
+// If the attribute is missing the crash screen is English, which is the same
+// fallback everything else uses.
+const crashText = (en, ko, es) => {
+  const locale = typeof document !== 'undefined'
+    ? document.documentElement.getAttribute('data-locale')
+    : null;
+  if (locale === 'ko') return ko;
+  if (locale === 'es') return es;
+  return en;
+};
+
 // The translator conflict has a recognisable signature, and saying so is more
 // use than "something went wrong" — the reader can act on it.
 const isTranslationConflict = (error) => {
@@ -47,18 +62,27 @@ export default class ErrorBoundary extends React.Component {
       <div className="crash" role="alert">
         <div className="crash__card">
           <span className="crash__kr" aria-hidden="true">밥친구</span>
-          <h1 className="crash__title">This screen stopped responding.</h1>
+          <h1 className="crash__title">
+            {crashText('This screen stopped responding.',
+              '이 화면이 멈췄어요.',
+              'Esta pantalla ha dejado de responder.')}
+          </h1>
 
           {translated ? (
             <p className="crash__body">
-              Your browser is translating this page, and its translation rewrites
-              the page while the app is using it. Turning translation off for this
-              site will stop it happening. Nothing you saved has been lost.
+              {crashText(
+                'Your browser is translating this page, and its translation rewrites the page while the app is using it. Turning translation off for this site will stop it happening. Nothing you saved has been lost.',
+                '브라우저가 이 페이지를 번역하고 있고, 그 번역이 앱이 쓰는 중인 화면을 다시 씁니다. 이 사이트에서 번역을 꺼 두시면 더 일어나지 않습니다. 저장하신 것은 아무것도 사라지지 않았어요.',
+                'Tu navegador está traduciendo esta página, y su traducción reescribe la página mientras la app la está usando. Desactivar la traducción para este sitio lo evitará. No se ha perdido nada de lo que guardaste.',
+              )}
             </p>
           ) : (
             <p className="crash__body">
-              Something went wrong on this screen. Nothing you saved has been lost —
-              your tables and your passport are still here.
+              {crashText(
+                'Something went wrong on this screen. Nothing you saved has been lost — your tables and your passport are still here.',
+                '이 화면에서 문제가 생겼습니다. 저장하신 것은 아무것도 사라지지 않았어요 — 밥상도 여권도 그대로 있습니다.',
+                'Algo ha fallado en esta pantalla. No se ha perdido nada de lo que guardaste: tus mesas y tu pasaporte siguen aquí.',
+              )}
             </p>
           )}
 
@@ -66,15 +90,15 @@ export default class ErrorBoundary extends React.Component {
             {/* Back to a working screen without a reload where possible: the
                 error is in one subtree, not in the stored data. */}
             <button className="crash__primary" onClick={() => this.setState({ error: null })}>
-              다시 시도 · Try again
+              {crashText('다시 시도 · Try again', '다시 시도', 'Reintentar')}
             </button>
             <button className="crash__secondary" onClick={() => window.location.reload()}>
-              Reload the app
+              {crashText('Reload the app', '앱 새로고침', 'Recargar la app')}
             </button>
           </div>
 
           <details className="crash__details">
-            <summary>Technical detail</summary>
+            <summary>{crashText('Technical detail', '기술적 상세', 'Detalle técnico')}</summary>
             <pre>{String(error?.stack ?? error?.message ?? error)}</pre>
           </details>
         </div>

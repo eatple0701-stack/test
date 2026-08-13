@@ -4,6 +4,7 @@ import { seatsRemaining, isPast, canJoin } from '../domain/policy/table.js';
 import { listTables, listAllSignups, seedSampleTables } from '../data/tableRepository.js';
 import { ChevronRightIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
+import { useText } from './localeText.js';
 
 // Open tables, on the Explore screen.
 //
@@ -24,6 +25,7 @@ const dayLabel = (date) => {
 };
 
 export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
+  const say = useText();
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
 
@@ -55,7 +57,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
   const anyUpcoming = tables.some(t => !isPast(t));
 
   return (
-    <section className="tables-lead" aria-label="Open tables">
+    <section className="tables-lead" aria-label={say('Open tables', '열린 밥상', 'Mesas abiertas')}>
       <div className="tables-lead__head">
         <div>
           {/* The 밥친구 label above this heading is gone: the wordmark is in
@@ -132,7 +134,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
                       seeded; this screen never did, which meant the first
                       three tables anybody ever saw were invented and unlabelled
                       on the highest-traffic screen in the app. */}
-                  {t.isSample && <span className="lead-table__sample">sample</span>}
+                  {t.isSample && <span className="lead-table__sample">{say('sample', '샘플', 'ejemplo')}</span>}
                 </span>
               </button>
             );

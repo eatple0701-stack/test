@@ -3,6 +3,7 @@ import {
   SAFETY_STEPS, NOT_YET_BUILT, REPORT_CHANNEL, reportingConfigured, PURPOSE,
 } from '../content/safety.js';
 import { ChevronLeftIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // The sheet you open when the evening is going wrong.
 //
@@ -14,8 +15,9 @@ import { ChevronLeftIcon } from './Icons';
 // silently has no reporting channel has traded a real duty for the appearance
 // of one, and a traveller would find that out at the worst possible time.
 export default function SafetySheet({ onClose }) {
+  const say = useText();
   return (
-    <div className="phrase-sheet" role="dialog" aria-label="Safety">
+    <div className="phrase-sheet" role="dialog" aria-label={say('Safety', '안전', 'Seguridad')}>
       <header className="sheet-page__head">
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
@@ -38,7 +40,7 @@ export default function SafetySheet({ onClose }) {
       <div className="safety">
         <a className="safety__call" href="tel:112">
           <span className="safety__call-num">112</span>
-          <span className="safety__call-label">Police</span>
+          <span className="safety__call-label">{say('Police', '경찰', 'Policía')}</span>
         </a>
         <a className="safety__call" href="tel:119">
           <span className="safety__call-num">119</span>
@@ -60,19 +62,20 @@ export default function SafetySheet({ onClose }) {
 
         {reportingConfigured() ? (
           <a className="safety__report" href={REPORT_CHANNEL.href} target="_blank" rel="noreferrer">
-            Report to {REPORT_CHANNEL.label}
+            {say('Report to ', '신고 보내기: ', 'Informar a ')}{REPORT_CHANNEL.label}
           </a>
         ) : (
           /* Not a button. A report that goes nowhere is worse than none,
              because somebody trusted it at the moment they needed it. */
           <p className="safety__unwired">
-            In-app reporting is not connected yet. Until it is, tell the 밥친구 team directly —
-            during the pilot somebody from the team is reachable at the meeting point.
+            {say('In-app reporting is not connected yet. Until it is, tell the Eatple team directly — during the pilot somebody from the team is reachable at the meeting point.',
+              '앱 내 신고는 아직 연결되지 않았습니다. 그때까지는 밥친구 팀에 직접 알려 주세요 — 파일럿 기간에는 만나는 자리에 팀 사람이 있습니다.',
+              'Los informes dentro de la app aún no están conectados. Hasta entonces, díselo directamente al equipo de Eatple: durante el piloto hay alguien del equipo localizable en el punto de encuentro.')}
           </p>
         )}
 
         <div className="safety__owed">
-          <p className="safety__owed-label">Not built yet</p>
+          <p className="safety__owed-label">{say('Not built yet', '아직 준비 중', 'Todavía sin construir')}</p>
           <ul>
             {NOT_YET_BUILT.map(item => <li key={item}>{item}</li>)}
           </ul>

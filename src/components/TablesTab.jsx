@@ -154,7 +154,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   );
 
   return (
-    <section className="tables-tab" aria-label="밥친구 tables">
+    <section className="tables-tab" aria-label={say('Eatple tables', '밥친구 밥상', 'Mesas de Eatple')}>
       {/* The wordmark and the sign-in pair used to sit here, at the top of
           this one tab. They are app chrome, not landing-page content — see
           .app-chrome in App.jsx, where they now live on every screen. */}
@@ -683,7 +683,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           worth doing. Both blocks are guests-only — a member has done all
           three steps and does not need the rules recited back. */}
       {!isMember(auth) && (
-        <div className="how-strip" aria-label="How 밥친구 works">
+        <div className="how-strip" aria-label={say('How Eatple works', '밥친구가 작동하는 방식', 'Cómo funciona Eatple')}>
           <ol className="how-strip__steps">
             {HOW_STEPS.map((s, i) => (
               <li key={s.id} className="how-strip__step">

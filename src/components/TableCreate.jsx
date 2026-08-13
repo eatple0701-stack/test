@@ -354,8 +354,9 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       <div className="form-block">
         <h2 className="form-label">문화 가이드 · What will you walk the table through?</h2>
         <p className="form-label__hint">
-          Optional. Whatever you tick is shown on your table, in your guests&rsquo; language,
-          so they know what to expect before they ask for a seat.
+          {say('Optional. Whatever you tick is shown on your table, in your guests\u2019 language, so they know what to expect before they ask for a seat.',
+            '선택입니다. 체크하신 것은 손님들의 언어로 밥상에 표시되어, 자리를 청하기 전에 무엇을 기대할지 알 수 있게 합니다.',
+            'Opcional. Lo que marques se muestra en tu mesa, en el idioma de tus invitados, para que sepan qué esperar antes de pedir sitio.')}
         </p>
 
         {/* The consequence of the ticks, said while they are being ticked.
@@ -453,13 +454,13 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           <input
             type="url"
             value={chatUrl}
-            placeholder="https://open.kakao.com/o/..."
+            placeholder={say('https://open.kakao.com/o/…', 'https://open.kakao.com/o/…', 'https://open.kakao.com/o/…')}
             onChange={e => setChatUrl(e.target.value)}
           />
           <span className="field__note">
-            Make a KakaoTalk open chat and paste its link — your confirmed guests
-            see it, nobody else does. It is the "running 10 minutes late" channel
-            the app itself does not have. https links only.
+            {say('Make a KakaoTalk open chat and paste its link — your confirmed guests see it, nobody else does. It is the "running 10 minutes late" channel the app itself does not have. https links only.',
+              '카카오톡 오픈채팅을 만들어 링크를 붙여 넣으세요. 승인된 손님에게만 보이고 다른 사람에게는 보이지 않습니다. 앱에는 없는 "10분 늦어요" 채널이에요. https 링크만 됩니다.',
+              'Crea un chat abierto de KakaoTalk y pega el enlace: lo ven tus invitados confirmados y nadie más. Es el canal de "llego diez minutos tarde" que la app no tiene. Solo enlaces https.')}
           </span>
         </label>
         <label className="field">

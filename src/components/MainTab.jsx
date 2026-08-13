@@ -125,7 +125,7 @@ export default function MainTab({
   return (
     <section
       className={`main-tab${stickyShown ? ' main-tab--sticky' : ''}`}
-      aria-label="밥친구 main"
+      aria-label={say('Eatple home', '밥친구 메인', 'Inicio de Eatple')}
     >
 
       {/* ---- Hero. Meetup's phone and desktop heroes are different
@@ -271,7 +271,7 @@ export default function MainTab({
             {say('The dishes this app is about', null, 'Los platos de los que trata esta app')}
           </span>
         </h2>
-        <div className="main-dishes__row" role="group" aria-label="Read about a dish">
+        <div className="main-dishes__row" role="group" aria-label={say('Read about a dish', '요리 읽어보기', 'Leer sobre un plato')}>
           {menus.map((m, i) => (
             <button key={m.id} className={`main-dish ${TILE_TONES[i % TILE_TONES.length]}`} onClick={() => setOpenDish(m)}>
               <span className="main-dish__arrow" aria-hidden="true">↗</span>

@@ -369,7 +369,7 @@ export default function JournalPanel({
   const isEmpty = recordCount === 0 && upcomingTables.length === 0;
 
   return (
-    <section className="journal-panel" aria-label="Journal">
+    <section className="journal-panel" aria-label={say('Journal', '여권', 'Pasaporte')}>
       <header className="screen-head screen-head--dark">
         <div className="screen-head__row">
           <div>
@@ -484,7 +484,7 @@ export default function JournalPanel({
               issues, so a typo at least has somewhere to be seen. */}
           <div className="account-block">
             {profile?.avatarUrl ? (
-              <img className="account-avatar" src={profile.avatarUrl} alt="Your profile photo" />
+              <img className="account-avatar" src={profile.avatarUrl} alt="" />
             ) : (
               <span className="account-avatar account-avatar--empty" aria-hidden="true">
                 {(profile?.name ?? '?').trim().charAt(0) || '?'}
@@ -508,7 +508,7 @@ export default function JournalPanel({
           </h3>
           <p className="member-gate__body">{say(gateText('passport').body, gateText('passport').bodyKo, gateText('passport').bodyEs)}</p>
           <button className="auth-primary" translate="no" onClick={() => onRequireAuth?.('passport')}>
-            {gateText('passport').cta}
+            {say(gateText('passport').cta, null, gateText('passport').ctaEs)}
           </button>
         </div>
       )}
@@ -541,7 +541,7 @@ export default function JournalPanel({
       {upcomingTables.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>Coming up</h3>
+            <h3>{say('Coming up', '다가오는 밥상', 'Próximamente')}</h3>
             <span className="journal-badge-count">{upcomingTables.length}</span>
           </div>
           <div className="upcoming-list">
@@ -554,15 +554,15 @@ export default function JournalPanel({
                   <div className="upcoming-row__body">
                     <span className="upcoming-row__dish">
                       {menu.name}
-                      {t.hosted && <span className="upcoming-row__badge">you host</span>}
+                      {t.hosted && <span className="upcoming-row__badge">{say('you host', '내가 호스트', 'eres anfitrión')}</span>}
                       {/* A seat you asked for is not a seat you have. Said
                           on the row itself, because the date and place sit
                           right beneath it and read as a plan either way. */}
                       {t.myRequest && isPending(t.myRequest) && !hasLapsed(t.myRequest, t) && (
-                        <span className="upcoming-row__pending">waiting on the host</span>
+                        <span className="upcoming-row__pending">{say('waiting on the host', '호스트 응답 대기', 'esperando al anfitrión')}</span>
                       )}
                       {t.myRequest && hasLapsed(t.myRequest, t) && (
-                        <span className="upcoming-row__lapsed">no answer — seat released</span>
+                        <span className="upcoming-row__lapsed">{say('no answer — seat released', '응답 없음 — 자리 풀림', 'sin respuesta: sitio liberado')}</span>
                       )}
                       {t.waiting > 0 && !isCancelled(t) && (
                         <span className="upcoming-row__pending">
@@ -574,7 +574,7 @@ export default function JournalPanel({
                           deleting. A line that disappears tells nobody
                           anything; this one is the only warning there is. */}
                       {isCancelled(t) && (
-                        <span className="upcoming-row__cancelled">called off — do not go</span>
+                        <span className="upcoming-row__cancelled">{say('called off — do not go', '취소됨 — 가지 마세요', 'cancelada: no vayas')}</span>
                       )}
                     </span>
                     <span className="upcoming-row__when">
@@ -595,7 +595,7 @@ export default function JournalPanel({
       {days.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>Your record</h3>
+            <h3>{say('Your record', '내 기록', 'Tu registro')}</h3>
             <span className="journal-badge-count">{recordCount} moments</span>
           </div>
           <div className="record">
@@ -732,7 +732,7 @@ export default function JournalPanel({
 
       <div className="journal-section">
         <div className="journal-section-header">
-          <h3>Worth doing</h3>
+          <h3>{say('Worth doing', '해볼 만한 것', 'Merece la pena')}</h3>
           <span className="journal-badge-count">{goalsDone}/{goals.length}</span>
         </div>
         <ul className="goal-list">
@@ -755,7 +755,7 @@ export default function JournalPanel({
       {metPeople.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>People Met</h3>
+            <h3>{say('People Met', '만난 사람', 'Personas conocidas')}</h3>
           </div>
           <div className="companion-list">
             {metPeople.map(p => (
@@ -784,7 +784,7 @@ export default function JournalPanel({
       {visitedList.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>Visited Places</h3>
+            <h3>{say('Visited Places', '가본 곳', 'Sitios visitados')}</h3>
           </div>
           <div className="journal-grid">
             {visitedList.map(({ place, visitedAt }) => (
@@ -816,7 +816,7 @@ export default function JournalPanel({
       {walkedThemes.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>Cultures you walked</h3>
+            <h3>{say('Cultures you walked', '걸어본 문화', 'Culturas recorridas')}</h3>
             <span className="journal-badge-count">{walkedThemes.length}</span>
           </div>
           <div className="walked-list">
@@ -849,7 +849,7 @@ export default function JournalPanel({
       {blocks.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>Blocked</h3>
+            <h3>{say('Blocked', '차단됨', 'Bloqueado')}</h3>
             <span className="journal-badge-count">{blocks.length}</span>
           </div>
           <ul className="blocked-list">
@@ -857,7 +857,7 @@ export default function JournalPanel({
               <li key={b.blockedId} className="blocked-row">
                 <span className="blocked-row__name">{b.blockedName || 'Someone'}</span>
                 <button className="blocked-row__undo" onClick={() => unblock(b.blockedId)}>
-                  Unblock
+                  {say('Unblock', '차단 해제', 'Desbloquear')}
                 </button>
               </li>
             ))}

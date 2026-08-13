@@ -79,6 +79,7 @@ export const GATE_TEXT = {
     bodyKo: '밥상의 한 자리는 실제 사람들에게 하는 약속이라, 일정이 바뀌면 연락할 방법이 필요합니다. 밥상과 요리와 정보를 둘러보는 건 계정 없이도 계속 열려 있어요.',
     bodyEs: 'Un sitio en una mesa es una promesa a personas reales, así que el equipo necesita una forma de avisarte si los planes cambian. Mirar las mesas, los platos y los consejos sigue abierto sin cuenta.',
     cta: '가입하고 계속 · Join and continue',
+    ctaEs: 'Únete y continúa',
   },
   'open-table': {
     titleKr: '상을 차리려면 가입이 필요해요',
@@ -88,6 +89,7 @@ export const GATE_TEXT = {
     bodyKo: '호스트가 된다는 건 처음 보는 사람들이 당신을 기준으로 저녁 계획을 세운다는 뜻이라, 호스트는 먼저 가입합니다. 둘러보는 데는 계정이 필요 없어요.',
     bodyEs: 'Ser anfitrión significa que gente desconocida organiza su noche a tu alrededor, así que los anfitriones se registran primero. Mirar no necesita cuenta.',
     cta: '가입하고 계속 · Join and continue',
+    ctaEs: 'Únete y continúa',
   },
   'request-table': {
     titleKr: '찾는 밥상은 가입 후에 쓸 수 있어요',
@@ -97,6 +99,7 @@ export const GATE_TEXT = {
     bodyKo: '앱이 대신 밥상을 열어 줄 때, 연결이 성사되면 연락이 닿는 사람이 있어야 합니다. 둘러보기는 계정 없이도 열려 있어요.',
     bodyEs: 'Cuando la app abre una mesa por ti, alguien tiene que estar localizable cuando llegue el encuentro. Mirar sigue abierto sin cuenta.',
     cta: '가입하고 계속 · Join and continue',
+    ctaEs: 'Únete y continúa',
   },
   // The one door that guards writing rather than looking. The Passport's
   // whole structure renders for a guest — profile on top, record below —
@@ -110,6 +113,7 @@ export const GATE_TEXT = {
     bodyKo: '프로필 — 이름, 쓰는 언어, 먹는 것 — 은 가입할 때 한 번만 적으면 그 뒤로 모든 밥상이 그것을 읽습니다. 아래 여권은 저녁이 하나씩 지나갈 때마다 채워져요. 둘러보기는 계정 없이도 되고, 내 것을 만드는 건 가입 한 번입니다.',
     bodyEs: 'Tu perfil — nombre, idiomas, lo que comes — se escribe una vez, al registrarte, y a partir de ahí lo lee cada mesa. El Pasaporte de abajo se va llenando con tus noches según ocurren. Mirar sigue abierto sin cuenta; hacerte el tuyo es un registro.',
     cta: '만들기 · Create mine',
+    ctaEs: 'Crear el mío',
   },
 };
 

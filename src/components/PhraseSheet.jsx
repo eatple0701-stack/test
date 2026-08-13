@@ -4,6 +4,7 @@ import {
 } from '../content/phrases.js';
 import QuizDeck from './QuizDeck';
 import { ChevronLeftIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // The thing you hold at the table.
 //
@@ -52,6 +53,7 @@ function useKoreanVoice() {
 }
 
 export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
+  const say = useText();
   const [group, setGroup] = useState(PHRASE_GROUP.ORDER);
   const [spokenId, setSpokenId] = useState(null);
   const voice = useKoreanVoice();
@@ -83,7 +85,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
   return (
-    <div className="phrase-sheet" role="dialog" aria-label="Korean phrases for the table">
+    <div className="phrase-sheet" role="dialog" aria-label={say('Korean phrases for the table', '식탁에서 쓰는 한국어', 'Frases en coreano para la mesa')}>
       <header className="sheet-page__head">
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
@@ -115,7 +117,9 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
       {group === QUIZ ? (
         <div className="phrase-list">
           <p className="phrase-note-lead">
-            Ask one out loud. The answer matters less than the sentence after it.
+            {say('Ask one out loud. The answer matters less than the sentence after it.',
+              '하나를 소리 내어 물어보세요. 답보다 그 다음에 이어지는 문장이 중요합니다.',
+              'Pregunta una en voz alta. La respuesta importa menos que la frase que viene después.')}
           </p>
           <QuizDeck menuId={menuId} />
         </div>
@@ -126,7 +130,9 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
               through, which is the wrong shape for a moment where somebody is
               holding a phone in one hand and wants a single sentence. */}
           <p className="phrase-note-lead">
-            One question at a time. Hand the phone over — it is written both ways.
+            {say('One question at a time. Hand the phone over — it is written both ways.',
+              '한 번에 하나씩. 휴대폰을 건네주세요 — 양쪽 언어로 적혀 있습니다.',
+              'Una pregunta cada vez. Pásale el móvil: está escrito en los dos idiomas.')}
           </p>
 
           <div className="ask-card">
@@ -181,8 +187,9 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
               Korean and pretending otherwise wastes a tap at a busy table. */}
           {!voice && (
             <p className="phrase-no-voice">
-              This device has no Korean voice installed, so the phrases cannot be
-              spoken aloud. Showing the screen works just as well.
+              {say('This device has no Korean voice installed, so the phrases cannot be spoken aloud. Showing the screen works just as well.',
+                '이 기기에 한국어 음성이 설치되어 있지 않아 문장을 소리로 들려드릴 수 없습니다. 화면을 보여 주는 것으로도 충분해요.',
+                'Este dispositivo no tiene voz coreana instalada, así que las frases no se pueden pronunciar. Enseñar la pantalla funciona igual de bien.')}
             </p>
           )}
         </div>

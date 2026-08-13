@@ -3,11 +3,13 @@ import PlaceImage from './PlaceImage';
 import { HeartIcon, CompassIcon } from './Icons';
 import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf } from '../utils';
 import { dietaryBadges } from '../data/verification';
+import { useText } from './localeText.js';
 
 // The traits that make up the sustainability axis (see TRAIT_GROUPS in App).
 const SUSTAINABILITY_TRAITS = ['Zero-waste', 'Local Sourcing'];
 
 function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, lens, mapCenter }) {
+  const say = useText();
   const name = place.name.split('(')[0].trim();
   const status = getOpenStatus(place.hours);
   // Dietary badges say exactly what we know ("Vegan options" ≠ "Fully vegan");
@@ -78,7 +80,7 @@ function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, l
           aria-label={`Read the story of ${name}`}
           onClick={() => onReadStory(place)}
         >
-          Read Story
+          {say('Read Story', '이야기 읽기', 'Leer la historia')}
         </button>
 
         <div className="place-card__actions">
@@ -107,6 +109,7 @@ export default function BottomSheetList({
   restaurants, onRestaurantClick, onReadStory, onToggleBookmark, bookmarkedIds, mapCenter,
   sustainabilityLens, onResetFilters,
 }) {
+  const say = useText();
   const sorted = useMemo(() =>
     restaurants
       .map(r => {
@@ -120,7 +123,7 @@ export default function BottomSheetList({
     <div className="place-list">
       <div className="place-list__header">
         <h3>{sorted.length} {sorted.length === 1 ? 'place' : 'places'}</h3>
-        {sorted.length > 1 && <span className="place-list__hint">Nearest first</span>}
+        {sorted.length > 1 && <span className="place-list__hint">{say('Nearest first', '가까운 순', 'Más cercanos primero')}</span>}
       </div>
 
       {/* Said once for the whole list rather than on every card: the same
@@ -128,7 +131,9 @@ export default function BottomSheetList({
           audited. */}
       {sustainabilityLens && sorted.length > 0 && (
         <p className="section-note place-list__note">
-          Described by the restaurant and our research; not independently audited.
+          {say('Described by the restaurant and our research; not independently audited.',
+            '식당 소개와 저희 조사에 따른 것이며, 독립적으로 검증되지는 않았습니다.',
+            'Según lo que describen el restaurante y nuestra investigación; sin auditoría independiente.')}
         </p>
       )}
 
@@ -158,8 +163,9 @@ export default function BottomSheetList({
         <div className="place-list__empty">
           <p className="place-list__empty-kr" translate="no">찾은 곳이 없어요</p>
           <p className="place-list__empty-en">
-            No place matches all of the filters at once. Removing one usually
-            brings the list back.
+            {say('No place matches all of the filters at once. Removing one usually brings the list back.',
+              '모든 필터를 동시에 만족하는 곳이 없습니다. 하나를 빼면 대개 목록이 돌아옵니다.',
+              'Ningún sitio cumple todos los filtros a la vez. Quitar uno suele devolver la lista.')}
           </p>
           {onResetFilters && (
             <button className="place-list__empty-cta" translate="no" onClick={onResetFilters}>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { menuById } from '../domain/catalog/menus.js';
 import { listTables, listAllSignups } from '../data/tableRepository.js';
 import { ChevronRightIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // The banner for a meal that is today.
 //
@@ -17,6 +18,7 @@ import { ChevronRightIcon } from './Icons';
 // this as answering the user's question in three seconds — and "where am I
 // going tonight" is the question this app had no answer to.
 export default function TodayTable({ profile, onOpenTable }) {
+  const say = useText();
   const [mine, setMine] = useState([]);
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export default function TodayTable({ profile, onOpenTable }) {
             <span className="today-table__kr" aria-hidden="true">{menu.nameKo}</span>
             <span className="today-table__eyebrow">
               Today · {t.time}
-              {t.hosted && <span className="today-table__badge">you host</span>}
+              {t.hosted && <span className="today-table__badge">{say('you host', '내가 호스트', 'eres anfitrión')}</span>}
             </span>
             <span className="today-table__dish">{menu.name}</span>
 

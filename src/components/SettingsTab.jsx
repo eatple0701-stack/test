@@ -4,6 +4,7 @@ import { isMember } from '../domain/policy/access.js';
 import { deleteAccount } from '../data/tableRepository.js';
 import { authError } from '../domain/policy/authError.js';
 import { LOCALES, LOCALE_LABEL } from '../domain/policy/locale.js';
+import { useText } from './localeText.js';
 
 // The fifth tab (2026-08-04). Appearance lived inside the profile form,
 // which put a device preference in the middle of fields a host actually
@@ -20,6 +21,7 @@ const CHOICES = [
 ];
 
 export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLocaleChange }) {
+  const say = useText();
   const [theme, setThemeState] = useState(getStoredTheme);
   // Anything that is not explicitly dark reads as 디폴트 — including the
   // 'system' value older devices stored back when three choices existed.
@@ -46,7 +48,7 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
       <header className="screen-head screen-head--dark">
         <span className="screen-head__kr" translate="no">설정</span>
         <h1 className="screen-head__title">Settings</h1>
-        <p className="screen-head__sub">How the app looks on this device.</p>
+        <p className="screen-head__sub">{say('How the app looks on this device.', '이 기기에서 앱이 보이는 방식.', 'Cómo se ve la app en este dispositivo.')}</p>
       </header>
 
       {/* The language of the interface. data-no-locale on the whole block:
@@ -97,7 +99,9 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
           <h3>화면 모드 · Appearance</h3>
         </div>
         <p className="journal-settings__hint">
-          Stays on this device — it changes your screen and nobody else&rsquo;s.
+          {say('Stays on this device — it changes your screen and nobody else\u2019s.',
+            '이 기기에만 저장됩니다 — 당신 화면만 바뀌고 다른 사람 것은 그대로예요.',
+            'Se queda en este dispositivo: cambia tu pantalla y la de nadie más.')}
         </p>
         <div className="chip-row">
           {CHOICES.map(c => (
@@ -135,15 +139,17 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
                   in the ordinary weight; the permanent one keeps its own
                   colour and its confirmation. */}
               <p className="journal-settings__hint">
-                로그아웃해도 계정과 기록은 그대로 있어요. Signing out leaves everything
-                where it is — your Passport, your seats, the tables you host.
+                {say('Signing out leaves everything where it is — your Passport, your seats, the tables you host.',
+                  '로그아웃해도 계정과 기록은 그대로 있어요. 여권도, 잡아 둔 자리도, 차린 밥상도요.',
+                  'Cerrar sesión deja todo donde está: tu Pasaporte, tus sitios y las mesas que organizas.')}
               </p>
               <button className="settings-signout" translate="no" onClick={onSignOut}>
                 로그아웃 · Sign out
               </button>
               <p className="journal-settings__hint danger-zone__hint">
-                Closing your account is different: it removes everything you gave us — your
-                name, email, phone and date of birth — and everything you made here.
+                {say('Closing your account is different: it removes everything you gave us — your name, email, phone and date of birth — and everything you made here.',
+                  '회원 탈퇴는 다릅니다. 주신 것 전부 — 이름, 이메일, 전화번호, 생년월일 — 과 여기서 만드신 것 전부가 사라집니다.',
+                  'Cerrar la cuenta es otra cosa: borra todo lo que nos diste — nombre, correo, teléfono y fecha de nacimiento — y todo lo que has creado aquí.')}
               </p>
               <button className="danger-open" translate="no" onClick={() => setConfirming(true)}>
                 회원 탈퇴 · Close my account
@@ -153,11 +159,9 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
             <div className="cancel-confirm">
               <p className="cancel-confirm__title">계정을 지울까요? · Close this account?</p>
               <p className="cancel-confirm__body">
-                Gone for good, right away: your contact details, your Passport,
-                any tables you host and the seats you hold — people going to
-                them will see the table disappear. The lines you left on other
-                people&rsquo;s tables go too. This cannot be undone, and signing
-                up again starts an empty account.
+                {say('Gone for good, right away: your contact details, your Passport, any tables you host and the seats you hold — people going to them will see the table disappear. The lines you left on other people\u2019s tables go too. This cannot be undone, and signing up again starts an empty account.',
+                  '즉시, 영구히 사라집니다. 연락처, 여권, 차리신 밥상과 잡아 두신 자리까지 — 그 밥상에 가려던 사람들에게는 밥상이 없어진 것으로 보입니다. 다른 사람 밥상에 남기신 한 줄도 함께 사라집니다. 되돌릴 수 없고, 다시 가입하시면 빈 계정으로 시작합니다.',
+                  'Desaparece para siempre y al instante: tus datos de contacto, tu Pasaporte, las mesas que organizas y los sitios que ocupas — quien iba a ellas verá que la mesa desaparece. Las líneas que dejaste en mesas de otros también se van. No se puede deshacer, y registrarse de nuevo empieza una cuenta vacía.')}
               </p>
               {error && (
                 <div className="auth-error" role="alert">

@@ -3,6 +3,7 @@ import { menuById } from '../domain/catalog/menus.js';
 import { didHappen } from '../domain/policy/table.js';
 import { listTables, listAllSignups } from '../data/tableRepository.js';
 import { XIcon, CheckIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // The shareable end of the loop — 계획서 핵심기능 5, the thing that actually
 // leaves the app and lands on somebody's feed.
@@ -28,6 +29,7 @@ function summaryText(s) {
 }
 
 export default function TravelSummary({ journey, profile, onClose }) {
+  const say = useText();
   const [copied, setCopied] = useState(false);
   const [stats, setStats] = useState({ tables: 0, dishes: 0, people: 0, dishNames: [] });
 
@@ -77,7 +79,7 @@ export default function TravelSummary({ journey, profile, onClose }) {
   };
 
   return (
-    <div className="match-modal-backdrop" role="dialog" aria-label="Travel summary" onClick={onClose} style={{ zIndex: 9999 }}>
+    <div className="match-modal-backdrop" role="dialog" aria-label={say('Travel summary', '여행 요약', 'Resumen del viaje')} onClick={onClose} style={{ zIndex: 9999 }}>
       <div className="summary-sheet" onClick={e => e.stopPropagation()}>
         <button className="summary-sheet__close" aria-label="Close" onClick={onClose}>
           <XIcon size={18} />
@@ -85,24 +87,24 @@ export default function TravelSummary({ journey, profile, onClose }) {
 
         <div className="summary-card">
           <p className="summary-card__eyebrow">밥친구 잇플 · Eatple</p>
-          <h2 className="summary-card__title">Solo trip, shared table</h2>
+          <h2 className="summary-card__title">{say('Solo trip, shared table', '혼자 온 여행, 함께한 밥상', 'Viaje en solitario, mesa compartida')}</h2>
 
           <div className="summary-card__grid">
             <div>
               <span className="summary-card__num">{summary.tables}</span>
-              <span className="summary-card__label">Tables shared</span>
+              <span className="summary-card__label">{say('Tables shared', '함께한 밥상', 'Mesas compartidas')}</span>
             </div>
             <div>
               <span className="summary-card__num">{summary.dishes}</span>
-              <span className="summary-card__label">Dishes I could not order alone</span>
+              <span className="summary-card__label">{say('Dishes I could not order alone', '혼자서는 못 시켰을 요리', 'Platos que no podía pedir solo')}</span>
             </div>
             <div>
               <span className="summary-card__num">{summary.people}</span>
-              <span className="summary-card__label">People met</span>
+              <span className="summary-card__label">{say('People met', '만난 사람', 'Personas conocidas')}</span>
             </div>
             <div>
               <span className="summary-card__num">{summary.cultures}</span>
-              <span className="summary-card__label">Cultures walked</span>
+              <span className="summary-card__label">{say('Cultures walked', '걸어본 문화', 'Culturas recorridas')}</span>
             </div>
           </div>
 
@@ -112,8 +114,9 @@ export default function TravelSummary({ journey, profile, onClose }) {
             ))}
             {nothingYet && (
               <span className="summary-card__stamp summary-card__stamp--empty">
-                No shared table yet. There is nothing to post about a meal that
-                has not happened.
+                {say('No shared table yet. There is nothing to post about a meal that has not happened.',
+                  '아직 함께한 밥상이 없어요. 일어나지 않은 식사에 대해서는 올릴 것이 없습니다.',
+                  'Todavía no hay ninguna mesa compartida. No hay nada que publicar sobre una comida que no ha ocurrido.')}
               </span>
             )}
           </div>
@@ -124,9 +127,11 @@ export default function TravelSummary({ journey, profile, onClose }) {
         </div>
 
         <button className="btn-primary" onClick={handleShare} style={{ width: '100%' }}>
-          {copied ? <><CheckIcon size={17} /> Copied</> : 'Share my journey'}
+          {copied
+            ? <><CheckIcon size={17} /> {say('Copied', '복사됨', 'Copiado')}</>
+            : say('Share my journey', '내 여정 공유하기', 'Compartir mi recorrido')}
         </button>
-        <p className="summary-sheet__hint">Or screenshot the card above.</p>
+        <p className="summary-sheet__hint">{say('Or screenshot the card above.', '또는 위 카드를 캡처하세요.', 'O haz una captura de la tarjeta de arriba.')}</p>
       </div>
     </div>
   );

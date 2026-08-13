@@ -560,8 +560,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             having nothing to say and looking like it had checked. */}
         {menu.varies && (profile?.avoids?.length ?? 0) > 0 && (
           <p className="detail-varies">
-            The side dishes change by the house and by the day, so this one
-            cannot be checked in advance. Ask before you sit down.
+            {say('The side dishes change by the house and by the day, so this one cannot be checked in advance. Ask before you sit down.',
+              '반찬은 집집마다, 날마다 달라져서 미리 확인할 수가 없습니다. 앉기 전에 물어보세요.',
+              'Las guarniciones cambian según la casa y el día, así que esto no se puede comprobar de antemano. Pregunta antes de sentarte.')}
           </p>
         )}
 
@@ -626,13 +627,16 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         )}
         {fit === LANGUAGE_FIT.NONE && (
           <p className="lang-note lang-note--warn">
-            Nothing here matches what you speak. People manage — but bring a
-            translation app, and the phrases below.
+            {say('Nothing here matches what you speak. People manage — but bring a translation app, and the phrases below.',
+              '여기 쓰는 언어 중에 하실 줄 아는 게 없습니다. 그래도 다들 어떻게든 하지만, 번역 앱과 아래 표현들을 챙겨 가세요.',
+              'Aquí no hay ningún idioma que hables. La gente se apaña, pero llévate una app de traducción y las frases de abajo.')}
           </p>
         )}
         {fit === LANGUAGE_FIT.MINE_UNSAID && (
           <p className="lang-note">
-            You have not said what you speak, so this cannot be compared. Profile.
+            {say('You have not said what you speak, so this cannot be compared. Profile.',
+              '어떤 언어를 하시는지 적지 않으셔서 비교할 수가 없습니다. 프로필에서 알려주세요.',
+              'No has dicho qué idiomas hablas, así que no se puede comparar. Perfil.')}
           </p>
         )}
       </div>
@@ -807,7 +811,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   className="who-row__block"
                   onClick={() => setConfirmBlock({ id: table.hostId, name: table.hostName, role: 'host' })}
                 >
-                  Block
+                  {say('Block', '차단', 'Bloquear')}
                 </button>
               )
             )}
@@ -849,7 +853,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                       className="who-row__block"
                       onClick={() => setConfirmBlock({ id: s.userId, name: s.name, role: 'guest' })}
                     >
-                      Block
+                      {say('Block', '차단', 'Bloquear')}
                     </button>
                   )
                 )}
@@ -912,7 +916,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                     disabled={deciding === s.id}
                     onClick={() => decide(s, SEAT_STATUS.DECLINED)}
                   >
-                    Not this time
+                    {say('Not this time', '이번엔 아니요', 'Esta vez no')}
                   </button>
                   {/* Says why the accept is unavailable rather than leaving a
                       dead button — almost always "no seat left", which a host
@@ -939,7 +943,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             </p>
             <div className="cancel-confirm__row">
               <button className="cancel-confirm__no" onClick={() => setConfirmBlock(null)}>
-                Keep as is
+                {say('Keep as is', '그대로 두기', 'Dejarlo como está')}
               </button>
               <button className="cancel-confirm__yes" onClick={confirmedBlock} disabled={blocking}>
                 {blocking ? 'Blocking…' : 'Block'}
@@ -1135,7 +1139,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               )}
               <div className="cancel-confirm__row">
                 <button className="cancel-confirm__no" onClick={() => setConfirmCancel(false)}>
-                  Keep it
+                  {say('Keep it', '그냥 두기', 'Mantenerla')}
                 </button>
                 <button className="cancel-confirm__yes" onClick={cancelTable} disabled={busy}>
                   {busy ? 'Cancelling…' : 'Call it off'}
@@ -1163,7 +1167,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </h3>
           <p className="join-next">{gateText('join-table').body}</p>
           <button className="form-submit" translate="no" onClick={() => onRequireAuth?.("join-table")}>
-            {gateText('join-table').cta}
+            {say(gateText('join-table').cta, null, gateText('join-table').ctaEs)}
           </button>
         </div>
       ) : !agreedToRules(profile, PURPOSE.version) ? (
@@ -1194,7 +1198,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               Going as <strong>{profile.name}</strong>
               {profile.nationality ? ` from ${profile.nationality}` : ''}
               <button className="join-as__edit" onClick={() => setEditingIdentity(true)}>
-                Change
+                {say('Change', '수정', 'Cambiar')}
               </button>
             </p>
           ) : (
@@ -1212,11 +1216,11 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
 
           {!noteOpen ? (
             <button className="join-note-open" onClick={() => setNoteOpen(true)}>
-              + Anything the table should know?
+              {say('+ Anything the table should know?', '+ 밥상에서 알아야 할 게 있나요?', '+ ¿Algo que la mesa deba saber?')}
             </button>
           ) : (
             <label className="field">
-              <span className="field__label">Anything the table should know?</span>
+              <span className="field__label">{say('Anything the table should know?', '밥상에서 알아야 할 게 있나요?', '¿Algo que la mesa deba saber?')}</span>
               <textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder={say('No pork, and my Korean is about ten words.', '돼지고기는 못 먹고, 한국어는 열 단어쯤 합니다.', 'Sin cerdo, y mi coreano son unas diez palabras.')} autoFocus />
             </label>
           )}
@@ -1300,7 +1304,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </label>
           <div className="report-panel__row">
             <button className="cancel-confirm__no" onClick={() => setReportOpen(false)}>
-              Never mind
+              {say('Never mind', '취소', 'Déjalo')}
             </button>
             <button className="cancel-confirm__yes" onClick={submitReport} disabled={busy}>
               {busy ? 'Sending…' : REPORT_DOOR.send}

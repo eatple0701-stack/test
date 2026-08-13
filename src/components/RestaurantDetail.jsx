@@ -22,6 +22,7 @@ import {
   dietaryBadges, isKnown, needsCheck, trustBadge, dietaryConfidence, CONFIDENCE, isQuarantined, TRUST_LABEL_KO, TRUST_LABEL_ES } from '../data/verification';
 import { bookable } from '../domain/policy/cancellation.js';
 import { useText, useLocale } from './localeText.js';
+import { ZONE_KO, ZONE_ES } from '../data/culture';
 
 const TRAIT_META = {
   'Mild Taste': { Icon: MildIcon, label: 'Mild taste', labelKo: '맵지 않음', labelEs: 'Suave' },
@@ -185,7 +186,7 @@ function RestaurantDetailInner({
   const tableCta = tableCtaFor(restaurant, locale);
   const mapLinks = mapLinksFor(restaurant);
   const transit = transitLine(restaurant);
-  const status = getOpenStatus(restaurant.hours);
+  const status = getOpenStatus(restaurant.hours, new Date(), locale);
   const today = todaysHours(restaurant.hours);
   const culture = getCulture(restaurant);
   const coords = coordsOf(restaurant);
@@ -280,7 +281,7 @@ function RestaurantDetailInner({
             <header className="detail-header">
               <h2>{restaurant.name}</h2>
               <p className="detail-meta">
-                {restaurant.zone}
+                {say(restaurant.zone, ZONE_KO[restaurant.zone], ZONE_ES[restaurant.zone])}
                 {distance && <><span aria-hidden="true"> · </span>{distance}</>}
               </p>
             </header>
@@ -408,7 +409,11 @@ function RestaurantDetailInner({
                   English inside Quick Info. */}
               {transit && (
                 <p className="place-actions__transit">
-                  <strong>{transit.kr}</strong> {transit.en}
+                  {/* The Korean half is what a traveller shows a taxi driver, so it
+                      stays beside the readable one in the bilingual default;
+                      each single-language setting keeps only its own. */}
+                  <strong className="place-actions__transit-kr">{transit.kr}</strong>
+                  <span className="place-actions__transit-en">{say(transit.en, null, transit.es)}</span>
                 </p>
               )}
             </div>
@@ -451,9 +456,17 @@ function RestaurantDetailInner({
                       <span>{restaurant.transit.value.station}</span>{' '}
                       <span>{restaurant.transit.value.line}</span>
                       {restaurant.transit.value.exit && (
-                        <span>, exit {restaurant.transit.value.exit}</span>
+                        <span>
+                          {say(', exit ', ', ', ', salida ')}{restaurant.transit.value.exit}
+                          {say('', '번 출구', '')}
+                        </span>
                       )}
-                      <span> · {restaurant.transit.value.walkingMinutes} min walk</span>
+                      <span>
+                        {' · '}
+                        {say(`${restaurant.transit.value.walkingMinutes} min walk`,
+                          `도보 ${restaurant.transit.value.walkingMinutes}분`,
+                          `${restaurant.transit.value.walkingMinutes} min a pie`)}
+                      </span>
                     </span>
                   </div>
                 )}

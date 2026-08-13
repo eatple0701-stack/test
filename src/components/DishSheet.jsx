@@ -46,12 +46,12 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
             alone. 백반's says the opposite in its own words, and that is the
             point — the catalogue is allowed to contradict the pitch. */}
         <section className="dish-sheet__block">
-          <h2 className="dish-sheet__label">Why it is shared</h2>
+          <h2 className="dish-sheet__label">{say('Why it is shared', '왜 나눠 먹나', 'Por qué se comparte')}</h2>
           <p>{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs)}</p>
         </section>
 
         <section className="dish-sheet__block">
-          <h2 className="dish-sheet__label">What happens at the table</h2>
+          <h2 className="dish-sheet__label">{say('What happens at the table', '식탁에서 벌어지는 일', 'Qué pasa en la mesa')}</h2>
           <p>{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs)}</p>
           {menu.contains.length > 0 && (
             <p className="dish-sheet__contains">Contains {menu.contains.join(', ')}</p>
@@ -60,15 +60,16 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
               here — but about what the catalogue can and cannot check. */}
           {menu.varies && (
             <p className="dish-sheet__varies">
-              The side dishes change by the house and by the day, so this one
-              cannot be checked in advance. Ask before you sit down.
+              {say('The side dishes change by the house and by the day, so this one cannot be checked in advance. Ask before you sit down.',
+                '반찬은 집집마다, 날마다 달라져서 미리 확인할 수가 없습니다. 앉기 전에 물어보세요.',
+                'Las guarniciones cambian según la casa y el día, así que esto no se puede comprobar de antemano. Pregunta antes de sentarte.')}
             </p>
           )}
         </section>
 
         {menu.culture && (
           <section className="dish-sheet__block">
-            <h2 className="dish-sheet__label">Why it is eaten together</h2>
+            <h2 className="dish-sheet__label">{say('Why it is eaten together', '왜 함께 먹나', 'Por qué se come en compañía')}</h2>
             <p>{say(menu.culture, menu.cultureKo, menu.cultureEs)}</p>
           </section>
         )}

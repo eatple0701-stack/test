@@ -1,4 +1,5 @@
 import React from 'react';
+import { useText } from './localeText.js';
 
 // Grouped so sustainability reads as an axis rather than two chips lost in a
 // flat row. `Sustainability` matches either member (see TRAIT_GROUPS in
@@ -10,6 +11,7 @@ const CHIP_GROUPS = [
 ];
 
 export default function FilterBar({ selectedFilters, onToggleFilter, searchQuery, onSearchChange }) {
+  const say = useText();
   return (
     <header className="home-header">
       <div className="search-field">
@@ -19,8 +21,8 @@ export default function FilterBar({ selectedFilters, onToggleFilter, searchQuery
         </svg>
         <input
           type="search"
-          placeholder="Search restaurants or neighborhoods"
-          aria-label="Search restaurants or neighborhoods"
+          placeholder={say('Search restaurants or neighborhoods', '식당이나 동네 검색', 'Busca restaurantes o barrios')}
+          aria-label={say('Search restaurants or neighborhoods', '식당이나 동네 검색', 'Busca restaurantes o barrios')}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />

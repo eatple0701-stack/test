@@ -6,6 +6,7 @@ import { menuById } from '../domain/catalog/menus.js';
 import { seatsRemaining } from '../domain/policy/table.js';
 import { mappable, pointOf, unplacedNotice } from '../domain/policy/place.js';
 import { XIcon } from './Icons';
+import { useText } from './localeText.js';
 
 // The tables, on the map. 김훈 부장님's 모임 장소 표시.
 //
@@ -52,6 +53,7 @@ export default function TablesMap({
   variant = 'overlay',
   onOpen,
 }) {
+  const say = useText();
   const placed = useMemo(() => mappable(tables), [tables]);
   const notice = useMemo(() => unplacedNotice(tables), [tables]);
 
@@ -114,7 +116,7 @@ export default function TablesMap({
   }
 
   return (
-    <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label="Tables on the map">
+    <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label={say('Tables on the map', '지도 위의 밥상', 'Mesas en el mapa')}>
       <header className="map-overlay__bar">
         <div className="map-overlay__heading">
           <h2>밥상 지도 · Tables near you</h2>
@@ -124,7 +126,7 @@ export default function TablesMap({
               : 'No host has dropped a pin yet'}
           </p>
         </div>
-        <button className="map-overlay__close" aria-label="Close map" onClick={onClose}>
+        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa')} onClick={onClose}>
           <XIcon size={18} />
         </button>
       </header>
