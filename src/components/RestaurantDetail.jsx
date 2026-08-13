@@ -561,7 +561,7 @@ function RestaurantDetailInner({
               <div className="story-grid">
                 <div className="story-mini-card">
                   <p className="story-mini-card__label">{say('📜 Origin', '📜 유래', '📜 Origen')}</p>
-                  <p>{restaurant.story}</p>
+                  <p>{say(restaurant.story, restaurant.storyKo, restaurant.storyEs)}</p>
                   {restaurant.timeline?.length > 0 && (
                     <ol className="timeline">
                       {restaurant.timeline.map(t => (

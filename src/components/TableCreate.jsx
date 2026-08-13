@@ -142,15 +142,15 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   // date and a place before finding out there was a condition.
   if (!agreedToRules(profile, PURPOSE.version)) {
     return (
-      <section className="sheet-page" aria-label="Open a table">
+      <section className="sheet-page" aria-label={say('Open a table', '상 차리기', 'Abrir una mesa')}>
         <header className="sheet-page__head">
-          <button className="sheet-page__back" onClick={onBack} aria-label="Back">
+          <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás')}>
             <ChevronLeftIcon size={20} />
           </button>
           <h1>상 차리기 · Open a table</h1>
         </header>
         <div className="form-block">
-          <h2 className="form-label">Before your first table</h2>
+          <h2 className="form-label">{say('Before your first table', '첫 상을 차리기 전에', 'Antes de tu primera mesa')}</h2>
           <RulesConsent
             profile={profile}
             onProfileChange={onProfileChange}
@@ -162,9 +162,9 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   }
 
   return (
-    <section className="sheet-page" aria-label="Open a table">
+    <section className="sheet-page" aria-label={say('Open a table', '상 차리기', 'Abrir una mesa')}>
       <header className="sheet-page__head">
-        <button className="sheet-page__back" onClick={onBack} aria-label="Back">
+        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás')}>
           <ChevronLeftIcon size={20} />
         </button>
         <h1>상 차리기 · Open a table</h1>
@@ -271,7 +271,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           <input
             type="text"
             value={place}
-            placeholder="Exit 4, Jongno 3-ga station"
+            placeholder={say('Exit 4, Jongno 3-ga station', '종로3가역 4번 출구', 'Salida 4, estación de Jongno 3-ga')}
             onChange={e => setPlace(e.target.value)}
           />
           {bad.place && <span className="field__error">만날 곳을 적어 주세요 · Say where you will meet.</span>}
@@ -282,18 +282,18 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             where they were actually eating. Optional on purpose — a host who
             has not decided says so, rather than inventing a name. */}
         <label className="field">
-          <span className="field__label">Which restaurant? (optional)</span>
+          <span className="field__label">{say('Which restaurant? (optional)', '어느 식당인가요? (선택)', '¿Qué restaurante? (opcional)')}</span>
           <input
             type="text"
             value={restaurant}
-            placeholder="Sae Ma Eul Sikdang, or leave blank to decide together"
+            placeholder={say('Sae Ma Eul Sikdang, or leave blank to decide together', '새마을식당, 또는 비워 두고 함께 정하기', 'Sae Ma Eul Sikdang, o déjalo en blanco para decidirlo juntos')}
             onChange={e => setRestaurant(e.target.value)}
           />
         </label>
       </div>
 
       <div className="form-block">
-        <h2 className="form-label">How many at the table?</h2>
+        <h2 className="form-label">{say('How many at the table?', '몇 명이 앉나요?', '¿Cuántos en la mesa?')}</h2>
         <div className="seat-picker">
           {[2, 3, 4, 5, 6].map(n => (
             <button
@@ -320,8 +320,9 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       <div className="form-block">
         <h2 className="form-label">언어 · What will this table run in?</h2>
         <p className="form-label__hint">
-          Shown on your table. Somebody deciding whether to sit with four strangers
-          is mostly deciding whether they will understand anything.
+          {say('Shown on your table. Somebody deciding whether to sit with four strangers is mostly deciding whether they will understand anything.',
+            '당신의 밥상에 표시됩니다. 처음 보는 네 사람과 앉을지 고민하는 사람은, 사실 말이 통할지를 고민하는 겁니다.',
+            'Se muestra en tu mesa. Quien está decidiendo si se sienta con cuatro desconocidos está decidiendo, sobre todo, si va a entender algo.')}
         </p>
         <div className="lang-picks">
           {LANGUAGES.map(l => {
@@ -423,7 +424,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
                answer. A host taking it at its word would have called
                themselves "red jacket by the stairs". The real question is the
                field below. */
-            placeholder="Minsu"
+            placeholder={say('Minsu', '민수', 'Minsu')}
             onChange={e => setHostName(e.target.value)}
           />
           {bad.hostName && <span className="field__error">이름을 적어 주세요 · Add a name.</span>}
@@ -434,7 +435,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             type="text"
             value={meetingNote}
             maxLength={MEETING_NOTE_MAX}
-            placeholder="Green jacket, by the CU on the corner"
+            placeholder={say('Green jacket, by the CU on the corner', '초록 자켓, 모퉁이 CU 앞', 'Chaqueta verde, junto al CU de la esquina')}
             onChange={e => setMeetingNote(e.target.value)}
           />
           <span className="field__note">
@@ -462,11 +463,11 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           </span>
         </label>
         <label className="field">
-          <span className="field__label">Anything to say? (optional)</span>
+          <span className="field__label">{say('Anything to say? (optional)', '하고 싶은 말이 있나요? (선택)', '¿Algo que decir? (opcional)')}</span>
           <textarea
             rows={3}
             value={note}
-            placeholder="First time grilling is fine — I will do the scissors."
+            placeholder={say('First time grilling is fine — I will do the scissors.', '처음 구워도 괜찮아요 — 가위는 제가 들게요.', 'No pasa nada si es tu primera parrilla: yo me encargo de las tijeras.')}
             onChange={e => setNote(e.target.value)}
           />
         </label>

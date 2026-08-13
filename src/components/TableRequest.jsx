@@ -82,16 +82,16 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
   const wanted = menuId ? menuById(menuId) : null;
 
   return (
-    <section className="sheet-page" aria-label="Ask for a table">
+    <section className="sheet-page" aria-label={say('Ask for a table', '밥상 요청하기', 'Pedir una mesa')}>
       <header className="sheet-page__head">
-        <button className="sheet-page__back" onClick={onBack} aria-label="Back">
+        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás')}>
           <ChevronLeftIcon size={20} />
         </button>
         <h1>찾는 밥상 · What are you after?</h1>
       </header>
 
       <div className="form-block">
-        <h2 className="form-label">What do you want to eat?</h2>
+        <h2 className="form-label">{say('What do you want to eat?', '무엇을 드시고 싶나요?', '¿Qué te apetece comer?')}</h2>
         <div className="dish-grid">
           {/* First, and a real answer. "Anything" is what most people want on
               a first night, and a dish-first app is worst at exactly that. */}
@@ -100,8 +100,8 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
             onClick={() => setMenuId(null)}
           >
             <span className="dish-option__kr">아무거나</span>
-            <span className="dish-option__name">Anything</span>
-            <span className="dish-option__min">Surprise me</span>
+            <span className="dish-option__name">{say('Anything', '아무거나', 'Lo que sea')}</span>
+            <span className="dish-option__min">{say('Surprise me', '알아서 골라주세요', 'Sorpréndeme')}</span>
           </button>
           {menus.map(m => (
             <button
@@ -121,23 +121,23 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
       </div>
 
       <div className="form-block">
-        <h2 className="form-label">When are you free?</h2>
+        <h2 className="form-label">{say('When are you free?', '언제 시간이 되나요?', '¿Cuándo tienes hueco?')}</h2>
         <div className="field-row">
           <label className="field">
-            <span className="field__label">From</span>
+            <span className="field__label">{say('From', '부터', 'Desde')}</span>
             <input type="date" value={from} min={iso(0)} onChange={e => setFrom(e.target.value)} />
           </label>
           <label className="field">
-            <span className="field__label">Until</span>
+            <span className="field__label">{say('Until', '까지', 'Hasta')}</span>
             <input type="date" value={to} min={from} onChange={e => setTo(e.target.value)} />
           </label>
         </div>
         <label className="field">
-          <span className="field__label">Where would suit you? (optional)</span>
+          <span className="field__label">{say('Where would suit you? (optional)', '어디가 좋으세요? (선택)', '¿Dónde te vendría bien? (opcional)')}</span>
           <input
             type="text"
             value={place}
-            placeholder="Hongdae, or anywhere on line 2"
+            placeholder={say('Hongdae, or anywhere on line 2', '홍대, 또는 2호선 어디든', 'Hongdae, o cualquier sitio de la línea 2')}
             onChange={e => setPlace(e.target.value)}
           />
         </label>
@@ -166,7 +166,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
 
           {exact.length === 0 && near.length > 0 && (
             <>
-              <h2 className="req-results__head">Nothing exactly, but these are close.</h2>
+              <h2 className="req-results__head">{say('Nothing exactly, but these are close.', '딱 맞는 건 없지만, 이런 것들이 가깝습니다.', 'Nada exacto, pero estas se acercan.')}</h2>
               {/* Offered rather than hidden: somebody who wanted 곱창 on
                   Saturday will often take 곱창 on Sunday, and dropping it
                   would show a blank screen beside a table they would have
@@ -190,8 +190,9 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
               {/* The point of this screen. Not an apology — the want is
                   already a table, it has just not been offered yet. */}
               <p className="req-none__body">
-                Which makes you the person who can. Everything you just said is
-                carried over — pick a time and it is open.
+                {say('Which makes you the person who can. Everything you just said is carried over — pick a time and it is open.',
+                  '그러니 열 수 있는 사람이 당신입니다. 방금 적으신 내용은 그대로 넘어가니, 시간만 고르시면 열립니다.',
+                  'Lo que te convierte en quien puede. Todo lo que acabas de decir se traslada: elige una hora y queda abierta.')}
               </p>
               <button
                 className="form-submit"

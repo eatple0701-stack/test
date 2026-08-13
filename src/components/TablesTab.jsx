@@ -255,7 +255,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       )}
 
       {tables !== null && (
-        <div className="week-strip" role="group" aria-label="Tables by day">
+        <div className="week-strip" role="group" aria-label={say('Tables by day', '날짜별 밥상', 'Mesas por día')}>
           {week.map(d => (
             <button
               key={d.ymd}
@@ -282,13 +282,14 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           keep warning about a limitation that no longer exists. */}
       {isLocalOnly() && (
         <p className="tables-notice">
-          Tables are saved on this device only for now — shared tables go live
-          when the server lands.
+          {say('Tables are saved on this device only for now — shared tables go live when the server lands.',
+            '지금은 밥상이 이 기기에만 저장됩니다 — 서버가 붙으면 공유 밥상이 살아납니다.',
+            'Por ahora las mesas se guardan solo en este dispositivo: las mesas compartidas llegarán con el servidor.')}
         </p>
       )}
 
       {liveMenuIds.length > 1 && (
-        <div className="menu-chips" role="group" aria-label="Filter by dish">
+        <div className="menu-chips" role="group" aria-label={say('Filter by dish', '요리로 거르기', 'Filtrar por plato')}>
           <button
             className={`menu-chip${menuFilter === null ? ' is-on' : ''}`}
             onClick={() => setMenuFilter(null)}
@@ -322,7 +323,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           thing with more in it — the days with nothing on them — and two
           date filters stacked on one screen is a choice nobody asked for. */}
 
-      <div className="menu-chips" role="group" aria-label="Filter by who is going">
+      <div className="menu-chips" role="group" aria-label={say('Filter by who is going', '누가 가는지로 거르기', 'Filtrar por quién va')}>
         <button
           className={`menu-chip${womenFilter ? ' is-on' : ''}`}
           aria-pressed={womenFilter}
@@ -340,7 +341,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           aria-busy carries the same fact to a screen reader, which cannot
           see the shimmer. */}
       {tables === null && (
-        <div className="table-list" aria-busy="true" aria-label="Loading tables">
+        <div className="table-list" aria-busy="true" aria-label={say('Loading tables', '밥상 불러오는 중', 'Cargando mesas')}>
           {[0, 1, 2].map(i => (
             <div key={i} className="table-card table-card--skeleton" aria-hidden="true">
               <span className="skeleton-line skeleton-line--sm" />
@@ -430,7 +431,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       {tables !== null && emptyReason({ open, shown, menuFilter, womenFilter, dayFilter }) === EMPTY.NONE && (
         <div className="dish-shelf">
           <p className="dish-shelf__label">읽을거리 · Read about the dishes</p>
-          <div className="menu-chips" role="group" aria-label="Read about a dish">
+          <div className="menu-chips" role="group" aria-label={say('Read about a dish', '요리 읽어보기', 'Leer sobre un plato')}>
             {menus.map(m => (
               <button key={m.id} className="menu-chip" onClick={() => setOpenDish(m)}>
                 <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
@@ -522,10 +523,10 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                     landing where a card-scanner never reaches it. */}
                 <span className="table-card__free" translate="no">
                   <span className="table-card__free-kr">앱 결제 없음</span>
-                  <span className="table-card__free-en">No app payment</span>
+                  <span className="table-card__free-en">{say('No app payment', '앱 결제 없음', 'Sin pago en la app')}</span>
                 </span>
-                {isMine && <span className="table-card__mine">Your table</span>}
-                {iAmGoing && <span className="table-card__mine">You are going</span>}
+                {isMine && <span className="table-card__mine">{say('Your table', '내 밥상', 'Tu mesa')}</span>}
+                {iAmGoing && <span className="table-card__mine">{say('You are going', '가시는 중', 'Vas a ir')}</span>}
                 {conflicts.length > 0 && (
                   <span className="table-card__warn">contains {conflicts.join(', ')}</span>
                 )}
@@ -559,7 +560,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   happens at a table, not the first one they tapped. */}
               {guideSummary(t) && (
                 <p className="table-card__guides">
-                  <span className="table-card__guides-label">Host shows you</span>
+                  <span className="table-card__guides-label">{say('Host shows you', '호스트가 안내', 'El anfitrión te guía')}</span>
                   {guideSummary(t).guides[0].en}
                   {guideSummary(t).guides.length > 1 && (
                     <span className="table-card__guides-more">
@@ -633,7 +634,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   {(t.languages ?? []).length > 0 && (
                     <span className="table-card__langs">{languageLine(t.languages)}</span>
                   )}
-                  {t.isSample && <span className="table-card__sample">sample</span>}
+                  {t.isSample && <span className="table-card__sample">{say('sample', '샘플', 'ejemplo')}</span>}
                 </span>
                 <span className="table-card__right">
                   {/* Confirmed faces, Meetup's oldest trick told honestly:
@@ -737,8 +738,9 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         <button className="tables-ask" onClick={onRequestTable}>
           <span className="tables-ask__kr">찾는 밥상</span>
           <span className="tables-ask__body">
-            None of these? Say what you are after — we will look, and open it
-            for you if nobody has.
+            {say('None of these? Say what you are after — we will look, and open it for you if nobody has.',
+              '마음에 드는 게 없나요? 찾는 걸 말해 주시면 저희가 찾아보고, 아무도 없으면 대신 열어 드립니다.',
+              '¿Ninguna te encaja? Dinos qué buscas: lo miramos y, si nadie la ha abierto, la abrimos por ti.')}
           </span>
         </button>
       )}

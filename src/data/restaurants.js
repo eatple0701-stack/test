@@ -66,6 +66,10 @@ export const restaurants = [
     vibeKo: "단정한 나무와 고요 — 명상에 가까운 식사.",
     vibeEs: "Madera sobria y silencio: comer como meditación.",
     story: "Rooted in the ancient mindfulness of Korean Buddhist monks, Balwoo Gongyang treats every ingredient with profound reverence. Their artisanal fermentation techniques, honed over centuries, transform locally harvested mountain greens into deep, restorative flavors. The kitchen operates on a strict zero-waste philosophy, ensuring that nothing returned to the earth is without purpose.",
+    storyKo:
+      "한국 스님들의 오래된 알아차림에 뿌리를 두고, 발우공양은 재료 하나하나를 깊이 존중하며 다룹니다. 몇 백 년에 걸쳐 다듬어진 발효 기술이 인근에서 거둔 산나물을 깊고 회복력 있는 맛으로 바꿔 놓습니다. 주방은 엄격한 제로웨이스트 원칙으로 돌아가고, 땅으로 돌아가는 것 중 뜻 없는 것이 없도록 합니다.",
+    storyEs:
+      "Con raíces en la antigua atención plena de los monjes budistas coreanos, Balwoo Gongyang trata cada ingrediente con profunda reverencia. Sus técnicas artesanales de fermentación, afinadas durante siglos, convierten las verduras de montaña recogidas cerca en sabores hondos y reparadores. La cocina funciona con una filosofía estricta de residuo cero: nada de lo que vuelve a la tierra vuelve sin propósito.",
     esg_point: "Uses traditional fermentation without artificial additives",
 
     image: "/images/temple_food.svg",
@@ -115,6 +119,10 @@ export const restaurants = [
     vibeKo: "인사동 골목에 숨은, 등불 밝힌 한옥.",
     vibeEs: "Un hanok iluminado con farolillos, escondido en los callejones de Insadong.",
     story: "Sanchon embodies the purest form of agrarian Korean heritage. Founded by a former monk, the restaurant's daily offerings are dictated by what the earth yields. Ingredients are sustainably foraged from the pristine highlands of Gangwon-do. Every dish is a testament to artisanal patience, bringing the quiet, unadulterated essence of the forest straight to the table.",
+    storyKo:
+      "산촌은 한국 농경 유산의 가장 순수한 형태를 담고 있습니다. 스님이었던 분이 연 이 식당의 그날 상차림은 땅이 내주는 것에 따라 정해집니다. 재료는 강원도 청정 고지대에서 지속 가능한 방식으로 채취합니다. 모든 요리가 장인의 인내에 대한 증언이며, 숲의 고요하고 손대지 않은 본질을 그대로 상 위로 가져옵니다.",
+    storyEs:
+      "Sanchon encarna la forma más pura de la herencia agraria coreana. Fundado por un antiguo monje, lo que se sirve cada día lo dicta lo que da la tierra. Los ingredientes se recolectan de forma sostenible en las tierras altas intactas de Gangwon-do. Cada plato es un testimonio de paciencia artesanal que lleva a la mesa la esencia callada y sin adulterar del bosque.",
     esg_point: "Locally sourced ingredients directly foraged from Gangwon-do mountains",
 
     image: "/images/temple_food.svg",
@@ -164,6 +172,10 @@ export const restaurants = [
     vibeKo: "인사동 골목의 소박한 중화풍 채식집.",
     vibeEs: "Un local coreano-chino humilde en un callejón de Insadong.",
     story: "Osegyehyang is a pioneer in bringing plant-based alternatives to beloved comfort foods. Famous for their brilliant soy meat dishes, they seamlessly convert rich Korean-Chinese classics into 100% vegan meals. This is the perfect spot to enjoy guilt-free, sustainable versions of everyday favorites.",
+    storyKo:
+      "오세계향은 사랑받는 위로의 음식들을 식물성으로 옮겨 온 선구자입니다. 훌륭한 콩고기 요리로 유명하고, 진한 한국식 중화요리 고전들을 100% 비건으로 매끄럽게 바꿔 냅니다. 익숙한 음식의 지속 가능한 버전을 마음 편히 즐기기에 더없이 좋은 곳입니다.",
+    storyEs:
+      "Osegyehyang es pionero en llevar alternativas vegetales a los platos de siempre. Famoso por sus excelentes preparaciones de carne de soja, convierte con naturalidad los clásicos coreano-chinos más contundentes en comidas 100 % veganas. Es el sitio ideal para disfrutar sin remordimiento de versiones sostenibles de los favoritos de cada día.",
     esg_point: "100% plant-based takes on Korean-Chinese comfort classics",
 
     image: "/images/noodles.svg",
@@ -221,6 +233,10 @@ export const restaurants = [
     vibeKo: "자체 비건 베이커리를 갖춘, 볕 잘 드는 이태원의 아지트.",
     vibeEs: "Un local luminoso en Itaewon con su propia panadería vegana.",
     story: "A trailblazer for the plant-based community in Itaewon, Plant Cafe combines hearty western-style vegan dining with in-house bakery delights. Their lentil bowls and burgers prove that veganism can be incredibly indulgent. The vibrant space acts as a hub for eco-conscious expats and locals alike.",
+    storyKo:
+      "이태원 식물성 식문화의 개척자인 플랜트 카페는 든든한 서양식 비건 요리와 자체 베이커리를 함께 냅니다. 렌틸 볼과 버거는 비건도 얼마든지 풍성할 수 있음을 보여 줍니다. 활기 있는 공간이라 환경을 생각하는 외국인과 현지인이 함께 모이는 거점이 되었습니다.",
+    storyEs:
+      "Pionero de la comunidad vegetal en Itaewon, Plant Cafe combina una cocina vegana occidental contundente con las delicias de su propia panadería. Sus bols de lentejas y sus hamburguesas demuestran que el veganismo puede ser de lo más goloso. El local, muy vivo, funciona como punto de encuentro de extranjeros y locales con conciencia ecológica.",
     esg_point: "In-house vegan bakery cutting dairy and egg supply chains",
 
     image: "/images/vegan_cafe.svg",
@@ -280,6 +296,10 @@ export const restaurants = [
     vibeKo: "파인다이닝처럼 차려 내는 식물성 요리.",
     vibeEs: "Cocina vegetal servida como alta cocina.",
     story: "Elevating the concept of a 'fake meat' eatery, Monk's Butcher brings modern, upscale vegan dining to the heart of Itaewon. Their sophisticated plant-based twists on classic butcher shop fare challenge culinary boundaries. Enjoy an elegant evening where sustainability meets high-end gastronomy.",
+    storyKo:
+      "'대체육 가게'라는 개념을 한 단계 끌어올려, 몽크스 부처는 이태원 한복판에 현대적이고 격조 있는 비건 다이닝을 가져왔습니다. 정육점 메뉴를 식물성으로 세련되게 비튼 요리들이 요리의 경계를 시험합니다. 지속 가능성과 고급 미식이 만나는 우아한 저녁을 보내실 수 있습니다.",
+    storyEs:
+      "Elevando la idea del local de 'carne falsa', Monk's Butcher trae cocina vegana moderna y de alto nivel al centro de Itaewon. Sus reinterpretaciones vegetales y sofisticadas de la carta de una carnicería clásica desafían los límites culinarios. Una noche elegante donde la sostenibilidad se encuentra con la alta gastronomía.",
     esg_point: "High-end plant proteins replacing butcher-shop staples",
 
     image: "/images/temple_food.svg",
@@ -334,6 +354,10 @@ export const restaurants = [
     vibeKo: "비건이라는 사실이 나중에 떠오르는, 진한 중국계 미국식 맛.",
     vibeEs: "Sabores chino-americanos contundentes que además resultan ser veganos.",
     story: "Camouflage creatively 'hides' the fact that its bold Chinese-American menu is completely free of animal products. By mastering textures and savory sauces, dishes like their vegan Kung Pao Chick'n fool the senses. It is a brilliant example of how playful and satisfying sustainable cuisine can be.",
+    storyKo:
+      "카무플라주는 진한 중국계 미국식 메뉴가 동물성 재료를 전혀 쓰지 않는다는 사실을 재치 있게 '감춥니다'. 식감과 짭조름한 소스를 능숙하게 다뤄, 비건 쿵파오 치킨 같은 요리가 감각을 속입니다. 지속 가능한 요리가 얼마나 유쾌하고 만족스러울 수 있는지 보여 주는 훌륭한 예입니다.",
+    storyEs:
+      "Camouflage 'camufla' con ingenio el hecho de que su contundente carta chino-americana no lleva ni un producto animal. Dominando las texturas y las salsas sabrosas, platos como su pollo kung pao vegano engañan a los sentidos. Es un ejemplo brillante de lo divertida y saciante que puede ser la cocina sostenible.",
     esg_point: "Bold sauces and textures that make plant-based eating effortless",
 
     image: "/images/vegan_cafe.svg",
@@ -401,6 +425,10 @@ export const restaurants = [
     // dietary record deliberately declines to confirm it — the page contradicted
     // itself. The claim is now attributed to the source that makes it.
     story: "Run by a dedicated Korean Muslim family beside the Seoul Central Mosque, EID is described by Seoul's tourism office as the only Korean restaurant certified by the Korea Muslim Federation. They offer the comfort of home-cooked Korean meals, like mild Bulgogi and Samgyetang, in a warm space that bridges Korean heritage and Islamic dietary law.",
+    storyKo:
+      "서울중앙성원 옆에서 한국인 무슬림 가족이 정성껏 운영하는 EID는, 서울시 관광 안내에서 한국이슬람교중앙회의 인증을 받은 유일한 한식당으로 소개됩니다. 순한 불고기와 삼계탕 같은 집밥 같은 한식을, 한국의 유산과 이슬람 식이 율법을 잇는 따뜻한 공간에서 냅니다.",
+    storyEs:
+      "Regentado por una entregada familia musulmana coreana junto a la Mezquita Central de Seúl, EID aparece en la oficina de turismo de la ciudad como el único restaurante coreano certificado por la Federación Musulmana de Corea. Ofrece el consuelo de la comida coreana casera — bulgogi suave, samgyetang — en un espacio cálido que tiende un puente entre la herencia coreana y la ley alimentaria islámica.",
     esg_point: "Family-run kitchen serving inclusive Korean home cooking by the Central Mosque",
 
     image: "/images/halal_meat.svg",
@@ -468,6 +496,10 @@ export const restaurants = [
     vibeKo: "성원에서 몇 걸음, 무슬림 여행자들이 아끼는 편한 백반집.",
     vibeEs: "Un comedor informal a dos pasos de la mezquita, querido por los viajeros musulmanes.",
     story: "Located just steps from the Seoul Central Mosque, Makan provides an accessible gateway into local cuisine. Their highly affordable menu spans from spicy stews to grilled fish, all meticulously prepared. Muslim travelers can explore authentic, fiery Korean flavors with complete peace of mind here.",
+    storyKo:
+      "서울중앙성원에서 몇 걸음 거리에 있는 마칸은 현지 음식으로 들어가는 편한 입구입니다. 값이 아주 착한 메뉴가 얼큰한 찌개부터 생선구이까지 이어지고, 하나하나 정성껏 준비됩니다. 무슬림 여행자가 진짜 한국의 매운맛을 마음 놓고 탐색할 수 있는 곳입니다.",
+    storyEs:
+      "A pocos pasos de la Mezquita Central de Seúl, Makan es una puerta de entrada asequible a la cocina local. Su carta, muy económica, va de los guisos picantes al pescado a la parrilla, todo preparado con cuidado. Aquí los viajeros musulmanes pueden explorar los sabores coreanos más intensos con total tranquilidad.",
     esg_point: "Affordable Halal access to everyday Korean dishes",
 
     image: "/images/halal_meat.svg",
@@ -536,6 +568,10 @@ export const restaurants = [
     vibeKo: "명동 근처 말레이시아·한국 퓨전. 무슬림 셰프가 있고 3층에 기도실이 있습니다.",
     vibeEs: "Fusión malayo-coreana cerca de Myeongdong, con chef musulmán y sala de oración en la tercera planta.",
     story: "Kampungku — Malay for \"my village\" — pairs a Malaysian chef's nasi lemak and nasi goreng with halal-ingredient Korean dishes like budae jjigae, steps from Myeongdong's shopping streets. A third-floor prayer room, noted independently by visitors, makes it a stop several halal-food guides point Muslim travelers to. The kitchen describes itself as halal-friendly; no certificate has been sighted to call it more than that.",
+    storyKo:
+      "캄풍쿠 — 말레이어로 '내 마을' — 는 말레이시아 셰프의 나시 르막과 나시 고렝을, 할랄 재료로 만든 부대찌개 같은 한식과 함께 냅니다. 명동 상가 거리에서 몇 걸음이에요. 방문객들이 따로 언급한 3층 기도실 덕분에 여러 할랄 음식 안내서가 무슬림 여행자에게 짚어 주는 곳이 되었습니다. 주방은 스스로를 할랄 친화적이라고 소개하며, 그 이상으로 부를 인증서는 확인되지 않았습니다.",
+    storyEs:
+      "Kampungku — «mi pueblo» en malayo — junta el nasi lemak y el nasi goreng de un chef malasio con platos coreanos de ingredientes halal, como el budae jjigae, a pocos pasos de las calles comerciales de Myeongdong. Una sala de oración en la tercera planta, señalada por los propios visitantes, lo ha convertido en una parada que varias guías de comida halal recomiendan a viajeros musulmanes. La cocina se describe como apta para halal; no se ha visto ningún certificado que permita decir más.",
     esg_point: "A Muslim chef's kitchen bridging Malaysian and Korean tables, with an on-site prayer room",
 
     image: "/images/halal_meat.svg",
@@ -593,6 +629,10 @@ export const restaurants = [
     vibeKo: "회현역 옆 비건 카페 겸 제로웨이스트 가게. 방송인 줄리안이 이태원에서 옮겨 와 운영합니다.",
     vibeEs: "Café vegano y tienda sin residuos junto a la estación de Hoehyeon, regentado por el presentador Julian desde que se mudó de Itaewon.",
     story: "Nono Shop moved from Itaewon to a spot beside Hoehyeon Station in mid-2026, one of several small businesses to leave Itaewon as rents climbed. Run by Julian — familiar from Korean TV — it's still a cafe where every drink and dessert on the menu is vegan, paired with zero-waste retail for people building the habit of shopping without single-use packaging.",
+    storyKo:
+      "노노샵은 2026년 중반 이태원에서 회현역 옆으로 옮겼습니다. 임대료가 오르며 이태원을 떠난 여러 작은 가게 중 하나예요. 한국 방송으로 익숙한 줄리안이 운영하며, 여전히 메뉴의 모든 음료와 디저트가 비건인 카페이고, 일회용 포장 없이 장 보는 습관을 들이려는 사람들을 위한 제로웨이스트 매장이 함께 있습니다.",
+    storyEs:
+      "Nono Shop se mudó de Itaewon a un local junto a la estación de Hoehyeon a mediados de 2026, uno de los muchos negocios pequeños que dejaron el barrio al subir los alquileres. Lo lleva Julian, conocido por la televisión coreana, y sigue siendo una cafetería donde cada bebida y cada postre de la carta son veganos, con una tienda sin residuos al lado para quien está cogiendo la costumbre de comprar sin envases de un solo uso.",
     esg_point: "Every menu item vegan; zero-waste retail alongside the cafe",
 
     image: "/images/vegan_cafe.svg",
@@ -646,6 +686,10 @@ export const restaurants = [
     vibeKo: "오래된 기와와 수공예 도자기가 있는, 볕 드는 안뜰.",
     vibeEs: "Un patio soleado de tejas antiguas y cerámica artesanal.",
     story: "This artisanal haven breathes new life into the concept of whole-plant culinary art. Rejecting the modern throwaway culture, the chefs meticulously utilize every stem, root, and leaf to craft delicate, mild-tasting masterpieces. Their dedication to zero-waste cooking elevates humble, organic produce into an elegant celebration of sustainable Korean gastronomy.",
+    storyKo:
+      "이 장인의 공간은 식물을 통째로 쓰는 요리에 새 숨을 불어넣습니다. 쉽게 버리는 오늘의 문화를 거부하고, 셰프들은 줄기와 뿌리와 잎을 하나하나 살려 섬세하고 순한 맛의 작품을 만듭니다. 제로웨이스트에 대한 이 헌신이 소박한 유기농 재료를 지속 가능한 한식의 우아한 축제로 끌어올립니다.",
+    storyEs:
+      "Este refugio artesanal insufla vida nueva a la idea de cocinar la planta entera. Rechazando la cultura actual de usar y tirar, sus cocineros aprovechan meticulosamente cada tallo, raíz y hoja para componer obras delicadas y de sabor suave. Esa entrega al residuo cero eleva un producto ecológico humilde a una celebración elegante de la gastronomía coreana sostenible.",
     esg_point: "Zero-waste initiative focusing on utilizing every part of the organic vegetable",
 
     image: "/images/mild_soup.svg",
@@ -686,6 +730,10 @@ export const restaurants = [
     vibeKo: "한지 문과 소나무의 고요한 자리.",
     vibeEs: "Un refugio sereno de puertas de papel y madera de pino.",
     story: "Maji stands as a pinnacle of inclusive, sustainable dining, offering a fully plant-based menu that naturally adheres to Halal standards. The soul of their cuisine lies in traditional 'Jang' (soy paste and sauce), fermented naturally in breathing clay pots for over three years. This uncompromising artisanal dedication guarantees a profoundly rich, earth-conscious culinary journey.",
+    storyKo:
+      "마지는 포용적이고 지속 가능한 식사의 한 정점입니다. 온전히 식물성인 메뉴가 자연스럽게 할랄 기준에도 맞습니다. 이 요리의 핵심은 전통 '장'에 있는데, 숨 쉬는 옹기 안에서 삼 년 넘게 자연 발효시킨 것입니다. 타협하지 않는 이 장인 정신이 깊고 풍부하며 땅을 생각하는 한 끼를 보장합니다.",
+    storyEs:
+      "Maji es una cumbre de la cocina inclusiva y sostenible: una carta enteramente vegetal que además cumple de forma natural con las normas halal. El alma de su cocina está en el 'jang' tradicional — pasta y salsa de soja — fermentado de manera natural en vasijas de barro que respiran durante más de tres años. Esa dedicación artesanal sin concesiones garantiza un viaje culinario profundamente sabroso y consciente con la tierra.",
     esg_point: "Plant-based inclusivity with naturally fermented soy sauces aged over 3 years",
 
     image: "/images/fermented_dish.svg",
@@ -734,6 +782,10 @@ export const restaurants = [
     vibeKo: "나물 바가 무한으로 있는, 밝은 구내식당 같은 곳.",
     vibeEs: "Un sitio luminoso, tipo comedor, con barra libre de namul fresco.",
     story: "채육 means vegetable and meat, and Chaeyuk Sikdang means both literally: the same jeyuk bokkeum — the pork stir-fry that is the default Korean worker's lunch — arrives either as grade-1 Korean pork or as a soy-meat version made with a plant-based meat the company patented in 2022. You pick. Either way it comes with rice, a stew, and a self-serve vegetable bar, which is what a Korean lunch has always looked like.",
+    storyKo:
+      "채육은 채소와 고기라는 뜻이고, 채육식당은 그 두 가지를 말 그대로 다 합니다. 한국 직장인의 기본 점심인 제육볶음이 국내산 1등급 돼지고기로도, 이 회사가 2022년에 특허를 낸 식물성 고기로 만든 콩고기 버전으로도 나옵니다. 고르시면 됩니다. 어느 쪽이든 밥과 찌개, 그리고 셀프 채소 바가 함께 나오는데, 한국의 점심은 원래 그런 모양이었습니다.",
+    storyEs:
+      "채육 significa «verdura y carne», y Chaeyuk Sikdang cumple las dos cosas al pie de la letra: el mismo jeyuk bokkeum — el salteado de cerdo que es el almuerzo por defecto del trabajador coreano — llega o bien con cerdo coreano de grado 1, o bien en una versión de carne de soja hecha con un producto vegetal que la empresa patentó en 2022. Eliges tú. En cualquier caso viene con arroz, un guiso y una barra libre de verduras, que es la forma que ha tenido siempre un almuerzo coreano.",
     esg_point: "A patented soy meat offered as a swap for pork in everyday Korean dishes",
 
     image: "/images/vegan_cafe.svg",
@@ -782,6 +834,10 @@ export const restaurants = [
     vibeKo: "채소가 주인공인 블루리본 브런치 카페.",
     vibeEs: "Un café de brunch con Blue Ribbon donde las verduras son las protagonistas.",
     story: "Awarded the prestigious Blue Ribbon, this vegetable-forward brunch cafe elevates simple ingredients to art. Their signature ratatouille emphasizes the mild, intrinsic sweetness of slow-cooked local produce. It stands as a testament to the fact that healthy, meatless meals can achieve culinary excellence in Incheon.",
+    storyKo:
+      "권위 있는 블루리본을 받은 이 채소 중심 브런치 카페는 단순한 재료를 예술로 끌어올립니다. 시그니처 라따뚜이는 천천히 익힌 지역 농산물의 은은한 본연의 단맛을 앞세웁니다. 건강하고 고기 없는 한 끼도 인천에서 요리적 탁월함에 이를 수 있다는 증거입니다.",
+    storyEs:
+      "Galardonado con el prestigioso Blue Ribbon, este café de brunch centrado en la verdura eleva a arte los ingredientes sencillos. Su ratatouille insignia realza el dulzor suave y propio del producto local cocinado despacio. Es la prueba de que una comida sana y sin carne puede alcanzar la excelencia culinaria en Incheon.",
     esg_point: "Vegetable-forward menu built on slow-cooked local produce",
 
     image: "/images/mild_soup.svg",
@@ -840,6 +896,10 @@ export const restaurants = [
     vibeKo: "매주 바뀌는 브런치 뷔페. 인천에서 가장 알려졌던 비건 식당이 있던 자리입니다.",
     vibeEs: "Un bufé de brunch que cambia cada semana, en la sala que fue el restaurante vegano más conocido de Incheon.",
     story: "Rim opened in 2019 on Dongincheon's Gaehang-ro as 더 비기닝 (The Beginning), moved to Cheongna in 2023, and spent years as the restaurant Incheon vegans named first — a Blue Ribbon kitchen where nothing on the plate came from an animal and the sauces were made in-house. In June 2026 it renovated into a brunch buffet with a menu that changes every week. Plant-based dishes are still the heart of it, but the buffet is no longer vegan-only: a chicken stew may sit on the same counter as the tofu salad. Worth knowing before you go, whichever way you eat.",
+    storyKo:
+      "림은 2019년 동인천 개항로에 '더 비기닝'이라는 이름으로 문을 열었고, 2023년 청라로 옮겼으며, 인천의 비건들이 가장 먼저 이름을 대던 식당으로 여러 해를 보냈습니다. 접시 위에 동물에서 온 것이 하나도 없고 소스를 직접 만들던 블루리본 주방이었어요. 2026년 6월에 매주 메뉴가 바뀌는 브런치 뷔페로 새 단장했습니다. 식물성 요리가 여전히 중심이지만 뷔페 자체는 더 이상 비건 전용이 아닙니다. 두부 샐러드 옆에 닭볶음탕이 놓일 수 있어요. 어떤 식으로 드시든, 가시기 전에 알아 두실 만합니다.",
+    storyEs:
+      "Rim abrió en 2019 en la Gaehang-ro de Dongincheon con el nombre 더 비기닝 (The Beginning), se mudó a Cheongna en 2023 y pasó años siendo el restaurante que los veganos de Incheon nombraban primero: una cocina con Blue Ribbon donde nada del plato venía de un animal y las salsas se hacían en casa. En junio de 2026 se reformó como bufé de brunch con una carta que cambia cada semana. Los platos vegetales siguen siendo el corazón, pero el bufé ya no es solo vegano: un guiso de pollo puede compartir mostrador con la ensalada de tofu. Conviene saberlo antes de ir, comas como comas.",
     // Timeline events are drawn straight from the story above — all confirmed
     // during the 2026-07-17 verification (d24144c), none newly researched.
     timeline: [
@@ -893,6 +953,10 @@ export const restaurants = [
     vibeKo: "고양이와 강아지를 데려갈 수 있는 디저트 가게. 전부는 아니지만 대부분 식물성입니다.",
     vibeEs: "Un mostrador de postres al que puedes ir con perro o gato, mayoritariamente vegetal aunque no del todo.",
     story: "The name plays on an irony that turns out to be only half true: Meat Morning bakes vegan cookies and Greek yogurt bowls that built its reputation with health-conscious regulars, but the counter also holds a dairy cheesecake alongside them. Vegan and not, side by side — worth knowing before you order on the badge alone.",
+    storyKo:
+      "이름은 절반만 맞는 아이러니를 가지고 놉니다. 밋모닝은 건강을 챙기는 단골들에게 이름을 알린 비건 쿠키와 그릭요거트 볼을 굽지만, 진열대에는 유제품 치즈케이크도 함께 놓여 있습니다. 비건과 비건 아닌 것이 나란히 — 간판만 보고 주문하기 전에 알아 두시면 좋습니다.",
+    storyEs:
+      "El nombre juega con una ironía que resulta ser solo a medias cierta: Meat Morning hornea las galletas veganas y los bols de yogur griego que le dieron nombre entre la clientela que cuida lo que come, pero el mostrador sostiene además una tarta de queso con lácteos. Vegano y no vegano, uno al lado del otro: conviene saberlo antes de pedir solo por la etiqueta.",
     esg_point: "Vegan-forward baking, sugar-conscious, made in small daily batches",
 
     image: "/images/vegan_cafe.svg",
@@ -944,6 +1008,10 @@ export const restaurants = [
     vibeKo: "연수구의 탄두르 인도·터키 요리. 사하라텐이던 시절부터 할랄 친화적입니다.",
     vibeEs: "Cocina india y turca al tandoor en Yeonsu-gu, apta para halal desde que se llamaba Sahara Ten.",
     story: "Arabesque opened in 2003 under the name Sahara Ten, and was renamed Arabesque in August 2007 — per Korea Tourism Organization's own record of it. The kitchen is Indian-led, the owner Jordanian, and the cooking spans Indian curries and Turkish kebab, tandoor-warmed and halal-friendly rather than formally certified. It has drawn Incheon's international community — Middle Eastern traders, Southeast Asian students, and curious locals — for over two decades under one name or another.",
+    storyKo:
+      "아라베스크는 2003년 사하라텐이라는 이름으로 문을 열었고, 2007년 8월에 아라베스크로 이름을 바꿨습니다 — 한국관광공사의 기록에 그렇게 남아 있습니다. 주방은 인도인이 이끌고 주인은 요르단 사람이며, 요리는 인도 커리와 터키 케밥을 아우릅니다. 탄두르로 데우고, 정식 인증을 받았다기보다 할랄 친화적입니다. 이름을 바꿔 가며 스무 해 넘게 인천의 국제적인 사람들 — 중동 상인, 동남아 유학생, 궁금해하는 현지인 — 을 끌어왔습니다.",
+    storyEs:
+      "Arabesque abrió en 2003 con el nombre Sahara Ten y pasó a llamarse Arabesque en agosto de 2007, según el propio registro de la Organización de Turismo de Corea. La cocina la dirige un equipo indio, el dueño es jordano, y la carta abarca curris indios y kebab turco, pasados por el tandoor y aptos para halal más que certificados formalmente. Lleva más de dos décadas, bajo uno u otro nombre, atrayendo a la comunidad internacional de Incheon: comerciantes de Oriente Medio, estudiantes del Sudeste Asiático y locales curiosos.",
     // From the story above, per Korea Tourism Organization's record — confirmed
     // during the 2026-07-17 verification (66b2877), not newly researched.
     timeline: [
@@ -996,6 +1064,10 @@ export const restaurants = [
     vibeKo: "전국 인도 음식 체인의 송도점 — 탄두리와 커리 위주이고, 말하면 비건으로도 됩니다.",
     vibeEs: "La sucursal en Songdo de una cadena india nacional: tandoori y curris con mucha carne, y opciones veganas si las pides.",
     story: "Bombay Brau is part of a national Indian restaurant chain with branches from Songdo to Busan, built around tandoori-oven cooking and buttery curries. The kitchen isn't vegan or halal-certified, but it accommodates both: staff will point out which dishes are vegetarian, and the chain has been recognized by Korea's tourism authorities as Muslim-friendly. It's a table where a halal diner and a vegan diner can sit down together, even if neither gets a dish made just for them.",
+    storyKo:
+      "봄베이 브라우는 송도부터 부산까지 지점을 둔 전국 인도 음식 체인의 일부로, 탄두르 화덕 요리와 버터가 도는 커리를 중심으로 합니다. 주방이 비건이나 할랄 인증을 받은 것은 아니지만 양쪽 모두를 배려합니다. 직원이 어떤 요리가 채식인지 짚어 주고, 이 체인은 한국 관광 당국으로부터 무슬림 친화 업소로 인정받은 바 있습니다. 각자를 위해 따로 만든 요리는 없더라도, 할랄을 지키는 사람과 비건인 사람이 같은 상에 앉을 수 있는 곳입니다.",
+    storyEs:
+      "Bombay Brau forma parte de una cadena india de ámbito nacional, con locales desde Songdo hasta Busan, construida alrededor del horno tandoor y de curris mantecosos. La cocina no es vegana ni tiene certificación halal, pero atiende a ambos: el personal te indica qué platos son vegetarianos, y la cadena ha sido reconocida por las autoridades turísticas coreanas como apta para viajeros musulmanes. Es una mesa donde un comensal halal y uno vegano pueden sentarse juntos, aunque ninguno reciba un plato hecho solo para él.",
     esg_point: "A Muslim-friendly, vegetarian-accommodating table — not certified, but genuinely welcoming",
 
     image: "/images/halal_meat.svg",
@@ -1101,6 +1173,10 @@ export const restaurants = [
     vibeKo: "짜장면이 태어난 곳이 바로 옆 — 지금은 박물관입니다.",
     vibeEs: "La cuna del jajangmyeon está justo al lado — ahora es un museo.",
     story: "Korea's most famous noodle was born on this street: the original Gonghwachun opened here in 1905 and served jajangmyeon for three generations before closing in 1983. Its building still stands about 150 metres away as the Jajangmyeon Museum, a registered national heritage site, and the plot is marked on maps as Gonghwachun-teo — the Gonghwachun site. The restaurant trading under the name today is a separate business that registered the trademark in 2002 and opened in 2004; the founding family contested its claim to be the original. Come for the noodles, then walk to the museum for the history.",
+    storyKo:
+      "한국에서 가장 유명한 국수가 이 거리에서 태어났습니다. 원래의 공화춘이 1905년 여기 문을 열어 삼 대에 걸쳐 짜장면을 내다가 1983년에 닫았습니다. 그 건물은 150미터쯤 떨어진 곳에 짜장면 박물관으로 아직 서 있고 국가등록문화재이며, 그 터는 지도에 '공화춘터'로 표시되어 있습니다. 오늘 이 이름으로 영업하는 식당은 2002년에 상표를 등록하고 2004년에 문을 연 별개의 사업체이고, 창업 가문은 원조라는 주장에 이의를 제기했습니다. 국수를 드시고, 역사를 보러 박물관까지 걸어가 보세요.",
+    storyEs:
+      "El fideo más famoso de Corea nació en esta calle: el Gonghwachun original abrió aquí en 1905 y sirvió jajangmyeon durante tres generaciones hasta cerrar en 1983. Su edificio sigue en pie a unos 150 metros, convertido en el Museo del Jajangmyeon y declarado patrimonio nacional, y el solar aparece en los mapas como Gonghwachun-teo, el emplazamiento de Gonghwachun. El restaurante que opera hoy con ese nombre es un negocio distinto que registró la marca en 2002 y abrió en 2004; la familia fundadora impugnó su pretensión de ser el original. Ven por los fideos y luego camina hasta el museo por la historia.",
     // The two entities the story is careful to separate stay separated here:
     // the 1905 original (closed 1983) and the separate business trading under
     // the name today. All confirmed during the 2026-07-17 verification
@@ -1176,6 +1252,10 @@ export const restaurants = [
     vibeKo: "1920년대 목조 가옥을 되살린, 따뜻하고 조용한 자리.",
     vibeEs: "Una casa de madera de los años veinte restaurada, cálida y discretamente zen.",
     story: "Nestled in the historic Gaehang-ro district, Akiya acts as a culinary bridge between Incheon's rich past and a sustainable future. The kitchen's philosophy revolves around ultra-local sourcing, reducing food mileage to a mere 5 kilometers. Their artisanal approach highlights the natural, unmasked flavors of the season, honoring the tireless work of local farmers.",
+    storyKo:
+      "역사가 깊은 개항로에 자리한 아키야는 인천의 풍부한 과거와 지속 가능한 미래를 잇는 요리의 다리 역할을 합니다. 주방의 철학은 초지역 조달을 중심으로 돌아가고, 식재료의 이동 거리를 5킬로미터로 줄였습니다. 장인의 방식으로 계절의 자연스럽고 가리지 않은 맛을 앞세우며, 지역 농부들의 쉼 없는 노동에 경의를 표합니다.",
+    storyEs:
+      "Enclavado en el histórico barrio de Gaehang-ro, Akiya funciona como puente culinario entre el rico pasado de Incheon y un futuro sostenible. La filosofía de la cocina gira en torno al abastecimiento ultralocal, reduciendo el recorrido de los alimentos a apenas 5 kilómetros. Su enfoque artesanal realza los sabores naturales y sin disfraz de cada estación, y honra el trabajo incansable de los agricultores de la zona.",
     esg_point: "Empowers local Incheon farmers by strictly purchasing seasonal yields",
 
     image: "/images/mild_soup.svg",

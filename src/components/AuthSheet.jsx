@@ -216,7 +216,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
   );
 
   return (
-    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label="Sign in">
+    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Sign in', '로그인', 'Entrar')}>
       <div className="auth-sheet">
         <button className="auth-close" onClick={onClose} aria-label="Close">
           <XIcon size={18} />
@@ -227,7 +227,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             only way out of a form somebody opened by mistake is closing the
             whole modal and starting again. */}
         {(mode === 'signup-email') && (
-          <button className="auth-back" onClick={() => { setMode('signup'); setError(null); }} aria-label="Back">
+          <button className="auth-back" onClick={() => { setMode('signup'); setError(null); }} aria-label={say('Back', '뒤로', 'Atrás')}>
             <ChevronLeftIcon size={20} />
           </button>
         )}
@@ -285,7 +285,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             </Field>
             <Field id="password" bad={bad} problems={problems} markRef={markRef}
               label="비밀번호 · Password">
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="8+ characters" autoComplete="new-password" />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={say('8+ characters', '8자 이상', '8 caracteres o más')} autoComplete="new-password" />
             </Field>
             <Field id="name" bad={bad} problems={problems} markRef={markRef}
               label="이름 · Name — what a table calls you">
@@ -300,9 +300,9 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} />
             </Field>
             <p className="auth-note">
-              No code is sent to your email or phone — they are contact details for the team
-              running the pilot, seen by nobody else at any table. Type them carefully;
-              nothing checks them for you.
+              {say('No code is sent to your email or phone — they are contact details for the team running the pilot, seen by nobody else at any table. Type them carefully; nothing checks them for you.',
+                '이메일이나 전화로 인증 코드를 보내지 않습니다 — 파일럿을 운영하는 팀의 연락처일 뿐이고, 어느 밥상에서도 다른 사람에게 보이지 않습니다. 확인해 주는 장치가 없으니 정확히 입력해 주세요.',
+                'No se envía ningún código a tu correo ni a tu teléfono: son datos de contacto para el equipo que lleva el piloto, y nadie más los ve en ninguna mesa. Escríbelos con cuidado; nada los comprueba por ti.')}
             </p>
             {errorLine}
             <button className="auth-primary" onClick={submitSignup} disabled={busy} translate="no">
