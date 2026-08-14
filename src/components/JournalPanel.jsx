@@ -674,10 +674,10 @@ export default function JournalPanel({
           {onNavigate && (
             <div className="journal-empty__ways">
               <button className="journal-empty__cta" translate="no" onClick={() => onNavigate('match')}>
-                {say('밥상 찾기 · Find a table', null, 'Buscar una mesa', 'Trouver une table')}
+                {say('밥상 찾기 · Find a table', '밥상 찾기', 'Buscar una mesa', 'Trouver une table')}
               </button>
               <button className="journal-empty__ask" translate="no" onClick={() => onNavigate('home')}>
-                {say('문화 읽기 · Read a culture', null, 'Leer una cultura', 'Lire une culture')}
+                {say('문화 읽기 · Read a culture', '문화 읽기', 'Leer una cultura', 'Lire une culture')}
               </button>
             </div>
           )}

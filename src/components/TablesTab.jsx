@@ -180,7 +180,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         ) : (
           <>
             <button className="screen-head__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-              {say('무료로 가입하기 · Join free', null, 'Únete gratis', 'Rejoindre gratuitement')}
+              {say('무료로 가입하기 · Join free', '무료로 가입하기', 'Únete gratis', 'Rejoindre gratuitement')}
             </button>
             {/* What joining buys, as a number. 야놀자 does not say "join for
                 benefits", it says you get the member price — the reward is
@@ -197,7 +197,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 )
                 : say(
                   '가입하면 첫 밥상을 직접 열 수 있어요 · Join and open the first table yourself',
-                  null,
+                  '가입하면 첫 밥상을 직접 열 수 있어요',
                   'Con una cuenta puedes abrir tú mismo la primera mesa',
                   'Avec un compte, vous pouvez ouvrir vous-même la première table',
                 )}
@@ -336,7 +336,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           aria-pressed={womenFilter}
           onClick={() => setWomenFilter(w => !w)}
         >
-          {say('여성 동석 · Tables with another woman going', null, 'Mesas con otra mujer apuntada', 'Tables où une autre femme est inscrite')}
+          {say('여성 동석 · Tables with another woman going', '여성 동석', 'Mesas con otra mujer apuntada', 'Tables où une autre femme est inscrite')}
         </button>
       </div>
 

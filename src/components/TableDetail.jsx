@@ -503,7 +503,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         <button className="detail-share" translate="no" onClick={share}>
           {shared
             ? <><CheckIcon size={15} /> {say('Link copied', '링크 복사됨', 'Enlace copiado', 'Lien copié')}</>
-            : say('링크 보내기 · Send this table to someone', null, 'Enviar esta mesa a alguien', "Envoyer cette table à quelqu'un")}
+            : say('링크 보내기 · Send this table to someone', '링크 보내기', 'Enviar esta mesa a alguien', "Envoyer cette table à quelqu'un")}
         </button>
 
         {/* A traveller's day is their phone calendar. The promise this page

@@ -11,9 +11,9 @@
 //
 //   1. JSX text and string props that reach the screen without going through
 //      say() or the __kr/__en element pair.
-//   2. say() calls carrying fewer arguments than the app has languages —
-//      the silent case, because say() falls back to English and the screen
-//      looks finished to anybody who reads English.
+//   2. say() calls carrying fewer arguments than the app has languages, or
+//      leaving a pair for the DOM to split — the silent cases, because both
+//      look finished to anybody who reads English.
 //
 // It is deliberately noisy in one direction: it would rather flag a proper
 // noun the app should not translate than miss a paragraph it should. Known
@@ -236,6 +236,33 @@ for (const file of files) {
     const line = src.slice(0, m.index).split('\n').length;
     dataGaps.push('  ' + file.replace(/\\/g, '/') + ':' + line
       + '  ' + m[1] + '() has ' + args.length + ' of ' + LANGUAGES + ' languages');
+  }
+}
+
+
+// ---- Pass 3: a pair whose Korean is left to the DOM ------------------------
+//
+// say('상 차리기 · Open a table', null, …) asks LocaleFilter to split the pair
+// at render time. That works when the element holds nothing but the label and
+// fails when it holds anything else — the front page's two buttons each carry
+// an icon beside the text, and both showed the whole pair to a Korean reader
+// while every check in this file said zero.
+//
+// So: if the first argument is a Korean-and-English pair, the second argument
+// has to be the Korean. Nothing is left to a DOM pass that may or may not
+// reach the node.
+const PAIR_FIRST = /\b(say|crashText)\(\s*(['"])([^'"]*·[^'"]*)\2\s*,\s*null\b/g;
+for (const file of files) {
+  if (EXEMPT_FILES.has(file.replace(/\\/g, '/'))) continue;
+  const src = fs.readFileSync(file, 'utf8');
+  PAIR_FIRST.lastIndex = 0;
+  let m;
+  while ((m = PAIR_FIRST.exec(src))) {
+    const hangul = /[가-힣]/.test(m[3]);
+    if (!hangul) continue;
+    const line = src.slice(0, m.index).split('\n').length;
+    dataGaps.push('  ' + file.replace(/\\/g, '/') + ':' + line
+      + '  pair passed with null Korean: ' + m[3].slice(0, 48));
   }
 }
 

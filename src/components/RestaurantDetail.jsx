@@ -343,8 +343,8 @@ function RestaurantDetailInner({
                 >
                   <HeartIcon size={16} filled={isBookmarked} />
                   {isBookmarked
-                    ? say('저장됨 · Saved', null, 'Guardado', 'Enregistré')
-                    : say('저장하기 · Save this place', null, 'Guardar este sitio', 'Enregistrer cette adresse')}
+                    ? say('저장됨 · Saved', '저장됨', 'Guardado', 'Enregistré')
+                    : say('저장하기 · Save this place', '저장하기', 'Guardar este sitio', 'Enregistrer cette adresse')}
                 </button>
               </div>
               {isBookmarked && (

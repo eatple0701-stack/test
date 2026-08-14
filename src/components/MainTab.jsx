@@ -183,10 +183,10 @@ export default function MainTab({
               journey — see the tables, open one, join — so they are worth
               the explicit third string rather than a fallback. */}
           <button className="main-hero__cta" translate="no" onClick={() => onNavigate('match')}>
-            {say('이번 주 밥상 보기 · See this week\u2019s tables', null, 'Ver las mesas de esta semana', 'Voir les tables de cette semaine')}
+            {say('이번 주 밥상 보기 · See this week\u2019s tables', '이번 주 밥상 보기', 'Ver las mesas de esta semana', 'Voir les tables de cette semaine')}
           </button>
           <button className="main-hero__alt" translate="no" onClick={onCreateTable}>
-            {say('상 차리기 · Open a table', null, 'Abrir una mesa', 'Ouvrir une table')} <ChevronRightIcon size={14} />
+            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')} <ChevronRightIcon size={14} />
           </button>
         </div>
 
@@ -342,7 +342,7 @@ export default function MainTab({
               )}
             </p>
             <button className="main-join__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-              {say('무료로 가입하기 · Join free', null, 'Únete gratis', 'Rejoindre gratuitement')}
+              {say('무료로 가입하기 · Join free', '무료로 가입하기', 'Únete gratis', 'Rejoindre gratuitement')}
             </button>
           </div>
         </div>
@@ -381,7 +381,7 @@ export default function MainTab({
             {say('a table you share', null, 'una mesa que se comparte', 'une table qui se partage')}
           </span>
           <button className="main-footer__mastlink" translate="no" onClick={onCreateTable}>
-            {say('상 차리기 · Open a table', null, 'Abrir una mesa', 'Ouvrir une table')} →
+            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')} →
           </button>
         </div>
         <div className="main-footer__cols">
@@ -412,11 +412,11 @@ export default function MainTab({
                 sentence instead of a splitter guessing wrong. */}
             <span className="main-footer__soon main-footer__soon-kr" translate="no">개인정보 처리방침 · 준비 중</span>
             <span className="main-footer__soon l-en-only">
-              {say('Privacy policy · in progress', null, 'Política de privacidad · en preparación', 'Politique de confidentialité · en préparation')}
+              {say('Privacy policy · in progress', '개인정보 처리방침 · 준비 중', 'Política de privacidad · en preparación', 'Politique de confidentialité · en préparation')}
             </span>
             <span className="main-footer__soon main-footer__soon-kr" translate="no">이용약관 · 준비 중</span>
             <span className="main-footer__soon l-en-only">
-              {say('Terms of use · in progress', null, 'Términos de uso · en preparación', "Conditions d'utilisation · en préparation")}
+              {say('Terms of use · in progress', '이용약관 · 준비 중', 'Términos de uso · en preparación', "Conditions d'utilisation · en préparation")}
             </span>
           </div>
         </div>
@@ -452,11 +452,11 @@ export default function MainTab({
             <XIcon size={16} />
           </button>
           <p className="main-sticky__text" translate="no">
-            {say('가입하고 이번 주 밥상에 앉아보세요 · Join and take a seat', null,
+            {say('가입하고 이번 주 밥상에 앉아보세요 · Join and take a seat', '가입하고 이번 주 밥상에 앉아보세요',
               'Únete y siéntate a una mesa esta semana', 'Rejoignez et prenez place à une table cette semaine')}
           </p>
           <button className="main-sticky__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-            {say('회원 가입 · Join free', null, 'Únete gratis', 'Rejoindre gratuitement')}
+            {say('회원 가입 · Join free', '회원 가입', 'Únete gratis', 'Rejoindre gratuitement')}
           </button>
         </div>
       )}

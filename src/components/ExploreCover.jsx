@@ -36,7 +36,7 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
 
       <div className="cover__masthead">
         <span className="cover__label" translate="no">
-          {say('오늘의 추천 · Editor\u2019s pick', null, 'La elección del editor', 'Le choix de la rédaction')}
+          {say('오늘의 추천 · Editor\u2019s pick', '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction')}
         </span>
         {/* The date follows the setting too. "Tuesday, 11 August" on an
             otherwise Korean cover is the one line that gives away that this
@@ -67,8 +67,8 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
 
       <button className="cover__cta" onClick={() => onOpen(theme.id)}>
         {progress?.done > 0
-          ? say('이어서 보기 · Pick it back up', null, 'Retomarlo', 'Reprendre')
-          : say('들어가기 · Enter this culture', null, 'Entrar en esta cultura', 'Entrer dans cette culture')}
+          ? say('이어서 보기 · Pick it back up', '이어서 보기', 'Retomarlo', 'Reprendre')
+          : say('들어가기 · Enter this culture', '들어가기', 'Entrar en esta cultura', 'Entrer dans cette culture')}
         <ChevronRightIcon size={16} />
       </button>
     </section>
