@@ -119,3 +119,26 @@ test('the three buttons in the top corner speak every setting', () => {
   }
   assert.ok(app.includes('const chromeWord = (kr, en, es, fr, ar) =>'));
 });
+
+test('a pair beside an icon is still reduced, not treated as one half', () => {
+  // The filter groups text nodes by parent and had two branches: one node
+  // means a whole pair, several means the pair is split across siblings.
+  // JSX breaks that: {say(…)} <ChevronRightIcon /> renders as two text
+  // nodes — the label and the space before the icon — and a trailing arrow
+  // makes a third. The group then took the split path, where a whole pair
+  // fails the one-half test, and the front page showed both halves to an
+  // English reader. The rule is now about the node, not the count: a node
+  // whose own text holds the separator is a whole pair by itself.
+  const src = read('components/LocaleFilter.jsx');
+  assert.ok(
+    src.includes("const whole = meaningful.filter(n => String(n[ORIGINAL] ?? '').includes(' · '));"),
+    'the filter should decide by the node, not by how many siblings it has',
+  );
+  assert.equal(src.includes('if (group.length === 1) {'), false, 'the count-based branch should be gone');
+
+  // And the two front-page buttons that exposed it still carry an icon,
+  // so the case the rule exists for is still on the screen.
+  const main = read('components/MainTab.jsx');
+  assert.ok(main.includes("say('상 차리기 · Open a table', '상 차리기'"));
+  assert.ok(main.includes('<ChevronRightIcon size={14} />'));
+});

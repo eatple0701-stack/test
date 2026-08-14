@@ -86,16 +86,34 @@ function reduceTextNodes(root, locale) {
       continue;
     }
 
-    // A single node holding the whole pair: reduce its text.
-    if (group.length === 1) {
-      const next = localeText(group[0][ORIGINAL], locale);
-      if (group[0].nodeValue !== next) group[0].nodeValue = next;
+    // Nodes that are only whitespace carry no language, and must not be
+    // blanked either — removing the space between a label and its icon
+    // would join them.
+    const meaningful = group.filter(n => String(n[ORIGINAL] ?? '').trim() !== '');
+
+    // A node whose own text holds the separator is a whole pair by itself,
+    // whatever else sits beside it, and is reduced on its own terms.
+    //
+    // This used to be "the group has exactly one node", which is a different
+    // claim and a wrong one: JSX puts a second text node beside a label
+    // whenever anything follows it — a space before an icon, a trailing
+    // arrow — and the group then fell through to the split-across-nodes
+    // path below. There the label is tested as if it were one half of a
+    // pair, which it fails, so an English screen either kept both halves or,
+    // once the whitespace was excused, kept the arrow and lost the label.
+    // Both were live on the front page.
+    const whole = meaningful.filter(n => String(n[ORIGINAL] ?? '').includes(' · '));
+    if (whole.length > 0) {
+      for (const n of whole) {
+        const next = localeText(n[ORIGINAL], locale);
+        if (n.nodeValue !== next) n.nodeValue = next;
+      }
       continue;
     }
 
     // Split across nodes: keep the ones in the chosen language, empty the
     // rest — including the separator, which belongs to neither.
-    const keep = group.filter(n => {
+    const keep = meaningful.filter(n => {
       const t = String(n[ORIGINAL] ?? '').trim();
       if (!t || t === '·') return false;
       return locale === LOCALE.KO ? isKorean(t) : !isKorean(t);
@@ -103,7 +121,7 @@ function reduceTextNodes(root, locale) {
     // Every node was the other language: leave the pair whole rather than
     // blank the label out. Same rule localeText follows.
     if (keep.length === 0) continue;
-    for (const n of group) {
+    for (const n of meaningful) {
       const next = keep.includes(n) ? n[ORIGINAL] : '';
       if (n.nodeValue !== next) n.nodeValue = next;
     }
