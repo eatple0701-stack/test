@@ -71,19 +71,20 @@ function statusFromRaw(raw, cur, locale = 'both') {
 // Kept together rather than inline so a fifth state cannot be added in one
 // language and forgotten in the others.
 const HOURS_WORD = {
-  Open: ['Open', '영업 중', 'Abierto', 'Ouvert', 'مفتوح'],
-  Closed: ['Closed', '영업 종료', 'Cerrado', 'Fermé', 'مغلق'],
+  Open: ['Open', '영업 중', 'Abierto', 'Ouvert', 'مفتوح', '营业中'],
+  Closed: ['Closed', '영업 종료', 'Cerrado', 'Fermé', 'مغلق', '已打烊'],
 };
 const hoursPhrase = {
-  closedToday: ['closed today', '오늘 휴무', 'cerrado hoy', "fermé aujourd'hui", 'مغلق اليوم'],
-  closedForToday: ['closed for today', '오늘 영업 종료', 'cerrado por hoy', "fermé pour aujourd'hui", 'انتهى دوام اليوم'],
-  until: (t) => [`until ${t}`, `${t}까지`, `hasta las ${t}`, `jusqu'à ${t}`, `حتى ${t}`],
+  closedToday: ['closed today', '오늘 휴무', 'cerrado hoy', "fermé aujourd'hui", 'مغلق اليوم', '今天休息'],
+  closedForToday: ['closed for today', '오늘 영업 종료', 'cerrado por hoy', "fermé pour aujourd'hui", 'انتهى دوام اليوم', '今天已打烊'],
+  until: (t) => [`until ${t}`, `${t}까지`, `hasta las ${t}`, `jusqu'à ${t}`, `حتى ${t}`, `到 ${t}`],
   untilLastOrder: (t, lo) => [
     `until ${t} · last order ${lo}`,
     `${t}까지 · 라스트오더 ${lo}`,
     `hasta las ${t} · último pedido ${lo}`,
     `jusqu'à ${t} · dernière commande ${lo}`,
     `حتى ${t} · آخر طلب ${lo}`,
+    `到 ${t} · 最后点单 ${lo}`,
   ],
   lastOrderPassed: (t) => [
     `last order passed, closes ${t}`,
@@ -91,15 +92,17 @@ const hoursPhrase = {
     `último pedido pasado, cierra a las ${t}`,
     `dernière commande passée, ferme à ${t}`,
     `انتهى وقت آخر طلب، يغلق ${t}`,
+    `已过最后点单时间，${t} 打烊`,
   ],
-  opens: (t) => [`opens ${t}`, `${t}에 엽니다`, `abre a las ${t}`, `ouvre à ${t}`, `يفتح ${t}`],
+  opens: (t) => [`opens ${t}`, `${t}에 엽니다`, `abre a las ${t}`, `ouvre à ${t}`, `يفتح ${t}`, `${t} 开门`],
 };
 const pickWord = (words, locale) => (
   locale === 'ko' ? words[1]
     : locale === 'es' ? words[2]
       : locale === 'fr' ? words[3]
         : locale === 'ar' ? words[4]
-          : words[0]);
+          : locale === 'zh' ? words[5]
+            : words[0]);
 
 export function getOpenStatus(hoursFact, now = new Date(), locale = 'both') {
   if (!isKnown(hoursFact)) return null;

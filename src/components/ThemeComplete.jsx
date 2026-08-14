@@ -45,10 +45,10 @@ export default function ThemeComplete({
             theme. What finished is the path they walked. */}
         <p className="complete-eyebrow">
           {remaining > 0
-            ? say('Path complete', '길 완주', 'Camino completado', 'Chemin terminé', 'اكتمل الطريق')
-            : say('Culture complete', '문화 완주', 'Cultura completada', 'Culture terminée', 'اكتملت الثقافة')}
+            ? say('Path complete', '길 완주', 'Camino completado', 'Chemin terminé', 'اكتمل الطريق', '这条路走完了')
+            : say('Culture complete', '문화 완주', 'Cultura completada', 'Culture terminée', 'اكتملت الثقافة', '这个文化走完了')}
         </p>
-        <h2 className="complete-title">{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr)}</h2>
+        <h2 className="complete-title">{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr, theme.titleZh)}</h2>
         {/* The Korean name under the title is the stamp itself, so it stays
             in every setting — it is what a passport stamp would actually
             read. The heading above it follows the language. */}
@@ -61,8 +61,9 @@ export default function ThemeComplete({
               `Sellado en tu pasaporte. ${remaining === 1 ? 'Queda 1 experiencia' : `Quedan ${remaining} experiencias`} en esta si quieres más.`,
               `Tamponné dans votre passeport. ${remaining === 1 ? 'Il reste 1 expérience' : `Il reste ${remaining} expériences`} dans celle-ci si vous en voulez plus.`,
               `خُتم في جواز سفرك. ${remaining === 1 ? 'بقيت تجربة واحدة' : `بقيت ${remaining} تجارب`} في هذه إن أردت المزيد منها.`,
+              `盖进你的护照了。这一条里还剩 ${remaining} 个体验，想继续的话。`,
             )
-            : say('Stamped into your passport.', '여권에 찍혔습니다.', 'Sellado en tu pasaporte.', 'Tamponné dans votre passeport.', 'خُتم في جواز سفرك.')}
+            : say('Stamped into your passport.', '여권에 찍혔습니다.', 'Sellado en tu pasaporte.', 'Tamponné dans votre passeport.', 'خُتم في جواز سفرك.', '盖进你的护照了。')}
         </p>
 
         {/* Said on the stamp itself, because this is the moment the claim is
@@ -79,6 +80,7 @@ export default function ThemeComplete({
               'Registrado bajo tu palabra: ninguna de estas tenía todavía un sitio verificado que visitar.',
               "Enregistré sur votre parole — aucune de celles-ci n'avait encore d'adresse vérifiée à visiter.",
               'سُجّل على كلمتك — لم يكن لأيّ من هذه مكان موثّق يُزار بعد.',
+              '凭你的话记下的——这些里还没有一个有确认过的地方可以去。',
             )}
           </p>
         )}
@@ -86,22 +88,22 @@ export default function ThemeComplete({
           <p className="complete-basis">
             {say('Part visited, part on your own word.',
               '일부는 방문으로, 일부는 본인 확인으로.',
-              'En parte visitado, en parte bajo tu palabra.', 'En partie visité, en partie sur votre parole.', 'بعضه بالزيارة وبعضه على كلمتك.')}
+              'En parte visitado, en parte bajo tu palabra.', 'En partie visité, en partie sur votre parole.', 'بعضه بالزيارة وبعضه على كلمتك.', '一部分是去过的，一部分是凭你的话记的。')}
           </p>
         )}
 
         {next && (
           <div className="complete-next">
-            <p className="complete-next__label">{say('Where to next', '다음은 어디로', 'Y ahora dónde', 'Et maintenant, où', 'وإلى أين الآن')}</p>
+            <p className="complete-next__label">{say('Where to next', '다음은 어디로', 'Y ahora dónde', 'Et maintenant, où', 'وإلى أين الآن', '接下来去哪儿')}</p>
             <button className="complete-next__btn" onClick={() => onOpenNext(next)}>
-              <span className="complete-next__name">{say(next.title, next.titleKo, next.titleEs, next.titleFr, next.titleAr)}</span>
+              <span className="complete-next__name">{say(next.title, next.titleKo, next.titleEs, next.titleFr, next.titleAr, next.titleZh)}</span>
               {nextReason && <span className="complete-next__reason">{nextReason}</span>}
             </button>
           </div>
         )}
 
         <button className="complete-dismiss" onClick={onClose}>
-          {say('Not now', '나중에', 'Ahora no', 'Pas maintenant', 'ليس الآن')}
+          {say('Not now', '나중에', 'Ahora no', 'Pas maintenant', 'ليس الآن', '先不用')}
         </button>
 
       </div>

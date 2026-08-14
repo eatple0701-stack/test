@@ -39,20 +39,20 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
       </header>
 
       <div className="dish-sheet__body">
-        <p className="dish-sheet__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr)}</p>
+        <p className="dish-sheet__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr, menu.glossZh)}</p>
         <p className="dish-sheet__roman" translate="no">{menu.romanization}</p>
 
         {/* The sentence the whole app rests on: why this one cannot be eaten
             alone. 백반's says the opposite in its own words, and that is the
             point — the catalogue is allowed to contradict the pitch. */}
         <section className="dish-sheet__block">
-          <h2 className="dish-sheet__label">{say('Why it is shared', '왜 나눠 먹나', 'Por qué se comparte', 'Pourquoi cela se partage', 'لماذا يُشارَك')}</h2>
-          <p>{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs, menu.whySharedFr, menu.whySharedAr)}</p>
+          <h2 className="dish-sheet__label">{say('Why it is shared', '왜 나눠 먹나', 'Por qué se comparte', 'Pourquoi cela se partage', 'لماذا يُشارَك', '为什么要分着吃')}</h2>
+          <p>{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs, menu.whySharedFr, menu.whySharedAr, menu.whySharedZh)}</p>
         </section>
 
         <section className="dish-sheet__block">
-          <h2 className="dish-sheet__label">{say('What happens at the table', '식탁에서 벌어지는 일', 'Qué pasa en la mesa', 'Ce qui se passe à table', 'ما الذي يحدث على المائدة')}</h2>
-          <p>{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr)}</p>
+          <h2 className="dish-sheet__label">{say('What happens at the table', '식탁에서 벌어지는 일', 'Qué pasa en la mesa', 'Ce qui se passe à table', 'ما الذي يحدث على المائدة', '桌上会发生什么')}</h2>
+          <p>{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr, menu.howItWorksZh)}</p>
           {menu.contains.length > 0 && (
             <p className="dish-sheet__contains">Contains {menu.contains.join(', ')}</p>
           )}
@@ -62,15 +62,15 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
             <p className="dish-sheet__varies">
               {say('The side dishes change by the house and by the day, so this one cannot be checked in advance. Ask before you sit down.',
                 '반찬은 집집마다, 날마다 달라져서 미리 확인할 수가 없습니다. 앉기 전에 물어보세요.',
-                'Las guarniciones cambian según la casa y el día, así que esto no se puede comprobar de antemano. Pregunta antes de sentarte.', "Les accompagnements changent selon la maison et selon le jour : cela ne peut donc pas être vérifié à l'avance. Demandez avant de vous asseoir.", 'تتغيّر الأطباق الجانبية بحسب البيت وبحسب اليوم، فلا يمكن التحقّق من هذا مسبقًا. اسأل قبل أن تجلس.')}
+                'Las guarniciones cambian según la casa y el día, así que esto no se puede comprobar de antemano. Pregunta antes de sentarte.', "Les accompagnements changent selon la maison et selon le jour : cela ne peut donc pas être vérifié à l'avance. Demandez avant de vous asseoir.", 'تتغيّر الأطباق الجانبية بحسب البيت وبحسب اليوم، فلا يمكن التحقّق من هذا مسبقًا. اسأل قبل أن تجلس.', '小菜按店、按日子变，所以这一项没法提前确认。坐下之前先问一句。')}
             </p>
           )}
         </section>
 
         {menu.culture && (
           <section className="dish-sheet__block">
-            <h2 className="dish-sheet__label">{say('Why it is eaten together', '왜 함께 먹나', 'Por qué se come en compañía', 'Pourquoi on le mange ensemble', 'لماذا يُؤكل مع الناس')}</h2>
-            <p>{say(menu.culture, menu.cultureKo, menu.cultureEs, menu.cultureFr, menu.cultureAr)}</p>
+            <h2 className="dish-sheet__label">{say('Why it is eaten together', '왜 함께 먹나', 'Por qué se come en compañía', 'Pourquoi on le mange ensemble', 'لماذا يُؤكل مع الناس', '为什么要一起吃')}</h2>
+            <p>{say(menu.culture, menu.cultureKo, menu.cultureEs, menu.cultureFr, menu.cultureAr, menu.cultureZh)}</p>
           </section>
         )}
 
@@ -83,7 +83,7 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
         {/* The way out of reading and into doing. Reading was always free;
             this is the one thing on the screen that is not. */}
         <button className="dish-sheet__cta" translate="no" onClick={() => onOpenTable?.(menu.id)}>
-          {say('이 요리로 상 차리기 · Open a table for this', '이 요리로 상 차리기', 'Abrir una mesa con este plato', 'Ouvrir une table pour ce plat', 'افتح مائدة لهذا الطبق')}
+          {say('이 요리로 상 차리기 · Open a table for this', '이 요리로 상 차리기', 'Abrir una mesa con este plato', 'Ouvrir une table pour ce plat', 'افتح مائدة لهذا الطبق', '用这道菜开一张饭桌')}
         </button>
       </div>
     </div>

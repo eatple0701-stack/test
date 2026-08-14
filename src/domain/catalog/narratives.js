@@ -23,6 +23,7 @@ export const narratives = [
     titleEs: "Media jornada en la mesa del templo",
     titleFr: "Une demi-journée à la table du temple",
     titleAr: "نصف يوم على مائدة المعبد",
+    titleZh: "在寺院饭桌前的半天",
     introKo:
       "반나절을 비우고, 그 뒤에 약속을 두지 마세요. 절 밥상의 핵심은 서두를 수 없다는 것이고, 뒤에서 기다리는 일정은 그것을 망칩니다.",
     introEs:
@@ -31,6 +32,8 @@ export const narratives = [
       "Accordez-lui une demi-journée, et aucun rendez-vous derrière. Le sens d'un repas de temple est qu'on ne peut pas le presser, et un horaire qui attend de l'autre côté le gâche.",
     introAr:
       "امنحه نصف يوم ولا تضع بعده موعدًا. معنى وجبة المعبد أنه لا يمكن استعجالها، وجدول ينتظر على الطرف الآخر يفسدها.",
+    introZh:
+      "给它半天，后面别排事。寺院这顿饭的意思就在于它急不得，而另一头等着的日程会把它毁掉。",
     outroKo:
       "메뉴판이 권하는 방식이 아니라 하나의 전통이 의도한 방식으로 드셨습니다. 다음에 무엇을 하시든, 천천히 하세요.",
     outroEs:
@@ -39,6 +42,8 @@ export const narratives = [
       "Vous avez mangé comme une tradition l'entend, et non comme une carte le suggère. Quoi que vous fassiez ensuite, faites-le lentement.",
     outroAr:
       "أكلتَ كما تقصد تقاليد، لا كما تقترح قائمة طعام. ومهما فعلت بعد ذلك، فافعله ببطء.",
+    outroZh:
+      "你按一种传统本来的意思吃了一顿，而不是按菜单的建议。接下来做什么都好，慢慢做。",
     pacing: 'half-day',
     status: STATUS.PUBLISHED,
   },
@@ -54,6 +59,7 @@ export const narratives = [
     titleEs: "Primera vuelta al mercado",
     titleFr: "Premier tour de marché",
     titleAr: "أول جولة في السوق",
+    titleZh: "第一次逛市场",
     introKo:
       "배고픈 채로, 현금을 들고 오세요. 서서, 손가락으로 가리키며, 어깨를 맞대고 먹는 식사입니다. 순서를 미리 정하지 않는 편이 낫습니다.",
     introEs:
@@ -62,6 +68,8 @@ export const narratives = [
       "Arrivez affamé et avec des espèces. C'est un repas debout, du doigt, épaule contre épaule, et cela marche mieux si vous ne planifiez pas l'ordre à l'avance.",
     introAr:
       "تعال جائعًا ومعك نقد. هذه وجبة وقوف وإشارة وأكتاف متلاصقة، وتنجح أكثر إن لم ترتّب لها ترتيبًا مسبقًا.",
+    introZh:
+      "空着肚子来，带现金。这是一顿站着吃、用手指点、肩挨着肩的饭，而且最好别事先想好顺序。",
     outroKo:
       "이 도시가 백 년 동안 먹어 온 방식으로 드셨습니다. 마음에 든 그 노점은 다음 주에도 거기 있습니다.",
     outroEs:
@@ -70,6 +78,8 @@ export const narratives = [
       "Vous avez mangé comme la ville mange depuis un siècle. L'étal que vous avez aimé sera là la semaine prochaine.",
     outroAr:
       "أكلتَ كما تأكل المدينة منذ قرن. والبسطة التي أعجبتك ستكون هناك الأسبوع المقبل.",
+    outroZh:
+      "你按这座城市一百年来的方式吃了一顿。你喜欢的那个摊位，下周还在。",
     pacing: 'evening',
     status: STATUS.PREVIEW,
   },
@@ -85,6 +95,7 @@ export const narratives = [
     titleEs: "Una mañana lenta",
     titleFr: "Une matinée lente",
     titleAr: "صباح على مهل",
+    titleZh: "一个慢的早上",
     introKo:
       "열한 시 전에 가고, 끝내야 할 것은 아무것도 들고 가지 마세요. 그 자리가 원하는 만큼 당신 것이라는 게 전부입니다.",
     introEs:
@@ -93,6 +104,8 @@ export const narratives = [
       "Allez-y avant onze heures et n'emportez rien que vous deviez finir. Tout l'intérêt est que la place est à vous aussi longtemps que vous la voulez.",
     introAr:
       "اذهب قبل الحادية عشرة ولا تحمل شيئًا عليك أن تنهيه. كل الفكرة أن المقعد لك ما دمت تريده.",
+    introZh:
+      "十一点前去，别带任何必须做完的事。全部的意思就在于：只要你想坐，位子就是你的。",
     outroKo:
       "이 도시가 주말을 쓰는 방식으로 아침을 보내셨습니다. 아무도 다 드셨냐고 묻지 않았죠.",
     outroEs:
@@ -101,6 +114,8 @@ export const narratives = [
       "Vous avez passé une matinée comme cette ville passe ses week-ends. Personne ne vous a demandé une seule fois si vous aviez fini.",
     outroAr:
       "قضيتَ صباحًا كما تقضي هذه المدينة عطلاتها. ولم يسألك أحد ولو مرة إن كنت قد انتهيت.",
+    outroZh:
+      "你按这座城市过周末的方式过了一个上午。没有一个人问过你是不是吃完了。",
     pacing: 'half-day',
     status: STATUS.PUBLISHED,
   },
@@ -116,6 +131,7 @@ export const narratives = [
     titleEs: "Primera ronda, segunda ronda",
     titleFr: "Première tournée, deuxième tournée",
     titleAr: "الجولة الأولى، الجولة الثانية",
+    titleZh: "一次，二次",
     introKo:
       "늦게 시작하고 끝을 정하지 마세요. 한국의 밤은 차수로 재고, 대화가 달라지는 건 2차입니다.",
     introEs:
@@ -124,6 +140,8 @@ export const narratives = [
       "Commencez tard et ne prévoyez pas la fin. Une nuit coréenne se mesure en tournées, et c'est à la deuxième que la conversation change.",
     introAr:
       "ابدأ متأخرًا ولا تخطّط للنهاية. تُقاس الليلة الكورية بالجولات، وعند الثانية يتغيّر الحديث.",
+    introZh:
+      "开始得晚一点，别计划几点结束。韩国的夜晚是按轮算的，而话在第二轮才会变。",
     outroKo:
       "열 시 이후의 상은 일곱 시의 상이 아닙니다. 이제 둘 다 앉아 보셨어요.",
     outroEs:
@@ -132,6 +150,8 @@ export const narratives = [
       "La table après dix heures n'est pas la table de sept heures. Vous vous êtes maintenant assis aux deux.",
     outroAr:
       "المائدة بعد العاشرة ليست مائدة السابعة. وقد جلستَ الآن إلى كلتيهما.",
+    outroZh:
+      "十点以后的桌不是七点的那张桌。这两张，你现在都坐过了。",
     pacing: 'evening',
     status: STATUS.PREVIEW,
   },
@@ -147,6 +167,7 @@ export const narratives = [
     titleEs: "Primero el mercado, después la mesa",
     titleFr: "D'abord le marché, la table ensuite",
     titleAr: "السوق أولًا، ثم المائدة",
+    titleZh: "先市场，后饭桌",
     introKo:
       "부산이 하는 순서 그대로의 바닷가 하루: 먹기 전에 그 생선을 두고 벌어지는 실랑이를 먼저 보세요.",
     introEs:
@@ -155,6 +176,8 @@ export const narratives = [
       "Une journée côtière dans l'ordre où Busan la fait : voyez le poisson se disputer avant d'en manger.",
     introAr:
       "يوم ساحلي بالترتيب الذي تفعله به بوسان: شاهد الجدال حول السمك قبل أن تأكل منه.",
+    introZh:
+      "按釜山自己的顺序过一天海边：先看人为鱼争起来，再吃它。",
     outroKo:
       "신선도가 메뉴판의 형용사이기를 멈추고, 눈앞에서 벌어지는 일이 되었습니다.",
     outroEs:
@@ -163,6 +186,8 @@ export const narratives = [
       "La fraîcheur a cessé d'être un adjectif de carte pour devenir quelque chose que vous avez vu se produire.",
     outroAr:
       "كفّت الطزاجة عن أن تكون صفةً في قائمة وصارت شيئًا رأيته يحدث.",
+    outroZh:
+      "新鲜不再是菜单上的一个形容词，而成了你亲眼看着发生的事。",
     pacing: 'full-day',
     status: STATUS.PREVIEW,
   },
@@ -178,6 +203,7 @@ export const narratives = [
     titleEs: "Una tarde bajo los árboles",
     titleFr: "Un après-midi sous les arbres",
     titleAr: "بعد ظهر تحت الأشجار",
+    titleZh: "树下的一个下午",
     introKo:
       "일 년에 두 주, 한국에서 할 수 있는 가장 좋은 일이고, 돈은 거의 들지 않습니다.",
     introEs:
@@ -186,6 +212,8 @@ export const narratives = [
       "Deux semaines par an, c'est la meilleure chose à faire en Corée, et cela ne coûte presque rien.",
     introAr:
       "أسبوعان في السنة هذا أفضل ما يمكن فعله في كوريا، ولا يكلّف شيئًا يُذكر.",
+    introZh:
+      "一年里有两周，这是在韩国最值得做的事，而且几乎不花钱。",
     outroKo:
       "두 주 안에 끝납니다. 그래서 다들 나갔던 거예요.",
     outroEs:
@@ -194,6 +222,8 @@ export const narratives = [
       "Ce sera fini dans une quinzaine. C'est pour cela que tout le monde y est allé.",
     outroAr:
       "سينتهي خلال أسبوعين. ولهذا ذهب الجميع.",
+    outroZh:
+      "两周之内就会结束。这正是所有人都去了的原因。",
     pacing: 'half-day',
     status: STATUS.PREVIEW,
   },
@@ -209,6 +239,7 @@ export const narratives = [
     titleEs: "De dónde vino el cuenco",
     titleFr: "D'où vient le bol",
     titleAr: "من أين جاء الصحن",
+    titleZh: "这只碗从哪儿来",
     introKo:
       "음식 하나를, 그것을 만든 항구까지 거슬러 올라갑니다. 짧고, 점심에 하는 편이 낫습니다.",
     introEs:
@@ -217,6 +248,8 @@ export const narratives = [
       "Un plat, remonté jusqu'au port qui l'a inventé. Court, et meilleur au déjeuner.",
     introAr:
       "طبق واحد، متتبَّعًا إلى الميناء الذي اخترعه. قصير، وأفضل وقته الغداء.",
+    introZh:
+      "一道菜，一路追回发明它的那个港口。很短，而且午饭时候做更好。",
     outroKo:
       "중국 음식이고, 한국에서 만들어졌고, 모두가 먹습니다. 그게 국수의 길 전부입니다.",
     outroEs:
@@ -225,6 +258,8 @@ export const narratives = [
       "Un plat chinois, inventé en Corée, mangé par tout le monde. C'est toute l'histoire de la route des nouilles.",
     outroAr:
       "طبق صيني، اختُرع في كوريا، ويأكله الجميع. تلك هي حكاية طريق المعكرونة كلّها.",
+    outroZh:
+      "一道中国菜，在韩国被发明，所有人都吃。这就是面条之路的全部故事。",
     pacing: 'half-day',
     status: STATUS.PUBLISHED,
   },
@@ -240,6 +275,7 @@ export const narratives = [
     titleEs: "Treinta minutos en el mercado",
     titleFr: "Trente minutes au marché",
     titleAr: "ثلاثون دقيقة في السوق",
+    titleZh: "在市场的三十分钟",
     introKo:
       "짧은 판입니다. 한 노점, 한 가지, 서서 먹고 나오기 — 평일에 시장을 쓰는 방식이 이렇습니다.",
     introEs:
@@ -248,6 +284,8 @@ export const narratives = [
       "La version courte. Un étal, une chose, mangée debout, et on ressort — c'est ainsi qu'on utilise le marché un jour de semaine ordinaire.",
     introAr:
       "النسخة القصيرة. بسطة واحدة، وشيء واحد، يُؤكل واقفًا، ثم تخرج — هكذا يُستعمل السوق في يوم أسبوع عادي.",
+    introZh:
+      "短的那个版本。一个摊位，一样东西，站着吃完，然后出来——普通工作日里，市场就是这么用的。",
     outroKo:
       "시장을 다 보지는 않으셨고, 그게 핵심입니다. 여기는 일정표가 아니라 잠깐 들르는 곳이에요.",
     outroEs:
@@ -256,6 +294,8 @@ export const narratives = [
       "Vous n'avez pas vu tout le marché, et c'est le but. C'est un endroit où l'on passe, pas un itinéraire.",
     outroAr:
       "لم ترَ السوق كلّه، وهذا هو المقصود. إنه مكان تمرّ به، لا برنامج رحلة.",
+    outroZh:
+      "你没有看完整个市场，而这正是重点。它是顺路进去的地方，不是一条行程。",
     pacing: 'evening',
     status: STATUS.PREVIEW,
   },
@@ -277,6 +317,8 @@ export const narrativeSteps = [
       "Commencez par la table. Tout le reste de ce chemin est une façon de prolonger le calme qu'elle laisse.",
     transitionAr:
       "ابدأ من المائدة. وكل ما بقي من هذا الطريق طريقة لإطالة الهدوء الذي تتركه.",
+    transitionZh:
+      "从这张桌子开始。这条路上其余的一切，都是在延长它留下的那份安静。",
   },
   {
     narrativeId: 'temple-half-day',
@@ -293,6 +335,8 @@ export const narrativeSteps = [
       "Quand le bol est vide, ne partez pas. C'est autour de la théière qui suit que la conversation commence.",
     transitionAr:
       "حين تفرغ القصعة لا ترحل. فعند الإبريق الذي يليها يبدأ الحديث.",
+    transitionZh:
+      "碗空了别走。谈话是在随后那壶茶边开始的。",
   },
 
   {
@@ -310,6 +354,8 @@ export const narrativeSteps = [
       "Entrez d'abord dans le marché. Rien d'autre ici n'a de sens tant que vous n'en avez pas vu l'ampleur.",
     transitionAr:
       "ادخل السوق أولًا. لا شيء هنا يستقيم قبل أن ترى حجمه.",
+    transitionZh:
+      "先进市场。在你看见它的规模之前，这里别的都说不通。",
   },
   {
     narrativeId: 'street-first-timer',
@@ -326,6 +372,8 @@ export const narrativeSteps = [
       "Suivez la plaque la plus bruyante. La galette qu'on verse devant vous est celle qu'il faut commander.",
     transitionAr:
       "اتبع أعلى الصفائح صوتًا. الفطيرة التي تُسكب أمامك هي التي تُطلب.",
+    transitionZh:
+      "跟着声音最响的那块铁板。在你面前正被浇下去的那张饼，就是要点的那张。",
   },
   {
     narrativeId: 'street-first-timer',
@@ -342,6 +390,8 @@ export const narrativeSteps = [
       "La friture appelle le makgeolli. Commandez un bol pour la table plutôt qu'un verre pour vous.",
     transitionAr:
       "المقالي تطلب الماكغولي. اطلب قصعة للطاولة لا كأسًا لنفسك.",
+    transitionZh:
+      "油炸的东西要配马格利。给这桌点一碗，别给自己点一杯。",
   },
   {
     narrativeId: 'street-first-timer',
@@ -358,6 +408,8 @@ export const narrativeSteps = [
       "Avant de partir, faites l'allée d'un bout à l'autre. Voir tout un métier aligné est ce dont les gens se souviennent.",
     transitionAr:
       "قبل أن تخرج، امشِ الزقاق من طرف إلى طرف. رؤية حرفة كاملة في صفّ واحد هي ما يتذكّره الناس.",
+    transitionZh:
+      "走之前，把巷子从头走到尾。把一整个行当看成一条线，是人们记住的那部分。",
   },
 
   {
@@ -375,6 +427,8 @@ export const narrativeSteps = [
       "Entrez tout droit et commandez au premier étal qui a du monde. Du monde veut dire que ça tourne vite et que c'est frais.",
     transitionAr:
       "ادخل مباشرة واطلب من أول بسطة عليها زحام. الزحام يعني دورانًا سريعًا وطعامًا طازجًا.",
+    transitionZh:
+      "直接进去，在第一个看着忙的摊位点。忙意味着翻台快，东西新鲜。",
   },
 
   {
@@ -392,6 +446,8 @@ export const narrativeSteps = [
       "Commencez par ce qui est sorti du four ce matin. Demandez plutôt que lire — le meilleur est rarement au tableau.",
     transitionAr:
       "ابدأ بما خرج من الفرن هذا الصباح. اسأل ولا تقرأ — فأفضل صنف نادرًا ما يكون على اللوح.",
+    transitionZh:
+      "从今早出炉的那样开始。用问的，别用看的——最好的那样很少写在牌子上。",
   },
   {
     narrativeId: 'cafe-slow-morning',
@@ -408,6 +464,8 @@ export const narrativeSteps = [
       "Si vous portez encore une tasse, passez la seconde moitié de la matinée là où cela vous est rendu.",
     transitionAr:
       "إن كنت ما زلت تحمل كوبًا، فاقضِ نصف الصباح الثاني في مكان يكافئك عليه.",
+    transitionZh:
+      "要是你还拿着杯子，就把上午的后半段花在会为此奖励你的地方。",
   },
 
   {
@@ -425,6 +483,8 @@ export const narrativeSteps = [
       "Arrivez une fois la ruée du dîner passée. La salle que vous voulez est la plus calme qui suit.",
     transitionAr:
       "اوصل بعد أن ينقشع زحام العشاء. القاعة التي تريدها هي الأهدأ التي تليه.",
+    transitionZh:
+      "等晚饭的高峰散了再到。你要的是随之而来的那间更安静的屋子。",
   },
   {
     narrativeId: 'after-dark-first-round',
@@ -441,6 +501,8 @@ export const narrativeSteps = [
       "Deuxième tournée. Commandez un bol pour la table et servez quelqu'un d'autre avant vous.",
     transitionAr:
       "الجولة الثانية. اطلب قصعة للطاولة واسكب لغيرك قبل نفسك.",
+    transitionZh:
+      "二次。给这桌点一碗，先倒给别人再倒自己。",
   },
 
   {
@@ -458,6 +520,8 @@ export const narrativeSteps = [
       "Allez-y tôt, pendant que la criée tourne encore. Le marché est un lieu de travail avant d'être autre chose.",
     transitionAr:
       "اذهب باكرًا والمزاد ما زال قائمًا. السوق أرض عمل قبل أن يكون أي شيء آخر.",
+    transitionZh:
+      "早点去，趁拍卖还在。市场首先是一个干活的场子，然后才是别的。",
   },
   {
     narrativeId: 'busan-market-day',
@@ -474,6 +538,8 @@ export const narrativeSteps = [
       "Montez ce que vous avez choisi pour le faire préparer. Ce double geste est tout le rituel.",
     transitionAr:
       "احمل ما اخترته إلى الأعلى ليُحضَّر. هاتان الخطوتان هما الطقس كلّه.",
+    transitionZh:
+      "把你挑好的拿到楼上去加工。这两步就是全部的仪式。",
   },
 
   {
@@ -491,6 +557,8 @@ export const narrativeSteps = [
       "Revendiquez un bout de sol sous les arbres avant midi. Après, vous choisissez parmi les restes.",
     transitionAr:
       "احجز رقعة تحت الأشجار قبل الظهر. بعد ذلك تختار من بين ما تبقّى.",
+    transitionZh:
+      "中午之前在树下占住一块地。之后你就只能在剩下的里面挑了。",
   },
 
   {
@@ -508,6 +576,8 @@ export const narrativeSteps = [
       "Commencez par le bol lui-même. L'histoire se lit autrement une fois qu'on a goûté ce qu'elle a produit.",
     transitionAr:
       "ابدأ بالصحن نفسه. يُقرأ التاريخ قراءةً أخرى بعد أن تذوق ما أنتجه.",
+    transitionZh:
+      "从碗本身开始。尝过它做出来的东西之后，那段历史读起来就不一样了。",
   },
 ];
 

@@ -30,7 +30,7 @@ export default function ProfileSheet({ profile, onSave, onClose }) {
   };
 
   return (
-    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Edit profile', '프로필 수정', 'Editar perfil', 'Modifier le profil', 'تعديل الملف')}>
+    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Edit profile', '프로필 수정', 'Editar perfil', 'Modifier le profil', 'تعديل الملف', '编辑资料')}>
       <div className="auth-sheet profile-sheet">
         <button className="auth-close" onClick={onClose} aria-label="Close">
           <XIcon size={18} />
@@ -48,7 +48,7 @@ export default function ProfileSheet({ profile, onSave, onClose }) {
 
         <div className="profile-sheet__foot">
           <button className="auth-switch" onClick={onClose} disabled={saving}>
-            {say('취소 · Cancel', '취소', 'Cancelar', 'Annuler', 'إلغاء')}
+            {say('취소 · Cancel', '취소', 'Cancelar', 'Annuler', 'إلغاء', '取消')}
           </button>
           <button className="auth-primary" onClick={save} disabled={saving} translate="no">
             {saving ? '저장 중…' : '저장하기 · Save'}

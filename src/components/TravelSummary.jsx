@@ -79,7 +79,7 @@ export default function TravelSummary({ journey, profile, onClose }) {
   };
 
   return (
-    <div className="match-modal-backdrop" role="dialog" aria-label={say('Travel summary', '여행 요약', 'Resumen del viaje', 'Résumé du voyage', 'ملخّص الرحلة')} onClick={onClose} style={{ zIndex: 9999 }}>
+    <div className="match-modal-backdrop" role="dialog" aria-label={say('Travel summary', '여행 요약', 'Resumen del viaje', 'Résumé du voyage', 'ملخّص الرحلة', '旅行小结')} onClick={onClose} style={{ zIndex: 9999 }}>
       <div className="summary-sheet" onClick={e => e.stopPropagation()}>
         <button className="summary-sheet__close" aria-label="Close" onClick={onClose}>
           <XIcon size={18} />
@@ -87,24 +87,24 @@ export default function TravelSummary({ journey, profile, onClose }) {
 
         <div className="summary-card">
           <p className="summary-card__eyebrow">밥친구 잇플 · Eatple</p>
-          <h2 className="summary-card__title">{say('Solo trip, shared table', '혼자 온 여행, 함께한 밥상', 'Viaje en solitario, mesa compartida', 'Voyage en solo, table partagée', 'رحلة وحدك، ومائدة مشتركة')}</h2>
+          <h2 className="summary-card__title">{say('Solo trip, shared table', '혼자 온 여행, 함께한 밥상', 'Viaje en solitario, mesa compartida', 'Voyage en solo, table partagée', 'رحلة وحدك، ومائدة مشتركة', '一个人来，一桌人吃')}</h2>
 
           <div className="summary-card__grid">
             <div>
               <span className="summary-card__num">{summary.tables}</span>
-              <span className="summary-card__label">{say('Tables shared', '함께한 밥상', 'Mesas compartidas', 'Tables partagées', 'موائد شاركتها')}</span>
+              <span className="summary-card__label">{say('Tables shared', '함께한 밥상', 'Mesas compartidas', 'Tables partagées', 'موائد شاركتها', '一起吃过的饭桌')}</span>
             </div>
             <div>
               <span className="summary-card__num">{summary.dishes}</span>
-              <span className="summary-card__label">{say('Dishes I could not order alone', '혼자서는 못 시켰을 요리', 'Platos que no podía pedir solo', 'Des plats que je ne pouvais pas commander seul', 'أطباق ما كنت لأطلبها وحدي')}</span>
+              <span className="summary-card__label">{say('Dishes I could not order alone', '혼자서는 못 시켰을 요리', 'Platos que no podía pedir solo', 'Des plats que je ne pouvais pas commander seul', 'أطباق ما كنت لأطلبها وحدي', '我一个人点不了的菜')}</span>
             </div>
             <div>
               <span className="summary-card__num">{summary.people}</span>
-              <span className="summary-card__label">{say('People met', '만난 사람', 'Personas conocidas', 'Personnes rencontrées', 'من قابلت')}</span>
+              <span className="summary-card__label">{say('People met', '만난 사람', 'Personas conocidas', 'Personnes rencontrées', 'من قابلت', '认识的人')}</span>
             </div>
             <div>
               <span className="summary-card__num">{summary.cultures}</span>
-              <span className="summary-card__label">{say('Cultures walked', '걸어본 문화', 'Culturas recorridas', 'Cultures parcourues', 'ثقافات مشيتها')}</span>
+              <span className="summary-card__label">{say('Cultures walked', '걸어본 문화', 'Culturas recorridas', 'Cultures parcourues', 'ثقافات مشيتها', '走过的文化')}</span>
             </div>
           </div>
 
@@ -116,7 +116,7 @@ export default function TravelSummary({ journey, profile, onClose }) {
               <span className="summary-card__stamp summary-card__stamp--empty">
                 {say('No shared table yet. There is nothing to post about a meal that has not happened.',
                   '아직 함께한 밥상이 없어요. 일어나지 않은 식사에 대해서는 올릴 것이 없습니다.',
-                  'Todavía no hay ninguna mesa compartida. No hay nada que publicar sobre una comida que no ha ocurrido.', "Pas encore de table partagée. Il n'y a rien à publier sur un repas qui n'a pas eu lieu.", 'لا مائدة مشتركة بعد. لا شيء يُنشَر عن وجبة لم تحدث.')}
+                  'Todavía no hay ninguna mesa compartida. No hay nada que publicar sobre una comida que no ha ocurrido.', "Pas encore de table partagée. Il n'y a rien à publier sur un repas qui n'a pas eu lieu.", 'لا مائدة مشتركة بعد. لا شيء يُنشَر عن وجبة لم تحدث.', '还没有一起吃过饭。一顿没发生的饭，没什么可发的。')}
               </span>
             )}
           </div>
@@ -128,10 +128,10 @@ export default function TravelSummary({ journey, profile, onClose }) {
 
         <button className="btn-primary" onClick={handleShare} style={{ width: '100%' }}>
           {copied
-            ? <><CheckIcon size={17} /> {say('Copied', '복사됨', 'Copiado', 'Copié', 'نُسخ')}</>
-            : say('Share my journey', '내 여정 공유하기', 'Compartir mi recorrido', 'Partager mon parcours', 'شارِك رحلتي')}
+            ? <><CheckIcon size={17} /> {say('Copied', '복사됨', 'Copiado', 'Copié', 'نُسخ', '已复制')}</>
+            : say('Share my journey', '내 여정 공유하기', 'Compartir mi recorrido', 'Partager mon parcours', 'شارِك رحلتي', '分享我的旅程')}
         </button>
-        <p className="summary-sheet__hint">{say('Or screenshot the card above.', '또는 위 카드를 캡처하세요.', 'O haz una captura de la tarjeta de arriba.', 'Ou faites une capture de la carte ci-dessus.', 'أو التقط صورة للبطاقة أعلاه.')}</p>
+        <p className="summary-sheet__hint">{say('Or screenshot the card above.', '또는 위 카드를 캡처하세요.', 'O haz una captura de la tarjeta de arriba.', 'Ou faites une capture de la carte ci-dessus.', 'أو التقط صورة للبطاقة أعلاه.', '或者把上面这张卡截图。')}</p>
       </div>
     </div>
   );

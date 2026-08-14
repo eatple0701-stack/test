@@ -57,7 +57,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
   const anyUpcoming = tables.some(t => !isPast(t));
 
   return (
-    <section className="tables-lead" aria-label={say('Open tables', '열린 밥상', 'Mesas abiertas', 'Tables ouvertes', 'موائد مفتوحة')}>
+    <section className="tables-lead" aria-label={say('Open tables', '열린 밥상', 'Mesas abiertas', 'Tables ouvertes', 'موائد مفتوحة', '开着的饭桌')}>
       <div className="tables-lead__head">
         <div>
           {/* The 밥친구 label above this heading is gone: the wordmark is in
@@ -83,15 +83,15 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
           </h2>
           <h2 className="tables-lead__title tables-lead__title-en">
             {open.length > 0
-              ? say('Tables you could join this week', null, 'Mesas a las que podrías unirte esta semana', 'Des tables où vous pourriez vous asseoir cette semaine', 'موائد تستطيع الجلوس إليها هذا الأسبوع')
+              ? say('Tables you could join this week', null, 'Mesas a las que podrías unirte esta semana', 'Des tables où vous pourriez vous asseoir cette semaine', 'موائد تستطيع الجلوس إليها هذا الأسبوع', '这周你可以坐进去的饭桌')
               : anyUpcoming
-                ? say('You are in every table that is open', null, 'Ya estás en todas las mesas abiertas', 'Vous êtes déjà à toutes les tables ouvertes', 'أنت بالفعل على كل مائدة مفتوحة')
-                : say('Nobody has set a table yet', null, 'Todavía nadie ha puesto una mesa', "Personne n'a encore dressé de table", 'لم يمدّ أحد مائدة بعد')}
+                ? say('You are in every table that is open', null, 'Ya estás en todas las mesas abiertas', 'Vous êtes déjà à toutes les tables ouvertes', 'أنت بالفعل على كل مائدة مفتوحة', '开着的饭桌你都已经在里面了')
+                : say('Nobody has set a table yet', null, 'Todavía nadie ha puesto una mesa', "Personne n'a encore dressé de table", 'لم يمدّ أحد مائدة بعد', '还没有人摆过饭桌')}
           </h2>
         </div>
         <button className="tables-lead__all" onClick={onOpenTables}>
           <span className="l-ko-only" translate="no">전체</span>
-          <span className="tables-lead__all-en">{say('All', null, 'Todas', 'Toutes', 'الكل')}</span>
+          <span className="tables-lead__all-en">{say('All', null, 'Todas', 'Toutes', 'الكل', '全部')}</span>
           <ChevronRightIcon size={13} />
         </button>
       </div>
@@ -107,10 +107,10 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
             {anyUpcoming
               ? say('Nothing else to ask for this week. Open a table of your own and see who comes.', null,
                 'Nada más que pedir esta semana. Abre una mesa tuya y mira quién viene.',
-                "Rien d'autre à demander cette semaine. Ouvrez votre propre table et voyez qui vient.", 'لا شيء آخر تطلبه هذا الأسبوع. افتح مائدتك أنت وانظر من يأتي.')
+                "Rien d'autre à demander cette semaine. Ouvrez votre propre table et voyez qui vient.", 'لا شيء آخر تطلبه هذا الأسبوع. افتح مائدتك أنت وانظر من يأتي.', '这周没有别的可以申请了。自己开一张，看看谁来。')
               : say('Samgyeopsal starts at two servings. Open a table and see who comes.', null,
                 'El samgyeopsal empieza en dos raciones. Abre una mesa y mira quién viene.',
-                'Le samgyeopsal commence à deux parts. Ouvrez une table et voyez qui vient.', 'السامغيوبسال يبدأ من حصتين. افتح مائدة وانظر من يأتي.')}
+                'Le samgyeopsal commence à deux parts. Ouvrez une table et voyez qui vient.', 'السامغيوبسال يبدأ من حصتين. افتح مائدة وانظر من يأتي.', '五花肉从两人份起。开一张饭桌，看看谁来。')}
           </span>
         </button>
       ) : (
@@ -138,7 +138,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
                       seeded; this screen never did, which meant the first
                       three tables anybody ever saw were invented and unlabelled
                       on the highest-traffic screen in the app. */}
-                  {t.isSample && <span className="lead-table__sample">{say('sample', '샘플', 'ejemplo', 'exemple', 'مثال')}</span>}
+                  {t.isSample && <span className="lead-table__sample">{say('sample', '샘플', 'ejemplo', 'exemple', 'مثال', '示例')}</span>}
                 </span>
               </button>
             );

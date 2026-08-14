@@ -55,22 +55,26 @@ const MEET_COPY = {
     titleEs: 'Abrir una mesa aquí',
     titleFr: 'Ouvrir une table ici',
     titleAr: 'افتح مائدة هنا',
+    titleZh: '在这里开一张饭桌',
     sub: (name) => `Open a table at ${name} and see who wants to come.`,
     subKo: (name) => `${name}에서 상을 차리고 누가 오고 싶어 하는지 보세요.`,
     subEs: (name) => `Abre una mesa en ${name} y mira quién quiere venir.`,
     subFr: (name) => `Ouvrez une table à ${name} et voyez qui veut venir.`,
     subAr: (name) => `افتح مائدة في ${name} وانظر من يريد أن يأتي.`,
+    subZh: (name) => `在${name}开一张饭桌，看看谁想来。`,
   },
   [VENUE_KIND.OUTING]: {
     title: '여기서 같이 갈 사람 찾기',
     titleEs: 'Busca con quién ir',
     titleFr: 'Trouver avec qui y aller',
     titleAr: 'ابحث عمّن تذهب معه',
+    titleZh: '找个人一起去',
     sub: (name) => `Find someone to go to ${name} with — same idea as a table, no meal to share.`,
     subKo: (name) => `${name}에 같이 갈 사람을 찾아보세요 — 밥상과 같은 방식이고, 나눠 먹을 음식만 없습니다.`,
     subEs: (name) => `Encuentra con quién ir a ${name} — la misma idea que una mesa, sin comida que compartir.`,
     subFr: (name) => `Trouvez quelqu'un avec qui aller à ${name} — la même idée qu'une table, sans repas à partager.`,
     subAr: (name) => `ابحث عمّن تذهب معه إلى ${name} — الفكرة نفسها كالمائدة، بلا طعام يُشارَك.`,
+    subZh: (name) => `找个人一起去${name}——和饭桌是同一个意思，只是没有要分着吃的饭。`,
   },
 };
 
@@ -88,12 +92,14 @@ export function tableCtaFor(restaurant, locale = 'both') {
   const title = locale === 'es' ? copy.titleEs
     : locale === 'fr' ? copy.titleFr
       : locale === 'ar' ? copy.titleAr
-        : copy.title;
+        : locale === 'zh' ? copy.titleZh
+          : copy.title;
   const sub = locale === 'ko' ? copy.subKo(name)
     : locale === 'es' ? copy.subEs(name)
       : locale === 'fr' ? copy.subFr(name)
         : locale === 'ar' ? copy.subAr(name)
-          : copy.sub(name);
+          : locale === 'zh' ? copy.subZh(name)
+            : copy.sub(name);
   return { kind, title, sub };
 }
 
@@ -180,6 +186,7 @@ export function transitLine(restaurant) {
   const esLine = lineNo ? `, línea ${lineNo}` : enLine;
   const frLine = lineNo ? `, ligne ${lineNo}` : enLine;
   const arLine = lineNo ? `، الخط ${lineNo}` : enLine;
+  const zhLine = lineNo ? `，${lineNo}号线` : enLine;
   const mins = Number.isFinite(t?.walkingMinutes) ? t.walkingMinutes : null;
 
   return {
@@ -205,6 +212,9 @@ export function transitLine(restaurant) {
     ar: mins !== null
       ? `${mins} دقائق سيرًا من محطة ${station}${arLine}`
       : `قرب محطة ${station}${arLine}`,
+    zh: mins !== null
+      ? `从${station}站步行 ${mins} 分钟${zhLine}`
+      : `${station}站附近${zhLine}`,
   };
 }
 
@@ -286,4 +296,5 @@ export const MAP_LINKS_NOTE = {
   es: 'Las reseñas y las fotos están en las apps de mapas, mantenidas al día por quienes las gestionan. Eatple no las copia aquí.',
   fr: "Les avis et les photos vivent dans les applications de cartes, tenus à jour par ceux qui les gèrent. Eatple ne les recopie pas ici.",
   ar: 'المراجعات والصور تعيش في تطبيقات الخرائط، ويحدّثها من يديرونها. ولا ينسخها Eatple هنا.',
+  zh: '评价和照片在地图应用里，由经营它们的人保持更新。Eatple 不把它们抄到这儿。',
 };

@@ -82,16 +82,16 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
   const wanted = menuId ? menuById(menuId) : null;
 
   return (
-    <section className="sheet-page" aria-label={say('Ask for a table', '밥상 요청하기', 'Pedir una mesa', 'Demander une table', 'اطلب مائدة')}>
+    <section className="sheet-page" aria-label={say('Ask for a table', '밥상 요청하기', 'Pedir una mesa', 'Demander une table', 'اطلب مائدة', '申请一张饭桌')}>
       <header className="sheet-page__head">
-        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع')}>
+        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع', '返回')}>
           <ChevronLeftIcon size={20} />
         </button>
-        <h1>{say('찾는 밥상 · What are you after?', '찾는 밥상', '¿Qué buscas?', 'Que cherchez-vous ?', 'عمّ تبحث؟')}</h1>
+        <h1>{say('찾는 밥상 · What are you after?', '찾는 밥상', '¿Qué buscas?', 'Que cherchez-vous ?', 'عمّ تبحث؟', '你在找什么？')}</h1>
       </header>
 
       <div className="form-block">
-        <h2 className="form-label">{say('What do you want to eat?', '무엇을 드시고 싶나요?', '¿Qué te apetece comer?', 'Que voulez-vous manger ?', 'ماذا تريد أن تأكل؟')}</h2>
+        <h2 className="form-label">{say('What do you want to eat?', '무엇을 드시고 싶나요?', '¿Qué te apetece comer?', 'Que voulez-vous manger ?', 'ماذا تريد أن تأكل؟', '你想吃什么？')}</h2>
         <div className="dish-grid">
           {/* First, and a real answer. "Anything" is what most people want on
               a first night, and a dish-first app is worst at exactly that. */}
@@ -100,8 +100,8 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
             onClick={() => setMenuId(null)}
           >
             <span className="dish-option__kr">아무거나</span>
-            <span className="dish-option__name">{say('Anything', '아무거나', 'Lo que sea', "N'importe quoi", 'أيّ شيء')}</span>
-            <span className="dish-option__min">{say('Surprise me', '알아서 골라주세요', 'Sorpréndeme', 'Surprenez-moi', 'فاجئني')}</span>
+            <span className="dish-option__name">{say('Anything', '아무거나', 'Lo que sea', "N'importe quoi", 'أيّ شيء', '都行')}</span>
+            <span className="dish-option__min">{say('Surprise me', '알아서 골라주세요', 'Sorpréndeme', 'Surprenez-moi', 'فاجئني', '给我个惊喜')}</span>
           </button>
           {menus.map(m => (
             <button
@@ -111,7 +111,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
             >
               <span className="dish-option__kr">{m.nameKo}</span>
               <span className="dish-option__name">{m.name}</span>
-              <span className="dish-option__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr, m.glossAr)}</span>
+              <span className="dish-option__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr, m.glossAr, m.glossZh)}</span>
               <span className="dish-option__min">
                 {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
               </span>
@@ -121,23 +121,23 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
       </div>
 
       <div className="form-block">
-        <h2 className="form-label">{say('When are you free?', '언제 시간이 되나요?', '¿Cuándo tienes hueco?', 'Quand êtes-vous libre ?', 'متى تكون متفرّغًا؟')}</h2>
+        <h2 className="form-label">{say('When are you free?', '언제 시간이 되나요?', '¿Cuándo tienes hueco?', 'Quand êtes-vous libre ?', 'متى تكون متفرّغًا؟', '你什么时候有空？')}</h2>
         <div className="field-row">
           <label className="field">
-            <span className="field__label">{say('From', '부터', 'Desde', 'À partir de', 'من')}</span>
+            <span className="field__label">{say('From', '부터', 'Desde', 'À partir de', 'من', '从')}</span>
             <input type="date" value={from} min={iso(0)} onChange={e => setFrom(e.target.value)} />
           </label>
           <label className="field">
-            <span className="field__label">{say('Until', '까지', 'Hasta', "Jusqu'à", 'حتى')}</span>
+            <span className="field__label">{say('Until', '까지', 'Hasta', "Jusqu'à", 'حتى', '到')}</span>
             <input type="date" value={to} min={from} onChange={e => setTo(e.target.value)} />
           </label>
         </div>
         <label className="field">
-          <span className="field__label">{say('Where would suit you? (optional)', '어디가 좋으세요? (선택)', '¿Dónde te vendría bien? (opcional)', 'Où cela vous arrangerait ? (facultatif)', 'أين يناسبك؟ (اختياري)')}</span>
+          <span className="field__label">{say('Where would suit you? (optional)', '어디가 좋으세요? (선택)', '¿Dónde te vendría bien? (opcional)', 'Où cela vous arrangerait ? (facultatif)', 'أين يناسبك؟ (اختياري)', '你方便在哪儿？（可选）')}</span>
           <input
             type="text"
             value={place}
-            placeholder={say('Hongdae, or anywhere on line 2', '홍대, 또는 2호선 어디든', 'Hongdae, o cualquier sitio de la línea 2', "Hongdae, ou n'importe où sur la ligne 2", 'هونغداي، أو أي مكان على الخط 2')}
+            placeholder={say('Hongdae, or anywhere on line 2', '홍대, 또는 2호선 어디든', 'Hongdae, o cualquier sitio de la línea 2', "Hongdae, ou n'importe où sur la ligne 2", 'هونغداي، أو أي مكان على الخط 2', '弘大，或者2号线上任何地方')}
             onChange={e => setPlace(e.target.value)}
           />
         </label>
@@ -166,7 +166,7 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
 
           {exact.length === 0 && near.length > 0 && (
             <>
-              <h2 className="req-results__head">{say('Nothing exactly, but these are close.', '딱 맞는 건 없지만, 이런 것들이 가깝습니다.', 'Nada exacto, pero estas se acercan.', "Rien d'exact, mais celles-ci s'en approchent.", 'لا شيء مطابق تمامًا، لكن هذه قريبة.')}</h2>
+              <h2 className="req-results__head">{say('Nothing exactly, but these are close.', '딱 맞는 건 없지만, 이런 것들이 가깝습니다.', 'Nada exacto, pero estas se acercan.', "Rien d'exact, mais celles-ci s'en approchent.", 'لا شيء مطابق تمامًا، لكن هذه قريبة.', '没有完全对上的，但这几个接近。')}</h2>
               {/* Offered rather than hidden: somebody who wanted 곱창 on
                   Saturday will often take 곱창 on Sunday, and dropping it
                   would show a blank screen beside a table they would have
@@ -192,13 +192,13 @@ export default function TableRequest({ profile, onBack, onOpenTable, onOpenAsHos
               <p className="req-none__body">
                 {say('Which makes you the person who can. Everything you just said is carried over — pick a time and it is open.',
                   '그러니 열 수 있는 사람이 당신입니다. 방금 적으신 내용은 그대로 넘어가니, 시간만 고르시면 열립니다.',
-                  'Lo que te convierte en quien puede. Todo lo que acabas de decir se traslada: elige una hora y queda abierta.', 'Ce qui fait de vous la personne qui peut. Tout ce que vous venez de dire est repris — choisissez une heure et elle est ouverte.', 'وهذا ما يجعلك أنت من يستطيع. كل ما قلته للتوّ يُنقل معك — اختر وقتًا وتصير مفتوحة.')}
+                  'Lo que te convierte en quien puede. Todo lo que acabas de decir se traslada: elige una hora y queda abierta.', 'Ce qui fait de vous la personne qui peut. Tout ce que vous venez de dire est repris — choisissez une heure et elle est ouverte.', 'وهذا ما يجعلك أنت من يستطيع. كل ما قلته للتوّ يُنقل معك — اختر وقتًا وتصير مفتوحة.', '那能开的人就是你了。你刚才说的都会带过去——挑个时间，它就开着了。')}
               </p>
               <button
                 className="form-submit"
                 onClick={() => onOpenAsHost(requestAsTable(request))}
               >
-                {say('상 차리기 · Open it myself', '상 차리기', 'Abrirla yo mismo', "L'ouvrir moi-même", 'أفتحها بنفسي')}
+                {say('상 차리기 · Open it myself', '상 차리기', 'Abrirla yo mismo', "L'ouvrir moi-même", 'أفتحها بنفسي', '我自己开一张')}
               </button>
             </div>
           )}

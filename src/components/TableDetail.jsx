@@ -203,13 +203,13 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     return (
       <section className="sheet-page">
         <header className="sheet-page__head">
-          <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع')}>
+          <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع', '返回')}>
             <ChevronLeftIcon size={20} />
           </button>
-          <h1>{say('Table', '밥상', 'Mesa', 'Table', 'مائدة')}</h1>
+          <h1>{say('Table', '밥상', 'Mesa', 'Table', 'مائدة', '饭桌')}</h1>
         </header>
         <p className="tables-empty">
-          {say('This table is no longer here.', '이 밥상은 사라졌어요.', 'Esta mesa ya no está aquí.', "Cette table n'est plus là.", 'لم تعد هذه المائدة هنا.')}
+          {say('This table is no longer here.', '이 밥상은 사라졌어요.', 'Esta mesa ya no está aquí.', "Cette table n'est plus là.", 'لم تعد هذه المائدة هنا.', '这张饭桌已经不在了。')}
         </p>
       </section>
     );
@@ -425,7 +425,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   return (
     <section className="sheet-page table-detail" aria-label={`${menu.name} table`}>
       <header className="sheet-page__head">
-        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع')}>
+        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع', '返回')}>
           <ChevronLeftIcon size={20} />
         </button>
         <h1>{menu.name}</h1>
@@ -443,8 +443,8 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         </h2>
         {/* Under the name, above the reason. Somebody who arrived on a shared
             link may be meeting this word for the first time. */}
-        <p className="detail-hero__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr)}</p>
-        <p className="detail-hero__why">{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs, menu.whySharedFr, menu.whySharedAr)}</p>
+        <p className="detail-hero__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr, menu.glossZh)}</p>
+        <p className="detail-hero__why">{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs, menu.whySharedFr, menu.whySharedAr, menu.whySharedZh)}</p>
       </div>
 
       {/* When, where, how many — moved directly under the dish on 8/4.
@@ -472,7 +472,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               <>
                 {say('Restaurant not decided yet — the table picks one together',
                   '식당은 아직 정하지 않았어요 — 밥상이 함께 고릅니다',
-                  'Restaurante aún sin decidir: lo elige la mesa entre todos', 'Restaurant pas encore décidé — la table le choisit ensemble', 'المطعم لم يُحدَّد بعد — تختاره المائدة معًا')}
+                  'Restaurante aún sin decidir: lo elige la mesa entre todos', 'Restaurant pas encore décidé — la table le choisit ensemble', 'المطعم لم يُحدَّد بعد — تختاره المائدة معًا', '餐厅还没定 — 由这桌一起选')}
               </>
             )}
         </p>
@@ -502,8 +502,8 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             핵심기능 5 is SNS 확산, and this is the object that spreads. */}
         <button className="detail-share" translate="no" onClick={share}>
           {shared
-            ? <><CheckIcon size={15} /> {say('Link copied', '링크 복사됨', 'Enlace copiado', 'Lien copié', 'نُسخ الرابط')}</>
-            : say('링크 보내기 · Send this table to someone', '링크 보내기', 'Enviar esta mesa a alguien', "Envoyer cette table à quelqu'un", 'أرسل هذه المائدة إلى أحد')}
+            ? <><CheckIcon size={15} /> {say('Link copied', '링크 복사됨', 'Enlace copiado', 'Lien copié', 'نُسخ الرابط', '链接已复制')}</>
+            : say('링크 보내기 · Send this table to someone', '링크 보내기', 'Enviar esta mesa a alguien', "Envoyer cette table à quelqu'un", 'أرسل هذه المائدة إلى أحد', '把这张饭桌发给谁')}
         </button>
 
         {/* A traveller's day is their phone calendar. The promise this page
@@ -513,7 +513,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         {!isCancelled(table) && !isPast(table) && (
           <>
             <button className="detail-share detail-calendar" translate="no" onClick={addToCalendar}>
-              {say('캘린더에 추가 · Add to your calendar', '캘린더에 추가', 'Añadir a tu calendario', 'Ajouter à votre agenda', 'أضِفها إلى تقويمك')}
+              {say('캘린더에 추가 · Add to your calendar', '캘린더에 추가', 'Añadir a tu calendario', 'Ajouter à votre agenda', 'أضِفها إلى تقويمك', '加进你的日历')}
             </button>
             {/* The same event as a link, because the file above does not always
                 arrive. Reported from a real phone: opened inside KakaoTalk, the
@@ -522,7 +522,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 still do. Second, not first — the file needs no account. */}
             {gcalUrl && (
               <a className="detail-share detail-calendar--google" href={gcalUrl} target="_blank" rel="noopener noreferrer">
-                {say('구글 캘린더로 추가 · Add with Google Calendar', '구글 캘린더로 추가', 'Añadir con Google Calendar', 'Ajouter avec Google Agenda', 'أضِفها بتقويم Google')}
+                {say('구글 캘린더로 추가 · Add with Google Calendar', '구글 캘린더로 추가', 'Añadir con Google Calendar', 'Ajouter avec Google Agenda', 'أضِفها بتقويم Google', '用 Google 日历添加')}
               </a>
             )}
             {/* Only ever an extra sentence, never a removed button — the
@@ -538,9 +538,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
 
       <div className="detail-block">
         <h3 className="detail-block__label">
-          {say('What happens at the table', '식탁에서 벌어지는 일', 'Qué pasa en la mesa', 'Ce qui se passe à table', 'ما الذي يحدث على المائدة')}
+          {say('What happens at the table', '식탁에서 벌어지는 일', 'Qué pasa en la mesa', 'Ce qui se passe à table', 'ما الذي يحدث على المائدة', '桌上会发生什么')}
         </h3>
-        <p className="detail-block__body">{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr)}</p>
+        <p className="detail-block__body">{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr, menu.howItWorksZh)}</p>
         {menu.contains.length > 0 && (
           <p className="detail-block__contains">Contains {menu.contains.join(', ')}</p>
         )}
@@ -562,7 +562,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <p className="detail-varies">
             {say('The side dishes change by the house and by the day, so this one cannot be checked in advance. Ask before you sit down.',
               '반찬은 집집마다, 날마다 달라져서 미리 확인할 수가 없습니다. 앉기 전에 물어보세요.',
-              'Las guarniciones cambian según la casa y el día, así que esto no se puede comprobar de antemano. Pregunta antes de sentarte.', "Les accompagnements changent selon la maison et selon le jour : cela ne peut donc pas être vérifié à l'avance. Demandez avant de vous asseoir.", 'تتغيّر الأطباق الجانبية بحسب البيت وبحسب اليوم، فلا يمكن التحقّق من هذا مسبقًا. اسأل قبل أن تجلس.')}
+              'Las guarniciones cambian según la casa y el día, así que esto no se puede comprobar de antemano. Pregunta antes de sentarte.', "Les accompagnements changent selon la maison et selon le jour : cela ne peut donc pas être vérifié à l'avance. Demandez avant de vous asseoir.", 'تتغيّر الأطباق الجانبية بحسب البيت وبحسب اليوم، فلا يمكن التحقّق من هذا مسبقًا. اسأل قبل أن تجلس.', '小菜按店、按日子变，所以这一项没法提前确认。坐下之前先问一句。')}
           </p>
         )}
 
@@ -571,7 +571,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             only part of this that matters. */}
         <button className="phrase-open" onClick={() => setPhrasesOpen(true)}>
           {say('식탁에서 · What to say at the table', '식탁에서',
-            'Qué decir en la mesa', 'Quoi dire à table', 'ماذا تقول على المائدة')}
+            'Qué decir en la mesa', 'Quoi dire à table', 'ماذا تقول على المائدة', '在桌上该说什么')}
         </button>
       </div>
 
@@ -586,10 +586,10 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       {menu.culture && (
         <details className="detail-block culture-fold">
           <summary className="detail-block__label culture-fold__summary">
-            {say('Why it is eaten together', '왜 함께 먹나', 'Por qué se come en compañía', 'Pourquoi on le mange ensemble', 'لماذا يُؤكل مع الناس')}
+            {say('Why it is eaten together', '왜 함께 먹나', 'Por qué se come en compañía', 'Pourquoi on le mange ensemble', 'لماذا يُؤكل مع الناس', '为什么要一起吃')}
             <ChevronRightIcon size={14} />
           </summary>
-          <p className="detail-culture">{say(menu.culture, menu.cultureKo, menu.cultureEs, menu.cultureFr, menu.cultureAr)}</p>
+          <p className="detail-culture">{say(menu.culture, menu.cultureKo, menu.cultureEs, menu.cultureFr, menu.cultureAr, menu.cultureZh)}</p>
 
           {/* Offered only where the catalog genuinely places the dish inside a
               theme. Six of the ten belong to no theme, and manufacturing
@@ -597,7 +597,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               nobody could check. */}
           {theme && onOpenTheme && (
             <button className="detail-theme" onClick={() => onOpenTheme(theme.id)}>
-              <span className="detail-theme__label">{say('Part of', '속한 이야기', 'Forma parte de', 'Fait partie de', 'جزء من')}</span>
+              <span className="detail-theme__label">{say('Part of', '속한 이야기', 'Forma parte de', 'Fait partie de', 'جزء من', '属于')}</span>
               <span className="detail-theme__name">{theme.title}</span>
               <ChevronRightIcon size={14} />
             </button>
@@ -612,13 +612,13 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           meal with no shared language, and that is their call to make with
           the fact in front of them rather than ours to make by omission. */}
       <div className="detail-block">
-        <h3 className="detail-block__label">{say('언어 · What this table runs in', '언어', 'En qué idioma va esta mesa', 'La langue de cette table', 'لغة هذه المائدة')}</h3>
+        <h3 className="detail-block__label">{say('언어 · What this table runs in', '언어', 'En qué idioma va esta mesa', 'La langue de cette table', 'لغة هذه المائدة', '这张饭桌用的语言')}</h3>
         {tableLanguages.length > 0 ? (
           <p className="lang-row">
             {tableLanguages.map(l => <span key={l} className="lang-chip">{l}</span>)}
           </p>
         ) : (
-          <p className="lang-note">{say('The host did not say.', '호스트가 밝히지 않았어요.', 'El anfitrión no lo ha dicho.', "L'hôte ne l'a pas dit.", 'لم يذكر المضيف ذلك.')}</p>
+          <p className="lang-note">{say('The host did not say.', '호스트가 밝히지 않았어요.', 'El anfitrión no lo ha dicho.', "L'hôte ne l'a pas dit.", 'لم يذكر المضيف ذلك.', '主人没有说。')}</p>
         )}
 
         {fit === LANGUAGE_FIT.SHARED && (
@@ -630,14 +630,14 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <p className="lang-note lang-note--warn">
             {say('Nothing here matches what you speak. People manage — but bring a translation app, and the phrases below.',
               '여기 쓰는 언어 중에 하실 줄 아는 게 없습니다. 그래도 다들 어떻게든 하지만, 번역 앱과 아래 표현들을 챙겨 가세요.',
-              'Aquí no hay ningún idioma que hables. La gente se apaña, pero llévate una app de traducción y las frases de abajo.', "Aucune langue ici ne correspond à ce que vous parlez. On s'en sort — mais prenez une application de traduction, et les phrases ci-dessous.", 'لا لغة هنا تطابق ما تتحدّثه. يتدبّر الناس أمرهم — لكن خذ معك تطبيق ترجمة، والعبارات أدناه.')}
+              'Aquí no hay ningún idioma que hables. La gente se apaña, pero llévate una app de traducción y las frases de abajo.', "Aucune langue ici ne correspond à ce que vous parlez. On s'en sort — mais prenez une application de traduction, et les phrases ci-dessous.", 'لا لغة هنا تطابق ما تتحدّثه. يتدبّر الناس أمرهم — لكن خذ معك تطبيق ترجمة، والعبارات أدناه.', '这里没有你会说的语言。大家都能应付过来——不过带上一个翻译应用，还有下面这些句子。')}
           </p>
         )}
         {fit === LANGUAGE_FIT.MINE_UNSAID && (
           <p className="lang-note">
             {say('You have not said what you speak, so this cannot be compared. Profile.',
               '어떤 언어를 하시는지 적지 않으셔서 비교할 수가 없습니다. 프로필에서 알려주세요.',
-              'No has dicho qué idiomas hablas, así que no se puede comparar. Perfil.', "Vous n'avez pas dit quelles langues vous parlez, la comparaison est donc impossible. Profil.", 'لم تذكر اللغات التي تتحدّثها، فالمقارنة متعذّرة. الملف الشخصي.')}
+              'No has dicho qué idiomas hablas, así que no se puede comparar. Perfil.', "Vous n'avez pas dit quelles langues vous parlez, la comparaison est donc impossible. Profil.", 'لم تذكر اللغات التي تتحدّثها، فالمقارنة متعذّرة. الملف الشخصي.', '你还没填自己会说什么语言，所以没法比对。去资料里填。')}
           </p>
         )}
       </div>
@@ -698,7 +698,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           than dressed in zeros. */}
       {host && (
         <div className="detail-block host-card">
-          <h3 className="detail-block__label">{say('호스트 · Who is cooking this evening', '호스트', 'Quién organiza esta noche', 'Qui reçoit ce soir', 'من يستضيف هذه الأمسية')}</h3>
+          <h3 className="detail-block__label">{say('호스트 · Who is cooking this evening', '호스트', 'Quién organiza esta noche', 'Qui reçoit ce soir', 'من يستضيف هذه الأمسية', '今晚谁做东')}</h3>
           <div className="host-card__row">
             {host.avatarUrl
               ? <img className="host-card__avatar" src={host.avatarUrl} alt="" />
@@ -728,7 +728,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           strangers is weighing exactly this. */}
       {guidesOffered.length > 0 && (
         <div className="detail-block">
-          <h3 className="detail-block__label">{say('문화 가이드 · What the host will show you', '문화 가이드', 'Lo que te enseñará el anfitrión', "Ce que l'hôte vous montrera", 'ما الذي سيعرّفك به المضيف')}</h3>
+          <h3 className="detail-block__label">{say('문화 가이드 · What the host will show you', '문화 가이드', 'Lo que te enseñará el anfitrión', "Ce que l'hôte vous montrera", 'ما الذي سيعرّفك به المضيف', '主人会带你看什么')}</h3>
           <ul className="guide-list">
             {guidesOffered.map(g => (
               <li key={g.id} className="guide-line">
@@ -740,7 +740,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <p className="guide-list__note">
             {say('Said by the host when they opened this table, in their words.',
               '호스트가 이 밥상을 열면서 직접 쓴 말입니다.',
-              'Lo dijo el anfitrión al abrir esta mesa, con sus palabras.', "Dit par l'hôte à l'ouverture de cette table, avec ses mots.", 'قاله المضيف عند فتح هذه المائدة، بكلماته.')}
+              'Lo dijo el anfitrión al abrir esta mesa, con sus palabras.', "Dit par l'hôte à l'ouverture de cette table, avec ses mots.", 'قاله المضيف عند فتح هذه المائدة، بكلماته.', '开这张饭桌时主人自己说的话。')}
           </p>
         </div>
       )}
@@ -772,19 +772,19 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               not an https link, on both write and read. */}
           {table.chatUrl && (
             <a className="meeting-chat" translate="no" href={table.chatUrl} target="_blank" rel="noopener noreferrer">
-              {say('오픈채팅 참여 · Join this table’s open chat', '오픈채팅 참여', 'Entrar en el chat abierto de esta mesa', 'Rejoindre le chat ouvert de cette table', 'ادخل المحادثة المفتوحة لهذه المائدة')}
+              {say('오픈채팅 참여 · Join this table’s open chat', '오픈채팅 참여', 'Entrar en el chat abierto de esta mesa', 'Rejoindre le chat ouvert de cette table', 'ادخل المحادثة المفتوحة لهذه المائدة', '加入这张饭桌的开放聊天')}
             </a>
           )}
         </div>
       )}
 
       <div className="detail-block">
-        <h3 className="detail-block__label">{say('Who is going', '누가 가나', 'Quién va', 'Qui vient', 'من سيأتي')}</h3>
+        <h3 className="detail-block__label">{say('Who is going', '누가 가나', 'Quién va', 'Qui vient', 'من سيأتي', '谁会来')}</h3>
         <ul className="who-list">
           <li className="who-row">
             <span className="who-row__dot" aria-hidden="true" />
             <span className="who-row__name">{table.hostName}</span>
-            <span className="who-row__role">{say('host', '호스트', 'anfitrión', 'hôte', 'المضيف')}</span>
+            <span className="who-row__role">{say('host', '호스트', 'anfitrión', 'hôte', 'المضيف', '主人')}</span>
             {/* The single most common case the gender filter produces is a
                 solo woman host with no guests yet — without this, that table
                 would show no declared gender anywhere on the screen despite
@@ -797,7 +797,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 wanting", which is a claim nobody made. */}
             {table.hostVerified && (
               <span className="who-row__verified">
-                {say('인증 · verified', '인증', 'verificado', 'vérifié', 'موثّق')}
+                {say('인증 · verified', '인증', 'verificado', 'vérifié', 'موثّق', '已核实')}
                 {hostKindLabel(table.hostKind) && ` · ${hostKindLabel(table.hostKind).en}`}
               </span>
             )}
@@ -806,13 +806,13 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 so it has no meaning on your own table. */}
             {!isHost && (
               justBlocked.has(table.hostId) ? (
-                <span className="who-row__blocked">{say('Blocked', '차단됨', 'Bloqueado', 'Bloqué', 'محظور')}</span>
+                <span className="who-row__blocked">{say('Blocked', '차단됨', 'Bloqueado', 'Bloqué', 'محظور', '已拉黑')}</span>
               ) : (
                 <button
                   className="who-row__block"
                   onClick={() => setConfirmBlock({ id: table.hostId, name: table.hostName, role: 'host' })}
                 >
-                  {say('Block', '차단', 'Bloquear', 'Bloquer', 'حظر')}
+                  {say('Block', '차단', 'Bloquear', 'Bloquer', 'حظر', '拉黑')}
                 </button>
               )
             )}
@@ -831,7 +831,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                     {hasLapsed(s, table) ? 'no answer in time' : 'asked to join'}
                   </span>
                 )}
-                {isDeclined(s) && <span className="who-row__declined">{say('not this time', '이번엔 아니요', 'esta vez no', 'pas cette fois', 'ليس هذه المرة')}</span>}
+                {isDeclined(s) && <span className="who-row__declined">{say('not this time', '이번엔 아니요', 'esta vez no', 'pas cette fois', 'ليس هذه المرة', '这次不了')}</span>}
                 {/* Self-declared, shown as one line with nationality rather
                     than as a separate row — neither is verified, and
                     stacking two unverified facts under two different visual
@@ -848,13 +848,13 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                     who that should be. */}
                 {isHost && (
                   justBlocked.has(s.userId) ? (
-                    <span className="who-row__blocked">{say('Blocked', '차단됨', 'Bloqueado', 'Bloqué', 'محظور')}</span>
+                    <span className="who-row__blocked">{say('Blocked', '차단됨', 'Bloqueado', 'Bloqué', 'محظور', '已拉黑')}</span>
                   ) : (
                     <button
                       className="who-row__block"
                       onClick={() => setConfirmBlock({ id: s.userId, name: s.name, role: 'guest' })}
                     >
-                      {say('Block', '차단', 'Bloquear', 'Bloquer', 'حظر')}
+                      {say('Block', '차단', 'Bloquear', 'Bloquer', 'حظر', '拉黑')}
                     </button>
                   )
                 )}
@@ -910,14 +910,14 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                     disabled={deciding === s.id || !canAccept({ signup: s, signups, table, userId: profile?.userId })}
                     onClick={() => decide(s, SEAT_STATUS.ACCEPTED)}
                   >
-                    {say('자리 드리기 · Give the seat', '자리 드리기', 'Dar el sitio', 'Donner la place', 'امنح المقعد')}
+                    {say('자리 드리기 · Give the seat', '자리 드리기', 'Dar el sitio', 'Donner la place', 'امنح المقعد', '把位子给他')}
                   </button>
                   <button
                     className="decide-row__no"
                     disabled={deciding === s.id}
                     onClick={() => decide(s, SEAT_STATUS.DECLINED)}
                   >
-                    {say('Not this time', '이번엔 아니요', 'Esta vez no', 'Pas cette fois', 'ليس هذه المرة')}
+                    {say('Not this time', '이번엔 아니요', 'Esta vez no', 'Pas cette fois', 'ليس هذه المرة', '这次不了')}
                   </button>
                   {/* Says why the accept is unavailable rather than leaving a
                       dead button — almost always "no seat left", which a host
@@ -944,7 +944,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             </p>
             <div className="cancel-confirm__row">
               <button className="cancel-confirm__no" onClick={() => setConfirmBlock(null)}>
-                {say('Keep as is', '그대로 두기', 'Dejarlo como está', 'Laisser tel quel', 'اتركه كما هو')}
+                {say('Keep as is', '그대로 두기', 'Dejarlo como está', 'Laisser tel quel', 'اتركه كما هو', '保持原样')}
               </button>
               <button className="cancel-confirm__yes" onClick={confirmedBlock} disabled={blocking}>
                 {blocking ? 'Blocking…' : 'Block'}
@@ -1118,11 +1118,11 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               only ever produce the backend's "already called off" error. */}
           {isCancelled(table) ? null : !confirmCancel ? (
             <button className="join-leave" onClick={() => setConfirmCancel(true)}>
-              {say('이 상 취소 · Call off this table', '이 상 취소', 'Cancelar esta mesa', 'Annuler cette table', 'ألغِ هذه المائدة')}
+              {say('이 상 취소 · Call off this table', '이 상 취소', 'Cancelar esta mesa', 'Annuler cette table', 'ألغِ هذه المائدة', '取消这张饭桌')}
             </button>
           ) : (
             <div className="cancel-confirm">
-              <p className="cancel-confirm__title">{say('Call this table off?', '이 밥상을 접을까요?', '¿Cancelar esta mesa?', 'Annuler cette table ?', 'أتلغي هذه المائدة؟')}</p>
+              <p className="cancel-confirm__title">{say('Call this table off?', '이 밥상을 접을까요?', '¿Cancelar esta mesa?', 'Annuler cette table ?', 'أتلغي هذه المائدة؟', '要取消这张饭桌吗？')}</p>
               {/* Everybody this cancellation lands on: seats given, and
                   requests still waiting on an answer that will now never
                   come. Not the people already turned down — telling a host
@@ -1136,11 +1136,11 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   any requests still open disappear when you do.
                 </p>
               ) : (
-                <p className="cancel-confirm__body">{say('Nobody has taken a seat, so nobody is affected.', '아직 아무도 자리를 잡지 않아서 영향받는 사람이 없습니다.', 'Nadie ha ocupado un sitio, así que no afecta a nadie.', "Personne n'a pris de place, donc personne n'est concerné.", 'لم يأخذ أحد مقعدًا، فلا أحد يتأثّر.')}</p>
+                <p className="cancel-confirm__body">{say('Nobody has taken a seat, so nobody is affected.', '아직 아무도 자리를 잡지 않아서 영향받는 사람이 없습니다.', 'Nadie ha ocupado un sitio, así que no afecta a nadie.', "Personne n'a pris de place, donc personne n'est concerné.", 'لم يأخذ أحد مقعدًا، فلا أحد يتأثّر.', '还没有人占位子，所以不会影响到谁。')}</p>
               )}
               <div className="cancel-confirm__row">
                 <button className="cancel-confirm__no" onClick={() => setConfirmCancel(false)}>
-                  {say('Keep it', '그냥 두기', 'Mantenerla', 'La garder', 'أبقِها')}
+                  {say('Keep it', '그냥 두기', 'Mantenerla', 'La garder', 'أبقِها', '留着')}
                 </button>
                 <button className="cancel-confirm__yes" onClick={cancelTable} disabled={busy}>
                   {busy ? 'Cancelling…' : 'Call it off'}
@@ -1153,7 +1153,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         <div className="join-block">
           <p className="join-blocked">{BLOCKER_TEXT[blocker]}</p>
           {blocker === JOIN_BLOCK.FULL && (
-            <p className="join-next">{say('Open the same dish yourself and fill your own table.', '같은 요리로 직접 상을 열고 그 자리를 채우세요.', 'Abre tú el mismo plato y llena tu propia mesa.', 'Ouvrez vous-même le même plat et remplissez votre table.', 'افتح الطبق نفسه بنفسك واملأ مائدتك.')}</p>
+            <p className="join-next">{say('Open the same dish yourself and fill your own table.', '같은 요리로 직접 상을 열고 그 자리를 채우세요.', 'Abre tú el mismo plato y llena tu propia mesa.', 'Ouvrez vous-même le même plat et remplissez votre table.', 'افتح الطبق نفسه بنفسك واملأ مائدتك.', '自己开一张同样这道菜的饭桌，把它坐满。')}</p>
           )}
         </div>
       ) : !isMember(auth) ? (
@@ -1168,7 +1168,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </h3>
           <p className="join-next">{gateText('join-table').body}</p>
           <button className="form-submit" translate="no" onClick={() => onRequireAuth?.("join-table")}>
-            {say(gateText('join-table').cta, null, gateText('join-table').ctaEs, gateText('join-table').ctaFr, gateText('join-table').ctaAr)}
+            {say(gateText('join-table').cta, null, gateText('join-table').ctaEs, gateText('join-table').ctaFr, gateText('join-table').ctaAr, gateText('join-table').ctaZh)}
           </button>
         </div>
       ) : !agreedToRules(profile, PURPOSE.version) ? (
@@ -1178,7 +1178,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
            no half-filled form to lose and no way to reach the button
            without having passed this. */
         <div className="join-block">
-          <h3 className="detail-block__label">{say('Before your first seat', '첫 자리를 잡기 전에', 'Antes de tu primer sitio', 'Avant votre première place', 'قبل مقعدك الأول')}</h3>
+          <h3 className="detail-block__label">{say('Before your first seat', '첫 자리를 잡기 전에', 'Antes de tu primer sitio', 'Avant votre première place', 'قبل مقعدك الأول', '在你的第一个位子之前')}</h3>
           <RulesConsent
             profile={profile}
             onProfileChange={onProfileChange}
@@ -1187,7 +1187,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         </div>
       ) : (
         <div className="join-block">
-          <h3 className="detail-block__label">{say('Ask for a seat', '자리 요청하기', 'Pedir sitio', 'Demander une place', 'اطلب مقعدًا')}</h3>
+          <h3 className="detail-block__label">{say('Ask for a seat', '자리 요청하기', 'Pedir sitio', 'Demander une place', 'اطلب مقعدًا', '申请一个位子')}</h3>
 
           {/* Three form fields for information the app already has is the
               wrong question to ask somebody who has decided. Where a profile
@@ -1199,30 +1199,30 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               Going as <strong>{profile.name}</strong>
               {profile.nationality ? ` from ${profile.nationality}` : ''}
               <button className="join-as__edit" onClick={() => setEditingIdentity(true)}>
-                {say('Change', '수정', 'Cambiar', 'Changer', 'تغيير')}
+                {say('Change', '수정', 'Cambiar', 'Changer', 'تغيير', '更改')}
               </button>
             </p>
           ) : (
             <>
               <label className="field">
-                <span className="field__label">{say('Your name', '이름', 'Tu nombre', 'Votre nom', 'اسمك')}</span>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder={say('What to call you', '뭐라고 부를까요', 'Cómo llamarte', 'Comment vous appeler', 'بماذا نناديك')} />
+                <span className="field__label">{say('Your name', '이름', 'Tu nombre', 'Votre nom', 'اسمك', '你的名字')}</span>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder={say('What to call you', '뭐라고 부를까요', 'Cómo llamarte', 'Comment vous appeler', 'بماذا نناديك', '怎么称呼你')} />
               </label>
               <label className="field">
-                <span className="field__label">{say('Where you are from (optional)', '어디서 오셨는지 (선택)', 'De dónde eres (opcional)', "D'où vous venez (facultatif)", 'من أين أنت (اختياري)')}</span>
-                <input type="text" value={nationality} onChange={e => setNationality(e.target.value)} placeholder={say('Japan', '일본', 'Japón', 'Japon', 'اليابان')} />
+                <span className="field__label">{say('Where you are from (optional)', '어디서 오셨는지 (선택)', 'De dónde eres (opcional)', "D'où vous venez (facultatif)", 'من أين أنت (اختياري)', '你从哪儿来（可选）')}</span>
+                <input type="text" value={nationality} onChange={e => setNationality(e.target.value)} placeholder={say('Japan', '일본', 'Japón', 'Japon', 'اليابان', '日本')} />
               </label>
             </>
           )}
 
           {!noteOpen ? (
             <button className="join-note-open" onClick={() => setNoteOpen(true)}>
-              {say('+ Anything the table should know?', '+ 밥상에서 알아야 할 게 있나요?', '+ ¿Algo que la mesa deba saber?', '+ Quelque chose que la table devrait savoir ?', '+ أشيء ينبغي أن تعرفه المائدة؟')}
+              {say('+ Anything the table should know?', '+ 밥상에서 알아야 할 게 있나요?', '+ ¿Algo que la mesa deba saber?', '+ Quelque chose que la table devrait savoir ?', '+ أشيء ينبغي أن تعرفه المائدة؟', '+ 有什么要让这桌知道的吗？')}
             </button>
           ) : (
             <label className="field">
-              <span className="field__label">{say('Anything the table should know?', '밥상에서 알아야 할 게 있나요?', '¿Algo que la mesa deba saber?', 'Quelque chose que la table devrait savoir ?', 'أشيء ينبغي أن تعرفه المائدة؟')}</span>
-              <textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder={say('No pork, and my Korean is about ten words.', '돼지고기는 못 먹고, 한국어는 열 단어쯤 합니다.', 'Sin cerdo, y mi coreano son unas diez palabras.', 'Pas de porc, et mon coréen tient en dix mots.', 'بلا لحم خنزير، وكوريّتي عشر كلمات تقريبًا.')} autoFocus />
+              <span className="field__label">{say('Anything the table should know?', '밥상에서 알아야 할 게 있나요?', '¿Algo que la mesa deba saber?', 'Quelque chose que la table devrait savoir ?', 'أشيء ينبغي أن تعرفه المائدة؟', '有什么要让这桌知道的吗？')}</span>
+              <textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder={say('No pork, and my Korean is about ten words.', '돼지고기는 못 먹고, 한국어는 열 단어쯤 합니다.', 'Sin cerdo, y mi coreano son unas diez palabras.', 'Pas de porc, et mon coréen tient en dix mots.', 'بلا لحم خنزير، وكوريّتي عشر كلمات تقريبًا.', '不吃猪肉，我的韩语大概就十个词。')} autoFocus />
             </label>
           )}
 
@@ -1269,7 +1269,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <div
             className={`report-panel__reasons${reportProblems.some(p => p.field === 'reason') ? ' is-bad' : ''}`}
             role="group"
-            aria-label={say('Reason', '이유', 'Motivo', 'Motif', 'السبب')}
+            aria-label={say('Reason', '이유', 'Motivo', 'Motif', 'السبب', '原因')}
           >
             {REPORT_REASONS.map(r => (
               <button
@@ -1290,7 +1290,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               vanishes exactly when a distressed person looks up to check what
               they were being asked. */}
           <label className={`field${reportProblems.some(p => p.field === 'note') ? ' is-bad' : ''}`}>
-            <span className="field__label">{say('무슨 일이 있었나요? · What happened, in your words', '무슨 일이 있었나요?', 'Qué pasó, con tus palabras', "Ce qui s'est passé, avec vos mots", 'ما الذي حدث، بكلماتك')}</span>
+            <span className="field__label">{say('무슨 일이 있었나요? · What happened, in your words', '무슨 일이 있었나요?', 'Qué pasó, con tus palabras', "Ce qui s'est passé, avec vos mots", 'ما الذي حدث، بكلماتك', '发生了什么，用你自己的话')}</span>
             <textarea
               className="report-panel__note"
               rows={3}
@@ -1305,7 +1305,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </label>
           <div className="report-panel__row">
             <button className="cancel-confirm__no" onClick={() => setReportOpen(false)}>
-              {say('Never mind', '취소', 'Déjalo', 'Laissez tomber', 'دع الأمر')}
+              {say('Never mind', '취소', 'Déjalo', 'Laissez tomber', 'دع الأمر', '算了')}
             </button>
             <button className="cancel-confirm__yes" onClick={submitReport} disabled={busy}>
               {busy ? 'Sending…' : REPORT_DOOR.send}
@@ -1317,7 +1317,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
       {/* Quiet, at the bottom, and always there — not a scare on the way in,
           but not something to go hunting for either. */}
       <button className="safety-open" translate="no" onClick={() => setSafetyOpen(true)}>
-        {say('도움이 필요하면 · Feeling unsafe or need help?', '도움이 필요하면', '¿No te sientes seguro o necesitas ayuda?', "Vous ne vous sentez pas en sécurité ou besoin d'aide ?", 'ألا تشعر بالأمان أو تحتاج مساعدة؟')}
+        {say('도움이 필요하면 · Feeling unsafe or need help?', '도움이 필요하면', '¿No te sientes seguro o necesitas ayuda?', "Vous ne vous sentez pas en sécurité ou besoin d'aide ?", 'ألا تشعر بالأمان أو تحتاج مساعدة؟', '觉得不安全或需要帮助？')}
       </button>
 
       {/* The page's last word looks forward. A full table, a wrong date, a
@@ -1325,7 +1325,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           stop when other evenings are open. Same dish first, then soonest. */}
       {onOpenTable && similar.length > 0 && (
         <div className="detail-block similar-block">
-          <h3 className="detail-block__label">{say('이런 밥상은 어때요 · Other tables open now', '이런 밥상은 어때요', 'Otras mesas abiertas ahora', "D'autres tables ouvertes en ce moment", 'موائد أخرى مفتوحة الآن')}</h3>
+          <h3 className="detail-block__label">{say('이런 밥상은 어때요 · Other tables open now', '이런 밥상은 어때요', 'Otras mesas abiertas ahora', "D'autres tables ouvertes en ce moment", 'موائد أخرى مفتوحة الآن', '现在开着的其他饭桌')}</h3>
           <ul className="similar-list">
             {similar.map(t => {
               const m = menuById(t.menuId);
@@ -1366,7 +1366,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                a button that does nothing is worse than a jump cut. */
             onClick={() => joinRef.current?.scrollIntoView({ block: 'start' })}
           >
-            {say('자리 요청 · Take a seat', '자리 요청', 'Pedir sitio', 'Demander une place', 'اطلب مقعدًا')}
+            {say('자리 요청 · Take a seat', '자리 요청', 'Pedir sitio', 'Demander une place', 'اطلب مقعدًا', '申请一个位子')}
           </button>
         </div>
       )}

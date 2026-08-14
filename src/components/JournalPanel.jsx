@@ -322,11 +322,13 @@ export default function JournalPanel({
       nameEs: 'Compartir una mesa',
       nameFr: 'Partager une table',
       nameAr: 'شارِك مائدة واحدة',
+      nameZh: '一起吃一张饭桌',
       hint: 'The whole idea, once.',
       hintKo: '이 앱의 전부를, 한 번.',
       hintEs: 'La idea entera, una vez.',
       hintFr: "L'idée entière, une fois.",
       hintAr: 'الفكرة كلّها، مرة واحدة.',
+      hintZh: '这个应用的全部，做一次。',
       current: eaten.length, target: 1,
     },
     {
@@ -336,11 +338,13 @@ export default function JournalPanel({
       nameEs: 'Tres platos que no habrías podido pedir solo',
       nameFr: "Trois plats que vous n'auriez pas pu commander seul",
       nameAr: 'ثلاثة أطباق ما كنت لتطلبها وحدك',
+      nameZh: '三道你一个人点不了的菜',
       hint: 'Different dishes, not repeats.',
       hintKo: '같은 요리 말고, 서로 다른 것으로.',
       hintEs: 'Platos distintos, sin repetir.',
       hintFr: 'Des plats différents, pas des répétitions.',
       hintAr: 'أطباق مختلفة، لا تكرارًا.',
+      hintZh: '要不同的菜，不是重复的。',
       current: dishesShared, target: 3,
     },
     {
@@ -350,11 +354,13 @@ export default function JournalPanel({
       nameEs: 'Comer con gente de dos países',
       nameFr: 'Manger avec des gens de deux pays',
       nameAr: 'كُل مع أناس من بلدين',
+      nameZh: '和来自两个国家的人一起吃',
       hint: 'Counted from who was at your tables.',
       hintKo: '당신의 밥상에 실제로 앉았던 사람들로 셉니다.',
       hintEs: 'Se cuenta por quién estuvo en tus mesas.',
       hintFr: 'Compté selon qui était à vos tables.',
       hintAr: 'يُحسب بمن جلس فعلًا إلى موائدك.',
+      hintZh: '按真正坐到你饭桌上的人来算。',
       current: distinctNationalities, target: 2,
     },
     {
@@ -364,11 +370,13 @@ export default function JournalPanel({
       nameEs: 'Recorrer una cultura de principio a fin',
       nameFr: "Parcourir une culture d'un bout à l'autre",
       nameAr: 'امشِ ثقافة من طرفها إلى طرفها',
+      nameZh: '把一个文化从头走到尾',
       hint: 'Any theme on Explore, finished.',
       hintKo: '문화 탭의 아무 이야기나, 끝까지.',
       hintEs: 'Cualquier historia de Cultura, terminada.',
       hintFr: "N'importe quelle histoire de Culture, terminée.",
       hintAr: 'أي حكاية في تبويب الثقافة، مكتملة.',
+      hintZh: '文化那一栏里的任何一个故事，走完。',
       current: journey.experienceCount, target: 2,
     },
   ].map(g => ({
@@ -385,18 +393,18 @@ export default function JournalPanel({
   const isEmpty = recordCount === 0 && upcomingTables.length === 0;
 
   return (
-    <section className="journal-panel" aria-label={say('Journal', '여권', 'Pasaporte', 'Passeport', 'جواز السفر')}>
+    <section className="journal-panel" aria-label={say('Journal', '여권', 'Pasaporte', 'Passeport', 'جواز السفر', '护照')}>
       <header className="screen-head screen-head--dark">
         <div className="screen-head__row">
           <div>
             <span className="screen-head__kr">여권</span>
             <h1 className="screen-head__title">
-              {say('What this trip has been so far.', '이번 여행이 지금까지 어땠는지.', 'Lo que ha sido este viaje hasta ahora.', "Ce qu'a été ce voyage jusqu'ici.", 'ما كانته هذه الرحلة حتى الآن.')}
+              {say('What this trip has been so far.', '이번 여행이 지금까지 어땠는지.', 'Lo que ha sido este viaje hasta ahora.', "Ce qu'a été ce voyage jusqu'ici.", 'ما كانته هذه الرحلة حتى الآن.', '这趟旅行到目前为止是什么样。')}
             </h1>
           </div>
           {onOpenSummary && (
             <button className="screen-head__link" onClick={onOpenSummary}>
-              {say('Share', '공유', 'Compartir', 'Partager', 'مشاركة')}
+              {say('Share', '공유', 'Compartir', 'Partager', 'مشاركة', '分享')}
             </button>
           )}
         </div>
@@ -408,7 +416,7 @@ export default function JournalPanel({
           {recordCount > 0
             ? say(`${recordCount} moment${recordCount === 1 ? '' : 's'} recorded.`,
               `기록된 순간 ${recordCount}개.`,
-              `${recordCount} ${recordCount === 1 ? 'momento registrado' : 'momentos registrados'}.`, `${recordCount} ${recordCount === 1 ? 'moment enregistré' : 'moments enregistrés'}.`, `${recordCount} ${recordCount === 1 ? 'لحظة مسجّلة' : 'لحظات مسجّلة'}.`)
+              `${recordCount} ${recordCount === 1 ? 'momento registrado' : 'momentos registrados'}.`, `${recordCount} ${recordCount === 1 ? 'moment enregistré' : 'moments enregistrés'}.`, `${recordCount} ${recordCount === 1 ? 'لحظة مسجّلة' : 'لحظات مسجّلة'}.`, `${recordCount} 个瞬间已记录。`)
             : upcomingTables.length > 0
               ? say(`Nothing recorded yet — ${upcomingTables.length === 1
                   ? 'one table booked. It lands here after.'
@@ -419,9 +427,9 @@ export default function JournalPanel({
                   : `${upcomingTables.length} mesas reservadas. Aparecerán aquí después.`}`,
               `Rien d'enregistré pour l'instant — ${upcomingTables.length === 1
                   ? 'une table réservée. Elle arrivera ici ensuite.'
-                  : `${upcomingTables.length} tables réservées. Elles arriveront ici ensuite.`}`, `لا شيء مسجّل بعد — ${upcomingTables.length === 1 ? 'مائدة واحدة محجوزة. ستصل إلى هنا بعدها.' : `${upcomingTables.length} موائد محجوزة. ستصل إلى هنا بعدها.`}`)
+                  : `${upcomingTables.length} tables réservées. Elles arriveront ici ensuite.`}`, `لا شيء مسجّل بعد — ${upcomingTables.length === 1 ? 'مائدة واحدة محجوزة. ستصل إلى هنا بعدها.' : `${upcomingTables.length} موائد محجوزة. ستصل إلى هنا بعدها.`}`, `还没有记录——${upcomingTables.length === 1 ? '已经订了一张饭桌，之后会出现在这里。' : `已经订了 ${upcomingTables.length} 张饭桌，之后会出现在这里。`}`)
               : say('Nothing recorded yet — whatever you do lands here.',
-                '아직 기록이 없어요 — 무엇을 하시든 여기에 남습니다.', 'Todavía no hay nada registrado — lo que hagas aparecerá aquí.', "Rien d'enregistré pour l'instant — ce que vous ferez apparaîtra ici.", 'لا شيء مسجّل بعد — وما تفعله سيظهر هنا.')}
+                '아직 기록이 없어요 — 무엇을 하시든 여기에 남습니다.', 'Todavía no hay nada registrado — lo que hagas aparecerá aquí.', "Rien d'enregistré pour l'instant — ce que vous ferez apparaîtra ici.", 'لا شيء مسجّل بعد — وما تفعله سيظهر هنا.', '还没有记录——你做的事都会落在这里。')}
         </p>
       </header>
 
@@ -453,10 +461,10 @@ export default function JournalPanel({
       {isMemberAuth ? (
         <div className="journal-settings">
           <div className="journal-section-header">
-            <h3>{say('프로필 · Profile', '프로필', 'Perfil', 'Profil', 'الملف')}</h3>
-            {saveState === 'saved' && <span className="save-state is-saved" role="status">{say('✓ 저장됨 · Saved', '✓ 저장됨', '✓ Guardado', '✓ Enregistré', '✓ محفوظ')}</span>}
+            <h3>{say('프로필 · Profile', '프로필', 'Perfil', 'Profil', 'الملف', '资料')}</h3>
+            {saveState === 'saved' && <span className="save-state is-saved" role="status">{say('✓ 저장됨 · Saved', '✓ 저장됨', '✓ Guardado', '✓ Enregistré', '✓ محفوظ', '✓ 已保存')}</span>}
             {saveState === 'device' && (
-              <span className="save-state is-offline">{say('이 기기에만 저장됨 · Saved here, will sync', '이 기기에만 저장됨', 'Guardado aquí, se sincronizará', 'Enregistré ici, sera synchronisé', 'محفوظ هنا، وسيُزامَن')}</span>
+              <span className="save-state is-offline">{say('이 기기에만 저장됨 · Saved here, will sync', '이 기기에만 저장됨', 'Guardado aquí, se sincronizará', 'Enregistré ici, sera synchronisé', 'محفوظ هنا، وسيُزامَن', '已存在本机，之后会同步')}</span>
             )}
           </div>
 
@@ -498,7 +506,7 @@ export default function JournalPanel({
           </dl>
 
           <button className="profile-edit" onClick={() => setProfileOpen(true)} translate="no">
-            {say('프로필 설정 · Edit profile', '프로필 설정', 'Editar perfil', 'Modifier le profil', 'تعديل الملف')}
+            {say('프로필 설정 · Edit profile', '프로필 설정', 'Editar perfil', 'Modifier le profil', 'تعديل الملف', '编辑资料')}
           </button>
 
           {/* The account row. The email is the one the team can reach;
@@ -515,7 +523,7 @@ export default function JournalPanel({
             <div className="account-block__body">
               <span className="account-block__email">{auth.email || '(no email on file)'}</span>
               <button className="account-signout" onClick={onSignOut}>
-                {say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج')}
+                {say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج', '退出登录')}
               </button>
             </div>
           </div>
@@ -525,12 +533,12 @@ export default function JournalPanel({
           <h3 className="member-gate__title">
             <span className="member-gate__title-kr" translate="no">{gateText('passport').titleKr}</span>
             <span className="member-gate__title-en">
-              {say(gateText('passport').titleEn, null, gateText('passport').titleEs, gateText('passport').titleFr, gateText('passport').titleAr)}
+              {say(gateText('passport').titleEn, null, gateText('passport').titleEs, gateText('passport').titleFr, gateText('passport').titleAr, gateText('passport').titleZh)}
             </span>
           </h3>
-          <p className="member-gate__body">{say(gateText('passport').body, gateText('passport').bodyKo, gateText('passport').bodyEs, gateText('passport').bodyFr, gateText('passport').bodyAr)}</p>
+          <p className="member-gate__body">{say(gateText('passport').body, gateText('passport').bodyKo, gateText('passport').bodyEs, gateText('passport').bodyFr, gateText('passport').bodyAr, gateText('passport').bodyZh)}</p>
           <button className="auth-primary" translate="no" onClick={() => onRequireAuth?.('passport')}>
-            {say(gateText('passport').cta, null, gateText('passport').ctaEs, gateText('passport').ctaFr, gateText('passport').ctaAr)}
+            {say(gateText('passport').cta, null, gateText('passport').ctaEs, gateText('passport').ctaFr, gateText('passport').ctaAr, gateText('passport').ctaZh)}
           </button>
         </div>
       )}
@@ -542,7 +550,7 @@ export default function JournalPanel({
         <span className="journal-tool__kr" translate="no">식탁에서</span>
         <span className="journal-tool__body">
           {say('What to say — ordering, what you cannot eat, and something to ask the table. Works with or without a meal booked.',
-            '무슨 말을 할지 — 주문할 때, 못 먹는 것을 말할 때, 같이 앉은 사람에게 물어볼 때. 잡아 둔 밥상이 없어도 됩니다.', 'Qué decir: para pedir, para explicar lo que no puedes comer y para preguntar algo en la mesa. Funciona con o sin comida reservada.', "Quoi dire : pour commander, pour expliquer ce que vous ne pouvez pas manger, et pour poser une question à table. Fonctionne avec ou sans repas réservé.", 'ماذا تقول: للطلب، ولشرح ما لا تستطيع أكله، ولتسأل شيئًا على المائدة. يعمل مع وجبة محجوزة أو بدونها.')}
+            '무슨 말을 할지 — 주문할 때, 못 먹는 것을 말할 때, 같이 앉은 사람에게 물어볼 때. 잡아 둔 밥상이 없어도 됩니다.', 'Qué decir: para pedir, para explicar lo que no puedes comer y para preguntar algo en la mesa. Funciona con o sin comida reservada.', "Quoi dire : pour commander, pour expliquer ce que vous ne pouvez pas manger, et pour poser une question à table. Fonctionne avec ou sans repas réservé.", 'ماذا تقول: للطلب، ولشرح ما لا تستطيع أكله، ولتسأل شيئًا على المائدة. يعمل مع وجبة محجوزة أو بدونها.', '该说什么：点菜时、说明自己不能吃什么时、还有想问桌上的人点什么时。有没有订到饭都能用。')}
         </span>
       </button>
 
@@ -553,7 +561,7 @@ export default function JournalPanel({
         <span className="journal-tool__kr" translate="no">도움이 필요하면</span>
         <span className="journal-tool__body">
           {say('112, 119, the 24-hour travel helpline, and how to reach the Eatple team. You can leave any meal at any point.',
-            '112, 119, 24시간 관광통역안내, 그리고 밥친구 팀에 연락하는 방법. 어느 식사든 언제라도 자리를 뜨셔도 됩니다.', '112, 119, la línea de ayuda al viajero 24 horas y cómo contactar con el equipo de Eatple. Puedes irte de cualquier comida en cualquier momento.', "112, 119, la ligne d'assistance aux voyageurs 24h/24, et comment joindre l'équipe Eatple. Vous pouvez quitter n'importe quel repas à n'importe quel moment.", '112 و119 وخط مساعدة المسافرين على مدار الساعة، وكيف تصل إلى فريق Eatple. تستطيع مغادرة أي وجبة في أي لحظة.')}
+            '112, 119, 24시간 관광통역안내, 그리고 밥친구 팀에 연락하는 방법. 어느 식사든 언제라도 자리를 뜨셔도 됩니다.', '112, 119, la línea de ayuda al viajero 24 horas y cómo contactar con el equipo de Eatple. Puedes irte de cualquier comida en cualquier momento.', "112, 119, la ligne d'assistance aux voyageurs 24h/24, et comment joindre l'équipe Eatple. Vous pouvez quitter n'importe quel repas à n'importe quel moment.", '112 و119 وخط مساعدة المسافرين على مدار الساعة، وكيف تصل إلى فريق Eatple. تستطيع مغادرة أي وجبة في أي لحظة.', '112、119、24小时旅游咨询热线，以及怎么联系 Eatple 团队。任何一顿饭，你随时都可以离席。')}
         </span>
       </button>
 
@@ -563,7 +571,7 @@ export default function JournalPanel({
       {upcomingTables.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>{say('Coming up', '다가오는 밥상', 'Próximamente', 'À venir', 'قادم')}</h3>
+            <h3>{say('Coming up', '다가오는 밥상', 'Próximamente', 'À venir', 'قادم', '即将到来')}</h3>
             <span className="journal-badge-count">{upcomingTables.length}</span>
           </div>
           <div className="upcoming-list">
@@ -576,15 +584,15 @@ export default function JournalPanel({
                   <div className="upcoming-row__body">
                     <span className="upcoming-row__dish">
                       {menu.name}
-                      {t.hosted && <span className="upcoming-row__badge">{say('you host', '내가 호스트', 'eres anfitrión', 'vous êtes hôte', 'أنت المضيف')}</span>}
+                      {t.hosted && <span className="upcoming-row__badge">{say('you host', '내가 호스트', 'eres anfitrión', 'vous êtes hôte', 'أنت المضيف', '你是主人')}</span>}
                       {/* A seat you asked for is not a seat you have. Said
                           on the row itself, because the date and place sit
                           right beneath it and read as a plan either way. */}
                       {t.myRequest && isPending(t.myRequest) && !hasLapsed(t.myRequest, t) && (
-                        <span className="upcoming-row__pending">{say('waiting on the host', '호스트 응답 대기', 'esperando al anfitrión', "en attente de l'hôte", 'في انتظار المضيف')}</span>
+                        <span className="upcoming-row__pending">{say('waiting on the host', '호스트 응답 대기', 'esperando al anfitrión', "en attente de l'hôte", 'في انتظار المضيف', '等主人回应')}</span>
                       )}
                       {t.myRequest && hasLapsed(t.myRequest, t) && (
-                        <span className="upcoming-row__lapsed">{say('no answer — seat released', '응답 없음 — 자리 풀림', 'sin respuesta: sitio liberado', 'sans réponse : place libérée', 'بلا ردّ: أُفرج عن المقعد')}</span>
+                        <span className="upcoming-row__lapsed">{say('no answer — seat released', '응답 없음 — 자리 풀림', 'sin respuesta: sitio liberado', 'sans réponse : place libérée', 'بلا ردّ: أُفرج عن المقعد', '没有回应：位子已放开')}</span>
                       )}
                       {t.waiting > 0 && !isCancelled(t) && (
                         <span className="upcoming-row__pending">
@@ -596,7 +604,7 @@ export default function JournalPanel({
                           deleting. A line that disappears tells nobody
                           anything; this one is the only warning there is. */}
                       {isCancelled(t) && (
-                        <span className="upcoming-row__cancelled">{say('called off — do not go', '취소됨 — 가지 마세요', 'cancelada: no vayas', "annulée : n'y allez pas", 'أُلغيت: لا تذهب')}</span>
+                        <span className="upcoming-row__cancelled">{say('called off — do not go', '취소됨 — 가지 마세요', 'cancelada: no vayas', "annulée : n'y allez pas", 'أُلغيت: لا تذهب', '已取消：别去了')}</span>
                       )}
                     </span>
                     <span className="upcoming-row__when">
@@ -617,7 +625,7 @@ export default function JournalPanel({
       {days.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>{say('Your record', '내 기록', 'Tu registro', 'Votre registre', 'سجلّك')}</h3>
+            <h3>{say('Your record', '내 기록', 'Tu registro', 'Votre registre', 'سجلّك', '你的记录')}</h3>
             <span className="journal-badge-count">{recordCount} moments</span>
           </div>
           <div className="record">
@@ -678,15 +686,16 @@ export default function JournalPanel({
               'Esto se llena solo. Pide sitio en una mesa, o recorre una cultura leyendo — hagas lo que hagas aparece aquí, con la fecha en que pasó.',
               "Cela se remplit tout seul. Demandez une place à une table, ou parcourez une culture en lisant — quoi que vous fassiez, cela arrive ici, avec la date.",
               'يمتلئ هذا من تلقاء نفسه. اطلب مقعدًا على مائدة، أو اقرأ ثقافة من أوّلها إلى آخرها — ومهما فعلت فإنه يصل إلى هنا، ومعه تاريخ حدوثه.',
+              '这里会自己填满。申请一张饭桌的位子，或者把一个文化读完——不管你做什么，它都会带着发生的日期落到这儿。',
             )}
           </p>
           {onNavigate && (
             <div className="journal-empty__ways">
               <button className="journal-empty__cta" translate="no" onClick={() => onNavigate('match')}>
-                {say('밥상 찾기 · Find a table', '밥상 찾기', 'Buscar una mesa', 'Trouver une table', 'ابحث عن مائدة')}
+                {say('밥상 찾기 · Find a table', '밥상 찾기', 'Buscar una mesa', 'Trouver une table', 'ابحث عن مائدة', '找一张饭桌')}
               </button>
               <button className="journal-empty__ask" translate="no" onClick={() => onNavigate('home')}>
-                {say('문화 읽기 · Read a culture', '문화 읽기', 'Leer una cultura', 'Lire une culture', 'اقرأ ثقافة')}
+                {say('문화 읽기 · Read a culture', '문화 읽기', 'Leer una cultura', 'Lire une culture', 'اقرأ ثقافة', '读一个文化')}
               </button>
             </div>
           )}
@@ -698,24 +707,24 @@ export default function JournalPanel({
           statistic, and a wishlist is not an achievement. */}
       <div className="journal-section passport-summary">
         <div className="journal-section-header">
-          <h3>{say('This trip so far', '이번 여행, 지금까지', 'Este viaje hasta ahora', "Ce voyage jusqu'ici", 'هذه الرحلة حتى الآن')}</h3>
+          <h3>{say('This trip so far', '이번 여행, 지금까지', 'Este viaje hasta ahora', "Ce voyage jusqu'ici", 'هذه الرحلة حتى الآن', '这趟旅行到现在')}</h3>
         </div>
         <div className="passport-stats">
           <div className="stat-box">
             <span className="stat-num">{eaten.length}</span>
-            <span className="stat-label">{say('밥상 · tables', '밥상', 'mesas', 'tables', 'موائد')}</span>
+            <span className="stat-label">{say('밥상 · tables', '밥상', 'mesas', 'tables', 'موائد', '饭桌')}</span>
           </div>
           <div className="stat-box">
             <span className="stat-num">{metPeople.length}</span>
-            <span className="stat-label">{say('사람 · met', '사람', 'personas', 'rencontres', 'لقاءات')}</span>
+            <span className="stat-label">{say('사람 · met', '사람', 'personas', 'rencontres', 'لقاءات', '认识的人')}</span>
           </div>
           <div className="stat-box">
             <span className="stat-num">{journey.experienceCount}</span>
-            <span className="stat-label">{say('문화 · done', '문화', 'culturas', 'cultures', 'ثقافات')}</span>
+            <span className="stat-label">{say('문화 · done', '문화', 'culturas', 'cultures', 'ثقافات', '文化')}</span>
           </div>
           <div className="stat-box">
             <span className="stat-num">{journey.foodCount}</span>
-            <span className="stat-label">{say('장소 · visited', '장소', 'sitios', 'lieux', 'أماكن')}</span>
+            <span className="stat-label">{say('장소 · visited', '장소', 'sitios', 'lieux', 'أماكن', '地点')}</span>
           </div>
         </div>
       </div>
@@ -729,7 +738,7 @@ export default function JournalPanel({
       {savedList.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>{say('저장한 곳 · Saved places', '저장한 곳', 'Sitios guardados', 'Lieux enregistrés', 'الأماكن المحفوظة')}</h3>
+            <h3>{say('저장한 곳 · Saved places', '저장한 곳', 'Sitios guardados', 'Lieux enregistrés', 'الأماكن المحفوظة', '保存的地点')}</h3>
           </div>
           <p className="journal-settings__hint">
             {savedList.length}곳을 패스포트에 저장했어요 · Saved from a place page. Tap one to
@@ -756,7 +765,7 @@ export default function JournalPanel({
 
       <div className="journal-section">
         <div className="journal-section-header">
-          <h3>{say('Worth doing', '해볼 만한 것', 'Merece la pena', 'À faire', 'يستحقّ الفعل')}</h3>
+          <h3>{say('Worth doing', '해볼 만한 것', 'Merece la pena', 'À faire', 'يستحقّ الفعل', '值得做的')}</h3>
           <span className="journal-badge-count">{goalsDone}/{goals.length}</span>
         </div>
         <ul className="goal-list">
@@ -764,11 +773,11 @@ export default function JournalPanel({
             <li key={g.id} className={`goal${g.done ? ' is-done' : ''}`}>
               <span className="goal__mark" aria-hidden="true">{g.done ? '✓' : ''}</span>
               <span className="goal__body">
-                <span className="goal__name">{say(g.name, g.nameKo, g.nameEs, g.nameFr, g.nameAr)}</span>
+                <span className="goal__name">{say(g.name, g.nameKo, g.nameEs, g.nameFr, g.nameAr, g.nameZh)}</span>
                 <span className="goal__hint">
                   {g.done
-                    ? say('Done.', '완료.', 'Hecho.', 'Fait.', 'تمّ.')
-                    : `${say(g.hint, g.hintKo, g.hintEs, g.hintFr, g.hintAr)} ${g.current}/${g.target}`}
+                    ? say('Done.', '완료.', 'Hecho.', 'Fait.', 'تمّ.', '完成。')
+                    : `${say(g.hint, g.hintKo, g.hintEs, g.hintFr, g.hintAr, g.hintZh)} ${g.current}/${g.target}`}
                 </span>
               </span>
             </li>
@@ -779,7 +788,7 @@ export default function JournalPanel({
       {metPeople.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>{say('People Met', '만난 사람', 'Personas conocidas', 'Personnes rencontrées', 'من قابلت')}</h3>
+            <h3>{say('People Met', '만난 사람', 'Personas conocidas', 'Personnes rencontrées', 'من قابلت', '认识的人')}</h3>
           </div>
           <div className="companion-list">
             {metPeople.map(p => (
@@ -808,7 +817,7 @@ export default function JournalPanel({
       {visitedList.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>{say('Visited Places', '가본 곳', 'Sitios visitados', 'Lieux visités', 'أماكن زرتها')}</h3>
+            <h3>{say('Visited Places', '가본 곳', 'Sitios visitados', 'Lieux visités', 'أماكن زرتها', '去过的地方')}</h3>
           </div>
           <div className="journal-grid">
             {visitedList.map(({ place, visitedAt }) => (
@@ -840,7 +849,7 @@ export default function JournalPanel({
       {walkedThemes.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>{say('Cultures you walked', '걸어본 문화', 'Culturas recorridas', 'Cultures parcourues', 'ثقافات مشيتها')}</h3>
+            <h3>{say('Cultures you walked', '걸어본 문화', 'Culturas recorridas', 'Cultures parcourues', 'ثقافات مشيتها', '走过的文化')}</h3>
             <span className="journal-badge-count">{walkedThemes.length}</span>
           </div>
           <div className="walked-list">
@@ -873,7 +882,7 @@ export default function JournalPanel({
       {blocks.length > 0 && (
         <div className="journal-section">
           <div className="journal-section-header">
-            <h3>{say('Blocked', '차단됨', 'Bloqueado', 'Bloqué', 'محظور')}</h3>
+            <h3>{say('Blocked', '차단됨', 'Bloqueado', 'Bloqué', 'محظور', '已拉黑')}</h3>
             <span className="journal-badge-count">{blocks.length}</span>
           </div>
           <ul className="blocked-list">
@@ -881,7 +890,7 @@ export default function JournalPanel({
               <li key={b.blockedId} className="blocked-row">
                 <span className="blocked-row__name">{b.blockedName || 'Someone'}</span>
                 <button className="blocked-row__undo" onClick={() => unblock(b.blockedId)}>
-                  {say('Unblock', '차단 해제', 'Desbloquear', 'Débloquer', 'إلغاء الحظر')}
+                  {say('Unblock', '차단 해제', 'Desbloquear', 'Débloquer', 'إلغاء الحظر', '解除拉黑')}
                 </button>
               </li>
             ))}

@@ -23,7 +23,7 @@ export default function CulturalRoute({ place, onOpenRestaurant, onExploreZone }
         <span className="route-step__dot" aria-hidden="true" />
         <div className="route-step__body">
           <span className="route-step__label">{place.name.split('(')[0].trim()}</span>
-          <span className="route-step__note">{say('You are here', '지금 여기', 'Estás aquí', 'Vous êtes ici', 'أنت هنا')}</span>
+          <span className="route-step__note">{say('You are here', '지금 여기', 'Estás aquí', 'Vous êtes ici', 'أنت هنا', '你在这儿')}</span>
         </div>
       </li>
       {steps.map((step, i) => (
@@ -33,10 +33,10 @@ export default function CulturalRoute({ place, onOpenRestaurant, onExploreZone }
             <span className="route-step__label">
               {step.place
                 ? step.place.name.split('(')[0].trim()
-                : say(step.label, step.labelKo, step.labelEs, step.labelFr, step.labelAr)}
+                : say(step.label, step.labelKo, step.labelEs, step.labelFr, step.labelAr, step.labelZh)}
               <ChevronRightIcon size={14} />
             </span>
-            <span className="route-step__note">{say(step.note, step.noteKo, step.noteEs, step.noteFr, step.noteAr)}</span>
+            <span className="route-step__note">{say(step.note, step.noteKo, step.noteEs, step.noteFr, step.noteAr, step.noteZh)}</span>
           </button>
         </li>
       ))}

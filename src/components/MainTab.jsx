@@ -35,10 +35,10 @@ import { useText } from './localeText.js';
 // carries, so an English reader gets something they can say out loud rather
 // than a shape they cannot.
 const HERO_BLOBS = [
-  { word: '삼겹살', roman: 'Samgyeopsal', tone: 'b-orange', tag: '2인분부터', tagEn: 'From two servings', tagEs: 'Desde dos raciones', tagFr: 'À partir de deux parts', tagAr: 'من حصتين فأكثر' },
-  { word: '감자탕', roman: 'Gamjatang', tone: 'b-green', tag: '냄비째 나옴', tagEn: 'Comes by the pot', tagEs: 'Llega en olla', tagFr: 'Servi à la marmite', tagAr: 'يأتي بالقِدر' },
-  { word: '보쌈', roman: 'Bossam', tone: 'b-brass', tag: '호스트가 안내', tagEn: 'Your host explains', tagEs: 'El anfitrión te guía', tagFr: "L'hôte vous explique", tagAr: 'المضيف يشرح لك' },
-  { word: '족발', roman: 'Jokbal', tone: 'b-pine', tag: '앱 결제 없음', tagEn: 'No in-app payment', tagEs: 'Sin pagos en la app', tagFr: "Aucun paiement dans l'app", tagAr: 'لا دفع في التطبيق' },
+  { word: '삼겹살', roman: 'Samgyeopsal', tone: 'b-orange', tag: '2인분부터', tagEn: 'From two servings', tagEs: 'Desde dos raciones', tagFr: 'À partir de deux parts', tagAr: 'من حصتين فأكثر', tagZh: '两人份起' },
+  { word: '감자탕', roman: 'Gamjatang', tone: 'b-green', tag: '냄비째 나옴', tagEn: 'Comes by the pot', tagEs: 'Llega en olla', tagFr: 'Servi à la marmite', tagAr: 'يأتي بالقِدر', tagZh: '整锅上桌' },
+  { word: '보쌈', roman: 'Bossam', tone: 'b-brass', tag: '호스트가 안내', tagEn: 'Your host explains', tagEs: 'El anfitrión te guía', tagFr: "L'hôte vous explique", tagAr: 'المضيف يشرح لك', tagZh: '主人带你' },
+  { word: '족발', roman: 'Jokbal', tone: 'b-pine', tag: '앱 결제 없음', tagEn: 'No in-app payment', tagEs: 'Sin pagos en la app', tagFr: "Aucun paiement dans l'app", tagAr: 'لا دفع في التطبيق', tagZh: '应用内不收钱' },
 ];
 
 // Tile accents, cycled through the dish shelf.
@@ -125,7 +125,7 @@ export default function MainTab({
   return (
     <section
       className={`main-tab${stickyShown ? ' main-tab--sticky' : ''}`}
-      aria-label={say('Eatple home', '밥친구 메인', 'Inicio de Eatple', "Accueil d'Eatple", 'الصفحة الرئيسية لـ Eatple')}
+      aria-label={say('Eatple home', '밥친구 메인', 'Inicio de Eatple', "Accueil d'Eatple", 'الصفحة الرئيسية لـ Eatple', 'Eatple 首页')}
     >
 
       {/* ---- Hero. Meetup's phone and desktop heroes are different
@@ -161,6 +161,7 @@ export default function MainTab({
               <>Hay platos<br />que no se piden<br />para uno.</>,
               <>Certains plats<br />ne se commandent pas<br />pour une personne.</>,
               <>بعض الأطباق<br />لا تُطلَب<br />لشخص واحد.</>,
+              <>有些菜<br />一个人<br />是点不了的。</>,
             )}
           </h1>
           {/* Prose gets a line per language rather than one line carrying
@@ -178,6 +179,7 @@ export default function MainTab({
               'El samgyeopsal empieza en dos raciones y el gamjatang llega en olla. Eatple te encuentra la mesa — y a la gente que ya va.',
               "Le samgyeopsal commence à deux parts et le gamjatang arrive à la marmite. Eatple vous trouve la table — et les gens qui y vont déjà.",
               'السامغيوبسال يبدأ من حصتين، والغامجاتانغ يأتي بالقِدر. يجد لك Eatple المائدة — ومن هم ذاهبون إليها أصلًا.',
+              '五花肉从两人份起，土豆汤是整锅上的。Eatple 替你找到那张饭桌——还有已经要去的人。',
             )}
           </p>
           {/* The middot pairs are Korean-and-English, so a Spanish screen
@@ -185,10 +187,10 @@ export default function MainTab({
               journey — see the tables, open one, join — so they are worth
               the explicit third string rather than a fallback. */}
           <button className="main-hero__cta" translate="no" onClick={() => onNavigate('match')}>
-            {say('이번 주 밥상 보기 · See this week\u2019s tables', '이번 주 밥상 보기', 'Ver las mesas de esta semana', 'Voir les tables de cette semaine', 'انظر موائد هذا الأسبوع')}
+            {say('이번 주 밥상 보기 · See this week\u2019s tables', '이번 주 밥상 보기', 'Ver las mesas de esta semana', 'Voir les tables de cette semaine', 'انظر موائد هذا الأسبوع', '看这周的饭桌')}
           </button>
           <button className="main-hero__alt" translate="no" onClick={onCreateTable}>
-            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة')} <ChevronRightIcon size={14} />
+            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌')} <ChevronRightIcon size={14} />
           </button>
         </div>
 
@@ -218,7 +220,7 @@ export default function MainTab({
                   )}
                 <span className="main-blob__tag">
                   <span className="main-blob__tag-kr" translate="no">{photo?.label ?? b.tag}</span>
-                  <span className="l-en-only">{say(b.tagEn, null, b.tagEs, b.tagFr, b.tagAr)}</span>
+                  <span className="l-en-only">{say(b.tagEn, null, b.tagEs, b.tagFr, b.tagAr, b.tagZh)}</span>
                 </span>
               </button>
             );
@@ -272,10 +274,10 @@ export default function MainTab({
         <h2 className="main-band__title">
           <span className="main-band__title-kr" translate="no">요리 살펴보기</span>
           <span className="main-band__title-en">
-            {say('The dishes this app is about', null, 'Los platos de los que trata esta app', 'Les plats dont parle cette application', 'الأطباق التي يتحدّث عنها هذا التطبيق')}
+            {say('The dishes this app is about', null, 'Los platos de los que trata esta app', 'Les plats dont parle cette application', 'الأطباق التي يتحدّث عنها هذا التطبيق', '这个应用讲的那些菜')}
           </span>
         </h2>
-        <div className="main-dishes__row" role="group" aria-label={say('Read about a dish', '요리 읽어보기', 'Leer sobre un plato', 'Lire sur un plat', 'اقرأ عن طبق')}>
+        <div className="main-dishes__row" role="group" aria-label={say('Read about a dish', '요리 읽어보기', 'Leer sobre un plato', 'Lire sur un plat', 'اقرأ عن طبق', '读一道菜')}>
           {menus.map((m, i) => (
             <button key={m.id} className={`main-dish ${TILE_TONES[i % TILE_TONES.length]}`} onClick={() => setOpenDish(m)}>
               <span className="main-dish__arrow" aria-hidden="true">↗</span>
@@ -291,7 +293,7 @@ export default function MainTab({
         <h2 className="main-band__title">
           <span className="main-band__title-kr" translate="no">밥친구가 이루어지는 방식</span>
           <span className="main-band__title-en">
-            {say('How a table happens', null, 'Cómo nace una mesa', 'Comment naît une table', 'كيف تنشأ مائدة')}
+            {say('How a table happens', null, 'Cómo nace una mesa', 'Comment naît une table', 'كيف تنشأ مائدة', '一张饭桌是怎么成的')}
           </span>
         </h2>
         <div className="main-zig">
@@ -299,7 +301,7 @@ export default function MainTab({
             <div key={s.id} className={`main-zig__step main-zig__step--${i}`}>
               <span className="main-zig__num" aria-hidden="true">{i + 1}</span>
               <span className="main-zig__kr" translate="no">{s.kr}</span>
-              <span className="main-zig__en">{say(s.en, null, s.es, s.fr, s.ar)}</span>
+              <span className="main-zig__en">{say(s.en, null, s.es, s.fr, s.ar, s.zh)}</span>
             </div>
           ))}
           <svg className="main-zig__arrow main-zig__arrow--0" viewBox="0 0 160 80" fill="none" aria-hidden="true">
@@ -319,7 +321,7 @@ export default function MainTab({
             markup has to do it. */}
         <p className="main-how__why">
           <strong className="main-how__why-kr" translate="no">{HOW_WHY.kr}</strong>
-          <span className="main-how__why-en">{say(HOW_WHY.en, null, HOW_WHY.es, HOW_WHY.fr, HOW_WHY.ar)}</span>
+          <span className="main-how__why-en">{say(HOW_WHY.en, null, HOW_WHY.es, HOW_WHY.fr, HOW_WHY.ar, HOW_WHY.zh)}</span>
         </p>
       </div>
 
@@ -330,7 +332,7 @@ export default function MainTab({
             <span className="main-join__dot main-join__dot--a" aria-hidden="true" translate="no">밥</span>
             <span className="main-join__dot main-join__dot--b" aria-hidden="true" translate="no">상</span>
             <h2 className="main-join__title main-join__title-kr" translate="no">밥친구 가입하기</h2>
-            <h2 className="main-join__title l-en-only">{say('Join Eatple', null, 'Únete a Eatple', 'Rejoindre Eatple', 'انضمّ إلى Eatple')}</h2>
+            <h2 className="main-join__title l-en-only">{say('Join Eatple', null, 'Únete a Eatple', 'Rejoindre Eatple', 'انضمّ إلى Eatple', '加入 Eatple')}</h2>
             <p className="main-join__body main-join__body-kr" translate="no">
               둘러보기는 계정 없이도 됩니다 — 요리, 문화, 장소 전부요.
               계정은 자리를 잡을 때 필요하고, 가입도 무료입니다.
@@ -342,10 +344,11 @@ export default function MainTab({
                 'Mirar es gratis — los platos, la cultura, los sitios, todo. La cuenta es para el sitio en la mesa, y registrarse también es gratis.',
                 "Parcourir est gratuit — les plats, la culture, les adresses, tout. Le compte sert à avoir la place, et s'inscrire est gratuit aussi.",
                 'التصفّح مجاني — الأطباق والثقافة والأماكن، كلّها. والحساب إنما هو للمقعد، والتسجيل مجاني أيضًا.',
+                '看是免费的——菜、文化、地点，全都是。账号是为了那个位子，而注册也免费。',
               )}
             </p>
             <button className="main-join__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-              {say('무료로 가입하기 · Join free', '무료로 가입하기', 'Únete gratis', 'Rejoindre gratuitement', 'انضمّ مجانًا')}
+              {say('무료로 가입하기 · Join free', '무료로 가입하기', 'Únete gratis', 'Rejoindre gratuitement', 'انضمّ مجانًا', '免费加入')}
             </button>
           </div>
         </div>
@@ -355,7 +358,7 @@ export default function MainTab({
       <div className="main-band">
         <button className="main-culture" onClick={() => onNavigate('home')}>
           <span className="main-culture__kr" translate="no">문화</span>
-          <span className="main-culture__label l-en-only">{say('Culture', null, 'Cultura', 'Culture', 'ثقافة')}</span>
+          <span className="main-culture__label l-en-only">{say('Culture', null, 'Cultura', 'Culture', 'ثقافة', '文化')}</span>
           <span className="main-culture__body main-culture__body-kr" translate="no">
             한국이 어떻게 먹는지에 대한 일곱 가지 질문 — 계정 없이 전부 들어가
             볼 수 있어요.
@@ -367,6 +370,7 @@ export default function MainTab({
               'Siete preguntas sobre cómo come Corea — se entra gratis en todas, sin cuenta.',
               "Sept questions sur la façon dont la Corée mange — on entre gratuitement dans chacune, sans compte.",
               'سبعة أسئلة عن طريقة كوريا في الأكل — تدخل كلًّا منها مجانًا وبلا حساب.',
+              '关于韩国怎么吃的七个问题——每一个都免费进，也不用账号。',
             )}
           </span>
           <ChevronRightIcon size={16} />
@@ -382,33 +386,33 @@ export default function MainTab({
           <span className="main-footer__brand main-footer__brand-kr" translate="no">밥친구<span className="main-footer__brand-dot">.</span> 같이 먹는 플랫폼</span>
           <span className="main-footer__brand l-en-only">
             Eatple<span className="main-footer__brand-dot">.</span>{' '}
-            {say('a table you share', null, 'una mesa que se comparte', 'une table qui se partage', 'مائدة تُشارَك')}
+            {say('a table you share', null, 'una mesa que se comparte', 'une table qui se partage', 'مائدة تُشارَك', '一张分着吃的饭桌')}
           </span>
           <button className="main-footer__mastlink" translate="no" onClick={onCreateTable}>
-            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة')} →
+            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌')} →
           </button>
         </div>
         <div className="main-footer__cols">
           <div className="main-footer__col">
-            <h3 className="main-footer__head">{say('내 계정 · Account', '내 계정', 'Mi cuenta', 'Mon compte', 'حسابي')}</h3>
+            <h3 className="main-footer__head">{say('내 계정 · Account', '내 계정', 'Mi cuenta', 'Mon compte', 'حسابي', '我的账号')}</h3>
             {member ? (
-              <button className="main-footer__link" onClick={() => onNavigate('journal')}>{say('여권 · Passport', '여권', 'Pasaporte', 'Passeport', 'جواز السفر')}</button>
+              <button className="main-footer__link" onClick={() => onNavigate('journal')}>{say('여권 · Passport', '여권', 'Pasaporte', 'Passeport', 'جواز السفر', '护照')}</button>
             ) : (
               <>
-                <button className="main-footer__link" onClick={() => onOpenAuth?.('signup')}>{say('회원 가입 · Join', '회원 가입', 'Únete', 'Rejoindre', 'انضمّ')}</button>
-                <button className="main-footer__link" onClick={() => onOpenAuth?.('signin')}>{say('로그인 · Sign in', '로그인', 'Entrar', 'Se connecter', 'تسجيل الدخول')}</button>
+                <button className="main-footer__link" onClick={() => onOpenAuth?.('signup')}>{say('회원 가입 · Join', '회원 가입', 'Únete', 'Rejoindre', 'انضمّ', '注册')}</button>
+                <button className="main-footer__link" onClick={() => onOpenAuth?.('signin')}>{say('로그인 · Sign in', '로그인', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录')}</button>
               </>
             )}
-            <button className="main-footer__link" onClick={() => onNavigate('settings')}>{say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات')}</button>
+            <button className="main-footer__link" onClick={() => onNavigate('settings')}>{say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات', '设置')}</button>
           </div>
           <div className="main-footer__col">
-            <h3 className="main-footer__head">{say('살펴보기 · Browse', '살펴보기', 'Explorar', 'Parcourir', 'تصفّح')}</h3>
-            <button className="main-footer__link" onClick={() => onNavigate('match')}>{say('밥상 · Tables', '밥상', 'Mesas', 'Tables', 'موائد')}</button>
-            <button className="main-footer__link" onClick={() => onNavigate('places')}>{say('장소 · Places', '장소', 'Sitios', 'Lieux', 'أماكن')}</button>
-            <button className="main-footer__link" onClick={() => onNavigate('home')}>{say('문화 · Explore', '문화', 'Cultura', 'Culture', 'ثقافة')}</button>
+            <h3 className="main-footer__head">{say('살펴보기 · Browse', '살펴보기', 'Explorar', 'Parcourir', 'تصفّح', '逛一逛')}</h3>
+            <button className="main-footer__link" onClick={() => onNavigate('match')}>{say('밥상 · Tables', '밥상', 'Mesas', 'Tables', 'موائد', '饭桌')}</button>
+            <button className="main-footer__link" onClick={() => onNavigate('places')}>{say('장소 · Places', '장소', 'Sitios', 'Lieux', 'أماكن', '地点')}</button>
+            <button className="main-footer__link" onClick={() => onNavigate('home')}>{say('문화 · Explore', '문화', 'Cultura', 'Culture', 'ثقافة', '文化')}</button>
           </div>
           <div className="main-footer__col">
-            <h3 className="main-footer__head">{say('밥친구 · Team', '밥친구', 'Equipo', 'Équipe', 'الفريق')}</h3>
+            <h3 className="main-footer__head">{say('밥친구 · Team', '밥친구', 'Equipo', 'Équipe', 'الفريق', '团队')}</h3>
             <a className="main-footer__link" href="mailto:eatple0701@gmail.com">eatple0701@gmail.com</a>
             {/* The middot here separates a page from its status, not two
                 languages — "개인정보 처리방침 · 준비 중" is Korean on both
@@ -416,11 +420,11 @@ export default function MainTab({
                 sentence instead of a splitter guessing wrong. */}
             <span className="main-footer__soon main-footer__soon-kr" translate="no">개인정보 처리방침 · 준비 중</span>
             <span className="main-footer__soon l-en-only">
-              {say('Privacy policy · in progress', '개인정보 처리방침 · 준비 중', 'Política de privacidad · en preparación', 'Politique de confidentialité · en préparation', 'سياسة الخصوصية · قيد الإعداد')}
+              {say('Privacy policy · in progress', '개인정보 처리방침 · 준비 중', 'Política de privacidad · en preparación', 'Politique de confidentialité · en préparation', 'سياسة الخصوصية · قيد الإعداد', '隐私政策 · 准备中')}
             </span>
             <span className="main-footer__soon main-footer__soon-kr" translate="no">이용약관 · 준비 중</span>
             <span className="main-footer__soon l-en-only">
-              {say('Terms of use · in progress', '이용약관 · 준비 중', 'Términos de uso · en preparación', "Conditions d'utilisation · en préparation", 'شروط الاستخدام · قيد الإعداد')}
+              {say('Terms of use · in progress', '이용약관 · 준비 중', 'Términos de uso · en preparación', "Conditions d'utilisation · en préparation", 'شروط الاستخدام · قيد الإعداد', '使用条款 · 准备中')}
             </span>
           </div>
         </div>
@@ -429,7 +433,7 @@ export default function MainTab({
         </p>
         <p className="main-footer__base main-footer__base-en">
           {say('© 2026 Eatple — a digital public diplomacy pilot', null,
-            '© 2026 Eatple — un piloto de diplomacia pública digital', '© 2026 Eatple — un pilote de diplomatie publique numérique', '© 2026 Eatple — تجربة في الدبلوماسية العامة الرقمية')}
+            '© 2026 Eatple — un piloto de diplomacia pública digital', '© 2026 Eatple — un pilote de diplomatie publique numérique', '© 2026 Eatple — تجربة في الدبلوماسية العامة الرقمية', '© 2026 Eatple — 一个数字公共外交试点')}
         </p>
       </footer>
 
@@ -450,17 +454,17 @@ export default function MainTab({
               fresh visit, because the reason for it has not gone away. */}
           <button
             className="main-sticky__close"
-            aria-label={say('닫기 · Dismiss', '닫기', 'Descartar', 'Fermer', 'إغلاق')}
+            aria-label={say('닫기 · Dismiss', '닫기', 'Descartar', 'Fermer', 'إغلاق', '关闭')}
             onClick={() => setStickyClosed(true)}
           >
             <XIcon size={16} />
           </button>
           <p className="main-sticky__text" translate="no">
             {say('가입하고 이번 주 밥상에 앉아보세요 · Join and take a seat', '가입하고 이번 주 밥상에 앉아보세요',
-              'Únete y siéntate a una mesa esta semana', 'Rejoignez et prenez place à une table cette semaine', 'انضمّ وخذ مقعدًا على مائدة هذا الأسبوع')}
+              'Únete y siéntate a una mesa esta semana', 'Rejoignez et prenez place à une table cette semaine', 'انضمّ وخذ مقعدًا على مائدة هذا الأسبوع', '加入，这周就坐上一张饭桌')}
           </p>
           <button className="main-sticky__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-            {say('회원 가입 · Join free', '회원 가입', 'Únete gratis', 'Rejoindre gratuitement', 'انضمّ مجانًا')}
+            {say('회원 가입 · Join free', '회원 가입', 'Únete gratis', 'Rejoindre gratuitement', 'انضمّ مجانًا', '免费加入')}
           </button>
         </div>
       )}

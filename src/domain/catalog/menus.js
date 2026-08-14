@@ -91,6 +91,8 @@ export const menus = [
       "Poitrine de porc grillée",
     glossAr:
       "بطن خنزير مشوي",
+    glossZh:
+      "炭烤五花肉",
     nameKo: '삼겹살',
     romanization: 'sam-gyeop-sal',
     category: MENU_CATEGORY.GRILL,
@@ -106,6 +108,8 @@ export const menus = [
       "Presque tous les grills facturent la poitrine à partir de deux portions, et la viande cuit au milieu de la table plutôt qu'en cuisine : il faut quelqu'un pour la retourner pendant qu'un autre la coupe.",
     whySharedAr:
       "كل مشاوي تقريبًا تُسعّر بطن الخنزير ابتداءً من حصتين، واللحم يُطهى في وسط الطاولة لا في المطبخ — لا بد أن يقلّبه أحد بينما يقصّه آخر.",
+    whySharedZh:
+      "几乎每家烤肉店的五花肉都从两人份起卖，而且肉是在桌子中间烤的，不是在厨房里——总得有人翻面，有人拿剪刀剪。",
     // What the table actually does, for a traveller who has never sat at one.
     howItWorks:
       'Raw pork belly comes to a grill set into the table. You cook it yourself, cut it with scissors, then wrap a piece in lettuce with garlic, ssamjang and rice.',
@@ -117,6 +121,8 @@ export const menus = [
       "La poitrine arrive crue sur un gril encastré dans la table. Vous la cuisez vous-même, vous la coupez aux ciseaux, puis vous enroulez un morceau dans une feuille de laitue avec de l'ail, du ssamjang et du riz.",
     howItWorksAr:
       "يصل بطن الخنزير نيئًا إلى شواية مركّبة في الطاولة. تشويه بنفسك، وتقصّه بالمقص، ثم تلفّ قطعة في ورقة خس مع الثوم وصلصة السامجانغ والأرز.",
+    howItWorksZh:
+      "生五花肉端到嵌在桌上的烤盘上。你自己烤，用剪刀剪开，再夹一块放进生菜里，配上蒜片、包饭酱和米饭。",
     themeId: 'seoul-after-dark',
     culture:
       "The grill in the middle is a job, not a decoration: somebody turns the meat, somebody cuts it, and wrapping a piece in lettuce and handing it to the person beside you is a small act of care Koreans do without mentioning it. This is the first round of a 회식 — the after-work dinner that built most Korean working relationships.",
@@ -128,6 +134,8 @@ export const menus = [
       "Le gril au centre est une tâche, pas une décoration : quelqu'un retourne la viande, quelqu'un la coupe, et envelopper un morceau pour le tendre à son voisin est un petit geste d'attention que les Coréens font sans le dire. C'est le premier tour d'un 회식, le dîner d'après-travail sur lequel s'est bâtie une bonne part des relations professionnelles coréennes.",
     cultureAr:
       "الشواية في الوسط عمل لا زينة: أحدهم يقلّب اللحم، وآخر يقصّه، ولفّ قطعة في ورقة خس ومناولتها لمن بجانبك لفتة اعتناء صغيرة يفعلها الكوريون دون أن يسمّوها. هذه هي الجولة الأولى من 회식، عشاء ما بعد العمل الذي بُنيت عليه معظم علاقات العمل في كوريا.",
+    cultureZh:
+      "桌子中间那口烤盘是活儿，不是摆设：有人翻肉，有人剪肉，把一块肉包进生菜递给旁边的人，是韩国人做惯了却从不提起的小体贴。这是회식的第一轮——那种下班后的聚餐，韩国大多数同事关系都是在这上面建起来的。",
     contains: ['pork'],
     // 'the first round of a 회식 — the after-work dinner', in its culture note.
     eatenAt: ['evening'],
@@ -151,6 +159,8 @@ export const menus = [
       "Poulet sauté à table",
     glossAr:
       "دجاج يُقلى على الطاولة",
+    glossZh:
+      "在桌上现炒的鸡肉",
     nameKo: '닭갈비',
     romanization: 'dak-gal-bi',
     category: MENU_CATEGORY.GRILL,
@@ -165,6 +175,8 @@ export const menus = [
       "Il se fait sur une seule large plaque au centre de la table, et cette plaque n'existe pas en taille pour une personne.",
     whySharedAr:
       "يُقلى على صفيحة حديد عريضة واحدة في وسط الطاولة، والصفيحة لا تأتي بمقاس شخص واحد.",
+    whySharedZh:
+      "它在桌子中央一整块宽铁板上翻炒，而那块铁板没有一人份的尺寸。",
     howItWorks:
       'Marinated chicken, cabbage and rice cake are fried in front of you. When the meat is gone, rice is fried in what is left in the pan — that second course is the part regulars come for.',
     howItWorksKo:
@@ -175,6 +187,8 @@ export const menus = [
       "Poulet mariné, chou et pâte de riz sont sautés devant vous. Quand la viande a disparu, on fait revenir du riz dans ce qui reste : ce second service est ce pour quoi les habitués viennent.",
     howItWorksAr:
       "دجاج متبّل وملفوف وكعك الأرز يُقلى أمامك. وحين ينتهي اللحم، يُقلى الأرز فيما تبقّى في المقلاة — وهذا الطبق الثاني هو ما يعود من أجله المداومون.",
+    howItWorksZh:
+      "腌好的鸡肉、卷心菜和年糕在你面前下锅。肉吃完之后，用锅里剩下的料炒饭——常客真正冲着来的就是这第二道。",
     themeId: null,
     culture:
       "It comes from Chuncheon, where it started in the bars in the late 1960s and filled the back alleys through the 1970s — cheap enough by then that students called it 대학생갈비, student ribs. When the meat is gone the staff fry rice in what is left in the pan, and leaving before that second course is considered a waste of a good dinner.",
@@ -186,6 +200,8 @@ export const menus = [
       "Le plat vient de Chuncheon, né dans les bars à la fin des années 1960 et installé dans les ruelles au cours des années 1970. Il était alors assez bon marché pour que les étudiants l'appellent 대학생갈비, les côtes d'étudiant. Quand la viande est finie, on fait sauter du riz dans le reste de sauce, et partir avant ce second service passe pour du gâchis.",
     cultureAr:
       "أصله من تشونتشون، حيث بدأ في الحانات أواخر الستينيات وملأ الأزقة الخلفية طوال السبعينيات — وصار رخيصًا بما يكفي ليسمّيه الطلبة 대학생갈비، أضلاع الطلبة. حين ينتهي اللحم يقلي العاملون الأرز فيما تبقّى في المقلاة، والمغادرة قبل هذا الطبق الثاني تُعدّ تفريطًا في عشاء جيد.",
+    cultureZh:
+      "它出自春川，六十年代末从酒馆里起家，七十年代填满了后巷——那时便宜到学生管它叫대학생갈비，大学生排骨。肉吃完后店员会用锅里剩下的料炒饭，在这第二道之前离席，会被当成糟蹋了一顿好饭。",
     contains: ['chicken'],
     // 'a waste of a good dinner', in its own culture note.
     eatenAt: ['evening'],
@@ -209,6 +225,8 @@ export const menus = [
       "Ragoût d’échine de porc et de pommes de terre",
     glossAr:
       "يخنة عمود فقري خنزير وبطاطس",
+    glossZh:
+      "猪脊骨土豆汤",
     nameKo: '감자탕',
     romanization: 'gam-ja-tang',
     category: MENU_CATEGORY.STEW,
@@ -223,6 +241,8 @@ export const menus = [
       "La marmite pose sur un réchaud au milieu de la table et c'est le plus proche qui sert. Les maisons la vendent à la taille de marmite, et la petite reste pour deux.",
     whySharedAr:
       "يوضع القِدر على موقد في وسط الطاولة ويغرف منه أقرب الجالسين. تُدرج المحلات المقاس حسب حجم القِدر — والصغير يكفي شخصين.",
+    whySharedZh:
+      "锅坐在桌子中间的炉子上，谁离得近谁盛。店里按锅的大小标价——最小的一锅也是两个人的量。",
     howItWorks:
       'Pork spine simmered with potato and perilla leaf. You pull the meat off the bone with chopsticks; it is expected to be slow and messy.',
     howItWorksKo:
@@ -233,6 +253,8 @@ export const menus = [
       "Échine de porc longuement mijotée avec pommes de terre et feuilles de périlla. On détache la viande de l'os aux baguettes ; c'est censé être lent et salissant.",
     howItWorksAr:
       "عمود فقري خنزير يُطهى على نار هادئة مع البطاطس وورق البريلا. تنزع اللحم عن العظم بالعيدان؛ ومن المتوقّع أن يكون الأمر بطيئًا وفوضويًا.",
+    howItWorksZh:
+      "猪脊骨与土豆、紫苏叶同炖。你用筷子把肉从骨头上剔下来；这本来就该是慢的、有点狼狈的。",
     themeId: 'seoul-after-dark',
     culture:
       "Long a night-shift and market-worker meal, eaten late and slowly because the meat has to be worked off the bone by hand. It doubles as 해장 — the food Koreans eat the morning after drinking, which is its own recognised category here.",
@@ -244,6 +266,8 @@ export const menus = [
       "Longtemps le repas des équipes de nuit et des gens de marché, mangé tard et lentement parce qu'il faut détacher la viande à la main. C'est aussi un 해장, ce que les Coréens mangent le lendemain d'une soirée arrosée — une catégorie de plat reconnue comme telle ici.",
     cultureAr:
       "كان طويلًا طعام العاملين ليلًا وعمّال السوق، يُؤكل متأخرًا وببطء لأن اللحم يحتاج أن يُنزع عن العظم باليد. وهو أيضًا 해장 — ما يأكله الكوريون في صباح اليوم التالي للشرب، وهو صنف قائم بذاته هنا.",
+    cultureZh:
+      "长久以来它是夜班工人和市场伙计的饭，吃得晚也吃得慢，因为肉得靠手一点点剔下来。它同时也是해장——韩国人喝酒的第二天早上要吃的东西，在这里自成一类。",
     contains: ['pork'],
     // Both stated in its culture note: 'eaten late and slowly', and it
     // 'doubles as 해장 — the food Koreans eat the morning after drinking'.
@@ -268,6 +292,8 @@ export const menus = [
       "Ragoût de l’armée, saucisse et nouilles",
     glossAr:
       "يخنة الجيش بالنقانق والشعيرية",
+    glossZh:
+      "香肠泡面部队锅",
     nameKo: '부대찌개',
     romanization: 'bu-dae-jji-gae',
     category: MENU_CATEGORY.STEW,
@@ -282,6 +308,8 @@ export const menus = [
       "Il cuit à table dans une sauteuse peu profonde où tout le monde pioche directement, et il se commande au nombre de convives, pas au bol.",
     whySharedAr:
       "تُطهى على الطاولة في مقلاة ضحلة يأكل منها الجميع مباشرة، وتُطلب بعدد الأشخاص لا بالصحن.",
+    whySharedZh:
+      "在桌上一口浅锅里现煮，大家直接从锅里吃，而且按人数点，不按碗点。",
     howItWorks:
       'A stew built after the Korean War from what American bases had to spare — spam, sausage, baked beans — over a Korean broth. Instant noodles go in near the end.',
     howItWorksKo:
@@ -292,6 +320,8 @@ export const menus = [
       "Un ragoût monté après la guerre de Corée avec ce dont les bases américaines avaient de trop — spam, saucisses, haricots en conserve — sur un bouillon coréen. Les nouilles instantanées arrivent vers la fin.",
     howItWorksAr:
       "يخنة بُنيت بعد الحرب الكورية ممّا كان يفيض عن القواعد الأمريكية — سبام ونقانق وفاصولياء معلّبة — فوق مرق كوري. وتُضاف الشعيرية سريعة التحضير قرب النهاية.",
+    howItWorksZh:
+      "朝鲜战争后用美军基地富余的东西搭起来的一锅——午餐肉、香肠、焗豆——底下是韩式高汤。方便面在最后才下。",
     themeId: null,
     culture:
       "Built after the Korean War around Uijeongbu, from surplus the American bases had and Korean kitchens did not: spam, sausage, baked beans. A dish assembled out of scarcity became one the country now eats by choice, which is roughly the shape of post-war Korea in a single pan.",
@@ -303,6 +333,8 @@ export const menus = [
       "Né après la guerre de Corée à Uijeongbu, avec les surplus qu'avaient les bases américaines et que les cuisines coréennes n'avaient pas : spam, saucisses, haricots. Un plat assemblé dans la pénurie que le pays mange aujourd'hui par choix — soit à peu près la forme de la Corée d'après-guerre dans une seule sauteuse.",
     cultureAr:
       "بُنيت بعد الحرب الكورية حول أويجونغبو، من فائض كان لدى القواعد الأمريكية ولم يكن لدى المطابخ الكورية: سبام، نقانق، فاصولياء معلّبة. طبق جُمع من شحّ صار البلد يأكله اليوم عن اختيار، وهذا تقريبًا شكل كوريا بعد الحرب في مقلاة واحدة.",
+    cultureZh:
+      "它是朝鲜战争后在议政府一带搭起来的，用的是美军基地有而韩国厨房没有的东西：午餐肉、香肠、焗豆。一道从匮乏里拼出来的菜，如今整个国家主动去吃——这大致就是战后韩国的形状，装在一口锅里。",
     contains: ['pork', 'beef'],
     spice: 3,
     zones: ['Itaewon, Seoul', 'Uijeongbu'],
@@ -324,6 +356,8 @@ export const menus = [
       "Porc bouilli à envelopper dans du chou",
     glossAr:
       "لحم خنزير مسلوق تلفّه في الملفوف",
+    glossZh:
+      "水煮猪肉，用白菜叶包着吃",
     nameKo: '보쌈',
     romanization: 'bo-ssam',
     category: MENU_CATEGORY.PLATTER,
@@ -338,6 +372,8 @@ export const menus = [
       "Il arrive en un plat de porc tranché avec un tas de feuilles et un bol de kimchi pour que vous montiez vous-même. Le plus petit plat de la plupart des cartes nourrit deux personnes.",
     whySharedAr:
       "يصل في طبق واحد من شرائح لحم الخنزير مع كومة أوراق وصحن كيمتشي تبني منه. وأصغر طبق في معظم القوائم يكفي شخصين.",
+    whySharedZh:
+      "它上桌是一大盘切好的猪肉，配一摞菜叶和一碗泡菜让你自己搭。大多数菜单上最小的那盘也够两个人。",
     howItWorks:
       'Boiled pork belly, served cool, that you wrap yourself in napa cabbage with radish salad and salted shrimp.',
     howItWorksKo:
@@ -348,6 +384,8 @@ export const menus = [
       "Poitrine de porc bouillie, servie tiède, que vous enroulez vous-même dans du chou chinois avec une salade de radis et de la crevette salée.",
     howItWorksAr:
       "بطن خنزير مسلوق يُقدَّم باردًا، تلفّه بنفسك في ملفوف نابا مع سلطة الفجل والروبيان المملّح.",
+    howItWorksZh:
+      "水煮五花肉，放凉了上桌，你自己用大白菜叶包起来，加上萝卜丝和虾酱。",
     themeId: null,
     culture:
       "Traditionally eaten on 김장 day, when families gather to make a winter's worth of kimchi together — UNESCO lists that gathering as intangible cultural heritage. The pork is what the household eats standing up, wrapped in leaves, while the work is still going on.",
@@ -359,6 +397,8 @@ export const menus = [
       "Traditionnellement mangé le jour du 김장, quand les familles se réunissent pour préparer le kimchi de tout l'hiver — l'UNESCO inscrit ce rassemblement au patrimoine immatériel. Le porc est ce que la maisonnée mange debout, roulé dans une feuille, pendant que le travail continue.",
     cultureAr:
       "يُؤكل تقليديًا في يوم 김장، حين تجتمع العائلات لصنع كيمتشي شتاء كامل معًا — وتدرج اليونسكو هذا الاجتماع تراثًا ثقافيًا غير مادي. ولحم الخنزير هو ما يأكله البيت واقفًا، ملفوفًا في الأوراق، بينما العمل ما زال جاريًا.",
+    cultureZh:
+      "传统上它是김장那天吃的——一家人聚在一起腌够一冬天的泡菜，联合国教科文组织把这场聚会列为非物质文化遗产。而这盘猪肉，是活儿还没干完时，一家人站着用菜叶包着吃的东西。",
     contains: ['pork', 'shellfish'],
     spice: 1,
     zones: ['Jongno, Seoul', 'Mapo, Seoul'],
@@ -380,6 +420,8 @@ export const menus = [
       "Pied de porc braisé, en tranches",
     glossAr:
       "كوارع خنزير مطهوّة ومقطّعة",
+    glossZh:
+      "卤猪蹄，切片上桌",
     nameKo: '족발',
     romanization: 'jok-bal',
     category: MENU_CATEGORY.PLATTER,
@@ -394,6 +436,8 @@ export const menus = [
       "Il se vend au pied entier. Il n'y a pas de demi-portion, et un pied entier vient à bout d'une personne seule.",
     whySharedAr:
       "تُباع بالكارع كاملًا. لا يوجد نصف طلب، والكارع الكامل يغلب شخصًا واحدًا.",
+    whySharedZh:
+      "按整只猪蹄卖。没有半份，而一整只，一个人是吃不完的。",
     howItWorks:
       'Pig trotter braised in soy, cinnamon and ginger until the skin turns to gelatin, then sliced and eaten wrapped in leaves.',
     howItWorksKo:
@@ -404,6 +448,8 @@ export const menus = [
       "Pied de porc braisé à la sauce soja, à la cannelle et au gingembre jusqu'à ce que la peau devienne gélatine, puis tranché et mangé enroulé dans des feuilles.",
     howItWorksAr:
       "كارع خنزير يُطهى في الصويا والقرفة والزنجبيل حتى يصير الجلد جيلاتينًا، ثم يُقطَّع ويُؤكل ملفوفًا في الأوراق.",
+    howItWorksZh:
+      "猪蹄用酱油、桂皮和姜卤到皮变成胶质，然后切片，用菜叶包着吃。",
     themeId: 'seoul-after-dark',
     culture:
       "The Jangchung-dong alley that made it famous was built by families displaced by the Korean War. It is 야식 food — the late meal ordered to a home or an office after everything else has closed, and almost never eaten by one person.",
@@ -415,6 +461,8 @@ export const menus = [
       "La ruelle de Jangchung-dong qui l'a rendu célèbre a été bâtie par des familles déplacées par la guerre de Corée. C'est un plat de 야식 : le repas tardif qu'on fait livrer chez soi ou au bureau quand tout le reste a fermé, et presque jamais mangé seul.",
     cultureAr:
       "الزقاق في جانغتشونغ-دونغ الذي جعله مشهورًا بنته عائلات شرّدتها الحرب الكورية. وهو طعام 야식 — الوجبة المتأخرة التي تُطلب إلى بيت أو مكتب بعد أن يُغلق كل شيء آخر، ولا يأكلها شخص واحد إلا نادرًا.",
+    cultureZh:
+      "让它出名的奖忠洞那条巷子，是被朝鲜战争赶出家园的人们建起来的。它属于야식——别的都打烊之后，叫到家里或办公室的那顿夜宵，而且几乎从来不是一个人吃的。",
     contains: ['pork'],
     spice: 0,
     zones: ['Jangchung, Seoul', 'Gongdeok, Seoul'],
@@ -436,6 +484,8 @@ export const menus = [
       "Crabe cru mariné à la sauce soja",
     glossAr:
       "سلطعون نيء منقوع في صلصة الصويا",
+    glossZh:
+      "生蟹用酱油腌成",
     nameKo: '간장게장',
     romanization: 'gan-jang-ge-jang',
     category: MENU_CATEGORY.SET,
@@ -450,6 +500,8 @@ export const menus = [
       "Il se sert en menu, avec du riz et une série d'accompagnements, se facture au crabe et figure généralement à la carte à partir de deux personnes.",
     whySharedAr:
       "يُقدَّم طقمًا مع الأرز وفرشة من الأطباق الجانبية، ويُسعّر بالسلطعونة وعادةً يُدرج من شخصين فأكثر.",
+    whySharedZh:
+      "按套上桌，配米饭和一摞小菜，按只计价，通常从两人份起。",
     howItWorks:
       'Raw crab cured in soy sauce. You eat it with your hands, and the shell is meant to be filled with rice at the end — that last mouthful is the point of the dish.',
     howItWorksKo:
@@ -460,6 +512,8 @@ export const menus = [
       "Du crabe cru mariné dans la sauce soja. On le mange avec les doigts, et la carapace est faite pour être remplie de riz à la fin : cette dernière bouchée est tout le propos du plat.",
     howItWorksAr:
       "سلطعون نيء منقوع في صلصة الصويا. تأكله بيديك، ويُفترض أن يُملأ الصدف بالأرز في النهاية — تلك اللقمة الأخيرة هي مقصد الطبق.",
+    howItWorksZh:
+      "生蟹用酱油腌制。你用手吃，最后蟹壳是要拿来盛米饭的——那最后一口才是这道菜的意思所在。",
     themeId: null,
     culture:
       "Koreans call it 밥도둑, the rice thief, because the salt in it makes you eat more rice than you meant to. The last step is filling the empty shell with rice and mixing it in — the dish is built around that final mouthful rather than the crab itself.",
@@ -471,6 +525,8 @@ export const menus = [
       "Les Coréens l'appellent 밥도둑, le voleur de riz, parce que le sel vous en fait manger plus que prévu. La dernière étape consiste à remplir la carapace vide de riz et à mélanger : le plat est construit autour de cette bouchée finale plus que du crabe lui-même.",
     cultureAr:
       "يسمّيه الكوريون 밥도둑، لصّ الأرز، لأن ملحه يجعلك تأكل أرزًا أكثر ممّا نويت. والخطوة الأخيرة ملء الصدفة الفارغة بالأرز وخلطه فيها — فالطبق مبنيّ حول تلك اللقمة الأخيرة لا حول السلطعون نفسه.",
+    cultureZh:
+      "韩国人管它叫밥도둑，偷饭贼，因为那份咸让你不知不觉多吃了饭。最后一步是把米饭盛进空蟹壳里拌开——这道菜是围着那最后一口建起来的，而不是围着蟹本身。",
     contains: ['shellfish'],
     spice: 0,
     zones: ['Sinsa, Seoul', 'Mapo, Seoul'],
@@ -492,6 +548,8 @@ export const menus = [
       "Un repas coréen complet, servi d’un coup",
     glossAr:
       "مائدة كورية كاملة تصل دفعة واحدة",
+    glossZh:
+      "一整桌韩式套餐，一次上齐",
     nameKo: '한정식',
     romanization: 'han-jeong-sik',
     category: MENU_CATEGORY.SET,
@@ -506,6 +564,8 @@ export const menus = [
       "Un menu complet de plats à partager qui arrivent ensemble. La plupart des maisons ne réservent qu'à partir de deux, et beaucoup demandent un jour d'avance.",
     whySharedAr:
       "مائدة كاملة من أطباق مشتركة تخرج معًا. معظم البيوت تقبل الحجز لشخصين فأكثر، وكثير منها يطلبه قبل يوم.",
+    whySharedZh:
+      "一整套共享的菜一起端上来。多数店从两位起接，很多还要提前一天。",
     howItWorks:
       'A formal spread — soups, grilled fish, jeon, a dozen or more banchan — laid across the table at once rather than in courses. Everything in the middle is for everyone.',
     howItWorksKo:
@@ -516,6 +576,8 @@ export const menus = [
       "Une table dressée : soupes, poisson grillé, jeon, une bonne douzaine de banchan — le tout posé d'un coup plutôt qu'en services. Ce qui est au centre est à tout le monde.",
     howItWorksAr:
       "فرشة رسمية — شوربات، سمك مشوي، جيون، اثنا عشر طبقًا جانبيًا أو أكثر — تُبسط على الطاولة دفعة واحدة لا على مراحل. وكل ما في الوسط للجميع.",
+    howItWorksZh:
+      "一桌正式的排场——汤、烤鱼、煎饼、十几样甚至更多小菜——一次铺满桌面，而不是一道道上。中间的一切都是大家的。",
     themeId: null,
     culture:
       "It descends from the 반상, the formally counted Korean table: dishes were served in sets of three, five, seven or nine, and the number marked the household. Everything arrives at once rather than in courses, so nothing is anybody's alone.",
@@ -527,6 +589,8 @@ export const menus = [
       "Le repas descend du 반상, la table coréenne que l'on comptait formellement : les accompagnements se servaient par trois, cinq, sept ou neuf, et le nombre disait la maison. Tout arrive ensemble plutôt qu'en services, donc rien n'appartient à une seule personne.",
     cultureAr:
       "ينحدر من الـ반상، المائدة الكورية المعدودة رسميًا: كانت الأطباق تُقدَّم في أطقم من ثلاثة أو خمسة أو سبعة أو تسعة، والعدد يدلّ على البيت. يصل كل شيء دفعة واحدة لا على مراحل، فلا يكون شيء ملكًا لأحد وحده.",
+    cultureZh:
+      "它承自반상，那张按规矩计数的韩国餐桌：菜按三、五、七、九样成套上桌，数目标示着这户人家。所有东西一次上齐而不是分道，所以没有哪一样是谁一个人的。",
     // howItWorks two fields up names grilled fish. The record said this dish
     // contained nothing, so the app printed a description of fish and no
     // warning, on the same screen, to somebody who had said they avoid it.
@@ -555,6 +619,8 @@ export const menus = [
       "Riz, soupe et les accompagnements du jour",
     glossAr:
       "أرز وشوربة وأطباق اليوم الجانبية",
+    glossZh:
+      "米饭、汤，和当天的小菜",
     nameKo: '백반',
     romanization: 'baek-ban',
     category: MENU_CATEGORY.SET,
@@ -573,6 +639,8 @@ export const menus = [
       "Celui-là, vous pouvez le commander seul. S'il est ici, c'est que les banchan du centre se resservent pour la table et non pour l'assiette : à deux, la table double et rien ne se perd.",
     whySharedAr:
       "يمكنك طلب هذا وحدك. وهو هنا لأن الأطباق الجانبية في الوسط تُملأ للطاولة لا للصحن — فمع شخصين تتضاعف الفرشة ولا يُهدر شيء.",
+    whySharedZh:
+      "这一样你可以一个人点。它出现在这里，是因为中间那些小菜是按桌续的，不是按盘续的——两个人，铺开的量就翻一倍，也不会浪费。",
     howItWorks:
       'A home-style set: rice, soup, and whatever side dishes the kitchen made that morning. Often there is no menu — you sit down and it comes.',
     howItWorksKo:
@@ -583,6 +651,8 @@ export const menus = [
       "Un menu de maison : du riz, une soupe, et les accompagnements que la cuisine a préparés le matin même. Souvent il n'y a pas de carte — vous vous asseyez et ça arrive.",
     howItWorksAr:
       "طقم بيتيّ: أرز وشوربة وما صنعه المطبخ من أطباق جانبية ذلك الصباح. وغالبًا لا توجد قائمة — تجلس فيأتي.",
+    howItWorksZh:
+      "家常的一套：米饭、汤，还有厨房当天早上做了什么小菜就是什么。常常连菜单都没有——你坐下，它就来了。",
     themeId: null,
     culture:
       "The everyday table — 집밥, home food, served in shops that often have no menu at all. What arrives is what the kitchen made that morning, and refills of the side dishes are free and expected, which is why asking for more is a compliment rather than an imposition.",
@@ -594,6 +664,8 @@ export const menus = [
       "La table de tous les jours, 집밥, la cuisine de la maison, servie dans des adresses qui n'ont souvent aucune carte. Ce qui arrive est ce que la cuisine a fait ce matin-là, et les resservis d'accompagnements sont gratuits et prévus — demander en plus est donc un compliment, pas une gêne.",
     cultureAr:
       "مائدة كل يوم — 집밥، طعام البيت، يُقدَّم في محلات كثير منها بلا قائمة أصلًا. وما يصل هو ما صنعه المطبخ ذلك الصباح، وإعادة ملء الأطباق الجانبية مجانية ومتوقّعة، ولهذا فطلب المزيد مجاملة لا إثقال.",
+    cultureZh:
+      "这是日常的那张桌子——집밥，家里的饭，端在很多连菜单都没有的小店里。上来的就是厨房那天早上做的，小菜免费续、也理当续，所以再要一份是恭维而不是麻烦。",
     // Rice and soup are the dish; everything else is whatever the kitchen made
     // that morning, which this catalog says itself two fields up. There is no
     // honest ingredient list for a meal decided at dawn.
@@ -619,6 +691,8 @@ export const menus = [
       "Tripes grillées au charbon",
     glossAr:
       "أمعاء مشوية على الفحم",
+    glossZh:
+      "炭火烤肥肠",
     nameKo: '곱창',
     romanization: 'gop-chang',
     category: MENU_CATEGORY.GRILL,
@@ -633,6 +707,8 @@ export const menus = [
       "Facturé à la portion avec un minimum de deux presque partout, et grillé à table, où il faut le surveiller.",
     whySharedAr:
       "تُسعَّر بالحصة بحدّ أدنى حصتين في كل مكان تقريبًا، وتُشوى على الطاولة حيث تحتاج إلى من يراقبها.",
+    whySharedZh:
+      "按份计价，几乎处处都是两份起，而且在桌上烤，需要有人盯着。",
     howItWorks:
       'Beef or pork intestine grilled over charcoal until the fat inside renders. Regulars finish with fried rice in the same pan.',
     howItWorksKo:
@@ -643,6 +719,8 @@ export const menus = [
       "Tripes de bœuf ou de porc grillées au charbon jusqu'à ce que le gras intérieur fonde. Les habitués finissent par un riz sauté dans la même plaque.",
     howItWorksAr:
       "أمعاء بقر أو خنزير تُشوى على الفحم حتى يذوب الشحم في داخلها. والمداومون يُنهون بأرز مقليّ في المقلاة نفسها.",
+    howItWorksZh:
+      "牛或猪的肠子在炭火上烤到里面的油脂化开。常客最后会用同一口锅炒饭。",
     themeId: 'seoul-after-dark',
     culture:
       "Offal was poverty food within living memory and is now among the more expensive things on a Korean grill — a change most people eating it can remember happening. It is drinking food, cooked slowly, and the table it belongs to is one nobody is in a hurry to leave.",
@@ -654,6 +732,8 @@ export const menus = [
       "Les abats étaient une nourriture de pauvreté du vivant des gens d'aujourd'hui, et figurent désormais parmi les choses les plus chères d'un gril coréen — un basculement dont la plupart de ceux qui en mangent se souviennent. C'est un plat qui accompagne l'alcool, il se grille lentement, et c'est une table dont personne n'est pressé de se lever.",
     cultureAr:
       "كانت الأحشاء طعام فقر في ذاكرة أحياء يرزقون، وصارت اليوم من أغلى ما على الشواية الكورية — تحوّل يذكر معظم من يأكلونها حدوثه. وهي طعام شرب، تُطهى ببطء، والطاولة التي تنتمي إليها طاولة لا يستعجل أحد مغادرتها.",
+    cultureZh:
+      "内脏在还活着的人的记忆里曾是穷人的吃食，如今是韩国烤肉里偏贵的一类——这个变化，多数正在吃它的人都亲眼见过。它是下酒的东西，烤得慢，而它所属的那张桌子，没人急着离开。",
     contains: ['beef', 'pork'],
     spice: 1,
     zones: ['Wangsimni, Seoul', 'Euljiro, Seoul'],

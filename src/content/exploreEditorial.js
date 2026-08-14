@@ -35,6 +35,7 @@ export const EDITORIAL = {
     questionEs: '¿Por qué un monje no deja nada en el plato?',
     questionFr: "Pourquoi un moine ne laisse-t-il rien dans son bol ?",
     questionAr: 'لماذا لا يترك الراهب شيئًا في قصعته؟',
+    questionZh: '僧人为什么碗里一点都不剩？',
     word: '사찰음식',
   },
   'street-food': {
@@ -43,6 +44,7 @@ export const EDITORIAL = {
     questionEs: '¿Qué come una ciudad antes de construir comedores?',
     questionFr: "Que mange une ville avant de bâtir des salles à manger ?",
     questionAr: 'ماذا تأكل مدينة قبل أن تبني قاعات طعام؟',
+    questionZh: '一座城市在盖起饭厅之前吃什么？',
     word: '시장',
   },
   'noodle-road': {
@@ -51,6 +53,7 @@ export const EDITORIAL = {
     questionEs: '¿Qué plato coreano solo es chino en el nombre?',
     questionFr: "Quel plat coréen n'est chinois que de nom ?",
     questionAr: 'أيّ طبق كوري ليس صينيًّا إلا في اسمه؟',
+    questionZh: '哪道韩国菜只有名字是中国的？',
     word: '짜장면',
   },
   'cafe-hopping': {
@@ -59,6 +62,7 @@ export const EDITORIAL = {
     questionEs: '¿Por qué nadie te pedirá que te vayas tras una sola taza?',
     questionFr: "Pourquoi personne ne vous demandera de partir après une seule tasse ?",
     questionAr: 'لماذا لن يطلب منك أحد أن ترحل بعد فنجان واحد؟',
+    questionZh: '为什么只点一杯也没人请你走？',
     word: '한 잔',
   },
   'seoul-after-dark': {
@@ -67,6 +71,7 @@ export const EDITORIAL = {
     questionEs: '¿Por qué la segunda ronda es otra conversación?',
     questionFr: "Pourquoi la deuxième tournée est-elle une autre conversation ?",
     questionAr: 'لماذا تكون الجولة الثانية حديثًا آخر؟',
+    questionZh: '为什么二次的谈话不一样？',
     word: '이차',
   },
   'busan-seafood': {
@@ -75,6 +80,7 @@ export const EDITORIAL = {
     questionEs: '¿Por qué se envuelve el pescado en vez de mojarlo?',
     questionFr: "Pourquoi enveloppe-t-on le poisson au lieu de le tremper ?",
     questionAr: 'لماذا يُلفّ السمك بدل أن يُغمس؟',
+    questionZh: '生鱼片为什么是包着吃，不是蘸着吃？',
     word: '자갈치',
   },
   'spring-picnic': {
@@ -83,6 +89,7 @@ export const EDITORIAL = {
     questionEs: '¿Qué hace un país con dos semanas de flor de cerezo?',
     questionFr: "Que fait un pays de deux semaines de cerisiers en fleur ?",
     questionAr: 'ماذا يفعل بلد بأسبوعين من أزهار الكرز؟',
+    questionZh: '一个国家拿两周的樱花做什么？',
     word: '벚꽃',
   },
 };

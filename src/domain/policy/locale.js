@@ -20,6 +20,17 @@
 // stylesheet was rewritten in logical properties so a margin that means
 // "before the text" follows the text instead of always sitting on the left.
 //
+// 简体中文 joined on 2026-08-14. Simplified rather than Traditional, and that
+// is a choice rather than a default: mainland visitors are the largest group
+// of Chinese-speaking travellers to Korea and Simplified is what they read.
+// Traditional is a different script, not a variant this file can derive — it
+// would be its own locale with its own strings, offered when somebody writes
+// them, on the same terms as every language here.
+//
+// Han characters are not Hangul, so isKorean() below does not match them and
+// the pair splitter is safe: a Chinese screen takes the English half of a
+// "한국어 · English" pair, exactly as Spanish, French and Arabic do.
+//
 // Español is here since 2026-08-12 because the words are. It arrived the way
 // Korean-only content did: a second string in the data for every article,
 // dish and card, picked by useText(). What it does not have is the pair
@@ -44,9 +55,10 @@ export const LOCALE = {
   ES: 'es',       // Solo español
   FR: 'fr',       // Français seulement
   AR: 'ar',       // العربية فقط
+  ZH: 'zh',       // 仅简体中文
 };
 
-export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR];
+export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR, LOCALE.ZH];
 
 export const isLocale = (l) => LOCALES.includes(l);
 
@@ -65,6 +77,7 @@ export const LOCALE_LABEL = {
   [LOCALE.ES]: { kr: '스페인어', en: 'Español' },
   [LOCALE.FR]: { kr: '프랑스어', en: 'Français' },
   [LOCALE.AR]: { kr: '아랍어', en: 'العربية' },
+  [LOCALE.ZH]: { kr: '중국어', en: '简体中文' },
 };
 
 /**
@@ -76,7 +89,7 @@ export const LOCALE_LABEL = {
  * splitter and the stylesheet agree on which locales are "English underneath"
  * instead of each deciding separately and drifting.
  */
-export const ENGLISH_FALLBACK = [LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR];
+export const ENGLISH_FALLBACK = [LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR, LOCALE.ZH];
 
 /**
  * Which way this language reads.
@@ -106,6 +119,7 @@ export const DATE_LOCALE = {
   // alternative, ar-SA, switches to the Hijri calendar and would print a date
   // that does not match the one on the restaurant's door.
   [LOCALE.AR]: 'ar-EG',
+  [LOCALE.ZH]: 'zh-CN',
 };
 export const dateLocale = (locale) => DATE_LOCALE[locale] ?? 'en-GB';
 export const fallsBackToEnglish = (l) => ENGLISH_FALLBACK.includes(l);

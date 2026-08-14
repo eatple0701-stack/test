@@ -17,12 +17,12 @@ import { useText } from './localeText.js';
 export default function SafetySheet({ onClose }) {
   const say = useText();
   return (
-    <div className="phrase-sheet" role="dialog" aria-label={say('Safety', '안전', 'Seguridad', 'Sécurité', 'الأمان')}>
+    <div className="phrase-sheet" role="dialog" aria-label={say('Safety', '안전', 'Seguridad', 'Sécurité', 'الأمان', '安全')}>
       <header className="sheet-page__head">
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
         </button>
-        <h1>{say('도움 · Getting help', '도움', 'Cómo pedir ayuda', "Obtenir de l'aide", 'طلب المساعدة')}</h1>
+        <h1>{say('도움 · Getting help', '도움', 'Cómo pedir ayuda', "Obtenir de l'aide", 'طلب المساعدة', '需要帮助时')}</h1>
       </header>
 
       {/* Above the emergency numbers, because most of what this screen is
@@ -40,15 +40,15 @@ export default function SafetySheet({ onClose }) {
       <div className="safety">
         <a className="safety__call" href="tel:112">
           <span className="safety__call-num">112</span>
-          <span className="safety__call-label">{say('Police', '경찰', 'Policía', 'Police', 'الشرطة')}</span>
+          <span className="safety__call-label">{say('Police', '경찰', 'Policía', 'Police', 'الشرطة', '警察')}</span>
         </a>
         <a className="safety__call" href="tel:119">
           <span className="safety__call-num">119</span>
-          <span className="safety__call-label">{say('Fire · ambulance', '화재 · 구급', 'Bomberos y ambulancia', 'Pompiers et ambulance', 'الإطفاء والإسعاف')}</span>
+          <span className="safety__call-label">{say('Fire · ambulance', '화재 · 구급', 'Bomberos y ambulancia', 'Pompiers et ambulance', 'الإطفاء والإسعاف', '火警与急救')}</span>
         </a>
         <a className="safety__call safety__call--wide" href="tel:1330">
           <span className="safety__call-num">1330</span>
-          <span className="safety__call-label">{say('Korea Travel Helpline · 24h, English', '관광통역안내 · 24시간', 'Línea de ayuda al viajero · 24 h, en inglés', 'Assistance aux voyageurs · 24 h, en anglais', 'مساعدة المسافرين · على مدار الساعة، بالإنجليزية')}</span>
+          <span className="safety__call-label">{say('Korea Travel Helpline · 24h, English', '관광통역안내 · 24시간', 'Línea de ayuda al viajero · 24 h, en inglés', 'Assistance aux voyageurs · 24 h, en anglais', 'مساعدة المسافرين · على مدار الساعة، بالإنجليزية', '旅游咨询热线 · 24小时，英语')}</span>
         </a>
       </div>
 
@@ -62,7 +62,7 @@ export default function SafetySheet({ onClose }) {
 
         {reportingConfigured() ? (
           <a className="safety__report" href={REPORT_CHANNEL.href} target="_blank" rel="noreferrer">
-            {say('Report to ', '신고 보내기: ', 'Informar a ', 'Signaler à ', 'أبلِغ ')}{REPORT_CHANNEL.label}
+            {say('Report to ', '신고 보내기: ', 'Informar a ', 'Signaler à ', 'أبلِغ ', '举报给 ')}{REPORT_CHANNEL.label}
           </a>
         ) : (
           /* Not a button. A report that goes nowhere is worse than none,
@@ -70,12 +70,12 @@ export default function SafetySheet({ onClose }) {
           <p className="safety__unwired">
             {say('In-app reporting is not connected yet. Until it is, tell the Eatple team directly — during the pilot somebody from the team is reachable at the meeting point.',
               '앱 내 신고는 아직 연결되지 않았습니다. 그때까지는 밥친구 팀에 직접 알려 주세요 — 파일럿 기간에는 만나는 자리에 팀 사람이 있습니다.',
-              'Los informes dentro de la app aún no están conectados. Hasta entonces, díselo directamente al equipo de Eatple: durante el piloto hay alguien del equipo localizable en el punto de encuentro.', "Le signalement dans l'application n'est pas encore branché. En attendant, dites-le directement à l'équipe Eatple : pendant le pilote, quelqu'un de l'équipe est joignable au point de rendez-vous.", 'الإبلاغ داخل التطبيق غير موصول بعد. وإلى أن يكون، أخبر فريق Eatple مباشرة: خلال التجربة يكون أحد أفراد الفريق قابلًا للوصول عند نقطة اللقاء.')}
+              'Los informes dentro de la app aún no están conectados. Hasta entonces, díselo directamente al equipo de Eatple: durante el piloto hay alguien del equipo localizable en el punto de encuentro.', "Le signalement dans l'application n'est pas encore branché. En attendant, dites-le directement à l'équipe Eatple : pendant le pilote, quelqu'un de l'équipe est joignable au point de rendez-vous.", 'الإبلاغ داخل التطبيق غير موصول بعد. وإلى أن يكون، أخبر فريق Eatple مباشرة: خلال التجربة يكون أحد أفراد الفريق قابلًا للوصول عند نقطة اللقاء.', '应用内举报还没有接通。在那之前，请直接告诉 Eatple 团队：试运行期间，会有团队成员在集合点联系得上。')}
           </p>
         )}
 
         <div className="safety__owed">
-          <p className="safety__owed-label">{say('Not built yet', '아직 준비 중', 'Todavía sin construir', 'Pas encore construit', 'لم يُبنَ بعد')}</p>
+          <p className="safety__owed-label">{say('Not built yet', '아직 준비 중', 'Todavía sin construir', 'Pas encore construit', 'لم يُبنَ بعد', '还没做')}</p>
           <ul>
             {NOT_YET_BUILT.map(item => <li key={item}>{item}</li>)}
           </ul>

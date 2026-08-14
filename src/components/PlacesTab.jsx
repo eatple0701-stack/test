@@ -11,7 +11,7 @@ import CultureCards from './CultureCards';
 import { CULTURE_CARDS } from '../content/cultureCards.js';
 import { ChevronRightIcon, MapPinIcon, SparkleIcon, CheckIcon } from './Icons';
 import { useText } from './localeText.js';
-import { ZONE_KO, ZONE_ES, ZONE_FR, ZONE_AR } from '../data/culture';
+import { ZONE_KO, ZONE_ES, ZONE_FR, ZONE_AR, ZONE_ZH } from '../data/culture';
 
 // The index: places, markets and neighbourhoods.
 //
@@ -40,7 +40,7 @@ const activePlaces = restaurants.filter(r => !isQuarantined(r));
 const placeName = (place, say) => {
   const roman = place.name.split('(')[0].trim();
   const inBrackets = place.name.match(/\(([^)]+)\)/)?.[1]?.trim();
-  return say(roman, inBrackets || roman, roman, roman, roman);
+  return say(roman, inBrackets || roman, roman, roman, roman, roman);
 };
 
 function dayOfYear(date) {
@@ -69,28 +69,28 @@ export default function PlacesTab({
       <header className="screen-head">
         <span className="screen-head__kr">둘러보기</span>
         <h1 className="screen-head__title">
-          {say('Places, markets and the city around them.', '식당과 시장, 그리고 그 주변의 도시.', 'Sitios, mercados y la ciudad alrededor.', 'Des adresses, des marchés et la ville autour.', 'أماكن وأسواق والمدينة من حولها.')}
+          {say('Places, markets and the city around them.', '식당과 시장, 그리고 그 주변의 도시.', 'Sitios, mercados y la ciudad alrededor.', 'Des adresses, des marchés et la ville autour.', 'أماكن وأسواق والمدينة من حولها.', '地点、市场，和它们周围的城市。')}
         </h1>
         <p className="screen-head__sub">
           {say(`${activePlaces.length} verified places, ${traditionalMarkets.length} markets.`,
             `확인된 장소 ${activePlaces.length}곳, 시장 ${traditionalMarkets.length}곳.`,
-            `${activePlaces.length} sitios verificados, ${traditionalMarkets.length} mercados.`, `${activePlaces.length} adresses vérifiées, ${traditionalMarkets.length} marchés.`, `${activePlaces.length} أماكن موثّقة، و${traditionalMarkets.length} أسواق.`)}
+            `${activePlaces.length} sitios verificados, ${traditionalMarkets.length} mercados.`, `${activePlaces.length} adresses vérifiées, ${traditionalMarkets.length} marchés.`, `${activePlaces.length} أماكن موثّقة، و${traditionalMarkets.length} أسواق.`, `${activePlaces.length} 处确认过的地点，${traditionalMarkets.length} 个市场。`)}
         </p>
       </header>
 
       <div className="home-section">
         <div className="home-section__header">
           <span className="panel-icon" aria-hidden="true"><SparkleIcon size={18} /></span>
-          <h2>{say('Today\u2019s Korean Experience', '오늘의 한국 경험', 'La experiencia coreana de hoy', "L'expérience coréenne du jour", 'التجربة الكورية اليوم')}</h2>
+          <h2>{say('Today\u2019s Korean Experience', '오늘의 한국 경험', 'La experiencia coreana de hoy', "L'expérience coréenne du jour", 'التجربة الكورية اليوم', '今天的韩国体验')}</h2>
         </div>
         <button className="spotlight-card" onClick={() => openStory(todaysPick)}>
           <PlaceImage place={todaysPick} variant="hero" className="spotlight-card__img" />
           <div className="spotlight-card__body">
-            <span className="gather-card__tag">{say(todaysPick.zone, ZONE_KO[todaysPick.zone], ZONE_ES[todaysPick.zone], ZONE_FR[todaysPick.zone], ZONE_AR[todaysPick.zone])}</span>
+            <span className="gather-card__tag">{say(todaysPick.zone, ZONE_KO[todaysPick.zone], ZONE_ES[todaysPick.zone], ZONE_FR[todaysPick.zone], ZONE_AR[todaysPick.zone], ZONE_ZH[todaysPick.zone])}</span>
             <h3>{placeName(todaysPick, say)}</h3>
-            <p className="spotlight-card__quote">&ldquo;{say(todaysPick.vibe, todaysPick.vibeKo, todaysPick.vibeEs, todaysPick.vibeFr, todaysPick.vibeAr)}&rdquo;</p>
+            <p className="spotlight-card__quote">&ldquo;{say(todaysPick.vibe, todaysPick.vibeKo, todaysPick.vibeEs, todaysPick.vibeFr, todaysPick.vibeAr, todaysPick.vibeZh)}&rdquo;</p>
             <span className="spotlight-card__cta">
-              {say('Read the story', '이야기 읽기', 'Leer la historia', "Lire l'histoire", 'اقرأ الحكاية')} <ChevronRightIcon size={14} />
+              {say('Read the story', '이야기 읽기', 'Leer la historia', "Lire l'histoire", 'اقرأ الحكاية', '读这个故事')} <ChevronRightIcon size={14} />
             </span>
           </div>
         </button>
@@ -98,7 +98,7 @@ export default function PlacesTab({
 
       <div className="home-section">
         <div className="home-section__header">
-          <h2>{say('Traditional Markets', '전통시장', 'Mercados tradicionales', 'Marchés traditionnels', 'الأسواق التقليدية')}</h2>
+          <h2>{say('Traditional Markets', '전통시장', 'Mercados tradicionales', 'Marchés traditionnels', 'الأسواق التقليدية', '传统市场')}</h2>
           <span className="home-section__count">{visitedMarkets.length}/{traditionalMarkets.length}</span>
         </div>
         <div className="home-scroll-row">
@@ -112,9 +112,9 @@ export default function PlacesTab({
                       heading under it is the same market in English and the
                       line under that is where it is. */}
                   <span className="gather-card__tag gather-card__tag-kr" translate="no">{m.nameKo}</span>
-                  <h3>{say(m.name, m.nameKo, m.nameEs, m.nameFr, m.nameAr)}</h3>
-                  <p className="gather-card__meta"><MapPinIcon size={14} /> {say(m.zone, m.zoneKo, m.zoneEs, m.zoneFr, m.zoneAr)}</p>
-                  <p className="gather-card__desc">{say(m.blurb, m.blurbKo, m.blurbEs, m.blurbFr, m.blurbAr)}</p>
+                  <h3>{say(m.name, m.nameKo, m.nameEs, m.nameFr, m.nameAr, m.nameZh)}</h3>
+                  <p className="gather-card__meta"><MapPinIcon size={14} /> {say(m.zone, m.zoneKo, m.zoneEs, m.zoneFr, m.zoneAr, m.zoneZh)}</p>
+                  <p className="gather-card__desc">{say(m.blurb, m.blurbKo, m.blurbEs, m.blurbFr, m.blurbAr, m.blurbZh)}</p>
                 </button>
                 {onToggleMarket && (
                   <button
@@ -124,8 +124,8 @@ export default function PlacesTab({
                     onClick={() => onToggleMarket(m.id)}
                   >
                     {visited
-                      ? <><CheckIcon size={14} /> {say('Visited', '가봤어요', 'Visitado', 'Visité', 'زُرته')}</>
-                      : say('Mark visited', '가봤다고 표시', 'Marcar como visitado', 'Marquer comme visité', 'ضع علامة زُرته')}
+                      ? <><CheckIcon size={14} /> {say('Visited', '가봤어요', 'Visitado', 'Visité', 'زُرته', '去过了')}</>
+                      : say('Mark visited', '가봤다고 표시', 'Marcar como visitado', 'Marquer comme visité', 'ضع علامة زُرته', '标记为去过')}
                   </button>
                 )}
               </div>
@@ -136,7 +136,7 @@ export default function PlacesTab({
 
       <div className="home-section">
         <div className="home-section__header">
-          <h2>{say('Popular with Travelers', '여행자들이 많이 찾는 곳', 'Los favoritos de los viajeros', 'Les préférés des voyageurs', 'المفضّلة لدى المسافرين')}</h2>
+          <h2>{say('Popular with Travelers', '여행자들이 많이 찾는 곳', 'Los favoritos de los viajeros', 'Les préférés des voyageurs', 'المفضّلة لدى المسافرين', '旅行者常去的')}</h2>
         </div>
         <div className="home-scroll-row">
           {spotlightPicks.map(place => (
@@ -147,20 +147,20 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>{say('Food Stories', '음식에 얽힌 이야기', 'Historias de comida', 'Histoires de cuisine', 'حكايات طعام')}</h2></div>
+        <div className="home-section__header"><h2>{say('Food Stories', '음식에 얽힌 이야기', 'Historias de comida', 'Histoires de cuisine', 'حكايات طعام', '食物的故事')}</h2></div>
         <div className="home-scroll-row">
           {storyPicks.map(place => (
             <button key={place.id} className="gather-card" onClick={() => openStory(place)}>
-              <span className="gather-card__tag">{say(place.zone, ZONE_KO[place.zone], ZONE_ES[place.zone], ZONE_FR[place.zone], ZONE_AR[place.zone])}</span>
+              <span className="gather-card__tag">{say(place.zone, ZONE_KO[place.zone], ZONE_ES[place.zone], ZONE_FR[place.zone], ZONE_AR[place.zone], ZONE_ZH[place.zone])}</span>
               <h3>{placeName(place, say)}</h3>
-              <p className="gather-card__desc">&ldquo;{say(place.vibe, place.vibeKo, place.vibeEs, place.vibeFr, place.vibeAr)}&rdquo;</p>
+              <p className="gather-card__desc">&ldquo;{say(place.vibe, place.vibeKo, place.vibeEs, place.vibeFr, place.vibeAr, place.vibeZh)}&rdquo;</p>
             </button>
           ))}
         </div>
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>{say('Recommended Courses', '추천 코스', 'Rutas recomendadas', 'Parcours recommandés', 'مسارات مقترحة')}</h2></div>
+        <div className="home-section__header"><h2>{say('Recommended Courses', '추천 코스', 'Rutas recomendadas', 'Parcours recommandés', 'مسارات مقترحة', '推荐路线')}</h2></div>
         <div className="home-scroll-row">
           {courses.map(c => {
             const stops = c.stopIds.map(id => byId[id]).filter(Boolean);
@@ -172,8 +172,8 @@ export default function PlacesTab({
                     <PlaceImage key={st.id} place={st} variant="thumb" className="course-card__thumb" />
                   ))}
                 </div>
-                <h3>{say(c.title, c.titleKo, c.titleEs, c.titleFr, c.titleAr)}</h3>
-                <p className="course-card__meta">{say(c.duration, c.durationKo, c.durationEs, c.durationFr, c.durationAr)}</p>
+                <h3>{say(c.title, c.titleKo, c.titleEs, c.titleFr, c.titleAr, c.titleZh)}</h3>
+                <p className="course-card__meta">{say(c.duration, c.durationKo, c.durationEs, c.durationFr, c.durationAr, c.durationZh)}</p>
               </button>
             );
           })}
@@ -181,7 +181,7 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>{say('Weekend Picks', '주말에 가볼 만한 곳', 'Para el fin de semana', 'Pour le week-end', 'لعطلة الأسبوع')}</h2></div>
+        <div className="home-section__header"><h2>{say('Weekend Picks', '주말에 가볼 만한 곳', 'Para el fin de semana', 'Pour le week-end', 'لعطلة الأسبوع', '适合周末')}</h2></div>
         <div className="home-scroll-row">
           {weekendPicks.map(place => (
             <PlaceCard key={place.id} place={place} onClick={() => onOpenRestaurant(place)}
@@ -191,7 +191,7 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>{say('Local Hidden Gems', '현지인만 아는 곳', 'Joyas que solo conocen los locales', "Les adresses que seuls les gens d'ici connaissent", 'أماكن لا يعرفها إلا أهل المكان')}</h2></div>
+        <div className="home-section__header"><h2>{say('Local Hidden Gems', '현지인만 아는 곳', 'Joyas que solo conocen los locales', "Les adresses que seuls les gens d'ici connaissent", 'أماكن لا يعرفها إلا أهل المكان', '只有本地人知道的地方')}</h2></div>
         <div className="home-scroll-row">
           {hiddenGemPicks.map(place => (
             <PlaceCard key={place.id} place={place} onClick={() => onOpenRestaurant(place)}
@@ -201,18 +201,18 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>{say('Seasonal Foods', '제철 음식', 'Comida de temporada', 'Produits de saison', 'أطعمة الموسم')}</h2></div>
+        <div className="home-section__header"><h2>{say('Seasonal Foods', '제철 음식', 'Comida de temporada', 'Produits de saison', 'أطعمة الموسم', '当季的食物')}</h2></div>
         <div className="home-scroll-row">
           {seasonalFoods.map(f => {
             const inSeason = f.months.includes(currentMonth);
             return (
               <div key={f.id} className={`gather-card gather-card--static gather-card--kr${inSeason ? ' is-highlighted' : ''}`} data-kr={f.nameKo}>
                 <span className="gather-card__tag">
-                  {say(f.season, f.seasonKo, f.seasonEs, f.seasonFr, f.seasonAr)}
-                  {inSeason ? say(' · In season now', ' · 지금이 제철', ' · ahora es temporada', " · c'est la saison", ' · الآن موسمه') : ''}
+                  {say(f.season, f.seasonKo, f.seasonEs, f.seasonFr, f.seasonAr, f.seasonZh)}
+                  {inSeason ? say(' · In season now', ' · 지금이 제철', ' · ahora es temporada', " · c'est la saison", ' · الآن موسمه', ' · 现在正当季') : ''}
                 </span>
-                <h3>{say(f.name, f.nameKo, f.nameEs, f.nameFr, f.nameAr)} <span className="gather-card__kr">{f.nameKo}</span></h3>
-                <p className="gather-card__desc">{say(f.blurb, f.blurbKo, f.blurbEs, f.blurbFr, f.blurbAr)}</p>
+                <h3>{say(f.name, f.nameKo, f.nameEs, f.nameFr, f.nameAr, f.nameZh)} <span className="gather-card__kr">{f.nameKo}</span></h3>
+                <p className="gather-card__desc">{say(f.blurb, f.blurbKo, f.blurbEs, f.blurbFr, f.blurbAr, f.blurbZh)}</p>
               </div>
             );
           })}
@@ -220,38 +220,38 @@ export default function PlacesTab({
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>{say('Festival Picks', '축제', 'Festivales', 'Festivals', 'المهرجانات')}</h2></div>
+        <div className="home-section__header"><h2>{say('Festival Picks', '축제', 'Festivales', 'Festivals', 'المهرجانات', '节庆')}</h2></div>
         <div className="home-scroll-row">
           {festivals.map(f => (
             <div key={f.id} className="gather-card gather-card--static gather-card--kr" data-kr={f.nameKo}>
-              <span className="gather-card__tag">{say(f.when, f.whenKo, f.whenEs, f.whenFr, f.whenAr)}</span>
-              <h3>{say(f.name, f.nameKo, f.nameEs, f.nameFr, f.nameAr)} <span className="gather-card__kr">{f.nameKo}</span></h3>
-              <p className="gather-card__desc">{say(f.blurb, f.blurbKo, f.blurbEs, f.blurbFr, f.blurbAr)}</p>
+              <span className="gather-card__tag">{say(f.when, f.whenKo, f.whenEs, f.whenFr, f.whenAr, f.whenZh)}</span>
+              <h3>{say(f.name, f.nameKo, f.nameEs, f.nameFr, f.nameAr, f.nameZh)} <span className="gather-card__kr">{f.nameKo}</span></h3>
+              <p className="gather-card__desc">{say(f.blurb, f.blurbKo, f.blurbEs, f.blurbFr, f.blurbAr, f.blurbZh)}</p>
             </div>
           ))}
         </div>
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>{say('Korean Dining Culture', '한국의 식문화', 'La cultura de la mesa coreana', 'La culture de la table coréenne', 'ثقافة المائدة الكورية')}</h2></div>
+        <div className="home-section__header"><h2>{say('Korean Dining Culture', '한국의 식문화', 'La cultura de la mesa coreana', 'La culture de la table coréenne', 'ثقافة المائدة الكورية', '韩国的餐桌文化')}</h2></div>
         <div className="home-scroll-row">
           {CULTURE_CARDS.slice(0, 4).map((c, i) => (
             <button key={c.title} className="zone-card" style={{ flex: '0 0 180px' }}
               onClick={() => { setCultureStart(i); setShowCulture(true); }}>
-              <h3>{say(c.title, c.titleKo, c.titleEs, c.titleFr, c.titleAr)}</h3>
-              <p>{say(c.desc, c.descKo, c.descEs, c.descFr, c.descAr)}</p>
+              <h3>{say(c.title, c.titleKo, c.titleEs, c.titleFr, c.titleAr, c.titleZh)}</h3>
+              <p>{say(c.desc, c.descKo, c.descEs, c.descFr, c.descAr, c.descZh)}</p>
             </button>
           ))}
         </div>
       </div>
 
       <div className="home-section">
-        <div className="home-section__header"><h2>{say('Recommended Neighborhoods', '동네 추천', 'Barrios recomendados', 'Quartiers recommandés', 'أحياء مقترحة')}</h2></div>
+        <div className="home-section__header"><h2>{say('Recommended Neighborhoods', '동네 추천', 'Barrios recomendados', 'Quartiers recommandés', 'أحياء مقترحة', '推荐街区')}</h2></div>
         <div className="zone-grid">
           {featuredZones.map(z => (
             <button key={z.name} className="zone-card" onClick={() => onExploreZone(z.name)}>
-              <h3>{say(z.name, z.nameKo, z.nameEs, z.nameFr, z.nameAr)}</h3>
-              <p>{say(z.blurb, z.blurbKo, z.blurbEs, z.blurbFr, z.blurbAr)}</p>
+              <h3>{say(z.name, z.nameKo, z.nameEs, z.nameFr, z.nameAr, z.nameZh)}</h3>
+              <p>{say(z.blurb, z.blurbKo, z.blurbEs, z.blurbFr, z.blurbAr, z.blurbZh)}</p>
             </button>
           ))}
         </div>
@@ -262,13 +262,13 @@ export default function PlacesTab({
           className="map-cta"
           onClick={() => onOpenMap?.({ title: 'Every place, plotted', subtitle: 'Filter by zone, diet or vibe' })}
         >
-          <span className="map-cta__title">{say('See it all on the map', '지도에서 한눈에 보기', 'Verlo todo en el mapa', 'Voir tout sur la carte', 'انظر كل شيء على الخريطة')}</span>
+          <span className="map-cta__title">{say('See it all on the map', '지도에서 한눈에 보기', 'Verlo todo en el mapa', 'Voir tout sur la carte', 'انظر كل شيء على الخريطة', '在地图上看全部')}</span>
           <span className="map-cta__body">
             {say('Every place above, plotted — filter by zone, diet or vibe.',
-              '위의 모든 장소가 지도 위에 찍혀 있습니다. 지역, 식단, 분위기로 걸러 보세요.', 'Todos los sitios de arriba, en el mapa: filtra por zona, dieta o ambiente.', 'Toutes les adresses ci-dessus, sur la carte : filtrez par quartier, régime ou ambiance.', 'كل الأماكن أعلاه على الخريطة: صفِّ بالحيّ أو النظام الغذائي أو الأجواء.')}
+              '위의 모든 장소가 지도 위에 찍혀 있습니다. 지역, 식단, 분위기로 걸러 보세요.', 'Todos los sitios de arriba, en el mapa: filtra por zona, dieta o ambiente.', 'Toutes les adresses ci-dessus, sur la carte : filtrez par quartier, régime ou ambiance.', 'كل الأماكن أعلاه على الخريطة: صفِّ بالحيّ أو النظام الغذائي أو الأجواء.', '上面所有地点都标在地图上：按街区、饮食或氛围筛选。')}
           </span>
           <span className="map-cta__link">
-            {say('Open the map', '지도 열기', 'Abrir el mapa', 'Ouvrir la carte', 'افتح الخريطة')} <ChevronRightIcon size={16} />
+            {say('Open the map', '지도 열기', 'Abrir el mapa', 'Ouvrir la carte', 'افتح الخريطة', '打开地图')} <ChevronRightIcon size={16} />
           </span>
         </button>
       </div>

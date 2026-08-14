@@ -35,8 +35,8 @@ export default function ThemeStoryCard({ theme, progress, onOpen }) {
       className={`story-card${exhausted ? ' is-complete' : ''}`}
       onClick={() => onOpen(theme.id)}
       aria-label={editorial
-        ? `${say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr, editorial.questionAr)} — ${say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr)}`
-        : say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr)}
+        ? `${say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr, editorial.questionAr, editorial.questionZh)} — ${say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr, theme.titleZh)}`
+        : say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr, theme.titleZh)}
     >
       {/* Cropped by the card edge on purpose: a word that fits inside its box
           reads as a label, and a word that runs out of room reads as print. */}
@@ -45,29 +45,29 @@ export default function ThemeStoryCard({ theme, progress, onOpen }) {
       )}
 
       <span className="story-card__eyebrow">
-        {say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr)}
+        {say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr, theme.titleZh)}
         {theme.status === 'preview' && (
-          <span className="story-card__flag">{say('Preview', '미리보기', 'Vista previa', 'Aperçu', 'معاينة')}</span>
+          <span className="story-card__flag">{say('Preview', '미리보기', 'Vista previa', 'Aperçu', 'معاينة', '预览')}</span>
         )}
       </span>
 
       {/* The question is the card. Everything else is scale and quiet. */}
       <span className="story-card__question">
         {editorial
-          ? say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr, editorial.questionAr)
-          : say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr, theme.taglineAr)}
+          ? say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr, editorial.questionAr, editorial.questionZh)
+          : say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr, theme.taglineAr, theme.taglineZh)}
       </span>
 
       <span className="story-card__foot">
         {exhausted
-          ? say('You have walked this one', '이 문화는 다 걸어보셨어요', 'Ya has recorrido esta', 'Vous avez déjà parcouru celle-ci', 'سبق أن مشيتَ هذه')
+          ? say('You have walked this one', '이 문화는 다 걸어보셨어요', 'Ya has recorrido esta', 'Vous avez déjà parcouru celle-ci', 'سبق أن مشيتَ هذه', '这一条你已经走过了')
           : pathDone
             ? say(`A path done · ${total - done} more here`, `한 갈래 완주 · 여기 ${total - done}개 더`,
-              `Un camino hecho · ${total - done} más aquí`, `Un chemin fait · ${total - done} de plus ici`, `طريق تمّ · ${total - done} أخرى هنا`)
+              `Un camino hecho · ${total - done} más aquí`, `Un chemin fait · ${total - done} de plus ici`, `طريق تمّ · ${total - done} أخرى هنا`, `走完一条 · 这里还有 ${total - done} 条`)
             : started
-              ? say(`${done} of ${total} done`, `${total}개 중 ${done}개 완료`, `${done} de ${total} hechas`, `${done} sur ${total} faites`, `${done} من ${total} تمّت`)
+              ? say(`${done} of ${total} done`, `${total}개 중 ${done}개 완료`, `${done} de ${total} hechas`, `${done} sur ${total} faites`, `${done} من ${total} تمّت`, `${total} 个里完成了 ${done} 个`)
               : say(`${total} ${total === 1 ? 'experience' : 'experiences'}`, `경험 ${total}개`,
-                `${total} ${total === 1 ? 'experiencia' : 'experiencias'}`, `${total} ${total === 1 ? 'expérience' : 'expériences'}`, `${total} ${total === 1 ? 'تجربة' : 'تجارب'}`)}
+                `${total} ${total === 1 ? 'experiencia' : 'experiencias'}`, `${total} ${total === 1 ? 'expérience' : 'expériences'}`, `${total} ${total === 1 ? 'تجربة' : 'تجارب'}`, `${total} 个体验`)}
       </span>
 
       {/* Progress is a hairline, not a widget. It belongs to the traveller,

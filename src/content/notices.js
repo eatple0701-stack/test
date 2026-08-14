@@ -48,6 +48,7 @@ export const NOTICES = [
     es: 'Esto es un piloto, así que todavía hay pocas mesas — y abrir una tú mismo es la forma más rápida de tener mesa esta semana.',
     fr: "C'est un pilote, il y a donc encore peu de tables — et en ouvrir une vous-même est le moyen le plus rapide d'avoir une table cette semaine.",
     ar: 'هذه تجربة أولى، فالموائد ما زالت قليلة — وأن تفتح واحدة بنفسك أسرع طريق إلى مائدة هذا الأسبوع.',
+    zh: '这还是试运行，所以饭桌还不多——而自己开一张，是这周吃上饭最快的办法。',
     until: '2026-09-01',
   },
 ];

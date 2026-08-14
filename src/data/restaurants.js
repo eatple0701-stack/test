@@ -43,9 +43,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode per-day schedule (11:30–20:20, break 15:00–18:00, 일요일 휴무); last order 19:10 listed by DiningCode only" }),
     menus: fact([
-      { name: "Michelin Temple Course", nameKo: "미쉐린 사찰 코스", nameEs: "Menú de templo con estrella Michelin", nameFr: "Menu de temple étoilé Michelin", nameAr: "مائدة معبد بنجمة ميشلان", price: "45,000 KRW" },
-      { name: "Meditation Set Meal", nameKo: "명상 정식", nameEs: "Menú meditación", nameFr: "Menu méditation", nameAr: "مائدة التأمّل", price: "65,000 KRW" },
-      { name: "Fermented Plum Tea", nameKo: "매실차", nameEs: "Té de ciruela fermentada", nameFr: "Thé de prune fermentée", nameAr: "شاي الخوخ المخمّر", price: "~8,000 KRW" },
+      { name: "Michelin Temple Course", nameKo: "미쉐린 사찰 코스", nameEs: "Menú de templo con estrella Michelin", nameFr: "Menu de temple étoilé Michelin", nameAr: "مائدة معبد بنجمة ميشلان", nameZh: "米其林寺院套餐", price: "45,000 KRW" },
+      { name: "Meditation Set Meal", nameKo: "명상 정식", nameEs: "Menú meditación", nameFr: "Menu méditation", nameAr: "مائدة التأمّل", nameZh: "禅意定食", price: "65,000 KRW" },
+      { name: "Fermented Plum Tea", nameKo: "매실차", nameEs: "Té de ciruela fermentada", nameFr: "Thé de prune fermentée", nameAr: "شاي الخوخ المخمّر", nameZh: "发酵梅子茶", price: "~8,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("02-733-2081", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
@@ -67,6 +67,7 @@ export const restaurants = [
     vibeEs: "Madera sobria y silencio: comer como meditación.",
     vibeFr: "Bois épuré et silence — le repas comme méditation.",
     vibeAr: "خشب مجرّد وصمت — الطعام بوصفه تأمّلًا.",
+    vibeZh: "素净的木头和安静——把吃饭当作打坐。",
     story: "Rooted in the ancient mindfulness of Korean Buddhist monks, Balwoo Gongyang treats every ingredient with profound reverence. Their artisanal fermentation techniques, honed over centuries, transform locally harvested mountain greens into deep, restorative flavors. The kitchen operates on a strict zero-waste philosophy, ensuring that nothing returned to the earth is without purpose.",
     storyKo:
       "한국 스님들의 오래된 알아차림에 뿌리를 두고, 발우공양은 재료 하나하나를 깊이 존중하며 다룹니다. 몇 백 년에 걸쳐 다듬어진 발효 기술이 인근에서 거둔 산나물을 깊고 회복력 있는 맛으로 바꿔 놓습니다. 주방은 엄격한 제로웨이스트 원칙으로 돌아가고, 땅으로 돌아가는 것 중 뜻 없는 것이 없도록 합니다.",
@@ -74,6 +75,7 @@ export const restaurants = [
       "Con raíces en la antigua atención plena de los monjes budistas coreanos, Balwoo Gongyang trata cada ingrediente con profunda reverencia. Sus técnicas artesanales de fermentación, afinadas durante siglos, convierten las verduras de montaña recogidas cerca en sabores hondos y reparadores. La cocina funciona con una filosofía estricta de residuo cero: nada de lo que vuelve a la tierra vuelve sin propósito.",
     storyFr: "Enraciné dans l'attention ancienne des moines bouddhistes coréens, Balwoo Gongyang traite chaque ingrédient avec un profond respect. Ses techniques de fermentation artisanales, affinées au fil des siècles, transforment des herbes de montagne récoltées localement en saveurs profondes et réparatrices. La cuisine fonctionne selon une stricte philosophie zéro déchet : rien de ce qui retourne à la terre n'est sans usage.",
     storyAr: "متجذّرًا في يقظة الرهبان البوذيين الكوريين القديمة، يعامل بالوو غونغيانغ كل مكوّن بتوقير عميق. وتقنيات التخمير الحِرَفية لديه، المصقولة عبر قرون، تحوّل أعشاب الجبل المحصودة محليًّا إلى نكهات عميقة تُعيد العافية. ويعمل المطبخ على فلسفة صارمة بلا نفايات: لا شيء يعود إلى الأرض بلا غاية.",
+    storyZh: "扎根于韩国佛教僧人古老的觉察，钵盂供养对待每一样食材都带着深深的敬意。它那套经过几百年打磨的手工发酵手法，把当地采来的山野菜变成深厚而滋养的味道。厨房遵循严格的零废弃：回到土里的东西，没有一样是没有用处的。",
     esg_point: "Uses traditional fermentation without artificial additives",
 
     image: "/images/temple_food.svg",
@@ -103,9 +105,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode: 11:30–22:00 across every listed day, 연중무휴; no break or last order listed" }),
     menus: fact([
-      { name: "Traditional Temple Banchan Set", nameKo: "전통 사찰 반찬 정식", nameEs: "Set tradicional de banchan de templo", nameFr: "Assortiment traditionnel de banchan de temple", nameAr: "طقم بانتشان معبد تقليدي", price: "33,000 KRW" },
-      { name: "Wild Mountain Greens Rice", nameKo: "산나물 비빔밥", nameEs: "Arroz con verduras silvestres de montaña", nameFr: "Riz aux herbes sauvages de montagne", nameAr: "أرز بأعشاب الجبل البرّية", price: "22,000 KRW" },
-      { name: "Lotus Root Pancakes", nameKo: "연근전", nameEs: "Tortitas de raíz de loto", nameFr: "Galettes de racine de lotus", nameAr: "فطائر جذر اللوتس", price: "~15,000 KRW" },
+      { name: "Traditional Temple Banchan Set", nameKo: "전통 사찰 반찬 정식", nameEs: "Set tradicional de banchan de templo", nameFr: "Assortiment traditionnel de banchan de temple", nameAr: "طقم بانتشان معبد تقليدي", nameZh: "传统寺院小菜套餐", price: "33,000 KRW" },
+      { name: "Wild Mountain Greens Rice", nameKo: "산나물 비빔밥", nameEs: "Arroz con verduras silvestres de montaña", nameFr: "Riz aux herbes sauvages de montagne", nameAr: "أرز بأعشاب الجبل البرّية", nameZh: "山野菜拌饭", price: "22,000 KRW" },
+      { name: "Lotus Root Pancakes", nameKo: "연근전", nameEs: "Tortitas de raíz de loto", nameFr: "Galettes de racine de lotus", nameAr: "فطائر جذر اللوتس", nameZh: "莲藕煎饼", price: "~15,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("0507-1393-0312", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing; a 0507 number forwards to the venue's real line" }),
@@ -124,6 +126,7 @@ export const restaurants = [
     vibeEs: "Un hanok iluminado con farolillos, escondido en los callejones de Insadong.",
     vibeFr: "Un hanok éclairé aux lanternes, caché dans les ruelles d'Insadong.",
     vibeAr: "هانوك مضاء بالفوانيس، مختبئ في أزقّة إنسا-دونغ.",
+    vibeZh: "藏在仁寺洞巷子里、点着灯笼的韩屋。",
     story: "Sanchon embodies the purest form of agrarian Korean heritage. Founded by a former monk, the restaurant's daily offerings are dictated by what the earth yields. Ingredients are sustainably foraged from the pristine highlands of Gangwon-do. Every dish is a testament to artisanal patience, bringing the quiet, unadulterated essence of the forest straight to the table.",
     storyKo:
       "산촌은 한국 농경 유산의 가장 순수한 형태를 담고 있습니다. 스님이었던 분이 연 이 식당의 그날 상차림은 땅이 내주는 것에 따라 정해집니다. 재료는 강원도 청정 고지대에서 지속 가능한 방식으로 채취합니다. 모든 요리가 장인의 인내에 대한 증언이며, 숲의 고요하고 손대지 않은 본질을 그대로 상 위로 가져옵니다.",
@@ -131,6 +134,7 @@ export const restaurants = [
       "Sanchon encarna la forma más pura de la herencia agraria coreana. Fundado por un antiguo monje, lo que se sirve cada día lo dicta lo que da la tierra. Los ingredientes se recolectan de forma sostenible en las tierras altas intactas de Gangwon-do. Cada plato es un testimonio de paciencia artesanal que lleva a la mesa la esencia callada y sin adulterar del bosque.",
     storyFr: "Sanchon incarne la forme la plus pure de l'héritage agraire coréen. Fondé par un ancien moine, le restaurant compose chaque jour selon ce que la terre donne. Les ingrédients sont cueillis de façon durable dans les hauteurs préservées du Gangwon-do. Chaque plat témoigne d'une patience d'artisan et porte à table l'essence tranquille et intacte de la forêt.",
     storyAr: "يجسّد سانتشون أنقى صور الإرث الزراعي الكوري. أسّسه راهب سابق، وما يقدّمه كل يوم تمليه الأرض بما تجود به. وتُجمع المكوّنات على نحو مستدام من مرتفعات غانغوون-دو البكر. وكل طبق شهادة على صبر حِرَفي، يحمل جوهر الغابة الهادئ غير المشوب إلى المائدة مباشرة.",
+    storyZh: "山村体现的是最纯粹的韩国农耕传统。它由一位还俗的僧人创办，每天供应什么由土地给出什么决定。食材以可持续的方式采自江原道未受污染的高地。每一道菜都是手工耐心的证明，把森林安静、未经修饰的本味直接带到桌上。",
     esg_point: "Locally sourced ingredients directly foraged from Gangwon-do mountains",
 
     image: "/images/temple_food.svg",
@@ -160,9 +164,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode: 11:30–21:00, break 16:00–17:00, last orders 15:00 and 20:00. Thursday closure stated by a listing summary (월~수, 금~일 / 매주 목요일 정기휴무), not by DiningCode's own schedule block" }),
     menus: fact([
-      { name: "Vegan Jajangmyeon", nameKo: "비건 짜장면", nameEs: "Jajangmyeon vegano", nameFr: "Jajangmyeon végétalien", nameAr: "جاجانغميون نباتي", price: "9,000 KRW" },
-      { name: "Soy Meat Sweet and Sour", nameKo: "콩고기 탕수육", nameEs: "Agridulce de carne de soja", nameFr: "Aigre-doux de viande de soja", nameAr: "حلو وحامض بلحم الصويا", price: "18,000 KRW" },
-      { name: "Spicy Vegan Jjamppong", nameKo: "매운 비건 짬뽕", nameEs: "Jjamppong vegano picante", nameFr: "Jjamppong végétalien épicé", nameAr: "جامبونغ نباتي حارّ", price: "10,000 KRW" },
+      { name: "Vegan Jajangmyeon", nameKo: "비건 짜장면", nameEs: "Jajangmyeon vegano", nameFr: "Jajangmyeon végétalien", nameAr: "جاجانغميون نباتي", nameZh: "纯素炸酱面", price: "9,000 KRW" },
+      { name: "Soy Meat Sweet and Sour", nameKo: "콩고기 탕수육", nameEs: "Agridulce de carne de soja", nameFr: "Aigre-doux de viande de soja", nameAr: "حلو وحامض بلحم الصويا", nameZh: "豆制糖醋肉", price: "18,000 KRW" },
+      { name: "Spicy Vegan Jjamppong", nameKo: "매운 비건 짬뽕", nameEs: "Jjamppong vegano picante", nameFr: "Jjamppong végétalien épicé", nameAr: "جامبونغ نباتي حارّ", nameZh: "辣味纯素炒码面", price: "10,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("02-735-7171", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
@@ -181,6 +185,7 @@ export const restaurants = [
     vibeEs: "Un local coreano-chino humilde en un callejón de Insadong.",
     vibeFr: "Une modeste adresse coréano-chinoise dans une ruelle d'Insadong.",
     vibeAr: "محلّ كوري صيني متواضع في زقاق بإنسا-دونغ.",
+    vibeZh: "仁寺洞巷子里一家朴素的韩式中餐馆。",
     story: "Osegyehyang is a pioneer in bringing plant-based alternatives to beloved comfort foods. Famous for their brilliant soy meat dishes, they seamlessly convert rich Korean-Chinese classics into 100% vegan meals. This is the perfect spot to enjoy guilt-free, sustainable versions of everyday favorites.",
     storyKo:
       "오세계향은 사랑받는 위로의 음식들을 식물성으로 옮겨 온 선구자입니다. 훌륭한 콩고기 요리로 유명하고, 진한 한국식 중화요리 고전들을 100% 비건으로 매끄럽게 바꿔 냅니다. 익숙한 음식의 지속 가능한 버전을 마음 편히 즐기기에 더없이 좋은 곳입니다.",
@@ -188,6 +193,7 @@ export const restaurants = [
       "Osegyehyang es pionero en llevar alternativas vegetales a los platos de siempre. Famoso por sus excelentes preparaciones de carne de soja, convierte con naturalidad los clásicos coreano-chinos más contundentes en comidas 100 % veganas. Es el sitio ideal para disfrutar sin remordimiento de versiones sostenibles de los favoritos de cada día.",
     storyFr: "Osegyehyang est un pionnier de la version végétale des plats réconfortants. Réputé pour ses remarquables plats de viande de soja, il transpose sans heurt les grands classiques coréano-chinois en repas 100 % végétaliens. C'est l'endroit idéal pour retrouver, sans culpabilité et de façon durable, les plats du quotidien.",
     storyAr: "أوسيغيهيانغ رائد في تقديم بدائل نباتية لأطباق السلوى المحبوبة. اشتُهر بأطباق لحم الصويا البارعة، ويحوّل بسلاسة كلاسيكيات كورية صينية دسمة إلى وجبات نباتية صرف بالكامل. وهو المكان الأمثل لتتذوّق نسخًا مستدامة وبلا ذنب من المفضّلات اليومية.",
+    storyZh: "五界香是把植物性做法带进那些人人喜爱的家常菜的先行者。它以出色的豆制\"肉\"闻名，把浓郁的韩式中餐经典顺畅地转成百分之百纯素。想吃到毫无负担又可持续的日常味道，这里最合适。",
     esg_point: "100% plant-based takes on Korean-Chinese comfort classics",
 
     image: "/images/noodles.svg",
@@ -218,9 +224,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The venue's own site: \"Tues-Sun 11am-10pm\", \"Closed every Monday\", last order \"9pm\", \"NO Kitchen break\". The draft never recorded the Monday closure" }),
     menus: fact([
-      { name: "Lentil Veggie Burrito Bowl", nameKo: "렌틸 채소 부리토 볼", nameEs: "Bol burrito de lentejas y verduras", nameFr: "Bol burrito lentilles et légumes", nameAr: "وعاء بوريتو بالعدس والخضار", price: "14,500 KRW" },
-      { name: "Avocado Burger", nameKo: "아보카도 버거", nameEs: "Hamburguesa de aguacate", nameFr: "Burger à l'avocat", nameAr: "برغر الأفوكادو", price: "15,500 KRW" },
-      { name: "Vegan Chocolate Cake", nameKo: "비건 초콜릿 케이크", nameEs: "Tarta de chocolate vegana", nameFr: "Gâteau au chocolat végétalien", nameAr: "كعكة شوكولاتة نباتية", price: "~8,000 KRW" },
+      { name: "Lentil Veggie Burrito Bowl", nameKo: "렌틸 채소 부리토 볼", nameEs: "Bol burrito de lentejas y verduras", nameFr: "Bol burrito lentilles et légumes", nameAr: "وعاء بوريتو بالعدس والخضار", nameZh: "扁豆蔬菜卷饼碗", price: "14,500 KRW" },
+      { name: "Avocado Burger", nameKo: "아보카도 버거", nameEs: "Hamburguesa de aguacate", nameFr: "Burger à l'avocat", nameAr: "برغر الأفوكادو", nameZh: "牛油果汉堡", price: "15,500 KRW" },
+      { name: "Vegan Chocolate Cake", nameKo: "비건 초콜릿 케이크", nameEs: "Tarta de chocolate vegana", nameFr: "Gâteau au chocolat végétalien", nameAr: "كعكة شوكولاتة نباتية", nameZh: "纯素巧克力蛋糕", price: "~8,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("02-749-1981", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The venue's own site" }),
@@ -246,6 +252,7 @@ export const restaurants = [
     vibeEs: "Un local luminoso en Itaewon con su propia panadería vegana.",
     vibeFr: "Un repaire d'Itaewon baigné de lumière, avec sa propre boulangerie végétalienne.",
     vibeAr: "ملتقى في إيتايوون تغمره الشمس، وله مخبزه النباتي الخاص.",
+    vibeZh: "梨泰院一处阳光充足的据点，自带纯素面包房。",
     story: "A trailblazer for the plant-based community in Itaewon, Plant Cafe combines hearty western-style vegan dining with in-house bakery delights. Their lentil bowls and burgers prove that veganism can be incredibly indulgent. The vibrant space acts as a hub for eco-conscious expats and locals alike.",
     storyKo:
       "이태원 식물성 식문화의 개척자인 플랜트 카페는 든든한 서양식 비건 요리와 자체 베이커리를 함께 냅니다. 렌틸 볼과 버거는 비건도 얼마든지 풍성할 수 있음을 보여 줍니다. 활기 있는 공간이라 환경을 생각하는 외국인과 현지인이 함께 모이는 거점이 되었습니다.",
@@ -253,6 +260,7 @@ export const restaurants = [
       "Pionero de la comunidad vegetal en Itaewon, Plant Cafe combina una cocina vegana occidental contundente con las delicias de su propia panadería. Sus bols de lentejas y sus hamburguesas demuestran que el veganismo puede ser de lo más goloso. El local, muy vivo, funciona como punto de encuentro de extranjeros y locales con conciencia ecológica.",
     storyFr: "Défricheur de la scène végétale d'Itaewon, Plant Cafe associe une cuisine végétalienne occidentale généreuse aux douceurs de sa boulangerie maison. Ses bols de lentilles et ses burgers prouvent que le véganisme peut être franchement gourmand. L'espace, plein de vie, sert de point de ralliement aux expatriés et aux habitants soucieux d'écologie.",
     storyAr: "رائدًا للمجتمع النباتي في إيتايوون، يجمع بلانت كافيه بين طعام نباتي غربي شبعان ولذائذ مخبزه الداخلي. وأطباق العدس والبرغر لديه تثبت أن النباتية قد تكون فاخرة إلى حدّ بعيد. والمكان النابض يعمل ملتقًى للمقيمين الأجانب وأهل الحيّ المهتمّين بالبيئة على السواء.",
+    storyZh: "作为梨泰院植物性圈子的开路者，Plant Cafe 把扎实的西式纯素餐和自家烘焙的点心放在一起。它的扁豆碗和汉堡证明纯素也可以很尽兴。这个明亮的空间同时是在意环境的外籍居民与本地人的据点。",
     esg_point: "In-house vegan bakery cutting dairy and egg supply chains",
 
     image: "/images/vegan_cafe.svg",
@@ -282,9 +290,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode: 12:00–22:30 every listed day, break 15:00–17:00, last order 21:30, no closing day. The operator's site shows \"C/S 10:00-18:00 … Sat, Sun, Holiday OFF\" — that is customer service, not the dining room, so it is deliberately not used" }),
     menus: fact([
-      { name: "Beyond Meat Burger", nameKo: "비욘드미트 버거", nameEs: "Hamburguesa Beyond Meat", nameFr: "Burger Beyond Meat", nameAr: "برغر بيوند ميت", price: "~18,000 KRW" },
-      { name: "Vegan Mushroom Risotto", nameKo: "비건 버섯 리소토", nameEs: "Risotto de setas vegano", nameFr: "Risotto aux champignons végétalien", nameAr: "ريزوتو الفطر النباتي", price: "~20,000 KRW" },
-      { name: "Plant-based Steak", nameKo: "식물성 스테이크", nameEs: "Filete vegetal", nameFr: "Steak végétal", nameAr: "شريحة نباتية", price: "~28,000 KRW" },
+      { name: "Beyond Meat Burger", nameKo: "비욘드미트 버거", nameEs: "Hamburguesa Beyond Meat", nameFr: "Burger Beyond Meat", nameAr: "برغر بيوند ميت", nameZh: "Beyond Meat 汉堡", price: "~18,000 KRW" },
+      { name: "Vegan Mushroom Risotto", nameKo: "비건 버섯 리소토", nameEs: "Risotto de setas vegano", nameFr: "Risotto aux champignons végétalien", nameAr: "ريزوتو الفطر النباتي", nameZh: "纯素蘑菇烩饭", price: "~20,000 KRW" },
+      { name: "Plant-based Steak", nameKo: "식물성 스테이크", nameEs: "Filete vegetal", nameFr: "Steak végétal", nameAr: "شريحة نباتية", nameZh: "植物性牛排", price: "~28,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate. DiningCode instead lists 비건 비프 치즈 버거 (18,000) and 콰트로 버섯 리조또 (21,000) — same shape, different names, so the draft's wording is unconfirmed" }),
 
     phone: fact("02-790-1108", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The venue's own site; DiningCode lists the same number" }),
@@ -313,6 +321,7 @@ export const restaurants = [
     vibeEs: "Cocina vegetal servida como alta cocina.",
     vibeFr: "De la cuisine végétale, servie comme de la gastronomie.",
     vibeAr: "مطبخ نباتي، يُقدَّم كما تُقدَّم المطاعم الراقية.",
+    vibeZh: "植物性的菜，按精致餐厅的方式上桌。",
     story: "Elevating the concept of a 'fake meat' eatery, Monk's Butcher brings modern, upscale vegan dining to the heart of Itaewon. Their sophisticated plant-based twists on classic butcher shop fare challenge culinary boundaries. Enjoy an elegant evening where sustainability meets high-end gastronomy.",
     storyKo:
       "'대체육 가게'라는 개념을 한 단계 끌어올려, 몽크스 부처는 이태원 한복판에 현대적이고 격조 있는 비건 다이닝을 가져왔습니다. 정육점 메뉴를 식물성으로 세련되게 비튼 요리들이 요리의 경계를 시험합니다. 지속 가능성과 고급 미식이 만나는 우아한 저녁을 보내실 수 있습니다.",
@@ -320,6 +329,7 @@ export const restaurants = [
       "Elevando la idea del local de 'carne falsa', Monk's Butcher trae cocina vegana moderna y de alto nivel al centro de Itaewon. Sus reinterpretaciones vegetales y sofisticadas de la carta de una carnicería clásica desafían los límites culinarios. Una noche elegante donde la sostenibilidad se encuentra con la alta gastronomía.",
     storyFr: "En repensant l'idée du restaurant de « fausse viande », Monk's Butcher amène une cuisine végétalienne moderne et haut de gamme au cœur d'Itaewon. Ses relectures raffinées des classiques de boucherie bousculent les frontières culinaires. Une soirée élégante où la durabilité rencontre la haute gastronomie.",
     storyAr: "برفعه فكرة مطعم «اللحم المزيّف»، يجلب مونكس بوتشر طعامًا نباتيًّا حديثًا وراقيًا إلى قلب إيتايوون. ولمساته النباتية المتأنّقة على كلاسيكيات محلّ الجزارة تتحدّى الحدود المطبخية. أمسية أنيقة تلتقي فيها الاستدامة بفنون الطعام الرفيعة.",
+    storyZh: "把\"假肉餐厅\"这个概念往上提，Monk's Butcher 把现代而讲究的纯素餐带进梨泰院中心。它对肉铺经典的精致植物性改写，挑战着烹饪的边界。一个可持续与高端餐饮相遇的优雅夜晚。",
     esg_point: "High-end plant proteins replacing butcher-shop staples",
 
     image: "/images/temple_food.svg",
@@ -351,9 +361,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode lists 11:00–00:00; several independent visitor write-ups give 매일 11:00~24:00 with a 23:00 last order. No closing day found" }),
     menus: fact([
-      { name: "Vegan Kung Pao Chick'n", nameKo: "비건 쿵파오 치킨", nameEs: "Pollo kung pao vegano", nameFr: "Kung pao végétalien", nameAr: "كونغ باو نباتي", price: "~19,000 KRW" },
-      { name: "Plant-based Chow Mein", nameKo: "식물성 차우멘", nameEs: "Chow mein vegetal", nameFr: "Chow mein végétal", nameAr: "تشاو ميين نباتي", price: "~16,000 KRW" },
-      { name: "Crispy Mushroom Bites", nameKo: "바삭 버섯 튀김", nameEs: "Bocaditos crujientes de seta", nameFr: "Bouchées croustillantes de champignon", nameAr: "قضمات فطر مقرمشة", price: "~12,000 KRW" },
+      { name: "Vegan Kung Pao Chick'n", nameKo: "비건 쿵파오 치킨", nameEs: "Pollo kung pao vegano", nameFr: "Kung pao végétalien", nameAr: "كونغ باو نباتي", nameZh: "纯素宫保鸡丁", price: "~19,000 KRW" },
+      { name: "Plant-based Chow Mein", nameKo: "식물성 차우멘", nameEs: "Chow mein vegetal", nameFr: "Chow mein végétal", nameAr: "تشاو ميين نباتي", nameZh: "植物性炒面", price: "~16,000 KRW" },
+      { name: "Crispy Mushroom Bites", nameKo: "바삭 버섯 튀김", nameEs: "Bocaditos crujientes de seta", nameFr: "Bouchées croustillantes de champignon", nameAr: "قضمات فطر مقرمشة", nameZh: "香脆蘑菇块", price: "~12,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft. DiningCode lists KungpaoChicken at 21,000 and 차우면 (Chow Mein) at 9,000 — the dishes exist, the draft's prices do not match" }),
 
     instagram: fact("https://www.instagram.com/camouflage_iteawon", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this account as the venue's own" }),
@@ -375,6 +385,7 @@ export const restaurants = [
     vibeEs: "Sabores chino-americanos contundentes que además resultan ser veganos.",
     vibeFr: "Des saveurs sino-américaines franches qui se trouvent être végétaliennes.",
     vibeAr: "نكهات صينية أمريكية جريئة تصادف أنها نباتية صرف.",
+    vibeZh: "风格张扬的中式美国菜，只是碰巧全素。",
     story: "Camouflage creatively 'hides' the fact that its bold Chinese-American menu is completely free of animal products. By mastering textures and savory sauces, dishes like their vegan Kung Pao Chick'n fool the senses. It is a brilliant example of how playful and satisfying sustainable cuisine can be.",
     storyKo:
       "카무플라주는 진한 중국계 미국식 메뉴가 동물성 재료를 전혀 쓰지 않는다는 사실을 재치 있게 '감춥니다'. 식감과 짭조름한 소스를 능숙하게 다뤄, 비건 쿵파오 치킨 같은 요리가 감각을 속입니다. 지속 가능한 요리가 얼마나 유쾌하고 만족스러울 수 있는지 보여 주는 훌륭한 예입니다.",
@@ -382,6 +393,7 @@ export const restaurants = [
       "Camouflage 'camufla' con ingenio el hecho de que su contundente carta chino-americana no lleva ni un producto animal. Dominando las texturas y las salsas sabrosas, platos como su pollo kung pao vegano engañan a los sentidos. Es un ejemplo brillante de lo divertida y saciante que puede ser la cocina sostenible.",
     storyFr: "Camouflage « cache » avec malice le fait que sa carte sino-américaine affirmée ne contient aucun produit animal. En maîtrisant les textures et les sauces savoureuses, des plats comme son Kung Pao Chick'n végétalien trompent les sens. Un bel exemple de ce que la cuisine durable peut avoir de joueur et de rassasiant.",
     storyAr: "يُخفي كامفلاج بمكر أن قائمته الصينية الأمريكية الجريئة خالية تمامًا من المنتجات الحيوانية. وبإتقانه القوام والصلصات الغنية، تخدع أطباق مثل دجاج كونغ باو النباتي الحواسّ. مثال بديع على ما يمكن للمطبخ المستدام أن يكون عليه من مرح وإشباع.",
+    storyZh: "卡姆弗拉주巧妙地\"藏起\"了一件事：它那份张扬的中式美国菜单里没有任何动物性成分。凭着对口感和咸鲜酱汁的把握，像纯素宫保鸡丁这样的菜会骗过你的感官。这是可持续烹饪可以既好玩又满足的绝佳例子。",
     esg_point: "Bold sauces and textures that make plant-based eating effortless",
 
     image: "/images/vegan_cafe.svg",
@@ -411,9 +423,9 @@ export const restaurants = [
       },
     }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, lastCheckedAt: "2026-07-17", evidence: "Seoul tourism site: \"12:00 ~ 21:00\", 휴무일 매일 (none); DiningCode independently lists 12:00–21:00. The draft's 11:30 open was wrong" }),
     menus: fact([
-      { name: "Halal Bulgogi", nameKo: "할랄 불고기", nameEs: "Bulgogi halal", nameFr: "Bulgogi halal", nameAr: "بولغوغي حلال", price: "~15,000 KRW" },
-      { name: "Halal Samgyetang", nameKo: "할랄 삼계탕", nameEs: "Samgyetang halal", nameFr: "Samgyetang halal", nameAr: "سامغيتانغ حلال", price: "~18,000 KRW" },
-      { name: "Halal Bibimbap", nameKo: "할랄 비빔밥", nameEs: "Bibimbap halal", nameFr: "Bibimbap halal", nameAr: "بيبيمباب حلال", price: "~10,000 KRW" },
+      { name: "Halal Bulgogi", nameKo: "할랄 불고기", nameEs: "Bulgogi halal", nameFr: "Bulgogi halal", nameAr: "بولغوغي حلال", nameZh: "清真烤肉", price: "~15,000 KRW" },
+      { name: "Halal Samgyetang", nameKo: "할랄 삼계탕", nameEs: "Samgyetang halal", nameFr: "Samgyetang halal", nameAr: "سامغيتانغ حلال", nameZh: "清真参鸡汤", price: "~18,000 KRW" },
+      { name: "Halal Bibimbap", nameKo: "할랄 비빔밥", nameEs: "Bibimbap halal", nameFr: "Bibimbap halal", nameAr: "بيبيمباب حلال", nameZh: "清真拌饭", price: "~10,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate. Seoul's tourism site lists 비빔밥/소불고기/소고기김치볶음밥 in the 1만원대 range, which is consistent but not itemised" }),
 
     phone: fact("0507-1404-8219", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, lastCheckedAt: "2026-07-17", evidence: "Seoul tourism site listing; a 0507 number forwards to the venue's real line" }),
@@ -447,6 +459,7 @@ export const restaurants = [
     vibeEs: "Un comedor cálido y familiar cerca de la Mezquita Central de Seúl.",
     vibeFr: "Une salle chaleureuse tenue en famille, près de la Grande Mosquée de Séoul.",
     vibeAr: "قاعة دافئة تديرها عائلة، قرب مسجد سول المركزي.",
+    vibeZh: "首尔中央清真寺附近，一家人经营的温暖小馆。",
     // Reworded: both lines used to assert KMF certification as fact while the
     // dietary record deliberately declines to confirm it — the page contradicted
     // itself. The claim is now attributed to the source that makes it.
@@ -457,6 +470,7 @@ export const restaurants = [
       "Regentado por una entregada familia musulmana coreana junto a la Mezquita Central de Seúl, EID aparece en la oficina de turismo de la ciudad como el único restaurante coreano certificado por la Federación Musulmana de Corea. Ofrece el consuelo de la comida coreana casera — bulgogi suave, samgyetang — en un espacio cálido que tiende un puente entre la herencia coreana y la ley alimentaria islámica.",
     storyFr: "Tenu par une famille musulmane coréenne dévouée à côté de la Grande Mosquée de Séoul, EID est décrit par l'office du tourisme de Séoul comme le seul restaurant coréen certifié par la Korea Muslim Federation. On y retrouve le réconfort d'une cuisine coréenne familiale — bulgogi doux, samgyetang — dans une salle chaleureuse qui fait le pont entre l'héritage coréen et la loi alimentaire islamique.",
     storyAr: "تديره عائلة كورية مسلمة مخلصة بجانب مسجد سول المركزي، ويصفه مكتب سياحة سول بأنه المطعم الكوري الوحيد المعتمد من الاتحاد الإسلامي الكوري. ويقدّم سلوى الوجبات الكورية البيتية — بولغوغي خفيف وسامغيتانغ — في مكان دافئ يصل الإرث الكوري بأحكام الطعام الإسلامية.",
+    storyZh: "由一个虔诚的韩国穆斯林家庭在首尔中央清真寺旁经营，首尔市观光机构把 EID 描述为唯一一家获得韩国穆斯林联合会认证的韩餐厅。它在一个把韩国传统与伊斯兰饮食律法连起来的温暖空间里，提供家常韩餐的安慰——温和的烤肉、参鸡汤。",
     esg_point: "Family-run kitchen serving inclusive Korean home cooking by the Central Mosque",
 
     image: "/images/halal_meat.svg",
@@ -508,9 +522,9 @@ export const restaurants = [
     address: fact("Near Seoul Central Mosque, Itaewon, Seoul", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Area-level only. An aggregator lists 52 Usadan-ro 10-gil, unconfirmed by either map service, so it is not adopted", precision: "area" }),
     hours: unknownFact("Opening hours never confirmed; no map-service listing exists to check against as of 2026-07-17"),
     menus: fact([
-      { name: "Halal Braised Chicken (Jjimdak)", nameKo: "할랄 찜닭", nameEs: "Pollo estofado halal (jjimdak)", nameFr: "Poulet braisé halal (jjimdak)", nameAr: "دجاج مطهوّ حلال (جيمداك)", price: "~10,000 KRW" },
-      { name: "Halal Grilled Mackerel", nameKo: "할랄 고등어구이", nameEs: "Caballa a la parrilla halal", nameFr: "Maquereau grillé halal", nameAr: "ماكريل مشوي حلال", price: "~10,000 KRW" },
-      { name: "Halal Tteokbokki", nameKo: "할랄 떡볶이", nameEs: "Tteokbokki halal", nameFr: "Tteokbokki halal", nameAr: "توكبوكي حلال", price: "~8,000 KRW" },
+      { name: "Halal Braised Chicken (Jjimdak)", nameKo: "할랄 찜닭", nameEs: "Pollo estofado halal (jjimdak)", nameFr: "Poulet braisé halal (jjimdak)", nameAr: "دجاج مطهوّ حلال (جيمداك)", nameZh: "清真炖鸡（찜닭）", price: "~10,000 KRW" },
+      { name: "Halal Grilled Mackerel", nameKo: "할랄 고등어구이", nameEs: "Caballa a la parrilla halal", nameFr: "Maquereau grillé halal", nameAr: "ماكريل مشوي حلال", nameZh: "清真烤青花鱼", price: "~10,000 KRW" },
+      { name: "Halal Tteokbokki", nameKo: "할랄 떡볶이", nameEs: "Tteokbokki halal", nameFr: "Tteokbokki halal", nameAr: "توكبوكي حلال", nameZh: "清真炒年糕", price: "~8,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     dietary: {
@@ -525,6 +539,7 @@ export const restaurants = [
     vibeEs: "Un comedor informal a dos pasos de la mezquita, querido por los viajeros musulmanes.",
     vibeFr: "Une cantine sans façons à deux pas de la mosquée, aimée des voyageurs musulmans.",
     vibeAr: "مطعم بسيط على بُعد خطوات من المسجد، يحبّه المسافرون المسلمون.",
+    vibeZh: "离清真寺几步远的家常小店，穆斯林旅客很喜欢。",
     story: "Located just steps from the Seoul Central Mosque, Makan provides an accessible gateway into local cuisine. Their highly affordable menu spans from spicy stews to grilled fish, all meticulously prepared. Muslim travelers can explore authentic, fiery Korean flavors with complete peace of mind here.",
     storyKo:
       "서울중앙성원에서 몇 걸음 거리에 있는 마칸은 현지 음식으로 들어가는 편한 입구입니다. 값이 아주 착한 메뉴가 얼큰한 찌개부터 생선구이까지 이어지고, 하나하나 정성껏 준비됩니다. 무슬림 여행자가 진짜 한국의 매운맛을 마음 놓고 탐색할 수 있는 곳입니다.",
@@ -532,6 +547,7 @@ export const restaurants = [
       "A pocos pasos de la Mezquita Central de Seúl, Makan es una puerta de entrada asequible a la cocina local. Su carta, muy económica, va de los guisos picantes al pescado a la parrilla, todo preparado con cuidado. Aquí los viajeros musulmanes pueden explorar los sabores coreanos más intensos con total tranquilidad.",
     storyFr: "À quelques pas de la Grande Mosquée de Séoul, Makan offre une porte d'entrée accessible vers la cuisine locale. Sa carte très abordable va des ragoûts épicés au poisson grillé, tout est préparé avec soin. Les voyageurs musulmans peuvent y explorer les saveurs coréennes les plus relevées en toute tranquillité.",
     storyAr: "على بُعد خطوات من مسجد سول المركزي، يوفّر ماكان مدخلًا سهلًا إلى المطبخ المحلي. وقائمته الزهيدة تمتدّ من اليخنات الحارّة إلى السمك المشوي، وكلّها معدّة بعناية. ويستطيع المسافرون المسلمون هنا أن يستكشفوا النكهات الكورية الحارّة الأصيلة بطمأنينة كاملة.",
+    storyZh: "离首尔中央清真寺只有几步，Makan 提供了一条进入本地菜的方便入口。它非常实惠的菜单从辣炖菜一路到烤鱼，样样做得细致。穆斯林旅客可以在这里完全放心地探索地道而火辣的韩国味道。",
     esg_point: "Affordable Halal access to everyday Korean dishes",
 
     image: "/images/halal_meat.svg",
@@ -568,9 +584,9 @@ export const restaurants = [
     phone: fact("0507-1380-9249", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
     transit: fact({ station: "Myeongdong", line: "Line 4", exit: null, walkingMinutes: 5, distanceM: 318 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 명동역 4호선: 318 m / 314 s. Exit not given by the routing API" }),
     menus: fact([
-      { name: "Nasi Lemak", nameKo: "나시 르막", nameEs: "Nasi lemak", nameFr: "Nasi lemak", nameAr: "ناسي ليماك", price: "9,000–14,000 KRW" },
-      { name: "Nasi Goreng Kampungku", nameKo: "나시 고렝 캄풍쿠", nameEs: "Nasi goreng Kampungku", nameFr: "Nasi goreng Kampungku", nameAr: "ناسي غورينغ كامبونغكو", price: "11,000 KRW" },
-      { name: "Budae Jjigae (Army Stew)", nameKo: "부대찌개", nameEs: "Budae jjigae (guiso del ejército)", nameFr: "Budae jjigae (ragoût de l'armée)", nameAr: "بوداي جيغاي (يخنة الجيش)", price: "24,000 KRW" },
+      { name: "Nasi Lemak", nameKo: "나시 르막", nameEs: "Nasi lemak", nameFr: "Nasi lemak", nameAr: "ناسي ليماك", nameZh: "椰浆饭", price: "9,000–14,000 KRW" },
+      { name: "Nasi Goreng Kampungku", nameKo: "나시 고렝 캄풍쿠", nameEs: "Nasi goreng Kampungku", nameFr: "Nasi goreng Kampungku", nameAr: "ناسي غورينغ كامبونغكو", nameZh: "Kampungku 炒饭", price: "11,000 KRW" },
+      { name: "Budae Jjigae (Army Stew)", nameKo: "부대찌개", nameEs: "Budae jjigae (guiso del ejército)", nameFr: "Budae jjigae (ragoût de l'armée)", nameAr: "بوداي جيغاي (يخنة الجيش)", nameZh: "部队锅", price: "24,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nasi Lemak and Nasi Goreng Kampungku from a DiningCode listing, the latter's price matched independently by a visitor write-up. Budae Jjigae and its price come directly from Seoul's official tourism page (visitseoul.net, last modified 2026-06-30). The draft's \"Halal Bibimbap\" is named in no source found" }),
 
     dietary: {
@@ -601,6 +617,7 @@ export const restaurants = [
     vibeEs: "Fusión malayo-coreana cerca de Myeongdong, con chef musulmán y sala de oración en la tercera planta.",
     vibeFr: "Une adresse fusion malaiso-coréenne près de Myeongdong, avec un chef musulman et une salle de prière au troisième étage.",
     vibeAr: "مطبخ ماليزي كوري قرب ميونغ-دونغ، بطاهٍ مسلم ومصلّى في الطابق الثالث.",
+    vibeZh: "明洞附近的马来—韩国融合店，有穆斯林主厨，三楼有祈祷室。",
     story: "Kampungku — Malay for \"my village\" — pairs a Malaysian chef's nasi lemak and nasi goreng with halal-ingredient Korean dishes like budae jjigae, steps from Myeongdong's shopping streets. A third-floor prayer room, noted independently by visitors, makes it a stop several halal-food guides point Muslim travelers to. The kitchen describes itself as halal-friendly; no certificate has been sighted to call it more than that.",
     storyKo:
       "캄풍쿠 — 말레이어로 '내 마을' — 는 말레이시아 셰프의 나시 르막과 나시 고렝을, 할랄 재료로 만든 부대찌개 같은 한식과 함께 냅니다. 명동 상가 거리에서 몇 걸음이에요. 방문객들이 따로 언급한 3층 기도실 덕분에 여러 할랄 음식 안내서가 무슬림 여행자에게 짚어 주는 곳이 되었습니다. 주방은 스스로를 할랄 친화적이라고 소개하며, 그 이상으로 부를 인증서는 확인되지 않았습니다.",
@@ -608,6 +625,7 @@ export const restaurants = [
       "Kampungku — «mi pueblo» en malayo — junta el nasi lemak y el nasi goreng de un chef malasio con platos coreanos de ingredientes halal, como el budae jjigae, a pocos pasos de las calles comerciales de Myeongdong. Una sala de oración en la tercera planta, señalada por los propios visitantes, lo ha convertido en una parada que varias guías de comida halal recomiendan a viajeros musulmanes. La cocina se describe como apta para halal; no se ha visto ningún certificado que permita decir más.",
     storyFr: "Kampungku — « mon village » en malais — associe le nasi lemak et le nasi goreng d'un chef malaisien à des plats coréens aux ingrédients halal comme le budae jjigae, à deux pas des rues commerçantes de Myeongdong. Une salle de prière au troisième étage, signalée indépendamment par des visiteurs, en fait une étape que plusieurs guides de cuisine halal indiquent aux voyageurs musulmans. La cuisine se décrit comme halal-friendly ; aucun certificat n'a été vu qui permette d'en dire davantage.",
     storyAr: "كامبونغكو — «قريتي» بالملايوية — يجمع ناسي ليماك وناسي غورينغ من طاهٍ ماليزي مع أطباق كورية بمكوّنات حلال مثل البوداي جيغاي، على بُعد خطوات من شوارع ميونغ-دونغ التجارية. ومصلّى في الطابق الثالث، أشار إليه زوّار بشكل مستقلّ، يجعله محطة تدلّ عليها عدة أدلّة للطعام الحلال. ويصف المطبخ نفسه بأنه ملائم للحلال؛ ولم تُرَ شهادة تتيح قول أكثر من ذلك.",
+    storyZh: "Kampungku——马来语的\"我的村子\"——把一位马来主厨的椰浆饭和炒饭，与用清真食材做的韩国菜如部队锅放在一起，离明洞的商业街只有几步。三楼有一间祈祷室，访客各自独立提到过，这让好几本清真美食指南把它指给穆斯林旅客。厨房自称对清真友好；没有见到证书，所以不能说得比这更多。",
     esg_point: "A Muslim chef's kitchen bridging Malaysian and Korean tables, with an on-site prayer room",
 
     image: "/images/halal_meat.svg",
@@ -643,9 +661,9 @@ export const restaurants = [
     instagram: fact("https://www.instagram.com/nonoshop_cafe", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this account as the venue's own" }),
     transit: fact({ station: "Hoehyeon", line: "Line 4", exit: null, walkingMinutes: 4, distanceM: 211 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 회현역 4호선: 211 m / 205 s. Exit not given by the routing API" }),
     menus: fact([
-      { name: "Americano", nameKo: "아메리카노", nameEs: "Americano", nameFr: "Americano", nameAr: "أمريكانو", price: "5,000 KRW" },
-      { name: "Praline Latte", nameKo: "프랄린 라떼", nameEs: "Latte de praliné", nameFr: "Latte praliné", nameAr: "لاتيه البرالين", price: "8,000 KRW" },
-      { name: "Lotus Tiramisu", nameKo: "로투스 티라미수", nameEs: "Tiramisú de Lotus", nameFr: "Tiramisu Lotus", nameAr: "تيراميسو لوتس", price: "8,500 KRW" },
+      { name: "Americano", nameKo: "아메리카노", nameEs: "Americano", nameFr: "Americano", nameAr: "أمريكانو", nameZh: "美式咖啡", price: "5,000 KRW" },
+      { name: "Praline Latte", nameKo: "프랄린 라떼", nameEs: "Latte de praliné", nameFr: "Latte praliné", nameAr: "لاتيه البرالين", nameZh: "果仁糖拿铁", price: "8,000 KRW" },
+      { name: "Lotus Tiramisu", nameKo: "로투스 티라미수", nameEs: "Tiramisú de Lotus", nameFr: "Tiramisu Lotus", nameAr: "تيراميسو لوتس", nameZh: "Lotus 提拉米苏", price: "8,500 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.DIRECTORY_LISTING, lastCheckedAt: "2026-07-17", evidence: "A DiningCode listing for the current location, described as representative, non-exhaustive offerings. None of the draft's three items (Vegan Croissant, Oat Milk Latte, Zero Waste Nut Mix) are named in any source found, at either the old or new address" }),
 
     dietary: {
@@ -666,6 +684,7 @@ export const restaurants = [
     vibeEs: "Café vegano y tienda sin residuos junto a la estación de Hoehyeon, regentado por el presentador Julian desde que se mudó de Itaewon.",
     vibeFr: "Un café végétalien et une boutique zéro déchet près de la station Hoehyeon, tenus par le présentateur Julian depuis son départ d'Itaewon.",
     vibeAr: "مقهى نباتي ومتجر بلا نفايات قرب محطة هويهيون، يديره المذيع جوليان منذ انتقاله من إيتايوون.",
+    vibeZh: "会贤站旁的纯素咖啡馆兼零废弃小店，主持人 Julian 从梨泰院搬来后经营。",
     story: "Nono Shop moved from Itaewon to a spot beside Hoehyeon Station in mid-2026, one of several small businesses to leave Itaewon as rents climbed. Run by Julian — familiar from Korean TV — it's still a cafe where every drink and dessert on the menu is vegan, paired with zero-waste retail for people building the habit of shopping without single-use packaging.",
     storyKo:
       "노노샵은 2026년 중반 이태원에서 회현역 옆으로 옮겼습니다. 임대료가 오르며 이태원을 떠난 여러 작은 가게 중 하나예요. 한국 방송으로 익숙한 줄리안이 운영하며, 여전히 메뉴의 모든 음료와 디저트가 비건인 카페이고, 일회용 포장 없이 장 보는 습관을 들이려는 사람들을 위한 제로웨이스트 매장이 함께 있습니다.",
@@ -673,6 +692,7 @@ export const restaurants = [
       "Nono Shop se mudó de Itaewon a un local junto a la estación de Hoehyeon a mediados de 2026, uno de los muchos negocios pequeños que dejaron el barrio al subir los alquileres. Lo lleva Julian, conocido por la televisión coreana, y sigue siendo una cafetería donde cada bebida y cada postre de la carta son veganos, con una tienda sin residuos al lado para quien está cogiendo la costumbre de comprar sin envases de un solo uso.",
     storyFr: "Nono Shop a quitté Itaewon pour un local à côté de la station Hoehyeon à la mi-2026, l'un des nombreux petits commerces à partir d'Itaewon avec la hausse des loyers. Tenu par Julian — familier de la télévision coréenne — c'est toujours un café dont chaque boisson et chaque dessert sont végétaliens, doublé d'une boutique zéro déchet pour qui prend l'habitude d'acheter sans emballage jetable.",
     storyAr: "انتقل نونو شوب من إيتايوون إلى محلّ بجانب محطة هويهيون في منتصف 2026، وهو من عدة أعمال صغيرة غادرت إيتايوون مع ارتفاع الإيجارات. ويديره جوليان — المعروف من التلفزيون الكوري — وهو ما زال مقهًى كل مشروب وحلوى فيه نباتي صرف، إلى جانب متجر بلا نفايات لمن يبني عادة التسوّق بلا تغليف يُرمى.",
+    storyZh: "Nono Shop 在2026年年中从梨泰院搬到会贤站旁，是随着租金上涨离开梨泰院的几家小店之一。它由韩国电视上熟面孔的 Julian 经营，仍是一家菜单上每一杯饮料、每一份甜点都是纯素的咖啡馆，旁边配着一间零废弃小店，给正在养成不用一次性包装买东西这个习惯的人。",
     esg_point: "Every menu item vegan; zero-waste retail alongside the cafe",
 
     image: "/images/vegan_cafe.svg",
@@ -727,6 +747,7 @@ export const restaurants = [
     vibeEs: "Un patio soleado de tejas antiguas y cerámica artesanal.",
     vibeFr: "Une cour ensoleillée de vieilles tuiles et de céramiques d'artisan.",
     vibeAr: "فناء مشمس من قرميد قديم وخزف حِرَفي.",
+    vibeZh: "老瓦片与手作陶器围出的一方阳光庭院。",
     story: "This artisanal haven breathes new life into the concept of whole-plant culinary art. Rejecting the modern throwaway culture, the chefs meticulously utilize every stem, root, and leaf to craft delicate, mild-tasting masterpieces. Their dedication to zero-waste cooking elevates humble, organic produce into an elegant celebration of sustainable Korean gastronomy.",
     storyKo:
       "이 장인의 공간은 식물을 통째로 쓰는 요리에 새 숨을 불어넣습니다. 쉽게 버리는 오늘의 문화를 거부하고, 셰프들은 줄기와 뿌리와 잎을 하나하나 살려 섬세하고 순한 맛의 작품을 만듭니다. 제로웨이스트에 대한 이 헌신이 소박한 유기농 재료를 지속 가능한 한식의 우아한 축제로 끌어올립니다.",
@@ -734,6 +755,7 @@ export const restaurants = [
       "Este refugio artesanal insufla vida nueva a la idea de cocinar la planta entera. Rechazando la cultura actual de usar y tirar, sus cocineros aprovechan meticulosamente cada tallo, raíz y hoja para componer obras delicadas y de sabor suave. Esa entrega al residuo cero eleva un producto ecológico humilde a una celebración elegante de la gastronomía coreana sostenible.",
     storyFr: "Ce havre d'artisanat redonne vie à l'idée d'une cuisine de la plante entière. Rejetant la culture du jetable, les cuisiniers utilisent méticuleusement chaque tige, chaque racine et chaque feuille pour composer des plats délicats et doux. Leur engagement zéro déchet élève des produits bio modestes en une célébration élégante de la gastronomie coréenne durable.",
     storyAr: "يبعث هذا الملاذ الحِرَفي حياة جديدة في فكرة فنّ الطبخ بالنبات كاملًا. ورفضًا لثقافة الرمي الحديثة، يستعمل الطهاة بدقة كل ساق وجذر وورقة لصنع تحف رقيقة خفيفة الطعم. والتزامهم بالطبخ بلا نفايات يرفع محاصيل عضوية متواضعة إلى احتفاء أنيق بمطبخ كوري مستدام.",
+    storyZh: "这处手作的去处，为\"整株植物入菜\"这个想法注入了新的生命。厨师拒绝现代的抛弃式做法，细致地用上每一根茎、每一条根、每一片叶，做出精巧而味道温和的作品。他们对零废弃烹饪的坚持，把朴素的有机作物抬升成对可持续韩国料理的一次优雅致意。",
     esg_point: "Zero-waste initiative focusing on utilizing every part of the organic vegetable",
 
     image: "/images/mild_soup.svg",
@@ -754,9 +776,9 @@ export const restaurants = [
     // closing days, so picking one would be a guess dressed as a fact.
     hours: unknownFact("Sources conflict — DiningCode: closed Mon–Tue, Wed–Sat 11:30–20:00 (break 15:00–17:30), Sun 11:30–15:00. A listing summary instead says Mon–Sat 11:00–21:00, Sun 12:00–20:00, break 15:30–17:00. Unresolved"),
     menus: fact([
-      { name: "Temple-style Jang Course", nameKo: "사찰식 장 코스", nameEs: "Menú de jang al estilo de templo", nameFr: "Menu de jang façon temple", nameAr: "مائدة جانغ على طريقة المعبد", price: "~35,000 KRW" },
-      { name: "Fermented Soybean Stew", nameKo: "된장찌개", nameEs: "Guiso de soja fermentada", nameFr: "Ragoût de soja fermenté", nameAr: "يخنة فول الصويا المخمّر", price: "~14,000 KRW" },
-      { name: "Seasonal Namul Plate", nameKo: "제철 나물 한 접시", nameEs: "Plato de namul de temporada", nameFr: "Assiette de namul de saison", nameAr: "طبق نامول الموسم", price: "~12,000 KRW" },
+      { name: "Temple-style Jang Course", nameKo: "사찰식 장 코스", nameEs: "Menú de jang al estilo de templo", nameFr: "Menu de jang façon temple", nameAr: "مائدة جانغ على طريقة المعبد", nameZh: "寺院式酱料套餐", price: "~35,000 KRW" },
+      { name: "Fermented Soybean Stew", nameKo: "된장찌개", nameEs: "Guiso de soja fermentada", nameFr: "Ragoût de soja fermenté", nameAr: "يخنة فول الصويا المخمّر", nameZh: "大酱汤", price: "~14,000 KRW" },
+      { name: "Seasonal Namul Plate", nameKo: "제철 나물 한 접시", nameEs: "Plato de namul de temporada", nameFr: "Assiette de namul de saison", nameAr: "طبق نامول الموسم", nameZh: "当季拌菜拼盘", price: "~12,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     phone: fact("02-536-5228", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "Menupan listing. DiningCode instead lists 0507-1418-5228, a forwarding number — not contradictory, but unconfirmed" }),
@@ -775,6 +797,7 @@ export const restaurants = [
     vibeEs: "Un refugio sereno de puertas de papel y madera de pino.",
     vibeFr: "Un sanctuaire paisible de portes de papier et de bois de pin.",
     vibeAr: "ملاذ هادئ من أبواب ورقية وخشب صنوبر.",
+    vibeZh: "纸门与松木构成的一处安静去处。",
     story: "Maji stands as a pinnacle of inclusive, sustainable dining, offering a fully plant-based menu that naturally adheres to Halal standards. The soul of their cuisine lies in traditional 'Jang' (soy paste and sauce), fermented naturally in breathing clay pots for over three years. This uncompromising artisanal dedication guarantees a profoundly rich, earth-conscious culinary journey.",
     storyKo:
       "마지는 포용적이고 지속 가능한 식사의 한 정점입니다. 온전히 식물성인 메뉴가 자연스럽게 할랄 기준에도 맞습니다. 이 요리의 핵심은 전통 '장'에 있는데, 숨 쉬는 옹기 안에서 삼 년 넘게 자연 발효시킨 것입니다. 타협하지 않는 이 장인 정신이 깊고 풍부하며 땅을 생각하는 한 끼를 보장합니다.",
@@ -782,6 +805,7 @@ export const restaurants = [
       "Maji es una cumbre de la cocina inclusiva y sostenible: una carta enteramente vegetal que además cumple de forma natural con las normas halal. El alma de su cocina está en el 'jang' tradicional — pasta y salsa de soja — fermentado de manera natural en vasijas de barro que respiran durante más de tres años. Esa dedicación artesanal sin concesiones garantiza un viaje culinario profundamente sabroso y consciente con la tierra.",
     storyFr: "Maji est un sommet de cuisine inclusive et durable : une carte entièrement végétale qui respecte naturellement les exigences halal. L'âme de sa cuisine tient au 'jang' traditionnel (pâtes et sauces de soja), fermenté naturellement plus de trois ans dans des jarres de terre qui respirent. Cette exigence artisanale sans compromis garantit un voyage culinaire profondément riche et respectueux de la terre.",
     storyAr: "يقف ماجي قمّةً في الطعام الشامل المستدام، بقائمة نباتية بالكامل تلتزم طبيعيًّا بمعايير الحلال. وروح مطبخه في الـ«جانغ» التقليدي (معجون الصويا وصلصاتها)، المخمّر طبيعيًّا في جرار طينية تتنفّس أكثر من ثلاث سنوات. وهذا الإخلاص الحِرَفي بلا مساومة يضمن رحلة طعام غنيّة عميقًا وواعية بالأرض.",
+    storyZh: "马知是包容而可持续餐饮的一个高点，提供一份全植物性、并自然符合清真标准的菜单。它烹饪的灵魂在于传统的\"酱\"（大酱与酱油），在会呼吸的陶缸里自然发酵三年以上。这份不打折扣的手作坚持，保证了一场深厚而对土地有觉察的味觉旅程。",
     esg_point: "Plant-based inclusivity with naturally fermented soy sauces aged over 3 years",
 
     image: "/images/fermented_dish.svg",
@@ -804,10 +828,10 @@ export const restaurants = [
     address: fact("5 Technopark-ro 111beon-gil, Yeonsu-gu, Incheon (Star Building, 1F)", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", precision: "street", evidence: "chaeyuk.com's branch list, Kakao Map and Incheon's public food-business licensing record all give 테크노파크로111번길 5. The licence adds the unit: 스타빌딩 주1동 1층 일부호 (송도동), 지번 송도동 8-12, licensed 2024-05-02" }),
     hours: fact({ raw: "10:00 – 22:00", weekly: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "chaeyuk.com lists the Songdo branch as 10:00–22:00; two independent visitor write-ups give the same window and say daily. Last order is left out on purpose: the operator says 21:00 and the write-ups say 21:30, and a conflict is not averaged. No per-day breakdown is published, so weekly stays null" }),
     menus: fact([
-      { name: "Handon jeyuk jeongsik (한돈 제육 정식) — grade-1 Korean pork", nameKo: "한돈 제육 정식 — 국내산 1등급 돼지고기", nameEs: "Handon jeyuk jeongsik (한돈 제육 정식) — cerdo coreano de grado 1", nameFr: "Handon jeyuk jeongsik (한돈 제육 정식) — porc coréen de catégorie 1", nameAr: "هاندون جيوك جونغسيك (한돈 제육 정식) — لحم خنزير كوري من الدرجة الأولى", price: null },
-      { name: "U-bulgogi jeongsik (우불고기 정식) — beef", nameKo: "우불고기 정식 — 소고기", nameEs: "U-bulgogi jeongsik (우불고기 정식) — ternera", nameFr: "U-bulgogi jeongsik (우불고기 정식) — bœuf", nameAr: "أو-بولغوغي جونغسيك (우불고기 정식) — لحم بقر", price: null },
-      { name: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — beef brisket", nameKo: "차돌백 순두부찌개 백반 — 차돌양지", nameEs: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — falda de ternera", nameFr: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — poitrine de bœuf", nameAr: "تشادولباك سوندوبو-جيغاي بيكبان (차돌백 순두부찌개 백반) — صدر بقر", price: null },
-      { name: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — the soy-meat version", nameKo: "콩고기 제육 정식 — 콩고기 버전", nameEs: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — la versión con carne de soja", nameFr: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — la version à la viande de soja", nameAr: "كونغوغي جيوك جونغسيك (콩고기 제육 정식) — نسخة لحم الصويا", price: null },
+      { name: "Handon jeyuk jeongsik (한돈 제육 정식) — grade-1 Korean pork", nameKo: "한돈 제육 정식 — 국내산 1등급 돼지고기", nameEs: "Handon jeyuk jeongsik (한돈 제육 정식) — cerdo coreano de grado 1", nameFr: "Handon jeyuk jeongsik (한돈 제육 정식) — porc coréen de catégorie 1", nameAr: "هاندون جيوك جونغسيك (한돈 제육 정식) — لحم خنزير كوري من الدرجة الأولى", nameZh: "한돈 제육 정식 — 一级韩国猪肉", price: null },
+      { name: "U-bulgogi jeongsik (우불고기 정식) — beef", nameKo: "우불고기 정식 — 소고기", nameEs: "U-bulgogi jeongsik (우불고기 정식) — ternera", nameFr: "U-bulgogi jeongsik (우불고기 정식) — bœuf", nameAr: "أو-بولغوغي جونغسيك (우불고기 정식) — لحم بقر", nameZh: "우불고기 정식 — 牛肉", price: null },
+      { name: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — beef brisket", nameKo: "차돌백 순두부찌개 백반 — 차돌양지", nameEs: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — falda de ternera", nameFr: "Chadolbak sundubu-jjigae baekban (차돌백 순두부찌개 백반) — poitrine de bœuf", nameAr: "تشادولباك سوندوبو-جيغاي بيكبان (차돌백 순두부찌개 백반) — صدر بقر", nameZh: "차돌백 순두부찌개 백반 — 牛胸腹肉", price: null },
+      { name: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — the soy-meat version", nameKo: "콩고기 제육 정식 — 콩고기 버전", nameEs: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — la versión con carne de soja", nameFr: "Kongogi jeyuk jeongsik (콩고기 제육 정식) — la version à la viande de soja", nameAr: "كونغوغي جيوك جونغسيك (콩고기 제육 정식) — نسخة لحم الصويا", nameZh: "콩고기 제육 정식 — 豆制版本", price: null },
     ], { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The operator's three featured dishes plus the soy-meat counterpart it pairs them with. Prices are not published on the operator's site and are left unstated rather than carried over from the draft. Replaces a draft list whose \"Mushroom Bulgogi Set\" appears nowhere on the operator's menu" }),
 
     phone: fact("032-833-1554", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "chaeyuk.com's branch list. Visitor write-ups give 0507-1450-1554, a forwarding number; the operator's own landline is recorded instead" }),
@@ -831,6 +855,7 @@ export const restaurants = [
     vibeEs: "Un sitio luminoso, tipo comedor, con barra libre de namul fresco.",
     vibeFr: "Une adresse lumineuse, façon cantine, avec un bar à namul frais à volonté.",
     vibeAr: "مكان مضيء على هيئة مقصف، مع بار نامول طازج بلا حدود.",
+    vibeZh: "明亮的食堂式店面，有可无限取用的新鲜拌菜吧。",
     story: "채육 means vegetable and meat, and Chaeyuk Sikdang means both literally: the same jeyuk bokkeum — the pork stir-fry that is the default Korean worker's lunch — arrives either as grade-1 Korean pork or as a soy-meat version made with a plant-based meat the company patented in 2022. You pick. Either way it comes with rice, a stew, and a self-serve vegetable bar, which is what a Korean lunch has always looked like.",
     storyKo:
       "채육은 채소와 고기라는 뜻이고, 채육식당은 그 두 가지를 말 그대로 다 합니다. 한국 직장인의 기본 점심인 제육볶음이 국내산 1등급 돼지고기로도, 이 회사가 2022년에 특허를 낸 식물성 고기로 만든 콩고기 버전으로도 나옵니다. 고르시면 됩니다. 어느 쪽이든 밥과 찌개, 그리고 셀프 채소 바가 함께 나오는데, 한국의 점심은 원래 그런 모양이었습니다.",
@@ -838,6 +863,7 @@ export const restaurants = [
       "채육 significa «verdura y carne», y Chaeyuk Sikdang cumple las dos cosas al pie de la letra: el mismo jeyuk bokkeum — el salteado de cerdo que es el almuerzo por defecto del trabajador coreano — llega o bien con cerdo coreano de grado 1, o bien en una versión de carne de soja hecha con un producto vegetal que la empresa patentó en 2022. Eliges tú. En cualquier caso viene con arroz, un guiso y una barra libre de verduras, que es la forma que ha tenido siempre un almuerzo coreano.",
     storyFr: "채육 veut dire légume et viande, et Chaeyuk Sikdang tient les deux au pied de la lettre : le même jeyuk bokkeum — le sauté de porc qui est le déjeuner par défaut du travailleur coréen — arrive soit en porc coréen de catégorie 1, soit en version viande de soja faite avec une protéine végétale que l'entreprise a brevetée en 2022. À vous de choisir. Dans les deux cas cela vient avec du riz, un ragoût et un bar à légumes en libre-service, ce à quoi un déjeuner coréen a toujours ressemblé.",
     storyAr: "채육 تعني الخضار واللحم، ويعني تشايوك سيكدانغ كليهما حرفيًّا: الجيوك بوكّم نفسه — سَوتيه لحم الخنزير الذي هو غداء العامل الكوري الافتراضي — يصل إمّا لحم خنزير كوري من الدرجة الأولى وإمّا نسخة لحم صويا مصنوعة ببروتين نباتي سجّلت الشركة براءته عام 2022. أنت تختار. وفي الحالتين يأتي مع أرز ويخنة وبار خضار تخدم فيه نفسك، وهذا ما كان عليه الغداء الكوري دائمًا.",
+    storyZh: "채육的意思是蔬菜和肉，而채육식당两样都是字面意思：同一道제육볶음——那道作为韩国上班族默认午餐的辣炒猪肉——上来时要么是一级韩国猪肉，要么是用公司在2022年取得专利的植物肉做的豆制版本。你自己选。无论哪一种，都配米饭、一道汤，和一个自助的蔬菜吧——韩国的午饭一直就是这个样子。",
     esg_point: "A patented soy meat offered as a swap for pork in everyday Korean dishes",
 
     image: "/images/vegan_cafe.svg",
@@ -863,9 +889,9 @@ export const restaurants = [
     // rather than picking one — the same call made for `maji` (§2.11).
     hours: unknownFact("Not stated because sources conflict: a directory listing gives 11:00–20:00 with a 15:30–17:30 break, a March 2026 visitor report gives 11:00–21:00. Every source agrees it closes Tuesday and Wednesday, but a set of hours that cannot state its own closing time is not worth stating. The operator publishes no site and orders go through a table QR code, so settling this needs a call to the venue"),
     menus: fact([
-      { name: "Ratatouille (라따뚜이) — the vegan signature", nameKo: "라따뚜이 — 비건 시그니처", nameEs: "Ratatouille (라따뚜이) — el plato vegano de la casa", nameFr: "Ratatouille (라따뚜이) — la signature végétalienne", nameAr: "راتاتوي (라따뚜이) — طبق التوقيع النباتي", price: "23,000 KRW" },
-      { name: "Fish steak (피쉬 스테이크)", nameKo: "피쉬 스테이크", nameEs: "Filete de pescado (피쉬 스테이크)", nameFr: "Steak de poisson (피쉬 스테이크)", nameAr: "شريحة سمك (피쉬 스테이크)", price: "19,000 KRW" },
-      { name: "Cream gnocchi (크림 뇨끼)", nameKo: "크림 뇨끼", nameEs: "Ñoquis a la crema (크림 뇨끼)", nameFr: "Gnocchis à la crème (크림 뇨끼)", nameAr: "نيوكي بالكريمة (크림 뇨끼)", price: "19,000 KRW" },
+      { name: "Ratatouille (라따뚜이) — the vegan signature", nameKo: "라따뚜이 — 비건 시그니처", nameEs: "Ratatouille (라따뚜이) — el plato vegano de la casa", nameFr: "Ratatouille (라따뚜이) — la signature végétalienne", nameAr: "راتاتوي (라따뚜이) — طبق التوقيع النباتي", nameZh: "普罗旺斯杂烩（라따뚜이）— 纯素招牌", price: "23,000 KRW" },
+      { name: "Fish steak (피쉬 스테이크)", nameKo: "피쉬 스테이크", nameEs: "Filete de pescado (피쉬 스테이크)", nameFr: "Steak de poisson (피쉬 스테이크)", nameAr: "شريحة سمك (피쉬 스테이크)", nameZh: "鱼排（피쉬 스테이크）", price: "19,000 KRW" },
+      { name: "Cream gnocchi (크림 뇨끼)", nameKo: "크림 뇨끼", nameEs: "Ñoquis a la crema (크림 뇨끼)", nameFr: "Gnocchis à la crème (크림 뇨끼)", nameAr: "نيوكي بالكريمة (크림 뇨끼)", nameZh: "奶油意式团子（크림 뇨끼）", price: "19,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "A directory listing and two independent visitor write-ups give these three dishes at these same prices. Replaces a draft list whose \"Vegetable-forward Brunch Plate\" and \"Fresh Tomato Bruschetta\" appear in no source found, and which priced the ratatouille at ~18,000 where every 2026 source says 23,000. The kitchen changes its menu seasonally, so this is a snapshot, not a fixed card" }),
 
     phone: fact("0507-1393-3312", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing; a 0507 number forwards to the venue's real line" }),
@@ -887,6 +913,7 @@ export const restaurants = [
     vibeEs: "Un café de brunch con Blue Ribbon donde las verduras son las protagonistas.",
     vibeFr: "Un café de brunch primé au Blue Ribbon où le légume tient le premier rôle.",
     vibeAr: "مقهى فطور متأخّر حائز على الشريط الأزرق، البطولة فيه للخضار.",
+    vibeZh: "一家拿过蓝丝带的早午饭咖啡馆，主角是蔬菜。",
     story: "Awarded the prestigious Blue Ribbon, this vegetable-forward brunch cafe elevates simple ingredients to art. Their signature ratatouille emphasizes the mild, intrinsic sweetness of slow-cooked local produce. It stands as a testament to the fact that healthy, meatless meals can achieve culinary excellence in Incheon.",
     storyKo:
       "권위 있는 블루리본을 받은 이 채소 중심 브런치 카페는 단순한 재료를 예술로 끌어올립니다. 시그니처 라따뚜이는 천천히 익힌 지역 농산물의 은은한 본연의 단맛을 앞세웁니다. 건강하고 고기 없는 한 끼도 인천에서 요리적 탁월함에 이를 수 있다는 증거입니다.",
@@ -894,6 +921,7 @@ export const restaurants = [
       "Galardonado con el prestigioso Blue Ribbon, este café de brunch centrado en la verdura eleva a arte los ingredientes sencillos. Su ratatouille insignia realza el dulzor suave y propio del producto local cocinado despacio. Es la prueba de que una comida sana y sin carne puede alcanzar la excelencia culinaria en Incheon.",
     storyFr: "Récompensé par le prestigieux Blue Ribbon, ce café de brunch tourné vers le légume hisse des ingrédients simples au rang d'art. Sa ratatouille signature met en avant la douceur naturelle de produits locaux longuement mijotés. La preuve qu'un repas sain et sans viande peut atteindre l'excellence culinaire à Incheon.",
     storyAr: "حائزًا على الشريط الأزرق المرموق، يرفع هذا المقهى المتّجه إلى الخضار مكوّنات بسيطة إلى مرتبة الفنّ. وراتاتوي التوقيع لديه يبرز الحلاوة الكامنة الرقيقة لمحاصيل محلية طُهيت ببطء. وهو شاهد على أن الوجبات الصحية بلا لحم قادرة على بلوغ التميّز المطبخي في إنتشون.",
+    storyZh: "拿过含金量很高的蓝丝带，这家以蔬菜为主的早午饭咖啡馆把简单的食材抬升成艺术。它的招牌普罗旺斯杂烩突出了慢煮本地作物那份温和的、本来就有的甜。它证明了健康的无肉餐点，在仁川也能达到烹饪上的出色。",
     esg_point: "Vegetable-forward menu built on slow-cooked local produce",
 
     image: "/images/mild_soup.svg",
@@ -926,9 +954,9 @@ export const restaurants = [
       sun: [],
     } }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "A directory listing and four independent 2026 visitor reports all give the same window: 월–토 09:00–16:00, 라스트오더 15:00, 일요일 정기휴무. These are the post-renovation hours; the 10:00–21:00 in older write-ups belonged to the à la carte restaurant and is superseded, not in conflict" }),
     menus: fact([
-      { name: "Brunch buffet — adult", nameKo: "브런치 뷔페 — 성인", nameEs: "Bufé de brunch — adulto", nameFr: "Buffet de brunch — adulte", nameAr: "بوفيه فطور متأخّر — بالغ", price: "15,900 KRW" },
-      { name: "Brunch buffet — elementary school child", nameKo: "브런치 뷔페 — 초등학생", nameEs: "Bufé de brunch — niño de primaria", nameFr: "Buffet de brunch — enfant en primaire", nameAr: "بوفيه فطور متأخّر — طفل ابتدائي", price: "9,900 KRW" },
-      { name: "Brunch buffet — preschool child", nameKo: "브런치 뷔페 — 미취학 아동", nameEs: "Bufé de brunch — niño en edad preescolar", nameFr: "Buffet de brunch — enfant d'âge préscolaire", nameAr: "بوفيه فطور متأخّر — طفل ما قبل المدرسة", price: "6,900 KRW" },
+      { name: "Brunch buffet — adult", nameKo: "브런치 뷔페 — 성인", nameEs: "Bufé de brunch — adulto", nameFr: "Buffet de brunch — adulte", nameAr: "بوفيه فطور متأخّر — بالغ", nameZh: "早午饭自助 — 成人", price: "15,900 KRW" },
+      { name: "Brunch buffet — elementary school child", nameKo: "브런치 뷔페 — 초등학생", nameEs: "Bufé de brunch — niño de primaria", nameFr: "Buffet de brunch — enfant en primaire", nameAr: "بوفيه فطور متأخّر — طفل ابتدائي", nameZh: "早午饭自助 — 小学生", price: "9,900 KRW" },
+      { name: "Brunch buffet — preschool child", nameKo: "브런치 뷔페 — 미취학 아동", nameEs: "Bufé de brunch — niño en edad preescolar", nameFr: "Buffet de brunch — enfant d'âge préscolaire", nameAr: "بوفيه فطور متأخّر — طفل ما قبل المدرسة", nameZh: "早午饭自助 — 学龄前儿童", price: "6,900 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Buffet pricing, corroborated by a directory listing, a booking platform and visitor reports. The à la carte list this replaces (Vegan Lasagna / Vegan Gnocchi / Basil Pesto Pasta) no longer exists as a format. Individual dishes are not listed because the buffet rotates weekly — naming them would be stale within days" }),
 
     phone: fact("0507-1330-0619", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing, matched by three independent write-ups; a 0507 number forwards to the venue's real line" }),
@@ -953,6 +981,7 @@ export const restaurants = [
     vibeEs: "Un bufé de brunch que cambia cada semana, en la sala que fue el restaurante vegano más conocido de Incheon.",
     vibeFr: "Un buffet de brunch qui change chaque semaine, dans la salle qui fut le restaurant végétalien le plus connu d'Incheon.",
     vibeAr: "بوفيه فطور متأخّر يتغيّر كل أسبوع، في القاعة التي كانت أشهر مطعم نباتي في إنتشون.",
+    vibeZh: "每周换菜的早午饭自助，就在仁川最有名的那家纯素餐厅原来的屋子里。",
     story: "Rim opened in 2019 on Dongincheon's Gaehang-ro as 더 비기닝 (The Beginning), moved to Cheongna in 2023, and spent years as the restaurant Incheon vegans named first — a Blue Ribbon kitchen where nothing on the plate came from an animal and the sauces were made in-house. In June 2026 it renovated into a brunch buffet with a menu that changes every week. Plant-based dishes are still the heart of it, but the buffet is no longer vegan-only: a chicken stew may sit on the same counter as the tofu salad. Worth knowing before you go, whichever way you eat.",
     storyKo:
       "림은 2019년 동인천 개항로에 '더 비기닝'이라는 이름으로 문을 열었고, 2023년 청라로 옮겼으며, 인천의 비건들이 가장 먼저 이름을 대던 식당으로 여러 해를 보냈습니다. 접시 위에 동물에서 온 것이 하나도 없고 소스를 직접 만들던 블루리본 주방이었어요. 2026년 6월에 매주 메뉴가 바뀌는 브런치 뷔페로 새 단장했습니다. 식물성 요리가 여전히 중심이지만 뷔페 자체는 더 이상 비건 전용이 아닙니다. 두부 샐러드 옆에 닭볶음탕이 놓일 수 있어요. 어떤 식으로 드시든, 가시기 전에 알아 두실 만합니다.",
@@ -960,6 +989,7 @@ export const restaurants = [
       "Rim abrió en 2019 en la Gaehang-ro de Dongincheon con el nombre 더 비기닝 (The Beginning), se mudó a Cheongna en 2023 y pasó años siendo el restaurante que los veganos de Incheon nombraban primero: una cocina con Blue Ribbon donde nada del plato venía de un animal y las salsas se hacían en casa. En junio de 2026 se reformó como bufé de brunch con una carta que cambia cada semana. Los platos vegetales siguen siendo el corazón, pero el bufé ya no es solo vegano: un guiso de pollo puede compartir mostrador con la ensalada de tofu. Conviene saberlo antes de ir, comas como comas.",
     storyFr: "Rim a ouvert en 2019 sur la Gaehang-ro de Dongincheon sous le nom 더 비기닝 (The Beginning), a déménagé à Cheongna en 2023, et a été des années durant le restaurant que les véganes d'Incheon citaient en premier — une cuisine Blue Ribbon où rien dans l'assiette ne venait d'un animal et où les sauces étaient faites maison. En juin 2026, il a été rénové en buffet de brunch dont la carte change chaque semaine. Les plats végétaux en restent le cœur, mais le buffet n'est plus exclusivement végétalien : un ragoût de poulet peut voisiner avec la salade de tofu. Bon à savoir avant d'y aller, quelle que soit votre façon de manger.",
     storyAr: "افتُتح ريم عام 2019 على غيهانغ-رو في دونغإنتشون باسم 더 비기닝 (البداية)، وانتقل إلى تشونغنا عام 2023، وظلّ سنوات المطعم الذي يذكره نباتيو إنتشون أولًا — مطبخ بالشريط الأزرق لا شيء في صحنه من حيوان وصلصاته تُصنع في البيت. وفي حزيران 2026 جُدّد ليصير بوفيه فطور متأخّر بقائمة تتغيّر كل أسبوع. وما زالت الأطباق النباتية قلبه، لكن البوفيه لم يعد نباتيًّا خالصًا: قد تجاور يخنة دجاج سلطة التوفو على المنضدة نفسها. يُحسن أن تعرف ذلك قبل الذهاب، أيًّا كانت طريقتك في الأكل.",
+    storyZh: "림在2019年以 더 비기닝（开始）之名开在东仁川的开港路，2023年搬到青萝，多年来一直是仁川纯素者第一个会提到的餐厅——一家蓝丝带的厨房，盘子里没有一样来自动物，酱汁都是自己做的。2026年6月它改成了每周换菜的早午饭自助。植物性的菜仍然是核心，但自助台不再只有纯素：一锅鸡汤可能和豆腐沙拉摆在同一条台面上。去之前值得知道这一点，不管你怎么吃。",
     // Timeline events are drawn straight from the story above — all confirmed
     // during the 2026-07-17 verification (d24144c), none newly researched.
     timeline: [
@@ -990,9 +1020,9 @@ export const restaurants = [
     // one — the same call made for `maji` and `iryonghal` (§2.11).
     hours: unknownFact("Not stated because sources conflict: Incheon's tourism site (last modified 2026-04-23) gives 10:00–19:30, closed Monday; a directory listing dated 2026-07-11 gives daily 10:00–21:00, last order 20:30. A government source and a directory disagree on both the closing time and the weekly pattern, with no third source to break the tie"),
     menus: fact([
-      { name: "Signature vegan cookie (시그니처 비건쿠키)", nameKo: "시그니처 비건쿠키", nameEs: "Galleta vegana de la casa (시그니처 비건쿠키)", nameFr: "Cookie végétalien signature (시그니처 비건쿠키)", nameAr: "كعكة نباتية من التوقيع (시그니처 비건쿠키)", price: "4,500 KRW" },
-      { name: "Greek yogurt bowl (그릭요거트 볼)", nameKo: "그릭요거트 볼", nameEs: "Bol de yogur griego (그릭요거트 볼)", nameFr: "Bol de yaourt grec (그릭요거트 볼)", nameAr: "وعاء زبادي يوناني (그릭요거트 볼)", price: "5,800–6,900 KRW" },
-      { name: "Peanut ppotto yellow cheesecake (피넛뽀또 황치즈케이크) — not vegan", nameKo: "피넛뽀또 황치즈케이크 — 비건 아님", nameEs: "Tarta de queso amarillo con peanut ppotto (피넛뽀또 황치즈케이크) — no vegana", nameFr: "Cheesecake au fromage jaune et peanut ppotto (피넛뽀또 황치즈케이크) — non végétalien", nameAr: "تشيزكيك بالجبن الأصفر والفول السوداني (피넛뽀또 황치즈케이크) — غير نباتي", price: "7,800 KRW" },
+      { name: "Signature vegan cookie (시그니처 비건쿠키)", nameKo: "시그니처 비건쿠키", nameEs: "Galleta vegana de la casa (시그니처 비건쿠키)", nameFr: "Cookie végétalien signature (시그니처 비건쿠키)", nameAr: "كعكة نباتية من التوقيع (시그니처 비건쿠키)", nameZh: "招牌纯素饼干（시그니처 비건쿠키）", price: "4,500 KRW" },
+      { name: "Greek yogurt bowl (그릭요거트 볼)", nameKo: "그릭요거트 볼", nameEs: "Bol de yogur griego (그릭요거트 볼)", nameFr: "Bol de yaourt grec (그릭요거트 볼)", nameAr: "وعاء زبادي يوناني (그릭요거트 볼)", nameZh: "希腊酸奶碗（그릭요거트 볼）", price: "5,800–6,900 KRW" },
+      { name: "Peanut ppotto yellow cheesecake (피넛뽀또 황치즈케이크) — not vegan", nameKo: "피넛뽀또 황치즈케이크 — 비건 아님", nameEs: "Tarta de queso amarillo con peanut ppotto (피넛뽀또 황치즈케이크) — no vegana", nameFr: "Cheesecake au fromage jaune et peanut ppotto (피넛뽀또 황치즈케이크) — non végétalien", nameAr: "تشيزكيك بالجبن الأصفر والفول السوداني (피넛뽀또 황치즈케이크) — غير نباتي", nameZh: "花生黄芝士蛋糕（피넛뽀또 황치즈케이크）— 非纯素", price: "7,800 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "A directory listing and an independent visitor write-up agree on these items and prices. The draft's \"Gluten-free Bread\" appears in no source found and is dropped. The cheesecake is listed deliberately: the same visitor write-up labels it \"논비건\" (not vegan), which is why the dietary level below is corrected" }),
 
     dietary: {
@@ -1014,6 +1044,7 @@ export const restaurants = [
     vibeEs: "Un mostrador de postres al que puedes ir con perro o gato, mayoritariamente vegetal aunque no del todo.",
     vibeFr: "Un comptoir de desserts qui accueille chiens et chats, majoritairement mais pas entièrement végétal.",
     vibeAr: "منضدة حلويات ترحّب بالقطط والكلاب، نباتية في معظمها لا كلّها.",
+    vibeZh: "可以带猫狗的甜点柜台，大部分——但不是全部——是植物性的。",
     story: "The name plays on an irony that turns out to be only half true: Meat Morning bakes vegan cookies and Greek yogurt bowls that built its reputation with health-conscious regulars, but the counter also holds a dairy cheesecake alongside them. Vegan and not, side by side — worth knowing before you order on the badge alone.",
     storyKo:
       "이름은 절반만 맞는 아이러니를 가지고 놉니다. 밋모닝은 건강을 챙기는 단골들에게 이름을 알린 비건 쿠키와 그릭요거트 볼을 굽지만, 진열대에는 유제품 치즈케이크도 함께 놓여 있습니다. 비건과 비건 아닌 것이 나란히 — 간판만 보고 주문하기 전에 알아 두시면 좋습니다.",
@@ -1021,6 +1052,7 @@ export const restaurants = [
       "El nombre juega con una ironía que resulta ser solo a medias cierta: Meat Morning hornea las galletas veganas y los bols de yogur griego que le dieron nombre entre la clientela que cuida lo que come, pero el mostrador sostiene además una tarta de queso con lácteos. Vegano y no vegano, uno al lado del otro: conviene saberlo antes de pedir solo por la etiqueta.",
     storyFr: "Le nom joue sur une ironie qui n'est vraie qu'à moitié : Meat Morning cuit des cookies végétaliens et des bols de yaourt grec qui ont fait sa réputation auprès d'habitués soucieux de leur santé, mais le comptoir porte aussi un cheesecake au lait. Végétalien et non, côte à côte — bon à savoir avant de commander sur la seule foi du badge.",
     storyAr: "يلعب الاسم على مفارقة تبيّن أنها صحيحة إلى النصف: يخبز ميت مورنينغ كعكًا نباتيًّا وأطباق زبادي يوناني بَنَت سمعته لدى مداومين مهتمّين بصحّتهم، لكن المنضدة تحمل أيضًا تشيزكيك بالحليب إلى جانبها. نباتي وغير نباتي، جنبًا إلى جنب — يُحسن أن تعرف ذلك قبل أن تطلب اعتمادًا على الشارة وحدها.",
+    storyZh: "这个名字玩的是一个只对了一半的反讽：Meat Morning 烤的纯素饼干和希腊酸奶碗，在注重健康的常客里建立了口碑，但柜台上同时还摆着一块含乳的芝士蛋糕。纯素的和不纯素的并排放着——只凭那个标签点单之前，值得知道。",
     esg_point: "Vegan-forward baking, sugar-conscious, made in small daily batches",
 
     image: "/images/vegan_cafe.svg",
@@ -1052,9 +1084,9 @@ export const restaurants = [
       sun: [{ from: "11:00", to: "16:00" }, { from: "17:00", to: "22:00", lastOrder: "21:00" }],
     } }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "The daily 11:00-22:00 window is corroborated by two independent sources (a DiningCode listing and a Siksinhot listing, both checked 2026-07-17). The break (16:00-17:00) and last order (21:00) come from DiningCode only — that detail is not yet independently corroborated by a second source, unlike the open/close window itself" }),
     menus: fact([
-      { name: "Chicken Curry", nameKo: "치킨 커리", nameEs: "Curry de pollo", nameFr: "Curry de poulet", nameAr: "كاري الدجاج", price: "14,000 KRW" },
-      { name: "Lamb Curry", nameKo: "램 커리", nameEs: "Curry de cordero", nameFr: "Curry d'agneau", nameAr: "كاري الضأن", price: "16,000 KRW" },
-      { name: "Lamb Kebab", nameKo: "램 케밥", nameEs: "Kebab de cordero", nameFr: "Kebab d'agneau", nameAr: "كباب الضأن", price: null },
+      { name: "Chicken Curry", nameKo: "치킨 커리", nameEs: "Curry de pollo", nameFr: "Curry de poulet", nameAr: "كاري الدجاج", nameZh: "咖喱鸡", price: "14,000 KRW" },
+      { name: "Lamb Curry", nameKo: "램 커리", nameEs: "Curry de cordero", nameFr: "Curry d'agneau", nameAr: "كاري الضأن", nameZh: "咖喱羊肉", price: "16,000 KRW" },
+      { name: "Lamb Kebab", nameKo: "램 케밥", nameEs: "Kebab de cordero", nameFr: "Kebab d'agneau", nameAr: "كباب الضأن", nameZh: "烤羊肉串", price: null },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Curry names and prices from a DiningCode listing checked 2026-07-17. Lamb Kebab is real and prominent — independently described across nine visitor write-ups from 2015 to 2025 — but the only price found for it dates to 2022, four years stale, so it is left unstated rather than carried forward as current. \"Chicken Tikka Masala\" and \"Fresh Hummus & Pita\" are dropped: neither has current-dated confirmation. \"Halal\" is not used as a dish label — halal-friendliness is a restaurant-level fact (see dietary.halal), not a menu label, the same rule applied to bombay-brau" }),
     phone: fact("032-859-6900", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing; a landline, not a 0507 forwarding number" }),
 
@@ -1073,6 +1105,7 @@ export const restaurants = [
     vibeEs: "Cocina india y turca al tandoor en Yeonsu-gu, apta para halal desde que se llamaba Sahara Ten.",
     vibeFr: "Cuisine indienne et turque au tandoor à Yeonsu-gu, halal-friendly depuis l'époque où l'enseigne s'appelait Sahara Ten.",
     vibeAr: "طبخ هندي وتركي على التنّور في يونسو-غو، ملائم للحلال منذ أن كان الاسم صحارى تِن.",
+    vibeZh: "延寿区的坦都炉印度与土耳其菜，从叫\"撒哈拉十号\"的年代起就对清真友好。",
     story: "Arabesque opened in 2003 under the name Sahara Ten, and was renamed Arabesque in August 2007 — per Korea Tourism Organization's own record of it. The kitchen is Indian-led, the owner Jordanian, and the cooking spans Indian curries and Turkish kebab, tandoor-warmed and halal-friendly rather than formally certified. It has drawn Incheon's international community — Middle Eastern traders, Southeast Asian students, and curious locals — for over two decades under one name or another.",
     storyKo:
       "아라베스크는 2003년 사하라텐이라는 이름으로 문을 열었고, 2007년 8월에 아라베스크로 이름을 바꿨습니다 — 한국관광공사의 기록에 그렇게 남아 있습니다. 주방은 인도인이 이끌고 주인은 요르단 사람이며, 요리는 인도 커리와 터키 케밥을 아우릅니다. 탄두르로 데우고, 정식 인증을 받았다기보다 할랄 친화적입니다. 이름을 바꿔 가며 스무 해 넘게 인천의 국제적인 사람들 — 중동 상인, 동남아 유학생, 궁금해하는 현지인 — 을 끌어왔습니다.",
@@ -1080,6 +1113,7 @@ export const restaurants = [
       "Arabesque abrió en 2003 con el nombre Sahara Ten y pasó a llamarse Arabesque en agosto de 2007, según el propio registro de la Organización de Turismo de Corea. La cocina la dirige un equipo indio, el dueño es jordano, y la carta abarca curris indios y kebab turco, pasados por el tandoor y aptos para halal más que certificados formalmente. Lleva más de dos décadas, bajo uno u otro nombre, atrayendo a la comunidad internacional de Incheon: comerciantes de Oriente Medio, estudiantes del Sudeste Asiático y locales curiosos.",
     storyFr: "Arabesque a ouvert en 2003 sous le nom de Sahara Ten et a été rebaptisé Arabesque en août 2007 — selon le registre de l'Office national du tourisme coréen. La cuisine est menée par des Indiens, le propriétaire est jordanien, et la carte va des curries indiens au kebab turc, passés au tandoor et halal-friendly plutôt que formellement certifiés. L'adresse attire la communauté internationale d'Incheon — commerçants du Moyen-Orient, étudiants d'Asie du Sud-Est, habitants curieux — depuis plus de vingt ans, sous un nom ou sous l'autre.",
     storyAr: "افتُتح أرابيسك عام 2003 باسم صحارى تِن، وأُعيدت تسميته أرابيسك في آب 2007 — بحسب سجلّ الهيئة الكورية للسياحة نفسه. المطبخ بقيادة هندية، والمالك أردني، والطبخ يمتدّ من الكاري الهندي إلى الكباب التركي، مُعدًّا على التنّور وملائمًا للحلال لا معتمَدًا رسميًّا. وقد اجتذب جالية إنتشون الدولية — تجّارًا من الشرق الأوسط وطلبة من جنوب شرق آسيا وفضوليين من أهل المكان — أكثر من عقدين تحت اسم أو آخر.",
+    storyZh: "Arabesque 于2003年以\"撒哈拉十号\"开业，2007年8月改名为 Arabesque——依据韩国观光公社自己的记录。厨房由印度人主理，老板是约旦人，菜从印度咖喱到土耳其烤肉，用坦都炉做，对清真友好而非正式认证。二十多年来，它以这个或那个名字，吸引着仁川的国际社群——中东商人、东南亚学生，还有好奇的本地人。",
     // From the story above, per Korea Tourism Organization's record — confirmed
     // during the 2026-07-17 verification (66b2877), not newly researched.
     timeline: [
@@ -1114,8 +1148,8 @@ export const restaurants = [
       sun: [{ from: "11:15", to: "22:00", lastOrder: "21:30" }],
     } }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Two independent visitor posts (2026-07-07, 2026-07-11) agree exactly: daily 11:15–22:00, weekday break 15:00–17:00 (not on weekends), last order 21:30. No conflict found" }),
     menus: fact([
-      { name: "Tandoori Chicken (whole / half)", nameKo: "탄두리 치킨 (한 마리 / 반 마리)", nameEs: "Pollo tandoori (entero / medio)", nameFr: "Poulet tandoori (entier / demi)", nameAr: "دجاج تندوري (كامل / نصف)", price: "23,000 / 13,000 KRW" },
-      { name: "Vegetable Samosas", nameKo: "채소 사모사", nameEs: "Samosas de verdura", nameFr: "Samossas de légumes", nameAr: "سمبوسك الخضار", price: null },
+      { name: "Tandoori Chicken (whole / half)", nameKo: "탄두리 치킨 (한 마리 / 반 마리)", nameEs: "Pollo tandoori (entero / medio)", nameFr: "Poulet tandoori (entier / demi)", nameAr: "دجاج تندوري (كامل / نصف)", nameZh: "坦都里烤鸡（整只 / 半只）", price: "23,000 / 13,000 KRW" },
+      { name: "Vegetable Samosas", nameKo: "채소 사모사", nameEs: "Samosas de verdura", nameFr: "Samossas de légumes", nameAr: "سمبوسك الخضار", nameZh: "蔬菜咖喱角", price: null },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.COMMUNITY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Tandoori Chicken and its portion pricing come from a first-hand 2026-07-11 Songdo visit. Samosas are corroborated as this chain's vegan-safe order by two independent, methodical vegan-food blogs cataloguing exact orderable items across branches — no Songdo-specific price found, left unstated rather than carried over from the draft. The draft's \"Vegan Dal Makhani\" is dropped: Makhani-style sauce is butter-and-cream-based (한 상세 후기: \"콩, 버터, 크림\"), and the same vegan-mapping blogs never list it as a vegan-safe order at any branch — one casual post called it vegan on the sole reasoning that it contains no meat, which the ingredient-level accounts contradict. \"Halal Tandoori Chicken\" as a menu label is also dropped: no source names the dish that way — halal-friendliness is a restaurant-level fact (see dietary.halal), not a per-dish label" }),
     transit: fact({ station: "Incheon National University", line: "Incheon Line 1", exit: null, walkingMinutes: 15, distanceM: 921 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 인천대입구역 인천1호선: 921 m / 880 s. Checked against two farther alternatives (센트럴파크역 1,321 m; 테크노파크역 1,834 m). Exit not given by the routing API" }),
 
@@ -1133,6 +1167,7 @@ export const restaurants = [
     vibeEs: "La sucursal en Songdo de una cadena india nacional: tandoori y curris con mucha carne, y opciones veganas si las pides.",
     vibeFr: "La succursale de Songdo d'une chaîne indienne nationale — tandoori et curries carnés, avec des options végétaliennes pour qui les demande.",
     vibeAr: "فرع سونغدو من سلسلة هندية وطنية — تندوري وكاري يغلب عليهما اللحم، مع خيارات نباتية لمن يسأل.",
+    vibeZh: "一家全国连锁印度餐厅的松岛店——以肉为主的坦都里和咖喱，问一声也有纯素选择。",
     story: "Bombay Brau is part of a national Indian restaurant chain with branches from Songdo to Busan, built around tandoori-oven cooking and buttery curries. The kitchen isn't vegan or halal-certified, but it accommodates both: staff will point out which dishes are vegetarian, and the chain has been recognized by Korea's tourism authorities as Muslim-friendly. It's a table where a halal diner and a vegan diner can sit down together, even if neither gets a dish made just for them.",
     storyKo:
       "봄베이 브라우는 송도부터 부산까지 지점을 둔 전국 인도 음식 체인의 일부로, 탄두르 화덕 요리와 버터가 도는 커리를 중심으로 합니다. 주방이 비건이나 할랄 인증을 받은 것은 아니지만 양쪽 모두를 배려합니다. 직원이 어떤 요리가 채식인지 짚어 주고, 이 체인은 한국 관광 당국으로부터 무슬림 친화 업소로 인정받은 바 있습니다. 각자를 위해 따로 만든 요리는 없더라도, 할랄을 지키는 사람과 비건인 사람이 같은 상에 앉을 수 있는 곳입니다.",
@@ -1140,6 +1175,7 @@ export const restaurants = [
       "Bombay Brau forma parte de una cadena india de ámbito nacional, con locales desde Songdo hasta Busan, construida alrededor del horno tandoor y de curris mantecosos. La cocina no es vegana ni tiene certificación halal, pero atiende a ambos: el personal te indica qué platos son vegetarianos, y la cadena ha sido reconocida por las autoridades turísticas coreanas como apta para viajeros musulmanes. Es una mesa donde un comensal halal y uno vegano pueden sentarse juntos, aunque ninguno reciba un plato hecho solo para él.",
     storyFr: "Bombay Brau fait partie d'une chaîne indienne nationale présente de Songdo à Busan, bâtie autour de la cuisson au tandoor et de curries beurrés. La cuisine n'est ni végétalienne ni certifiée halal, mais elle accommode les deux : le personnel indique quels plats sont végétariens, et la chaîne a été reconnue Muslim-friendly par les autorités touristiques coréennes. C'est une table où un convive halal et un convive végétalien peuvent s'asseoir ensemble, même si aucun des deux n'a de plat fait exprès pour lui.",
     storyAr: "بومباي براو جزء من سلسلة مطاعم هندية وطنية لها فروع من سونغدو إلى بوسان، مبنيّة حول الطبخ في فرن التندور والكاري بالزبدة. المطبخ ليس نباتيًّا ولا معتمَدًا حلالًا، لكنه يراعي الاثنين: يدلّك العاملون على الأطباق النباتية، وقد صنّفت هيئات السياحة الكورية السلسلة ملائمة للمسلمين. إنها مائدة يستطيع أن يجلس إليها معًا آكل حلال وآكل نباتي، وإن لم يحصل أيّ منهما على طبق صُنع له خصّيصًا.",
+    storyZh: "Bombay Brau 属于一家从松岛开到釜山的全国连锁印度餐厅，核心是坦都炉烹饪和加了黄油的咖喱。厨房既不是纯素也没有清真认证，但两边都照顾得到：店员会告诉你哪些菜是素的，而这个连锁也被韩国旅游部门认定为对穆斯林友好。这是一张清真的客人和纯素的客人可以坐在一起的桌子，哪怕两边都没有一道专为自己做的菜。",
     esg_point: "A Muslim-friendly, vegetarian-accommodating table — not certified, but genuinely welcoming",
 
     image: "/images/halal_meat.svg",
@@ -1196,8 +1232,8 @@ export const restaurants = [
       evidenceRefs: [evidenceRef("ev-gonghwachun-itour", 1, "not raised to confirmed: the operator's own site could not be reached")],
     }),
     menus: fact([
-      { name: "Gonghwachun Jajangmyeon", nameKo: "공화춘 짜장면", nameEs: "Jajangmyeon de Gonghwachun", nameFr: "Jajangmyeon de Gonghwachun", nameAr: "جاجانغميون غونغهواتشون", price: null },
-      { name: "Jjamppong", nameKo: "짬뽕", nameEs: "Jjamppong", nameFr: "Jjamppong", nameAr: "جامبونغ", price: null },
+      { name: "Gonghwachun Jajangmyeon", nameKo: "공화춘 짜장면", nameEs: "Jajangmyeon de Gonghwachun", nameFr: "Jajangmyeon de Gonghwachun", nameAr: "جاجانغميون غونغهواتشون", nameZh: "共和春炸酱面", price: null },
+      { name: "Jjamppong", nameKo: "짬뽕", nameEs: "Jjamppong", nameFr: "Jjamppong", nameAr: "جامبونغ", nameZh: "炒码面", price: null },
     ], {
       confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, lastCheckedAt: "2026-07-17",
       evidence: "The two dishes Incheon city names; it prints no prices, so none are given",
@@ -1246,6 +1282,7 @@ export const restaurants = [
     vibeEs: "La cuna del jajangmyeon está justo al lado — ahora es un museo.",
     vibeFr: "Le lieu de naissance du jajangmyeon est juste à côté — c'est aujourd'hui un musée.",
     vibeAr: "مسقط رأس الجاجانغميون بجانبه تمامًا — وهو اليوم متحف.",
+    vibeZh: "炸酱面的出生地就在隔壁——如今是一座博物馆。",
     story: "Korea's most famous noodle was born on this street: the original Gonghwachun opened here in 1905 and served jajangmyeon for three generations before closing in 1983. Its building still stands about 150 metres away as the Jajangmyeon Museum, a registered national heritage site, and the plot is marked on maps as Gonghwachun-teo — the Gonghwachun site. The restaurant trading under the name today is a separate business that registered the trademark in 2002 and opened in 2004; the founding family contested its claim to be the original. Come for the noodles, then walk to the museum for the history.",
     storyKo:
       "한국에서 가장 유명한 국수가 이 거리에서 태어났습니다. 원래의 공화춘이 1905년 여기 문을 열어 삼 대에 걸쳐 짜장면을 내다가 1983년에 닫았습니다. 그 건물은 150미터쯤 떨어진 곳에 짜장면 박물관으로 아직 서 있고 국가등록문화재이며, 그 터는 지도에 '공화춘터'로 표시되어 있습니다. 오늘 이 이름으로 영업하는 식당은 2002년에 상표를 등록하고 2004년에 문을 연 별개의 사업체이고, 창업 가문은 원조라는 주장에 이의를 제기했습니다. 국수를 드시고, 역사를 보러 박물관까지 걸어가 보세요.",
@@ -1253,6 +1290,7 @@ export const restaurants = [
       "El fideo más famoso de Corea nació en esta calle: el Gonghwachun original abrió aquí en 1905 y sirvió jajangmyeon durante tres generaciones hasta cerrar en 1983. Su edificio sigue en pie a unos 150 metros, convertido en el Museo del Jajangmyeon y declarado patrimonio nacional, y el solar aparece en los mapas como Gonghwachun-teo, el emplazamiento de Gonghwachun. El restaurante que opera hoy con ese nombre es un negocio distinto que registró la marca en 2002 y abrió en 2004; la familia fundadora impugnó su pretensión de ser el original. Ven por los fideos y luego camina hasta el museo por la historia.",
     storyFr: "La nouille la plus célèbre de Corée est née dans cette rue : le Gonghwachun d'origine a ouvert ici en 1905 et a servi du jajangmyeon pendant trois générations avant de fermer en 1983. Son bâtiment tient toujours à environ 150 mètres, devenu le Musée du jajangmyeon, site classé au patrimoine national, et la parcelle est signalée sur les cartes comme Gonghwachun-teo — le site du Gonghwachun. Le restaurant qui porte ce nom aujourd'hui est une autre entreprise, qui a déposé la marque en 2002 et ouvert en 2004 ; la famille fondatrice a contesté sa revendication d'être l'original. Venez pour les nouilles, puis marchez jusqu'au musée pour l'histoire.",
     storyAr: "وُلدت أشهر معكرونة في كوريا في هذا الشارع: افتُتح غونغهواتشون الأصلي هنا عام 1905 وقدّم الجاجانغميون ثلاثة أجيال قبل أن يغلق عام 1983. وما زال مبناه قائمًا على بُعد نحو 150 مترًا بوصفه متحف الجاجانغميون، وهو موقع تراث وطني مسجّل، والقطعة معلّمة على الخرائط باسم غونغهواتشون-تو، أي موقع غونغهواتشون. أمّا المطعم الذي يتاجر بالاسم اليوم فهو عمل منفصل سجّل العلامة عام 2002 وافتُتح عام 2004؛ وقد نازعت العائلة المؤسِّسة ادّعاءه أنه الأصل. تعال للمعكرونة، ثم امشِ إلى المتحف للتاريخ.",
+    storyZh: "韩国最有名的那碗面就诞生在这条街上：最初的共和春1905年在此开业，供了三代人的炸酱面，1983年歇业。它的建筑还立在约一百五十米外，如今是炸酱面博物馆，一处登记在册的国家文化遗产，那块地在地图上标作공화춘터，共和春旧址。今天挂着这个名字营业的餐厅是另一家企业，2002年注册了商标、2004年开业；创始家族曾对它自称正宗提出异议。来吃面，然后走去博物馆看历史。",
     // The two entities the story is careful to separate stay separated here:
     // the 1905 original (closed 1983) and the separate business trading under
     // the name today. All confirmed during the 2026-07-17 verification
@@ -1312,9 +1350,9 @@ export const restaurants = [
     address: fact("12 Gaehang-ro, Jung-gu, Incheon", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, precision: "street" }),
     hours: unknownFact("Opening hours never confirmed"),
     menus: fact([
-      { name: "Seasonal Donburi", nameKo: "제철 덮밥", nameEs: "Donburi de temporada", nameFr: "Donburi de saison", nameAr: "دونبوري الموسم", price: "~15,000 KRW" },
-      { name: "Local Greens Set", nameKo: "지역 나물 정식", nameEs: "Set de verduras locales", nameFr: "Assiette de légumes locaux", nameAr: "طقم الخضار المحلية", price: "~13,000 KRW" },
-      { name: "House Tea", nameKo: "하우스 티", nameEs: "Té de la casa", nameFr: "Thé maison", nameAr: "شاي البيت", price: "~5,000 KRW" },
+      { name: "Seasonal Donburi", nameKo: "제철 덮밥", nameEs: "Donburi de temporada", nameFr: "Donburi de saison", nameAr: "دونبوري الموسم", nameZh: "当季盖饭", price: "~15,000 KRW" },
+      { name: "Local Greens Set", nameKo: "지역 나물 정식", nameEs: "Set de verduras locales", nameFr: "Assiette de légumes locaux", nameAr: "طقم الخضار المحلية", nameZh: "本地蔬菜套餐", price: "~13,000 KRW" },
+      { name: "House Tea", nameKo: "하우스 티", nameEs: "Té de la casa", nameFr: "Thé maison", nameAr: "شاي البيت", nameZh: "本店茶", price: "~5,000 KRW" },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate" }),
 
     dietary: {
@@ -1329,6 +1367,7 @@ export const restaurants = [
     vibeEs: "Una casa de madera de los años veinte restaurada, cálida y discretamente zen.",
     vibeFr: "Une maison en bois des années 1920 restaurée, chaleureuse et discrètement zen.",
     vibeAr: "بيت خشبي من عشرينيات القرن الماضي مُرمَّم، دافئ وزنّي بهدوء.",
+    vibeZh: "一栋修复过的一九二〇年代木屋，温暖，安静地带点禅意。",
     story: "Nestled in the historic Gaehang-ro district, Akiya acts as a culinary bridge between Incheon's rich past and a sustainable future. The kitchen's philosophy revolves around ultra-local sourcing, reducing food mileage to a mere 5 kilometers. Their artisanal approach highlights the natural, unmasked flavors of the season, honoring the tireless work of local farmers.",
     storyKo:
       "역사가 깊은 개항로에 자리한 아키야는 인천의 풍부한 과거와 지속 가능한 미래를 잇는 요리의 다리 역할을 합니다. 주방의 철학은 초지역 조달을 중심으로 돌아가고, 식재료의 이동 거리를 5킬로미터로 줄였습니다. 장인의 방식으로 계절의 자연스럽고 가리지 않은 맛을 앞세우며, 지역 농부들의 쉼 없는 노동에 경의를 표합니다.",
@@ -1336,6 +1375,7 @@ export const restaurants = [
       "Enclavado en el histórico barrio de Gaehang-ro, Akiya funciona como puente culinario entre el rico pasado de Incheon y un futuro sostenible. La filosofía de la cocina gira en torno al abastecimiento ultralocal, reduciendo el recorrido de los alimentos a apenas 5 kilómetros. Su enfoque artesanal realza los sabores naturales y sin disfraz de cada estación, y honra el trabajo incansable de los agricultores de la zona.",
     storyFr: "Niché dans le quartier historique de Gaehang-ro, Akiya fait le pont culinaire entre le riche passé d'Incheon et un avenir durable. La philosophie de la cuisine tient à un approvisionnement ultra-local, qui réduit les kilomètres alimentaires à cinq. Son approche artisanale met en avant les saveurs naturelles et non masquées de la saison, en hommage au travail infatigable des producteurs locaux.",
     storyAr: "يقع أكيا في حيّ غيهانغ-رو التاريخي، ويعمل جسرًا مطبخيًّا بين ماضي إنتشون الغنيّ ومستقبل مستدام. وتدور فلسفة المطبخ حول التوريد المحلي الشديد، بتقليص مسافة الطعام إلى خمسة كيلومترات فقط. ويبرز نهجه الحِرَفي نكهات الموسم الطبيعية غير المقنّعة، تكريمًا لعمل المزارعين المحليين الدؤوب.",
+    storyZh: "坐落在历史悠久的开港路一带，Akiya 是仁川丰厚的过去与可持续未来之间的一座饮食之桥。厨房的理念围绕极端本地的采购，把食物里程压到只有五公里。它手作的做法突出当季食材天然、未被遮掩的味道，也是向本地农人不停歇的劳作致意。",
     esg_point: "Empowers local Incheon farmers by strictly purchasing seasonal yields",
 
     image: "/images/mild_soup.svg",

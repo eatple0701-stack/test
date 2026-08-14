@@ -33,6 +33,7 @@ const SEASON = {
     lineEs: 'La temporada de los cerezos es corta: estas son las dos semanas por las que merece la pena organizarse.',
     lineFr: "La saison des cerisiers est courte — c'est la quinzaine autour de laquelle il vaut la peine de s'organiser.",
     lineAr: 'موسم أزهار الكرز قصير — وهذان الأسبوعان يستحقّان أن تُرتّب حولهما.',
+    lineZh: '樱花季很短——这两周值得围着它安排。',
   },
   'busan-seafood': {
     months: [6, 7, 8],
@@ -41,6 +42,7 @@ const SEASON = {
     lineEs: 'Esta historia está escrita para el verano, y el mercado abre al amanecer.',
     lineFr: "Cette histoire est écrite pour l'été, et le marché ouvre à l'aube.",
     lineAr: 'هذه الحكاية مكتوبة للصيف، والسوق يفتح مع الفجر.',
+    lineZh: '这个故事是为夏天写的，而市场天亮就开。',
   },
   'street-food': {
     months: [10, 11, 12, 1, 2],
@@ -49,6 +51,7 @@ const SEASON = {
     lineEs: 'En invierno salen las planchas: la estación para la que existen los puestos.',
     lineFr: "L'hiver, les plaques sortent — la saison pour laquelle les étals existent.",
     lineAr: 'في الشتاء تخرج الصفائح — الموسم الذي وُجدت البسطات من أجله.',
+    lineZh: '冬天铁板才出来——摊子本来就是为这个季节存在的。',
   },
   'cafe-hopping': {
     months: [12, 1, 2],
@@ -57,6 +60,7 @@ const SEASON = {
     lineEs: 'La estación de quedarse dentro con un café largo.',
     lineFr: "La saison où l'on reste à l'intérieur autour d'un long café.",
     lineAr: 'موسم البقاء في الداخل حول قهوة طويلة.',
+    lineZh: '适合守着一杯咖啡待在室内的季节。',
   },
 };
 
@@ -68,6 +72,7 @@ const EVENING = {
     lineEs: 'Es de noche: justo la hora de la que trata esta historia.',
     lineFr: "C'est le soir — l'heure même dont parle cette histoire.",
     lineAr: 'إنه المساء — الساعة التي تتحدّث عنها هذه الحكاية بالضبط.',
+    lineZh: '现在是晚上——正是这个故事讲的那个时辰。',
   },
   // Not "busiest now": how full a market is at this moment is not something
   // the app can see. When the stalls are open is a fact about the theme.
@@ -77,6 +82,7 @@ const EVENING = {
     lineEs: 'Los puestos están abiertos: casi todo esto no existe antes de que anochezca.',
     lineFr: "Les étals sont ouverts — presque rien de tout cela n'existe avant la tombée du jour.",
     lineAr: 'البسطات مفتوحة — ولا يكاد شيء من هذا يوجد قبل المغيب.',
+    lineZh: '摊子都开着——这里的大半，天黑之前根本不存在。',
   },
 };
 
@@ -121,11 +127,13 @@ export function reasonFor(theme, {
   const es = locale === 'es';
   const fr = locale === 'fr';
   const ar = locale === 'ar';
-  const pick = (en, korean, spanish, french, arabic) => {
+  const zh = locale === 'zh';
+  const pick = (en, korean, spanish, french, arabic, chinese) => {
     if (ko && korean) return korean;
     if (es && spanish) return spanish;
     if (fr && french) return french;
     if (ar && arabic) return arabic;
+    if (zh && chinese) return chinese;
     return en;
   };
   // Theme and collection names have their own Korean and Spanish in the
@@ -135,6 +143,7 @@ export function reasonFor(theme, {
     if (es && x?.titleEs) return x.titleEs;
     if (fr && x?.titleFr) return x.titleFr;
     if (ar && x?.titleAr) return x.titleAr;
+    if (zh && x?.titleZh) return x.titleZh;
     return x?.title;
   };
 
@@ -152,6 +161,7 @@ export function reasonFor(theme, {
         `Acabas de terminar ${name(justFinished)}. Esto continúa por ${name(collection)}.`,
         `Vous venez de terminer ${name(justFinished)}. Cela se poursuit par ${name(collection)}.`,
         `أنهيتَ للتوّ ${name(justFinished)}. وهذا يمتدّ عبر ${name(collection)}.`,
+        `你刚走完${name(justFinished)}。这条路会经由${name(collection)}接下去。`,
       )
       : pick(
         `You have just finished ${justFinished.title} — this goes somewhere different.`,
@@ -159,15 +169,16 @@ export function reasonFor(theme, {
         `Acabas de terminar ${name(justFinished)} — esto va a otra parte.`,
         `Vous venez de terminer ${name(justFinished)} — celle-ci va ailleurs.`,
         `أنهيتَ للتوّ ${name(justFinished)} — وهذه تذهب إلى مكان آخر.`,
+        `你刚走完${name(justFinished)}——这一条通向别的地方。`,
       );
   }
 
   if (inSeason(theme.id, month)) {
-    return pick(SEASON[theme.id].line, SEASON[theme.id].lineKo, SEASON[theme.id].lineEs, SEASON[theme.id].lineFr, SEASON[theme.id].lineAr);
+    return pick(SEASON[theme.id].line, SEASON[theme.id].lineKo, SEASON[theme.id].lineEs, SEASON[theme.id].lineFr, SEASON[theme.id].lineAr, SEASON[theme.id].lineZh);
   }
 
   if (hour >= 18 && EVENING[theme.id]) {
-    return pick(EVENING[theme.id].line, EVENING[theme.id].lineKo, EVENING[theme.id].lineEs, EVENING[theme.id].lineFr, EVENING[theme.id].lineAr);
+    return pick(EVENING[theme.id].line, EVENING[theme.id].lineKo, EVENING[theme.id].lineEs, EVENING[theme.id].lineFr, EVENING[theme.id].lineAr, EVENING[theme.id].lineZh);
   }
 
   // Proximity, from zones the traveller has actually been to.
@@ -183,6 +194,7 @@ export function reasonFor(theme, {
         `Ya has comido en ${where} — esto retoma donde lo dejaste.`,
         `Vous avez déjà mangé à ${where} — ceci reprend là où vous en étiez.`,
         `سبق أن أكلتَ في ${where} — وهذا يواصل من حيث كنت.`,
+        `你已经在${where}吃过了——这条从你停下的地方接着走。`,
       );
     }
   }
@@ -191,7 +203,7 @@ export function reasonFor(theme, {
   // to a traveller on their first day every theme is unvisited, and pointing
   // it out says nothing.
   if (untouched && hasAnyProgress) {
-    return pick('You have not opened this one yet.', '이건 아직 열어보지 않으셨어요.', 'Esta todavía no la has abierto.', "Vous n'avez pas encore ouvert celle-ci.", 'لم تفتح هذه بعد.');
+    return pick('You have not opened this one yet.', '이건 아직 열어보지 않으셨어요.', 'Esta todavía no la has abierto.', "Vous n'avez pas encore ouvert celle-ci.", 'لم تفتح هذه بعد.', '这一条你还没打开过。');
   }
 
   if (!hasStarted && theme.status === STATUS.PUBLISHED) {
@@ -201,6 +213,7 @@ export function reasonFor(theme, {
       'Cada parada de esta ruta tiene un sitio verificado donde comer, así que es un primer camino fácil.',
       "Chaque étape de ce chemin a une adresse vérifiée où manger : un premier parcours facile.",
       'كل محطة في هذا الطريق لها مكان أكل موثّق، فهو مسار أول سهل.',
+      '这条路上每一站都有确认过的吃饭地方，所以适合作为第一条路走。',
     );
   }
 
@@ -211,6 +224,7 @@ export function reasonFor(theme, {
       'La historia está escrita entera; los sitios siguen en verificación.',
       "L'histoire est écrite en entier ; les adresses sont encore en cours de vérification.",
       'الحكاية مكتوبة بتمامها؛ أمّا الأماكن فما زالت قيد التوثيق.',
+      '故事已经写完了；地点还在确认当中。',
     );
   }
 
@@ -226,9 +240,10 @@ export function reasonFor(theme, {
       `${venues} ${venues === 1 ? 'sitio verificado' : 'sitios verificados'} donde comer en esta historia — podrías recorrerla hoy.`,
       `${venues} ${venues === 1 ? 'adresse vérifiée' : 'adresses vérifiées'} où manger sur ce thème — vous pourriez le parcourir aujourd'hui.`,
       `${venues} ${venues === 1 ? 'مكان موثّق' : 'أماكن موثّقة'} للأكل في هذه الحكاية — تستطيع أن تمشيها اليوم.`,
+      `这个故事里有 ${venues} 处确认过的吃饭地方——今天就能走完。`,
     );
   }
-  return pick('A short path you can finish in an afternoon.', '오후 한나절이면 끝나는 짧은 길입니다.', 'Un camino corto que puedes terminar en una tarde.', "Un chemin court que vous pouvez finir en un après-midi.", 'طريق قصير تستطيع إنهاءه في بعد ظهر واحد.');
+  return pick('A short path you can finish in an afternoon.', '오후 한나절이면 끝나는 짧은 길입니다.', 'Un camino corto que puedes terminar en una tarde.', "Un chemin court que vous pouvez finir en un après-midi.", 'طريق قصير تستطيع إنهاءه في بعد ظهر واحد.', '一条短路，一个下午就能走完。');
 }
 
 /**
