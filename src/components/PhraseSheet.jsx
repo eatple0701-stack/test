@@ -25,7 +25,7 @@ const QUIZ = 'quiz';
 const GROUPS = [PHRASE_GROUP.ORDER, PHRASE_GROUP.DIETARY, PHRASE_GROUP.TABLE, PHRASE_GROUP.TALK, QUIZ];
 // Korean on top, English under it — the shape every other label in the app
 // has. The Korean was already sitting in GROUP_LABEL and this file threw it
-// away, so the sheet titled {say('식탁에서 · What to say at the table', '식탁에서', 'Qué decir en la mesa', 'Quoi dire à table')} was followed
+// away, so the sheet titled {say('식탁에서 · What to say at the table', '식탁에서', 'Qué decir en la mesa', 'Quoi dire à table', 'ماذا تقول على المائدة')} was followed
 // by five tabs that had stopped speaking Korean. Two lines rather than a
 // middot because five tabs share one row: 주문할 때 · Ordering, side by side,
 // would not fit at 375px.
@@ -85,12 +85,12 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
   return (
-    <div className="phrase-sheet" role="dialog" aria-label={say('Korean phrases for the table', '식탁에서 쓰는 한국어', 'Frases en coreano para la mesa', 'Phrases coréennes pour la table')}>
+    <div className="phrase-sheet" role="dialog" aria-label={say('Korean phrases for the table', '식탁에서 쓰는 한국어', 'Frases en coreano para la mesa', 'Phrases coréennes pour la table', 'عبارات كورية للمائدة')}>
       <header className="sheet-page__head">
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
         </button>
-        <h1>{say('식탁에서 · At the table', '식탁에서', 'En la mesa', 'À table')}</h1>
+        <h1>{say('식탁에서 · At the table', '식탁에서', 'En la mesa', 'À table', 'على المائدة')}</h1>
       </header>
 
       <p className="phrase-intro">
@@ -119,7 +119,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
           <p className="phrase-note-lead">
             {say('Ask one out loud. The answer matters less than the sentence after it.',
               '하나를 소리 내어 물어보세요. 답보다 그 다음에 이어지는 문장이 중요합니다.',
-              'Pregunta una en voz alta. La respuesta importa menos que la frase que viene después.', 'Posez-en une à voix haute. La réponse compte moins que la phrase qui suit.')}
+              'Pregunta una en voz alta. La respuesta importa menos que la frase que viene después.', 'Posez-en une à voix haute. La réponse compte moins que la phrase qui suit.', 'اسأل واحدة بصوت مسموع. الجواب أقلّ أهمية من الجملة التي تليه.')}
           </p>
           <QuizDeck menuId={menuId} />
         </div>
@@ -132,7 +132,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
           <p className="phrase-note-lead">
             {say('One question at a time. Hand the phone over — it is written both ways.',
               '한 번에 하나씩. 휴대폰을 건네주세요 — 양쪽 언어로 적혀 있습니다.',
-              'Una pregunta cada vez. Pásale el móvil: está escrito en los dos idiomas.', "Une question à la fois. Passez le téléphone : c'est écrit dans les deux langues.")}
+              'Una pregunta cada vez. Pásale el móvil: está escrito en los dos idiomas.', "Une question à la fois. Passez le téléphone : c'est écrit dans les deux langues.", 'سؤال واحد في كل مرة. ناوِل الهاتف: العبارة مكتوبة باللغتين.')}
           </p>
 
           <div className="ask-card">
@@ -152,7 +152,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
           </div>
 
           <button className="ask-next" onClick={() => setAskAt(i => (i + 1) % deck.length)}>
-            {say('다음 질문 · Another', '다음 질문', 'Otra', 'Une autre')}
+            {say('다음 질문 · Another', '다음 질문', 'Otra', 'Une autre', 'أخرى')}
           </button>
           <p className="ask-count">{askAt + 1} / {deck.length}</p>
         </div>
@@ -176,7 +176,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
                   onClick={() => speak(p)}
                   aria-label={`Say "${p.en}" in Korean`}
                 >
-                  {say('소리 · Say it', '소리', 'Escúchala', 'Écouter')}
+                  {say('소리 · Say it', '소리', 'Escúchala', 'Écouter', 'استمع')}
                 </button>
               )}
             </div>
@@ -189,7 +189,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
             <p className="phrase-no-voice">
               {say('This device has no Korean voice installed, so the phrases cannot be spoken aloud. Showing the screen works just as well.',
                 '이 기기에 한국어 음성이 설치되어 있지 않아 문장을 소리로 들려드릴 수 없습니다. 화면을 보여 주는 것으로도 충분해요.',
-                'Este dispositivo no tiene voz coreana instalada, así que las frases no se pueden pronunciar. Enseñar la pantalla funciona igual de bien.', "Cet appareil n'a pas de voix coréenne installée, les phrases ne peuvent donc pas être prononcées. Montrer l'écran marche tout aussi bien.")}
+                'Este dispositivo no tiene voz coreana instalada, así que las frases no se pueden pronunciar. Enseñar la pantalla funciona igual de bien.', "Cet appareil n'a pas de voix coréenne installée, les phrases ne peuvent donc pas être prononcées. Montrer l'écran marche tout aussi bien.", 'لا صوت كوري مثبّت على هذا الجهاز، فلا يمكن نطق العبارات. وعرض الشاشة يؤدّي الغرض تمامًا.')}
             </p>
           )}
         </div>

@@ -57,7 +57,7 @@ export default function MapOverlay({
           <h2>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
         </div>
-        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte')} onClick={onClose}>
+        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte', 'أغلق الخريطة')} onClick={onClose}>
           <XIcon size={18} />
         </button>
       </header>
@@ -78,7 +78,7 @@ export default function MapOverlay({
           selectedFilters={selectedFilters}
           onToggleFilter={onToggleFilter}
         />
-        <section className="map-overlay__list" aria-label={say('Places on the map', '지도 위의 장소', 'Sitios en el mapa', 'Les adresses sur la carte')}>
+        <section className="map-overlay__list" aria-label={say('Places on the map', '지도 위의 장소', 'Sitios en el mapa', 'Les adresses sur la carte', 'الأماكن على الخريطة')}>
           <BottomSheetList
             restaurants={restaurants}
             mapCenter={mapCenter}

@@ -27,20 +27,20 @@ export default function JourneyLead({
       <div className="journey-lead__top">
         <span className="journey-lead__eyebrow">
           {resuming
-            ? say('🔥 Continue your journey', '🔥 이어서 걷기', '🔥 Sigue tu recorrido', '🔥 Poursuivre votre parcours')
-            : say('✨ Start your journey', '✨ 여정 시작하기', '✨ Empieza tu recorrido', '✨ Commencer votre parcours')}
+            ? say('🔥 Continue your journey', '🔥 이어서 걷기', '🔥 Sigue tu recorrido', '🔥 Poursuivre votre parcours', '🔥 واصِل رحلتك')
+            : say('✨ Start your journey', '✨ 여정 시작하기', '✨ Empieza tu recorrido', '✨ Commencer votre parcours', '✨ ابدأ رحلتك')}
         </span>
         {onOpenSummary && resuming && (
           <button className="journey-lead__summary" onClick={onOpenSummary}>
-            {say('Passport', '여권', 'Pasaporte', 'Passeport')} <ChevronRightIcon size={13} />
+            {say('Passport', '여권', 'Pasaporte', 'Passeport', 'جواز السفر')} <ChevronRightIcon size={13} />
           </button>
         )}
       </div>
 
       <h2 className="journey-lead__title">
         {resuming
-          ? say(continueTheme.title, continueTheme.titleKo, continueTheme.titleEs, continueTheme.titleFr)
-          : say(suggestedTheme.title, suggestedTheme.titleKo, suggestedTheme.titleEs, suggestedTheme.titleFr)}
+          ? say(continueTheme.title, continueTheme.titleKo, continueTheme.titleEs, continueTheme.titleFr, continueTheme.titleAr)
+          : say(suggestedTheme.title, suggestedTheme.titleKo, suggestedTheme.titleEs, suggestedTheme.titleFr, suggestedTheme.titleAr)}
       </h2>
 
       {resuming ? (
@@ -48,11 +48,11 @@ export default function JourneyLead({
           <p className="journey-lead__line">
             {say(`${continueTheme.done} of ${continueTheme.total} experiences done`,
               `경험 ${continueTheme.total}개 중 ${continueTheme.done}개 완료`,
-              `${continueTheme.done} de ${continueTheme.total} experiencias hechas`, `${continueTheme.done} expériences sur ${continueTheme.total} faites`)}
+              `${continueTheme.done} de ${continueTheme.total} experiencias hechas`, `${continueTheme.done} expériences sur ${continueTheme.total} faites`, `${continueTheme.done} من ${continueTheme.total} تجارب تمّت`)}
             {nextExperience && (
               <>
-                {say(' · next up ', ' · 다음은 ', ' · a continuación ', ' · ensuite ')}
-                <strong>{say(nextExperience.title, nextExperience.titleKo, nextExperience.titleEs, nextExperience.titleFr)}</strong>
+                {say(' · next up ', ' · 다음은 ', ' · a continuación ', ' · ensuite ', ' · التالي ')}
+                <strong>{say(nextExperience.title, nextExperience.titleKo, nextExperience.titleEs, nextExperience.titleFr, nextExperience.titleAr)}</strong>
               </>
             )}
           </p>
@@ -62,9 +62,9 @@ export default function JourneyLead({
         </>
       ) : (
         <p className="journey-lead__line">
-          {say(suggestedTheme.tagline, suggestedTheme.taglineKo, suggestedTheme.taglineEs, suggestedTheme.taglineFr)}{' '}
+          {say(suggestedTheme.tagline, suggestedTheme.taglineKo, suggestedTheme.taglineEs, suggestedTheme.taglineFr, suggestedTheme.taglineAr)}{' '}
           {say('Pick this up and your Passport starts filling itself.',
-            '여기서 시작하면 여권이 저절로 채워지기 시작합니다.', 'Empieza por aquí y tu Pasaporte se llenará solo.', 'Reprenez ici et votre Passeport se remplira tout seul.')}
+            '여기서 시작하면 여권이 저절로 채워지기 시작합니다.', 'Empieza por aquí y tu Pasaporte se llenará solo.', 'Reprenez ici et votre Passeport se remplira tout seul.', 'ابدأ من هنا وسيملأ جواز سفرك نفسه.')}
         </p>
       )}
 
@@ -88,15 +88,15 @@ export function TodaysPick({ theme, reason, onOpenTheme }) {
   return (
     <button className="todays-pick" onClick={() => onOpenTheme(theme.id)}>
       <span className="todays-pick__label">
-        <SparkleIcon size={14} /> {say('Today\u2019s recommendation', '오늘의 추천', 'La recomendación de hoy', 'La recommandation du jour')}
+        <SparkleIcon size={14} /> {say('Today\u2019s recommendation', '오늘의 추천', 'La recomendación de hoy', 'La recommandation du jour', 'توصية اليوم')}
       </span>
-      <span className="todays-pick__title">{theme.emoji} {say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr)}</span>
+      <span className="todays-pick__title">{theme.emoji} {say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr)}</span>
       {/* The reason is the point: a pick without one is just a card. It is
           derived from the date, the clock or the traveller's own record —
           never from anything the app cannot actually check. */}
       {reason && <span className="todays-pick__reason">{reason}</span>}
       <span className="todays-pick__cta">
-        {say('See the path', '길 보기', 'Ver el camino', 'Voir le chemin')} <ChevronRightIcon size={14} />
+        {say('See the path', '길 보기', 'Ver el camino', 'Voir le chemin', 'انظر الطريق')} <ChevronRightIcon size={14} />
       </span>
     </button>
   );

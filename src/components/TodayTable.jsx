@@ -68,7 +68,7 @@ export default function TodayTable({ profile, onOpenTable }) {
             <span className="today-table__kr" aria-hidden="true">{menu.nameKo}</span>
             <span className="today-table__eyebrow">
               Today · {t.time}
-              {t.hosted && <span className="today-table__badge">{say('you host', '내가 호스트', 'eres anfitrión', 'vous êtes hôte')}</span>}
+              {t.hosted && <span className="today-table__badge">{say('you host', '내가 호스트', 'eres anfitrión', 'vous êtes hôte', 'أنت المضيف')}</span>}
             </span>
             <span className="today-table__dish">{menu.name}</span>
 

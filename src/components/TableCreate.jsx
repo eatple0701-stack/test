@@ -142,15 +142,15 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   // date and a place before finding out there was a condition.
   if (!agreedToRules(profile, PURPOSE.version)) {
     return (
-      <section className="sheet-page" aria-label={say('Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')}>
+      <section className="sheet-page" aria-label={say('Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة')}>
         <header className="sheet-page__head">
-          <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour')}>
+          <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع')}>
             <ChevronLeftIcon size={20} />
           </button>
-          <h1>{say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')}</h1>
+          <h1>{say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة')}</h1>
         </header>
         <div className="form-block">
-          <h2 className="form-label">{say('Before your first table', '첫 상을 차리기 전에', 'Antes de tu primera mesa', 'Avant votre première table')}</h2>
+          <h2 className="form-label">{say('Before your first table', '첫 상을 차리기 전에', 'Antes de tu primera mesa', 'Avant votre première table', 'قبل مائدتك الأولى')}</h2>
           <RulesConsent
             profile={profile}
             onProfileChange={onProfileChange}
@@ -162,12 +162,12 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
   }
 
   return (
-    <section className="sheet-page" aria-label={say('Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')}>
+    <section className="sheet-page" aria-label={say('Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة')}>
       <header className="sheet-page__head">
-        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour')}>
+        <button className="sheet-page__back" onClick={onBack} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع')}>
           <ChevronLeftIcon size={20} />
         </button>
-        <h1>{say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')}</h1>
+        <h1>{say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة')}</h1>
       </header>
 
       {/* Before the first field, because these are the terms of the evening
@@ -175,7 +175,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       <HostBrief profile={profile} />
 
       <div className={`form-block${bad.menu ? ' is-bad' : ''}`} ref={refFor('menu')}>
-        <h2 className="form-label">{say('무엇을 먹나요 · What are you eating?', '무엇을 먹나요', '¿Qué vais a comer?', 'Que mangerez-vous ?')}</h2>
+        <h2 className="form-label">{say('무엇을 먹나요 · What are you eating?', '무엇을 먹나요', '¿Qué vais a comer?', 'Que mangerez-vous ?', 'ماذا ستأكلون؟')}</h2>
         {/* What the venue actually serves, when the host came from its page.
             Not a choice — the dish below is one of the ten nobody can order
             alone, and a temple kitchen serves none of them, so these two lists
@@ -193,11 +193,11 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
               {say('밥친구의 요리 목록과는 별개예요 · Pick the shared dish below; this is just what the kitchen lists.',
                 '밥친구의 요리 목록과는 별개예요. 함께 먹을 요리는 아래에서 고르세요.',
                 'Elige abajo el plato que compartiréis; esto es solo lo que ofrece la cocina.',
-                "Choisissez ci-dessous le plat partagé ; ceci n'est que ce que propose la cuisine.")}
+                "Choisissez ci-dessous le plat partagé ; ceci n'est que ce que propose la cuisine.", 'اختر أدناه الطبق الذي ستتشاركونه؛ هذا ليس إلا ما يقدّمه المطبخ.')}
             </p>
           </div>
         )}
-        {bad.menu && <p className="field__error">{say('요리를 하나 골라 주세요 · Choose a dish.', '요리를 하나 골라 주세요', 'Elige un plato.', 'Choisissez un plat.')}</p>}
+        {bad.menu && <p className="field__error">{say('요리를 하나 골라 주세요 · Choose a dish.', '요리를 하나 골라 주세요', 'Elige un plato.', 'Choisissez un plat.', 'اختر طبقًا.')}</p>}
         <div className="dish-grid">
           {menus.map(m => (
             <button
@@ -217,7 +217,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
               <span className="dish-option__name">{m.name}</span>
               {/* The romanisation is a sound, not a meaning. Testers could not
                   tell what half these words were until they opened one. */}
-              <span className="dish-option__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr)}</span>
+              <span className="dish-option__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr, m.glossAr)}</span>
               <span className="dish-option__min">
                 {m.minPeople > 1 ? `${m.minPeople}+ people` : 'Any size'}
               </span>
@@ -230,7 +230,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
         <div className="form-block">
           <div className="dish-brief">
             <span className="dish-brief__cat">{CATEGORY_LABEL[menu.category]?.en}</span>
-            <p className="dish-brief__how">{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr)}</p>
+            <p className="dish-brief__how">{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr)}</p>
             {eatenAtLabels(menu.id).length > 0 && (
               <p className="dish-brief__when">
                 주로 {eatenAtLabels(menu.id).map(l => l.kr).join(' · ')} ·
@@ -251,32 +251,32 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       )}
 
       <div className="form-block">
-        <h2 className="form-label">{say('언제, 어디서 · When and where?', '언제, 어디서', '¿Cuándo y dónde?', 'Quand et où ?')}</h2>
+        <h2 className="form-label">{say('언제, 어디서 · When and where?', '언제, 어디서', '¿Cuándo y dónde?', 'Quand et où ?', 'متى وأين؟')}</h2>
         <div className="field-row">
           <label className={`field${bad.date ? ' is-bad' : ''}`} ref={refFor('date')}>
-            <span className="field__label">{say('날짜 · Date', '날짜', 'Fecha', 'Date')}</span>
+            <span className="field__label">{say('날짜 · Date', '날짜', 'Fecha', 'Date', 'التاريخ')}</span>
             <input type="date" value={date} min={todayISO()} onChange={e => setDate(e.target.value)} />
-            {bad.date && <span className="field__error">{say('날짜를 골라 주세요 · Pick a date.', '날짜를 골라 주세요', 'Elige una fecha.', 'Choisissez une date.')}</span>}
+            {bad.date && <span className="field__error">{say('날짜를 골라 주세요 · Pick a date.', '날짜를 골라 주세요', 'Elige una fecha.', 'Choisissez une date.', 'اختر تاريخًا.')}</span>}
           </label>
           <label className={`field${bad.time ? ' is-bad' : ''}`} ref={refFor('time')}>
-            <span className="field__label">{say('시간 · Time', '시간', 'Hora', 'Heure')}</span>
+            <span className="field__label">{say('시간 · Time', '시간', 'Hora', 'Heure', 'الوقت')}</span>
             <input
               type="time"
               value={time}
               onChange={e => { setTime(e.target.value); setTimeTouched(true); }}
             />
-            {bad.time && <span className="field__error">{say('시간을 골라 주세요 · Pick a time.', '시간을 골라 주세요', 'Elige una hora.', 'Choisissez une heure.')}</span>}
+            {bad.time && <span className="field__error">{say('시간을 골라 주세요 · Pick a time.', '시간을 골라 주세요', 'Elige una hora.', 'Choisissez une heure.', 'اختر وقتًا.')}</span>}
           </label>
         </div>
         <label className={`field${bad.place ? ' is-bad' : ''}`} ref={refFor('place')}>
-          <span className="field__label">{say('만나는 곳 · Where you will meet', '만나는 곳', 'Dónde os veréis', 'Où vous vous retrouverez')}</span>
+          <span className="field__label">{say('만나는 곳 · Where you will meet', '만나는 곳', 'Dónde os veréis', 'Où vous vous retrouverez', 'أين ستلتقون')}</span>
           <input
             type="text"
             value={place}
-            placeholder={say('Exit 4, Jongno 3-ga station', '종로3가역 4번 출구', 'Salida 4, estación de Jongno 3-ga', 'Sortie 4, station Jongno 3-ga')}
+            placeholder={say('Exit 4, Jongno 3-ga station', '종로3가역 4번 출구', 'Salida 4, estación de Jongno 3-ga', 'Sortie 4, station Jongno 3-ga', 'المخرج 4، محطة جونغنو 3-غا')}
             onChange={e => setPlace(e.target.value)}
           />
-          {bad.place && <span className="field__error">{say('만날 곳을 적어 주세요 · Say where you will meet.', '만날 곳을 적어 주세요', 'Di dónde os veréis.', 'Indiquez où vous vous retrouverez.')}</span>}
+          {bad.place && <span className="field__error">{say('만날 곳을 적어 주세요 · Say where you will meet.', '만날 곳을 적어 주세요', 'Di dónde os veréis.', 'Indiquez où vous vous retrouverez.', 'اذكر أين ستلتقون.')}</span>}
         </label>
 
         {/* The shop, which is not the same as the meeting point. A table that
@@ -284,18 +284,18 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             where they were actually eating. Optional on purpose — a host who
             has not decided says so, rather than inventing a name. */}
         <label className="field">
-          <span className="field__label">{say('Which restaurant? (optional)', '어느 식당인가요? (선택)', '¿Qué restaurante? (opcional)', 'Quel restaurant ? (facultatif)')}</span>
+          <span className="field__label">{say('Which restaurant? (optional)', '어느 식당인가요? (선택)', '¿Qué restaurante? (opcional)', 'Quel restaurant ? (facultatif)', 'أيّ مطعم؟ (اختياري)')}</span>
           <input
             type="text"
             value={restaurant}
-            placeholder={say('Sae Ma Eul Sikdang, or leave blank to decide together', '새마을식당, 또는 비워 두고 함께 정하기', 'Sae Ma Eul Sikdang, o déjalo en blanco para decidirlo juntos', 'Sae Ma Eul Sikdang, ou laissez vide pour décider ensemble')}
+            placeholder={say('Sae Ma Eul Sikdang, or leave blank to decide together', '새마을식당, 또는 비워 두고 함께 정하기', 'Sae Ma Eul Sikdang, o déjalo en blanco para decidirlo juntos', 'Sae Ma Eul Sikdang, ou laissez vide pour décider ensemble', 'ساي ما إيول سيكدانغ، أو اتركه فارغًا لتقرّروا معًا')}
             onChange={e => setRestaurant(e.target.value)}
           />
         </label>
       </div>
 
       <div className="form-block">
-        <h2 className="form-label">{say('How many at the table?', '몇 명이 앉나요?', '¿Cuántos en la mesa?', 'Combien à table ?')}</h2>
+        <h2 className="form-label">{say('How many at the table?', '몇 명이 앉나요?', '¿Cuántos en la mesa?', 'Combien à table ?', 'كم عددكم على المائدة؟')}</h2>
         <div className="seat-picker">
           {[2, 3, 4, 5, 6].map(n => (
             <button
@@ -320,11 +320,11 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           answered this once and being asked twice is how a form stops feeling
           like it is on your side. */}
       <div className="form-block">
-        <h2 className="form-label">{say('언어 · What will this table run in?', '언어', '¿En qué idioma será esta mesa?', 'Dans quelle langue se passera cette table ?')}</h2>
+        <h2 className="form-label">{say('언어 · What will this table run in?', '언어', '¿En qué idioma será esta mesa?', 'Dans quelle langue se passera cette table ?', 'بأي لغة ستكون هذه المائدة؟')}</h2>
         <p className="form-label__hint">
           {say('Shown on your table. Somebody deciding whether to sit with four strangers is mostly deciding whether they will understand anything.',
             '당신의 밥상에 표시됩니다. 처음 보는 네 사람과 앉을지 고민하는 사람은, 사실 말이 통할지를 고민하는 겁니다.',
-            'Se muestra en tu mesa. Quien está decidiendo si se sienta con cuatro desconocidos está decidiendo, sobre todo, si va a entender algo.', "Affiché sur votre table. Quelqu'un qui se demande s'il va s'asseoir avec quatre inconnus se demande surtout s'il va comprendre quelque chose.")}
+            'Se muestra en tu mesa. Quien está decidiendo si se sienta con cuatro desconocidos está decidiendo, sobre todo, si va a entender algo.', "Affiché sur votre table. Quelqu'un qui se demande s'il va s'asseoir avec quatre inconnus se demande surtout s'il va comprendre quelque chose.", 'يُعرض على مائدتك. ومن يفكّر في الجلوس مع أربعة غرباء إنما يفكّر قبل كل شيء في أنه هل سيفهم شيئًا.')}
         </p>
         <div className="lang-picks">
           {LANGUAGES.map(l => {
@@ -354,11 +354,11 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           Optional on purpose — a host who ticks nothing still hosts, and a
           box nobody can honestly tick would be worse than no box. */}
       <div className="form-block">
-        <h2 className="form-label">{say('문화 가이드 · What will you walk the table through?', '문화 가이드', '¿Qué le explicarás a la mesa?', 'Que ferez-vous découvrir à la table ?')}</h2>
+        <h2 className="form-label">{say('문화 가이드 · What will you walk the table through?', '문화 가이드', '¿Qué le explicarás a la mesa?', 'Que ferez-vous découvrir à la table ?', 'ماذا ستعرّف المائدة به؟')}</h2>
         <p className="form-label__hint">
           {say('Optional. Whatever you tick is shown on your table, in your guests\u2019 language, so they know what to expect before they ask for a seat.',
             '선택입니다. 체크하신 것은 손님들의 언어로 밥상에 표시되어, 자리를 청하기 전에 무엇을 기대할지 알 수 있게 합니다.',
-            'Opcional. Lo que marques se muestra en tu mesa, en el idioma de tus invitados, para que sepan qué esperar antes de pedir sitio.', "Facultatif. Ce que vous cochez s'affiche sur votre table, dans la langue de vos invités, pour qu'ils sachent à quoi s'attendre avant de demander une place.")}
+            'Opcional. Lo que marques se muestra en tu mesa, en el idioma de tus invitados, para que sepan qué esperar antes de pedir sitio.', "Facultatif. Ce que vous cochez s'affiche sur votre table, dans la langue de vos invités, pour qu'ils sachent à quoi s'attendre avant de demander une place.", 'اختياري. ما تؤشّر عليه يُعرض على مائدتك بلغة ضيوفك، ليعرفوا ما ينتظرهم قبل أن يطلبوا مقعدًا.')}
         </p>
 
         {/* The consequence of the ticks, said while they are being ticked.
@@ -385,7 +385,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             {say('이게 이 앱이 하는 일입니다 · This is the part of 밥친구 that is not just a group booking — a Korean host teaching a stranger their own food, in a language the stranger understands.',
               '이게 이 앱이 하는 일입니다. 단체 예약이 아니라, 한국인 호스트가 처음 보는 사람에게 자기 음식을 그 사람이 알아듣는 말로 알려주는 것.',
               'Esto es lo que hace esta app y no una reserva de grupo: un anfitrión coreano enseñando su propia comida a un desconocido, en un idioma que el desconocido entiende.',
-              "C'est ce que fait cette application, et ce n'est pas une réservation de groupe : un hôte coréen fait découvrir sa propre cuisine à un inconnu, dans une langue que l'inconnu comprend.")}
+              "C'est ce que fait cette application, et ce n'est pas une réservation de groupe : un hôte coréen fait découvrir sa propre cuisine à un inconnu, dans une langue que l'inconnu comprend.", 'هذا ما يفعله هذا التطبيق، وليس حجزًا جماعيًّا: مضيف كوري يعرّف غريبًا بطعامه هو، بلغة يفهمها الغريب.')}
           </p>
         )}
         <div className="guide-picks">
@@ -413,13 +413,13 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       </div>
 
       <div className="form-block">
-        <h2 className="form-label">{say('이름 · Your name', '이름', 'Tu nombre', 'Votre nom')}</h2>
+        <h2 className="form-label">{say('이름 · Your name', '이름', 'Tu nombre', 'Votre nom', 'اسمك')}</h2>
         <label className={`field${bad.hostName ? ' is-bad' : ''}`} ref={refFor('hostName')}>
           {/* This field had a placeholder and no label at all — the only one
               in the form. A placeholder disappears the moment somebody types,
               so the question vanishes exactly when they might want to check
               it, and a screen reader had nothing to announce. */}
-          <span className="field__label">{say('손님이 부를 이름 · What your guests should call you', '손님이 부를 이름', 'Cómo deben llamarte tus invitados', 'Comment vos invités doivent vous appeler')}</span>
+          <span className="field__label">{say('손님이 부를 이름 · What your guests should call you', '손님이 부를 이름', 'Cómo deben llamarte tus invitados', 'Comment vos invités doivent vous appeler', 'ما ينبغي أن يناديك به ضيوفك')}</span>
           <input
             type="text"
             value={hostName}
@@ -428,10 +428,10 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
                answer. A host taking it at its word would have called
                themselves "red jacket by the stairs". The real question is the
                field below. */
-            placeholder={say('Minsu', '민수', 'Minsu', 'Minsu')}
+            placeholder={say('Minsu', '민수', 'Minsu', 'Minsu', 'مينسو')}
             onChange={e => setHostName(e.target.value)}
           />
-          {bad.hostName && <span className="field__error">{say('이름을 적어 주세요 · Add a name.', '이름을 적어 주세요', 'Añade un nombre.', 'Ajoutez un nom.')}</span>}
+          {bad.hostName && <span className="field__error">{say('이름을 적어 주세요 · Add a name.', '이름을 적어 주세요', 'Añade un nombre.', 'Ajoutez un nom.', 'أضِف اسمًا.')}</span>}
         </label>
         <label className="field">
           <span className="field__label">어떻게 알아볼까요 · How will they spot you? (optional)</span>
@@ -439,7 +439,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
             type="text"
             value={meetingNote}
             maxLength={MEETING_NOTE_MAX}
-            placeholder={say('Green jacket, by the CU on the corner', '초록 자켓, 모퉁이 CU 앞', 'Chaqueta verde, junto al CU de la esquina', 'Veste verte, à côté du CU du coin')}
+            placeholder={say('Green jacket, by the CU on the corner', '초록 자켓, 모퉁이 CU 앞', 'Chaqueta verde, junto al CU de la esquina', 'Veste verte, à côté du CU du coin', 'سترة خضراء، بجانب متجر CU على الناصية')}
             onChange={e => setMeetingNote(e.target.value)}
           />
           <span className="field__note">
@@ -453,25 +453,25 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
         <PlacePicker value={point} onChange={setPoint} />
 
         <label className="field">
-          <span className="field__label">{say('오픈채팅 링크 · Open chat link (optional)', '오픈채팅 링크 (선택)', 'Enlace de chat abierto (opcional)', 'Lien de chat ouvert (facultatif)')}</span>
+          <span className="field__label">{say('오픈채팅 링크 · Open chat link (optional)', '오픈채팅 링크 (선택)', 'Enlace de chat abierto (opcional)', 'Lien de chat ouvert (facultatif)', 'رابط محادثة مفتوحة (اختياري)')}</span>
           <input
             type="url"
             value={chatUrl}
-            placeholder={say('https://open.kakao.com/o/…', 'https://open.kakao.com/o/…', 'https://open.kakao.com/o/…', 'https://open.kakao.com/o/…')}
+            placeholder={say('https://open.kakao.com/o/…', 'https://open.kakao.com/o/…', 'https://open.kakao.com/o/…', 'https://open.kakao.com/o/…', 'https://open.kakao.com/o/…')}
             onChange={e => setChatUrl(e.target.value)}
           />
           <span className="field__note">
             {say('Make a KakaoTalk open chat and paste its link — your confirmed guests see it, nobody else does. It is the "running 10 minutes late" channel the app itself does not have. https links only.',
               '카카오톡 오픈채팅을 만들어 링크를 붙여 넣으세요. 승인된 손님에게만 보이고 다른 사람에게는 보이지 않습니다. 앱에는 없는 "10분 늦어요" 채널이에요. https 링크만 됩니다.',
-              'Crea un chat abierto de KakaoTalk y pega el enlace: lo ven tus invitados confirmados y nadie más. Es el canal de "llego diez minutos tarde" que la app no tiene. Solo enlaces https.', "Créez un chat ouvert KakaoTalk et collez le lien : vos invités confirmés le voient, personne d'autre. C'est le canal « j'ai dix minutes de retard » que l'application n'a pas. Liens https uniquement.")}
+              'Crea un chat abierto de KakaoTalk y pega el enlace: lo ven tus invitados confirmados y nadie más. Es el canal de "llego diez minutos tarde" que la app no tiene. Solo enlaces https.', "Créez un chat ouvert KakaoTalk et collez le lien : vos invités confirmés le voient, personne d'autre. C'est le canal « j'ai dix minutes de retard » que l'application n'a pas. Liens https uniquement.", 'أنشئ محادثة مفتوحة على كاكاوتوك والصق الرابط: يراه ضيوفك المؤكَّدون ولا يراه غيرهم. إنها قناة «تأخّرت عشر دقائق» التي لا يملكها التطبيق. روابط https فقط.')}
           </span>
         </label>
         <label className="field">
-          <span className="field__label">{say('Anything to say? (optional)', '하고 싶은 말이 있나요? (선택)', '¿Algo que decir? (opcional)', 'Quelque chose à dire ? (facultatif)')}</span>
+          <span className="field__label">{say('Anything to say? (optional)', '하고 싶은 말이 있나요? (선택)', '¿Algo que decir? (opcional)', 'Quelque chose à dire ? (facultatif)', 'أشيء تريد قوله؟ (اختياري)')}</span>
           <textarea
             rows={3}
             value={note}
-            placeholder={say('First time grilling is fine — I will do the scissors.', '처음 구워도 괜찮아요 — 가위는 제가 들게요.', 'No pasa nada si es tu primera parrilla: yo me encargo de las tijeras.', "Première fois au gril, aucun souci — je m'occupe des ciseaux.")}
+            placeholder={say('First time grilling is fine — I will do the scissors.', '처음 구워도 괜찮아요 — 가위는 제가 들게요.', 'No pasa nada si es tu primera parrilla: yo me encargo de las tijeras.', "Première fois au gril, aucun souci — je m'occupe des ciseaux.", 'أول مرة على الشواية؟ لا بأس — أنا أتولّى المقص.')}
             onChange={e => setNote(e.target.value)}
           />
         </label>

@@ -29,14 +29,14 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
   const editorial = editorialFor(theme.id);
 
   return (
-    <section className="cover" aria-label={say("Editor's pick", '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction')}>
+    <section className="cover" aria-label={say("Editor's pick", '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction', 'اختيار المحرّر')}>
       {editorial && (
         <span className="cover__word" aria-hidden="true">{editorial.word}</span>
       )}
 
       <div className="cover__masthead">
         <span className="cover__label" translate="no">
-          {say('오늘의 추천 · Editor\u2019s pick', '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction')}
+          {say('오늘의 추천 · Editor\u2019s pick', '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction', 'اختيار المحرّر')}
         </span>
         {/* The date follows the setting too. "Tuesday, 11 August" on an
             otherwise Korean cover is the one line that gives away that this
@@ -48,27 +48,27 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
 
       <h1 className="cover__question">
         {editorial
-          ? say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr)
-          : say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr)}
+          ? say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr, editorial.questionAr)
+          : say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr, theme.taglineAr)}
       </h1>
 
       {/* Just the name. A tagline sat here through the first build, between
           the question and the reason, and it read as a third voice competing
           with two better ones — the question is the hook and the note is the
           judgement. Neither needs a subtitle explaining it. */}
-      <p className="cover__theme">{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr)}</p>
+      <p className="cover__theme">{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr)}</p>
 
       {reason && (
         <div className="cover__note">
-          <span className="cover__note-label">{say('Why this, today', '오늘 이걸 고른 이유', 'Por qué esto, hoy', "Pourquoi ceci, aujourd'hui")}</span>
+          <span className="cover__note-label">{say('Why this, today', '오늘 이걸 고른 이유', 'Por qué esto, hoy', "Pourquoi ceci, aujourd'hui", 'لماذا هذا، اليوم')}</span>
           <p className="cover__note-body">{reason}</p>
         </div>
       )}
 
       <button className="cover__cta" onClick={() => onOpen(theme.id)}>
         {progress?.done > 0
-          ? say('이어서 보기 · Pick it back up', '이어서 보기', 'Retomarlo', 'Reprendre')
-          : say('들어가기 · Enter this culture', '들어가기', 'Entrar en esta cultura', 'Entrer dans cette culture')}
+          ? say('이어서 보기 · Pick it back up', '이어서 보기', 'Retomarlo', 'Reprendre', 'استئناف')
+          : say('들어가기 · Enter this culture', '들어가기', 'Entrar en esta cultura', 'Entrer dans cette culture', 'ادخل هذه الثقافة')}
         <ChevronRightIcon size={16} />
       </button>
     </section>

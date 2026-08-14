@@ -13,6 +13,13 @@
 //
 // Français joined on 2026-08-14, by the same route and on the same terms.
 //
+// العربية joined the same day and brought something the other four did not:
+// it is read right to left. A translation alone would have produced Arabic
+// words in a left-to-right layout, which is not an Arabic interface — so this
+// locale also carries a direction, the document gets a dir attribute, and the
+// stylesheet was rewritten in logical properties so a margin that means
+// "before the text" follows the text instead of always sitting on the left.
+//
 // Español is here since 2026-08-12 because the words are. It arrived the way
 // Korean-only content did: a second string in the data for every article,
 // dish and card, picked by useText(). What it does not have is the pair
@@ -36,9 +43,10 @@ export const LOCALE = {
   EN: 'en',       // English only
   ES: 'es',       // Solo español
   FR: 'fr',       // Français seulement
+  AR: 'ar',       // العربية فقط
 };
 
-export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES, LOCALE.FR];
+export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR];
 
 export const isLocale = (l) => LOCALES.includes(l);
 
@@ -56,6 +64,7 @@ export const LOCALE_LABEL = {
   // English name.
   [LOCALE.ES]: { kr: '스페인어', en: 'Español' },
   [LOCALE.FR]: { kr: '프랑스어', en: 'Français' },
+  [LOCALE.AR]: { kr: '아랍어', en: 'العربية' },
 };
 
 /**
@@ -67,7 +76,19 @@ export const LOCALE_LABEL = {
  * splitter and the stylesheet agree on which locales are "English underneath"
  * instead of each deciding separately and drifting.
  */
-export const ENGLISH_FALLBACK = [LOCALE.EN, LOCALE.ES, LOCALE.FR];
+export const ENGLISH_FALLBACK = [LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR];
+
+/**
+ * Which way this language reads.
+ *
+ * Only Arabic is right-to-left, and it is the one thing about a locale that
+ * the stylesheet cannot infer from the words. LocaleFilter puts this on the
+ * document as `dir`, which is what makes the browser mirror the layout, flip
+ * the scrollbar and put the text cursor on the correct end of an input.
+ */
+export const RTL_LOCALES = [LOCALE.AR];
+export const isRtl = (locale) => RTL_LOCALES.includes(locale);
+export const directionOf = (locale) => (isRtl(locale) ? 'rtl' : 'ltr');
 
 /**
  * The BCP-47 tag toLocaleDateString should use for a setting.
@@ -80,6 +101,11 @@ export const DATE_LOCALE = {
   [LOCALE.KO]: 'ko-KR',
   [LOCALE.ES]: 'es-ES',
   [LOCALE.FR]: 'fr-FR',
+  // Arabic dates in the Gregorian calendar with Western digits, which is what
+  // ar-EG gives and what a traveller reading a Korean opening time needs. The
+  // alternative, ar-SA, switches to the Hijri calendar and would print a date
+  // that does not match the one on the restaurant's door.
+  [LOCALE.AR]: 'ar-EG',
 };
 export const dateLocale = (locale) => DATE_LOCALE[locale] ?? 'en-GB';
 export const fallsBackToEnglish = (l) => ENGLISH_FALLBACK.includes(l);

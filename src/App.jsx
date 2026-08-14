@@ -169,16 +169,18 @@ export default function App() {
   // because App renders the provider and so sits outside it. Same order,
   // same English fallback — a second implementation that disagreed would be
   // worse than none.
-  const say = (en, ko, es, fr) => {
+  const say = (en, ko, es, fr, ar) => {
     if (locale === LOCALE.KO && ko) return ko;
     if (locale === LOCALE.ES && es) return es;
     if (locale === LOCALE.FR && fr) return fr;
+    if (locale === LOCALE.AR && ar) return ar;
     return en;
   };
-  const chromeWord = (kr, en, es, fr) => {
+  const chromeWord = (kr, en, es, fr, ar) => {
     if (locale === LOCALE.EN) return en;
     if (locale === LOCALE.ES) return es;
     if (locale === LOCALE.FR) return fr;
+    if (locale === LOCALE.AR) return ar;
     return kr;
   };
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
@@ -777,9 +779,9 @@ export default function App() {
         <span className="app-chrome__end">
           <button
             className={`app-chrome__gear${activeTab === 'settings' ? ' is-on' : ''}`}
-            aria-label={say('설정 · Settings', '설정', 'Ajustes', 'Réglages')}
+            aria-label={say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات')}
             aria-current={activeTab === 'settings' ? 'page' : undefined}
-            title={say('설정 · Settings', '설정', 'Ajustes', 'Réglages')}
+            title={say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات')}
             onClick={() => { setOpenThemeId(null); goToTab('settings'); }}
           >
             <GearIcon size={20} />
@@ -803,13 +805,13 @@ export default function App() {
                   signing back in restores the same account. */}
               <button
                 className="app-chrome__signout"
-                title={say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter')}
+                title={say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج')}
                 onClick={async () => {
                   await signOutMember().catch(() => {});
                   await refreshAuth();
                 }}
               >
-                <span className="app-chrome__word">{chromeWord('로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter')}</span>
+                <span className="app-chrome__word">{chromeWord('로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج')}</span>
               </button>
             </>
           ) : (
@@ -822,10 +824,10 @@ export default function App() {
                made the two most important controls the least legible. */
             <span className="app-chrome__auth">
               <button className="app-chrome__signin" onClick={() => setAuthMode('signin')}>
-                <span className="app-chrome__word">{chromeWord('로그인', 'Sign in', 'Entrar', 'Se connecter')}</span>
+                <span className="app-chrome__word">{chromeWord('로그인', 'Sign in', 'Entrar', 'Se connecter', 'تسجيل الدخول')}</span>
               </button>
               <button className="app-chrome__join" onClick={() => setAuthMode('signup')}>
-                <span className="app-chrome__word">{chromeWord('가입하기', 'Join', 'Únete', "S'inscrire")}</span>
+                <span className="app-chrome__word">{chromeWord('가입하기', 'Join', 'Únete', "S'inscrire", 'إنشاء حساب')}</span>
               </button>
             </span>
           )}

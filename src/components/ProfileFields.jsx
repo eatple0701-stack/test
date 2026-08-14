@@ -60,7 +60,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
     <div className="profile-body">
         <Field
           control
-          label={say('이름 · Your name', '이름', 'Tu nombre', 'Votre nom')}
+          label={say('이름 · Your name', '이름', 'Tu nombre', 'Votre nom', 'اسمك')}
           hint="What the table looks for when you arrive."
         >
           <input
@@ -72,18 +72,18 @@ export default function ProfileFields({ profile, onProfileChange }) {
           />
         </Field>
 
-        <Field control label={say('출신 · Where you are from', '출신', 'De dónde eres', "D'où vous venez")} hint="Optional. Shown to the table, nowhere else.">
+        <Field control label={say('출신 · Where you are from', '출신', 'De dónde eres', "D'où vous venez", 'من أين أنت')} hint="Optional. Shown to the table, nowhere else.">
           <input
             type="text"
             className="profile-input"
             value={nationality}
-            placeholder={say('Japan', '일본', 'Japón', 'Japon')}
+            placeholder={say('Japan', '일본', 'Japón', 'Japon', 'اليابان')}
             onChange={e => { setNationality(e.target.value); save({ nationality: e.target.value.trim() }); }}
           />
         </Field>
 
         <Field
-          label={say('할 수 있는 언어 · Languages you speak', '할 수 있는 언어', 'Idiomas que hablas', 'Langues que vous parlez')}
+          label={say('할 수 있는 언어 · Languages you speak', '할 수 있는 언어', 'Idiomas que hablas', 'Langues que vous parlez', 'اللغات التي تتحدّثها')}
           hint="So a host knows what the table will run in."
         >
           <div className="chip-row">
@@ -111,7 +111,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             The one place it changes another screen: the Tables filter
             (TablesTab.jsx), which is the feature this field exists for. */}
         <Field
-          label={say('성별 · Gender (optional)', '성별 (선택)', 'Género (opcional)', 'Genre (facultatif)')}
+          label={say('성별 · Gender (optional)', '성별 (선택)', 'Género (opcional)', 'Genre (facultatif)', 'الجنس (اختياري)')}
           hint="Not verified — just what you tell the table. Used only for the 'tables with another woman' filter on Tables."
         >
           <div className="chip-row">
@@ -134,7 +134,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             조건에 적합한 한식 메뉴 우선 제시, and a preference the app never
             acts on is decoration. */}
         <Field
-          label={say('못 먹는 것 · What you do not eat', '못 먹는 것', 'Lo que no comes', 'Ce que vous ne mangez pas')}
+          label={say('못 먹는 것 · What you do not eat', '못 먹는 것', 'Lo que no comes', 'Ce que vous ne mangez pas', 'ما لا تأكله')}
           hint="Tables serving these are flagged before you ask for a seat. Nothing is hidden from you — the warning is on the card."
         >
           <div className="chip-row">
@@ -159,14 +159,14 @@ export default function ProfileFields({ profile, onProfileChange }) {
             instead of five checkboxes. */}
         <Field
           control
-          label={say('그 밖에 못 먹는 것 · Anything else you cannot eat? (optional)', '그 밖에 못 먹는 것 (선택)', '¿Algo más que no puedas comer? (opcional)', 'Autre chose que vous ne pouvez pas manger ? (facultatif)')}
+          label={say('그 밖에 못 먹는 것 · Anything else you cannot eat? (optional)', '그 밖에 못 먹는 것 (선택)', '¿Algo más que no puedas comer? (opcional)', 'Autre chose que vous ne pouvez pas manger ? (facultatif)', 'أشيء آخر لا تستطيع أكله؟ (اختياري)')}
           hint="Free text, sent to the host with your seat request — not checked against any menu, just carried."
         >
           <textarea
             rows={2}
             className="profile-input"
             value={allergyNote}
-            placeholder={say('Severe shellfish allergy, and no sesame please', '갑각류 알레르기가 심하고, 참깨는 빼 주세요', 'Alergia grave al marisco, y sin sésamo por favor', "Allergie grave aux fruits de mer, et sans sésame s'il vous plaît")}
+            placeholder={say('Severe shellfish allergy, and no sesame please', '갑각류 알레르기가 심하고, 참깨는 빼 주세요', 'Alergia grave al marisco, y sin sésamo por favor', "Allergie grave aux fruits de mer, et sans sésame s'il vous plaît", 'حساسية شديدة من المحار، ومن فضلك بلا سمسم')}
             onChange={e => {
               setAllergyNote(e.target.value);
               save({ allergyNote: e.target.value.trim() });
@@ -180,7 +180,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             app cannot rule on whether a 한상 is halal and does not try — it
             passes the word to somebody who can ask the kitchen. */}
         <Field
-          label={say('식사 방식 · How you eat', '식사 방식', 'Cómo comes', 'Comment vous mangez')}
+          label={say('식사 방식 · How you eat', '식사 방식', 'Cómo comes', 'Comment vous mangez', 'كيف تأكل')}
           hint="Sent to the host with your seat request. The app does not judge dishes by this — it tells the person who can ask."
         >
           <div className="chip-row">

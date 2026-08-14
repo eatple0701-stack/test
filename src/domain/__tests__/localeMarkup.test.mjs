@@ -87,7 +87,7 @@ test('every tab in the bar is labelled in every language the app offers', () => 
   const list = bar.slice(bar.indexOf('const tabs = ['), bar.indexOf('export default'));
   const ids = list.match(/id: '/g) ?? [];
   assert.equal(ids.length, 5, 'the bar should still be five tabs');
-  for (const field of ['kr', 'es', 'fr']) {
+  for (const field of ['kr', 'es', 'fr', 'ar']) {
     const found = list.match(new RegExp(`${field}: '`, 'g')) ?? [];
     assert.equal(found.length, ids.length, `a tab without a ${field} label cannot follow the setting`);
   }
@@ -95,7 +95,7 @@ test('every tab in the bar is labelled in every language the app offers', () => 
   // that could hold exactly two; the bar has three languages now, and five
   // items sharing a 375px screen still have room for one word each.
   assert.ok(
-    bar.includes('<span className="tab-label">{say(t.label, t.kr, t.es, t.fr)}</span>'),
+    bar.includes('<span className="tab-label">{say(t.label, t.kr, t.es, t.fr, t.ar)}</span>'),
     'the label should be one element asking say() for the right language',
   );
   assert.equal(bar.includes('l-ko-only'), false, 'the CSS-pair version should be gone');
@@ -106,16 +106,16 @@ test('the three buttons in the top corner speak every setting', () => {
   // they are the first thing a traveller has to find. The corner fits one
   // word, so these pick rather than pair — chromeWord, not say().
   const app = read('App.jsx');
-  for (const [korean, english, spanish, french] of [
-    ['로그인', 'Sign in', 'Entrar', 'Se connecter'],
-    ['가입하기', 'Join', 'Únete', "S'inscrire"],
-    ['로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter'],
+  for (const [korean, english, spanish, french, arabic] of [
+    ['로그인', 'Sign in', 'Entrar', 'Se connecter', 'تسجيل الدخول'],
+    ['가입하기', 'Join', 'Únete', "S'inscrire", 'إنشاء حساب'],
+    ['로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج'],
   ]) {
     const quoted = french.includes("'") ? `"${french}"` : `'${french}'`;
     assert.ok(
-      app.includes(`chromeWord('${korean}', '${english}', '${spanish}', ${quoted})`),
+      app.includes(`chromeWord('${korean}', '${english}', '${spanish}', ${quoted}, '${arabic}')`),
       `${korean} is not offered in every setting`,
     );
   }
-  assert.ok(app.includes('const chromeWord = (kr, en, es, fr) =>'));
+  assert.ok(app.includes('const chromeWord = (kr, en, es, fr, ar) =>'));
 });

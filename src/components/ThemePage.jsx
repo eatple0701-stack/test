@@ -22,13 +22,13 @@ import { useText } from './localeText.js';
 // English and stayed English in every setting. An unknown value falls back
 // to that same swap rather than to nothing.
 const PACING = {
-  'half-day': ['Half day', '반나절', 'Media jornada', 'Une demi-journée'],
-  'full-day': ['Full day', '하루 종일', 'Día completo', 'Journée entière'],
-  evening: ['Evening', '저녁', 'Una noche', 'Une soirée'],
+  'half-day': ['Half day', '반나절', 'Media jornada', 'Une demi-journée', 'نصف يوم'],
+  'full-day': ['Full day', '하루 종일', 'Día completo', 'Journée entière', 'يوم كامل'],
+  evening: ['Evening', '저녁', 'Una noche', 'Une soirée', 'أمسية'],
 };
 const pacingLabel = (pacing, say) => {
   const found = PACING[pacing];
-  return found ? say(found[0], found[1], found[2], found[3]) : String(pacing ?? '').replace('-', ' ');
+  return found ? say(found[0], found[1], found[2], found[3], found[4]) : String(pacing ?? '').replace('-', ' ');
 };
 
 export default function ThemePage({
@@ -93,29 +93,29 @@ export default function ThemePage({
     const markets = marketsFor(exp);
     return (
       <div className="next-step">
-        <span className="next-step__label">{say('Next step', '다음 단계', 'Siguiente paso', 'Étape suivante')}</span>
+        <span className="next-step__label">{say('Next step', '다음 단계', 'Siguiente paso', 'Étape suivante', 'الخطوة التالية')}</span>
         <h3 className="next-step__title">
-          {say(exp.title, exp.titleKo, exp.titleEs, exp.titleFr)}
+          {say(exp.title, exp.titleKo, exp.titleEs, exp.titleFr, exp.titleAr)}
           {/* The Korean name under the heading is a gloss, so it goes when the
               heading is already that word — otherwise Korean-only reads
               "사찰음식 사찰음식". */}
-          {exp.titleKo && say(exp.title, exp.titleKo, exp.titleEs, exp.titleFr) !== exp.titleKo && (
+          {exp.titleKo && say(exp.title, exp.titleKo, exp.titleEs, exp.titleFr, exp.titleAr) !== exp.titleKo && (
             <span className="next-step__kr" translate="no">{exp.titleKo}</span>
           )}
         </h3>
         {step.transition && (
           <p className="next-step__transition">
-            {say(step.transition, step.transitionKo, step.transitionEs, step.transitionFr)}
+            {say(step.transition, step.transitionKo, step.transitionEs, step.transitionFr, step.transitionAr)}
           </p>
         )}
-        <p className="next-step__why">{say(exp.whyItMatters, exp.whyItMattersKo, exp.whyItMattersEs, exp.whyItMattersFr)}</p>
+        <p className="next-step__why">{say(exp.whyItMatters, exp.whyItMattersKo, exp.whyItMattersEs, exp.whyItMattersFr, exp.whyItMattersAr)}</p>
 
         <div className="next-step__mission">
-          <span className="next-step__mission-label">{say('Mission', '미션', 'Misión', 'Mission')}</span>
+          <span className="next-step__mission-label">{say('Mission', '미션', 'Misión', 'Mission', 'مهمّة')}</span>
           <p>
-            <strong>{say(exp.mission, exp.missionKo, exp.missionEs, exp.missionFr).title}</strong>
+            <strong>{say(exp.mission, exp.missionKo, exp.missionEs, exp.missionFr, exp.missionAr).title}</strong>
             {' — '}
-            {say(exp.mission, exp.missionKo, exp.missionEs, exp.missionFr).detail}
+            {say(exp.mission, exp.missionKo, exp.missionEs, exp.missionFr, exp.missionAr).detail}
           </p>
         </div>
 
@@ -131,7 +131,7 @@ export default function ThemePage({
             <p className="next-step__hint">
               {say('Mark a place visited to complete this step.',
                 '장소를 가봤다고 표시하면 이 단계가 완료됩니다.',
-                'Marca un sitio como visitado para completar este paso.', 'Marquez une adresse comme visitée pour terminer cette étape.')}
+                'Marca un sitio como visitado para completar este paso.', 'Marquez une adresse comme visitée pour terminer cette étape.', 'ضع علامة زُرت مكانًا لإتمام هذه الخطوة.')}
             </p>
           </div>
         )}
@@ -166,7 +166,7 @@ export default function ThemePage({
           <p className="next-step__hint">
             {say('No verified place yet, and this step needs one — it will open up as venues are confirmed.',
               '아직 확인된 장소가 없고 이 단계에는 장소가 필요합니다 — 장소가 확인되는 대로 열립니다.',
-              'Aún no hay un sitio verificado y este paso lo necesita: se abrirá según se confirmen locales.', "Pas encore d'adresse vérifiée, et cette étape en demande une : elle s'ouvrira à mesure que des lieux seront confirmés.")}
+              'Aún no hay un sitio verificado y este paso lo necesita: se abrirá según se confirmen locales.', "Pas encore d'adresse vérifiée, et cette étape en demande une : elle s'ouvrira à mesure que des lieux seront confirmés.", 'لا مكان موثّقًا بعد، وهذه الخطوة تحتاج واحدًا: ستُفتح كلّما تأكّدت أماكن.')}
           </p>
         )}
       </div>
@@ -186,9 +186,9 @@ export default function ThemePage({
           {done ? <CheckIcon size={12} /> : <span className="step-row__dot" />}
         </span>
         <div className="step-row__body">
-          <span className="step-row__title">{say(exp.title, exp.titleKo, exp.titleEs, exp.titleFr)}</span>
+          <span className="step-row__title">{say(exp.title, exp.titleKo, exp.titleEs, exp.titleFr, exp.titleAr)}</span>
           {item.required === false && (
-            <span className="step-row__optional">{say('optional', '선택', 'opcional', 'facultatif')}</span>
+            <span className="step-row__optional">{say('optional', '선택', 'opcional', 'facultatif', 'اختياري')}</span>
           )}
         </div>
         {!done && canAttest(exp) && (
@@ -214,7 +214,7 @@ export default function ThemePage({
             className="step-row__undo"
             onClick={() => onToggleAttestation(exp.id)}
           >
-            {say('undo', '되돌리기', 'deshacer', 'annuler')}
+            {say('undo', '되돌리기', 'deshacer', 'annuler', 'تراجع')}
           </button>
         )}
       </li>
@@ -226,19 +226,19 @@ export default function ThemePage({
       <header className="theme-page__nav">
         <button className="theme-page__back" onClick={onBack}>
           <ChevronLeftIcon size={18} />
-          <span>{say('Explore', '문화', 'Cultura', 'Culture')}</span>
+          <span>{say('Explore', '문화', 'Cultura', 'Culture', 'ثقافة')}</span>
         </button>
       </header>
 
       <div className="theme-page__hero">
         <span className="theme-page__emoji">{theme.emoji}</span>
-        <h1>{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr)}</h1>
-        <p className="theme-page__tagline">{say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr)}</p>
+        <h1>{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr)}</h1>
+        <p className="theme-page__tagline">{say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr, theme.taglineAr)}</p>
         {theme.status === 'preview' && (
           <span className="theme-page__badge">
             {say('Preview · venues still being verified',
               '미리보기 · 장소는 아직 확인 중',
-              'Vista previa · sitios aún en verificación', 'Aperçu · adresses encore en vérification')}
+              'Vista previa · sitios aún en verificación', 'Aperçu · adresses encore en vérification', 'معاينة · أماكن ما زالت قيد التوثيق')}
           </span>
         )}
         <div className="theme-page__progress">
@@ -246,7 +246,7 @@ export default function ThemePage({
           <span>
             {say(`${totalDone} / ${totalAll} experiences`,
               `경험 ${totalAll}개 중 ${totalDone}개`,
-              `${totalDone} / ${totalAll} experiencias`, `${totalDone} / ${totalAll} expériences`)}
+              `${totalDone} / ${totalAll} experiencias`, `${totalDone} / ${totalAll} expériences`, `${totalDone} / ${totalAll} تجربة`)}
           </span>
         </div>
       </div>
@@ -256,13 +256,13 @@ export default function ThemePage({
         {themeDone ? (
           <div className="theme-complete">
             <span className="theme-complete__mark"><CheckIcon size={22} /></span>
-            <h3>{say('Theme complete', '이 문화 완주', 'Cultura completada', 'Culture terminée')}</h3>
+            <h3>{say('Theme complete', '이 문화 완주', 'Cultura completada', 'Culture terminée', 'اكتملت الثقافة')}</h3>
             <p>
               {active
-                ? say(active.narrative.outro, active.narrative.outroKo, active.narrative.outroEs, active.narrative.outroFr)
+                ? say(active.narrative.outro, active.narrative.outroKo, active.narrative.outroEs, active.narrative.outroFr, active.narrative.outroAr)
                 : say('You have walked this path end to end.',
                   '이 길을 끝까지 걸으셨습니다.',
-                  'Has recorrido este camino de principio a fin.', "Vous avez parcouru ce chemin d'un bout à l'autre.")}
+                  'Has recorrido este camino de principio a fin.', "Vous avez parcouru ce chemin d'un bout à l'autre.", 'مشيتَ هذا الطريق من طرفه إلى طرفه.')}
             </p>
           </div>
         ) : next ? (
@@ -271,14 +271,14 @@ export default function ThemePage({
           <p className="theme-page__intro">
             {say('This theme has no path authored yet.',
               '이 문화에는 아직 걸을 길이 만들어지지 않았어요.',
-              'Esta cultura todavía no tiene un camino escrito.', "Cette culture n'a pas encore de chemin écrit.")}
+              'Esta cultura todavía no tiene un camino escrito.', "Cette culture n'a pas encore de chemin écrit.", 'هذه الثقافة ليس لها طريق مكتوب بعد.')}
           </p>
         )}
 
         {active && (
           <p className="theme-page__pathname">
-            {say('On the path: ', '걷는 길: ', 'En el camino: ', 'Sur le chemin : ')}
-            <strong>{say(active.narrative.title, active.narrative.titleKo, active.narrative.titleEs, active.narrative.titleFr)}</strong>
+            {say('On the path: ', '걷는 길: ', 'En el camino: ', 'Sur le chemin : ', 'على الطريق: ')}
+            <strong>{say(active.narrative.title, active.narrative.titleKo, active.narrative.titleEs, active.narrative.titleFr, active.narrative.titleAr)}</strong>
             <span className="theme-page__pacing">{pacingLabel(active.narrative.pacing, say)}</span>
           </p>
         )}
@@ -287,7 +287,7 @@ export default function ThemePage({
         {remaining.length > 1 && (
           <section className="theme-page__section">
             <div className="theme-page__section-head">
-              <h2>{say('Still to come', '아직 남은 것', 'Lo que queda', 'Ce qui reste')}</h2>
+              <h2>{say('Still to come', '아직 남은 것', 'Lo que queda', 'Ce qui reste', 'ما تبقّى')}</h2>
             </div>
             <ol className="step-rows">{remaining.slice(1).map(s => renderRow(s, { done: false }))}</ol>
           </section>
@@ -297,7 +297,7 @@ export default function ThemePage({
         {completed.length > 0 && (
           <section className="theme-page__section">
             <div className="theme-page__section-head">
-              <h2>{say('Completed', '완료', 'Completado', 'Terminé')}</h2>
+              <h2>{say('Completed', '완료', 'Completado', 'Terminé', 'اكتمل')}</h2>
               <button className="theme-page__toggle" onClick={() => setExpandDone(v => !v)}>
                 {expandDone ? 'Hide' : `Show ${completed.length}`}
               </button>
@@ -311,12 +311,12 @@ export default function ThemePage({
         {alternates.length > 0 && (
           <section className="theme-page__section">
             <div className="theme-page__section-head">
-              <h2>{say('Another way through', '다른 길로 가기', 'Otro camino', 'Un autre chemin')}</h2>
+              <h2>{say('Another way through', '다른 길로 가기', 'Otro camino', 'Un autre chemin', 'طريق آخر')}</h2>
             </div>
             {alternates.map(p => (
               <div key={p.narrative.id} className="alt-path">
-                <h3>{say(p.narrative.title, p.narrative.titleKo, p.narrative.titleEs, p.narrative.titleFr)}</h3>
-                <p>{say(p.narrative.intro, p.narrative.introKo, p.narrative.introEs, p.narrative.introFr)}</p>
+                <h3>{say(p.narrative.title, p.narrative.titleKo, p.narrative.titleEs, p.narrative.titleFr, p.narrative.titleAr)}</h3>
+                <p>{say(p.narrative.intro, p.narrative.introKo, p.narrative.introEs, p.narrative.introFr, p.narrative.introAr)}</p>
                 <span className="alt-path__meta">
                   {p.done}/{p.total} · {pacingLabel(p.narrative.pacing, say)}
                 </span>
@@ -328,7 +328,7 @@ export default function ThemePage({
         {loose.length > 0 && (
           <section className="theme-page__section">
             <div className="theme-page__section-head">
-              <h2>{say('Also part of this theme', '이 문화에 속한 다른 것', 'También parte de esta cultura', 'Fait aussi partie de cette culture')}</h2>
+              <h2>{say('Also part of this theme', '이 문화에 속한 다른 것', 'También parte de esta cultura', 'Fait aussi partie de cette culture', 'جزء أيضًا من هذه الثقافة')}</h2>
             </div>
             <ol className="step-rows">
               {loose.map(item => renderRow(item, { done: isDone(item.experience) }))}
@@ -347,12 +347,12 @@ export default function ThemePage({
           <section className="theme-page__section">
             <button className="theme-cta" onClick={() => onFindTable(theme.id)}>
               <span className="theme-cta__title" translate="no">
-                {say('같이 먹을 사람 찾기', '같이 먹을 사람 찾기', 'Busca con quién comer', 'Trouver avec qui manger')}
+                {say('같이 먹을 사람 찾기', '같이 먹을 사람 찾기', 'Busca con quién comer', 'Trouver avec qui manger', 'ابحث عمّن تأكل معه')}
               </span>
               <span className="theme-cta__sub">
                 {say('Most of this is better with somebody. See who has a table open.',
                   '이 중 대부분은 누군가와 함께일 때 더 좋습니다. 누가 상을 열어 뒀는지 보세요.',
-                  'Casi todo esto es mejor acompañado. Mira quién tiene una mesa abierta.', 'Presque tout cela est meilleur à plusieurs. Regardez qui a une table ouverte.')}
+                  'Casi todo esto es mejor acompañado. Mira quién tiene una mesa abierta.', 'Presque tout cela est meilleur à plusieurs. Regardez qui a une table ouverte.', 'معظم هذا أفضل مع الناس. انظر من عنده مائدة مفتوحة.')}
               </span>
             </button>
           </section>

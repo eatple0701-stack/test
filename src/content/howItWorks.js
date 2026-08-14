@@ -25,6 +25,7 @@ export const HOW_STEPS = [
     en: 'Find a table serving a dish nobody can order alone.',
     es: 'Encuentra una mesa con un plato que nadie puede pedir solo.',
     fr: "Trouvez une table servant un plat que personne ne peut commander seul.",
+    ar: 'اعثر على مائدة تقدّم طبقًا لا يستطيع أحد أن يطلبه وحده.',
   },
   {
     id: 'ask',
@@ -32,6 +33,7 @@ export const HOW_STEPS = [
     en: 'Ask for the seat. The host reads who you are and says yes by name — your name is the whole form.',
     es: 'Pide el sitio. El anfitrión lee quién eres y dice que sí por tu nombre: tu nombre es todo el formulario.',
     fr: "Demandez la place. L'hôte lit qui vous êtes et dit oui par votre nom : votre nom est tout le formulaire.",
+    ar: 'اطلب المقعد. يقرأ المضيف من أنت ويقول نعم باسمك: اسمك هو الاستمارة كلّها.',
   },
   {
     id: 'eat',
@@ -46,6 +48,7 @@ export const HOW_STEPS = [
     en: 'Meet and share the food. Eatple handles no money: you pay the restaurant for what you eat, so nobody at the table owes anybody.',
     es: 'Os veis y compartís la comida. Eatple no toca el dinero: pagas al restaurante lo que comes, así que nadie en la mesa le debe nada a nadie.',
     fr: "Vous vous retrouvez et vous partagez le repas. Eatple ne touche pas à l'argent : vous payez au restaurant ce que vous mangez, donc personne à table ne doit rien à personne.",
+    ar: 'تلتقون وتتشاركون الطعام. لا يمسّ Eatple المال: تدفع للمطعم ثمن ما تأكل، فلا يكون على أحد في المائدة دَين لأحد.',
   },
 ];
 
@@ -55,4 +58,5 @@ export const HOW_WHY = {
   en: 'A Korean table is laid to be shared. Browsing every dish and tip is free; the seat is what an account is for.',
   es: 'Una mesa coreana se pone para compartirla. Mirar los platos y los consejos es gratis; la cuenta es para el sitio en la mesa.',
   fr: "Une table coréenne se dresse pour être partagée. Parcourir les plats et les conseils est gratuit ; le compte sert à avoir la place.",
+  ar: 'تُمدّ المائدة الكورية لتُشارَك. تصفّح الأطباق والنصائح مجاني؛ والحساب إنما هو للمقعد.',
 };

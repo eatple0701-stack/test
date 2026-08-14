@@ -28,10 +28,12 @@ export const themes = [
     titleKo: '사찰의 밥상',
     titleEs: 'La mesa del templo',
     titleFr: 'La table du temple',
+    titleAr: 'مائدة المعبد',
     tagline: 'Eat like a monk, at the pace of one.',
     taglineKo: '스님처럼, 스님의 속도로.',
     taglineEs: 'Comer como un monje, al ritmo de un monje.',
     taglineFr: "Manger comme un moine, au rythme d'un moine.",
+    taglineAr: 'كُل كما يأكل الراهب، وعلى إيقاعه.',
     narrative:
       'Korean Buddhist temples kept a cuisine alive through centuries of war and industrialisation by refusing to hurry it. Sitting at a temple table is the closest a visitor gets to the country\'s idea of restraint as a pleasure rather than a denial.',
     narrativeKo:
@@ -40,6 +42,8 @@ export const themes = [
       'Los templos budistas coreanos mantuvieron viva una cocina a lo largo de siglos de guerra e industrialización negándose a acelerarla. Sentarse a una mesa de templo es lo más cerca que llega un visitante de la idea coreana de la contención como placer y no como privación.',
     narrativeFr:
       "Les temples bouddhistes coréens ont maintenu une cuisine vivante à travers des siècles de guerre et d'industrialisation en refusant de la presser. S'asseoir à une table de temple, c'est ce qui approche le plus un visiteur de l'idée coréenne de la retenue comme plaisir plutôt que comme privation.",
+    narrativeAr:
+      'أبقت المعابد البوذية الكورية مطبخًا حيًّا عبر قرون من الحرب والتصنيع، برفضها أن تستعجله. والجلوس إلى مائدة معبد أقرب ما يصل إليه زائر من الفكرة الكورية عن ضبط النفس بوصفه متعة لا حرمانًا.',
     region: 'seoul',
     status: STATUS.PUBLISHED,
   },
@@ -50,10 +54,12 @@ export const themes = [
     titleKo: '시장 먹거리',
     titleEs: 'Comer en el mercado',
     titleFr: 'Manger au marché',
+    titleAr: 'الأكل في السوق',
     tagline: 'The market is the restaurant.',
     taglineKo: '시장이 곧 식당입니다.',
     taglineEs: 'El mercado es el restaurante.',
     taglineFr: 'Le marché est le restaurant.',
+    taglineAr: 'السوق هو المطعم.',
     narrative:
       'Before Seoul had dining rooms it had markets, and the markets never stopped being where the city actually eats. A stall is a kitchen with no walls: you watch the food being made, you eat it standing, and you talk to whoever is next to you because there is nowhere else to look.',
     narrativeKo:
@@ -62,6 +68,8 @@ export const themes = [
       'Antes de que Seúl tuviera comedores tenía mercados, y los mercados nunca dejaron de ser donde la ciudad come de verdad. Un puesto es una cocina sin paredes: ves cómo se hace la comida, la comes de pie y hablas con quien tienes al lado porque no hay otro sitio donde mirar.',
     narrativeFr:
       "Avant d'avoir des salles à manger, Séoul avait des marchés, et les marchés n'ont jamais cessé d'être l'endroit où la ville mange vraiment. Un étal est une cuisine sans murs : vous regardez la nourriture se faire, vous la mangez debout, et vous parlez à votre voisin parce qu'il n'y a nulle part ailleurs où regarder.",
+    narrativeAr:
+      'قبل أن يكون لسول قاعات طعام كانت لها أسواق، ولم تكفّ الأسواق يومًا عن كونها المكان الذي تأكل فيه المدينة فعلًا. البسطة مطبخ بلا جدران: ترى الطعام يُصنع، وتأكله واقفًا، وتحدّث من بجانبك لأنه لا مكان آخر تنظر إليه.',
     region: 'seoul',
     status: STATUS.PREVIEW,
   },
@@ -72,10 +80,12 @@ export const themes = [
     titleKo: '국수의 길',
     titleEs: 'La ruta de los fideos',
     titleFr: 'La route des nouilles',
+    titleAr: 'طريق المعكرونة',
     tagline: 'A Chinese dish that became the most Korean meal there is.',
     taglineKo: '중국 음식이 가장 한국적인 한 끼가 되기까지.',
     taglineEs: 'Un plato chino convertido en la comida más coreana que existe.',
     taglineFr: 'Un plat chinois devenu le repas le plus coréen qui soit.',
+    taglineAr: 'طبق صيني صار أكثر الوجبات كوريّةً على الإطلاق.',
     narrative:
       'Follow one bowl from the docks of Incheon\'s Chinatown to every delivery scooter in the country. Jajangmyeon is the clearest case of Korea absorbing a foreign food so completely that its origin survives only in the name.',
     narrativeKo:
@@ -84,6 +94,8 @@ export const themes = [
       'Sigue un solo cuenco desde los muelles del barrio chino de Incheon hasta cada moto de reparto del país. El jajangmyeon es el caso más claro de Corea absorbiendo una comida extranjera tan por completo que su origen sobrevive solo en el nombre.',
     narrativeFr:
       "Suivez un bol depuis les quais du quartier chinois d'Incheon jusqu'à chaque scooter de livraison du pays. Le jajangmyeon est le cas le plus net d'une Corée absorbant un plat étranger si complètement que son origine ne survit que dans le nom.",
+    narrativeAr:
+      'اتبع صحنًا واحدًا من أرصفة الحي الصيني في إنتشون إلى كل درّاجة توصيل في البلاد. الجاجانغميون أوضح حالة استوعبت فيها كوريا طعامًا أجنبيًا استيعابًا تامًّا حتى لم يبقَ من أصله إلا الاسم.',
     region: 'nationwide',
     status: STATUS.PUBLISHED,
   },
@@ -94,10 +106,12 @@ export const themes = [
     titleKo: '카페 순례',
     titleEs: 'De café en café',
     titleFr: 'De café en café',
+    titleAr: 'من مقهى إلى مقهى',
     tagline: 'One drink buys the afternoon.',
     taglineKo: '한 잔이면 오후가 통째로 내 것.',
     taglineEs: 'Una consumición te compra la tarde entera.',
     taglineFr: "Une consommation vous achète l'après-midi entier.",
+    taglineAr: 'مشروب واحد يشتري لك بعد الظهر كلّه.',
     narrative:
       'Seoul has one of the highest cafe densities on earth, and the room is the product as much as the coffee. Nobody will rush you out after one cup, which is why the cafe became where this city works, meets and waits.',
     narrativeKo:
@@ -106,6 +120,8 @@ export const themes = [
       'Seúl tiene una de las densidades de cafeterías más altas del mundo, y aquí la sala es tanto producto como el café. Nadie te echará después de una taza, y por eso la cafetería se convirtió en el sitio donde esta ciudad trabaja, queda y espera.',
     narrativeFr:
       "Séoul a l'une des plus fortes densités de cafés au monde, et ici la salle est autant le produit que le café. Personne ne vous poussera dehors après une tasse, et c'est pour cela que le café est devenu l'endroit où cette ville travaille, se retrouve et attend.",
+    narrativeAr:
+      'في سول واحدة من أعلى كثافات المقاهي في العالم، والقاعة هنا منتج بقدر القهوة نفسها. لن يستعجلك أحد بعد فنجان واحد، ولهذا صار المقهى المكان الذي تعمل فيه هذه المدينة وتلتقي وتنتظر.',
     region: 'nationwide',
     status: STATUS.PUBLISHED,
   },
@@ -116,10 +132,12 @@ export const themes = [
     titleKo: '밤의 서울',
     titleEs: 'Seúl después de medianoche',
     titleFr: 'Séoul après minuit',
+    titleAr: 'سول بعد منتصف الليل',
     tagline: 'The city gets honest after ten.',
     taglineKo: '열 시가 넘으면 도시가 솔직해집니다.',
     taglineEs: 'A partir de las diez la ciudad se vuelve sincera.',
     taglineFr: 'Passé dix heures, la ville devient sincère.',
+    taglineAr: 'بعد العاشرة تصير المدينة صادقة.',
     narrative:
       'Korean nights move in rounds, and the conversation at the second one is not the conversation at the first. Late eating here is less about appetite than about the hours a working day leaves over.',
     narrativeKo:
@@ -128,6 +146,8 @@ export const themes = [
       'Las noches coreanas avanzan por rondas, y la conversación de la segunda no es la de la primera. Comer tarde aquí tiene menos que ver con el apetito que con las horas que deja libres una jornada de trabajo.',
     narrativeFr:
       "Les nuits coréennes avancent par tournées, et la conversation de la deuxième n'est pas celle de la première. Manger tard ici tient moins de l'appétit que des heures qu'une journée de travail laisse en trop.",
+    narrativeAr:
+      'تمضي الليالي الكورية على جولات، وحديث الجولة الثانية ليس حديث الأولى. والأكل متأخرًا هنا شأنه بالساعات التي يفيضها يوم العمل أكثر منه بالشهية.',
     region: 'seoul',
     status: STATUS.PREVIEW,
   },
@@ -138,10 +158,12 @@ export const themes = [
     titleKo: '부산 해산물',
     titleEs: 'El marisco de Busan',
     titleFr: 'Les fruits de mer de Busan',
+    titleAr: 'مأكولات بوسان البحرية',
     tagline: 'A port city argues about freshness for a living.',
     taglineKo: '항구 도시는 신선도를 두고 매일 다툽니다.',
     taglineEs: 'Una ciudad portuaria discute de frescura para ganarse la vida.',
     taglineFr: 'Une ville portuaire discute de fraîcheur pour gagner sa vie.',
+    taglineAr: 'مدينة ميناء تتجادل في الطزاجة لتكسب رزقها.',
     narrative:
       'Busan built its identity on the sea and on the people the Korean War pushed south into it. The market that fed those refugees is still the largest seafood market in the country, and its habits — choose the fish live, wrap it rather than dip it — travel with the food wherever it goes.',
     narrativeKo:
@@ -150,6 +172,8 @@ export const themes = [
       'Busan construyó su identidad sobre el mar y sobre la gente que la Guerra de Corea empujó hacia el sur. El mercado que alimentó a aquellos refugiados sigue siendo el mayor mercado de pescado del país, y sus costumbres — elegir el pescado vivo, envolverlo en vez de mojarlo — viajan con la comida allá donde va.',
     narrativeFr:
       "Busan a bâti son identité sur la mer et sur ceux que la guerre de Corée a poussés vers le sud. Le marché qui a nourri ces réfugiés reste le plus grand marché aux poissons du pays, et ses habitudes — choisir le poisson vivant, l'envelopper plutôt que le tremper — voyagent avec la nourriture partout où elle va.",
+    narrativeAr:
+      'بنت بوسان هويتها على البحر وعلى من دفعتهم الحرب الكورية جنوبًا. والسوق الذي أطعم أولئك اللاجئين ما زال أكبر سوق سمك في البلاد، وعاداته — اختيار السمك حيًّا، ولفّه لا غمسه — تسافر مع الطعام أينما ذهب.',
     region: 'nationwide',
     status: STATUS.PREVIEW,
   },
@@ -160,10 +184,12 @@ export const themes = [
     titleKo: '봄 소풍',
     titleEs: 'Picnic de primavera',
     titleFr: 'Pique-nique de printemps',
+    titleAr: 'نزهة الربيع',
     tagline: 'Two weeks a year, the country eats outdoors.',
     taglineKo: '일 년에 두 주, 온 나라가 밖에서 먹습니다.',
     taglineEs: 'Dos semanas al año, el país entero come al aire libre.',
     taglineFr: "Deux semaines par an, le pays entier mange dehors.",
+    taglineAr: 'أسبوعان في السنة يأكل فيهما البلد كلّه في الخلاء.',
     narrative:
       'Blossom season is Korea\'s clearest seasonal ritual, and its shortness is the point. Parks fill with mats and shared bottles for a fortnight, and then it is over for a year.',
     narrativeKo:
@@ -172,6 +198,8 @@ export const themes = [
       'La temporada de los cerezos es el ritual estacional más claro de Corea, y su brevedad es justamente el sentido. Los parques se llenan de esterillas y botellas compartidas durante quince días, y después se acabó hasta el año que viene.',
     narrativeFr:
       "La saison des cerisiers est le rituel saisonnier le plus net de Corée, et sa brièveté en est précisément le sens. Les parcs se remplissent de nattes et de bouteilles partagées pendant quinze jours, puis c'est fini pour un an.",
+    narrativeAr:
+      'موسم أزهار الكرز أوضح طقس موسمي في كوريا، وقِصَره هو معناه بالضبط. تمتلئ الحدائق بالحُصر والزجاجات المشتركة خمسة عشر يومًا، ثم ينتهي الأمر إلى العام المقبل.',
     region: 'nationwide',
     status: STATUS.PREVIEW,
   },

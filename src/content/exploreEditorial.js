@@ -34,6 +34,7 @@ export const EDITORIAL = {
     questionKo: '스님은 왜 그릇에 아무것도 남기지 않을까요?',
     questionEs: '¿Por qué un monje no deja nada en el plato?',
     questionFr: "Pourquoi un moine ne laisse-t-il rien dans son bol ?",
+    questionAr: 'لماذا لا يترك الراهب شيئًا في قصعته؟',
     word: '사찰음식',
   },
   'street-food': {
@@ -41,6 +42,7 @@ export const EDITORIAL = {
     questionKo: '식당이 생기기 전, 도시는 무엇을 먹었을까요?',
     questionEs: '¿Qué come una ciudad antes de construir comedores?',
     questionFr: "Que mange une ville avant de bâtir des salles à manger ?",
+    questionAr: 'ماذا تأكل مدينة قبل أن تبني قاعات طعام؟',
     word: '시장',
   },
   'noodle-road': {
@@ -48,6 +50,7 @@ export const EDITORIAL = {
     questionKo: '이름만 중국인 한국 음식은 무엇일까요?',
     questionEs: '¿Qué plato coreano solo es chino en el nombre?',
     questionFr: "Quel plat coréen n'est chinois que de nom ?",
+    questionAr: 'أيّ طبق كوري ليس صينيًّا إلا في اسمه؟',
     word: '짜장면',
   },
   'cafe-hopping': {
@@ -55,6 +58,7 @@ export const EDITORIAL = {
     questionKo: '한 잔만 시켜도 왜 아무도 나가라고 하지 않을까요?',
     questionEs: '¿Por qué nadie te pedirá que te vayas tras una sola taza?',
     questionFr: "Pourquoi personne ne vous demandera de partir après une seule tasse ?",
+    questionAr: 'لماذا لن يطلب منك أحد أن ترحل بعد فنجان واحد؟',
     word: '한 잔',
   },
   'seoul-after-dark': {
@@ -62,6 +66,7 @@ export const EDITORIAL = {
     questionKo: '2차의 대화는 왜 1차와 다를까요?',
     questionEs: '¿Por qué la segunda ronda es otra conversación?',
     questionFr: "Pourquoi la deuxième tournée est-elle une autre conversation ?",
+    questionAr: 'لماذا تكون الجولة الثانية حديثًا آخر؟',
     word: '이차',
   },
   'busan-seafood': {
@@ -69,6 +74,7 @@ export const EDITORIAL = {
     questionKo: '회를 찍어 먹지 않고 왜 싸서 먹을까요?',
     questionEs: '¿Por qué se envuelve el pescado en vez de mojarlo?',
     questionFr: "Pourquoi enveloppe-t-on le poisson au lieu de le tremper ?",
+    questionAr: 'لماذا يُلفّ السمك بدل أن يُغمس؟',
     word: '자갈치',
   },
   'spring-picnic': {
@@ -76,6 +82,7 @@ export const EDITORIAL = {
     questionKo: '두 주뿐인 벚꽃철에 온 나라는 무엇을 할까요?',
     questionEs: '¿Qué hace un país con dos semanas de flor de cerezo?',
     questionFr: "Que fait un pays de deux semaines de cerisiers en fleur ?",
+    questionAr: 'ماذا يفعل بلد بأسبوعين من أزهار الكرز؟',
     word: '벚꽃',
   },
 };

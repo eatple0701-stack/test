@@ -155,7 +155,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   );
 
   return (
-    <section className="tables-tab" aria-label={say('Eatple tables', '밥친구 밥상', 'Mesas de Eatple', 'Les tables Eatple')}>
+    <section className="tables-tab" aria-label={say('Eatple tables', '밥친구 밥상', 'Mesas de Eatple', 'Les tables Eatple', 'موائد Eatple')}>
       {/* The wordmark and the sign-in pair used to sit here, at the top of
           this one tab. They are app chrome, not landing-page content — see
           .app-chrome in App.jsx, where they now live on every screen. */}
@@ -163,11 +163,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       <header className="screen-head screen-head--dark">
         <span className="screen-head__kr">밥친구</span>
         <h1 className="screen-head__title">
-          {say('Dishes you cannot order alone.', '혼자서는 주문할 수 없는 음식들.', 'Platos que no puedes pedir solo.', 'Des plats que vous ne pouvez pas commander seul.')}
+          {say('Dishes you cannot order alone.', '혼자서는 주문할 수 없는 음식들.', 'Platos que no puedes pedir solo.', 'Des plats que vous ne pouvez pas commander seul.', 'أطباق لا تستطيع أن تطلبها وحدك.')}
         </h1>
         <p className="screen-head__sub">
           {say('Ask to sit at a table, or open one and see who comes.',
-            '밥상에 자리를 청하거나, 직접 하나 열고 누가 오는지 보세요.', 'Pide sitio en una mesa, o abre una y mira quién viene.', 'Demandez une place à une table, ou ouvrez-en une et voyez qui vient.')}
+            '밥상에 자리를 청하거나, 직접 하나 열고 누가 오는지 보세요.', 'Pide sitio en una mesa, o abre una y mira quién viene.', 'Demandez une place à une table, ou ouvrez-en une et voyez qui vient.', 'اطلب مقعدًا على مائدة، أو افتح واحدة وانظر من يأتي.')}
         </p>
         {/* One CTA, chosen by who is looking — Meetup's front page asks a
             stranger to join, not to host. A member gets the real verb. The
@@ -175,12 +175,12 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             they are the landing page. */}
         {isMember(auth) ? (
           <button className="screen-head__cta" translate="no" onClick={onCreateTable}>
-            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')}
+            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة')}
           </button>
         ) : (
           <>
             <button className="screen-head__cta" translate="no" onClick={() => onOpenAuth?.('signup')}>
-              {say('무료로 가입하기 · Join free', '무료로 가입하기', 'Únete gratis', 'Rejoindre gratuitement')}
+              {say('무료로 가입하기 · Join free', '무료로 가입하기', 'Únete gratis', 'Rejoindre gratuitement', 'انضمّ مجانًا')}
             </button>
             {/* What joining buys, as a number. 야놀자 does not say "join for
                 benefits", it says you get the member price — the reward is
@@ -194,12 +194,14 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   null,
                   `Con una cuenta puedes pedir sitio en ${open.length} mesa${open.length === 1 ? '' : 's'} abierta${open.length === 1 ? '' : 's'} ahora mismo`,
                   `Avec un compte, vous pouvez demander une place à ${open.length} table${open.length === 1 ? '' : 's'} ouverte${open.length === 1 ? '' : 's'} en ce moment`,
+                  `بحساب، تستطيع طلب مقعد على ${open.length} ${open.length === 1 ? 'مائدة مفتوحة' : 'موائد مفتوحة'} الآن`,
                 )
                 : say(
                   '가입하면 첫 밥상을 직접 열 수 있어요 · Join and open the first table yourself',
                   '가입하면 첫 밥상을 직접 열 수 있어요',
                   'Con una cuenta puedes abrir tú mismo la primera mesa',
                   'Avec un compte, vous pouvez ouvrir vous-même la première table',
+                  'بحساب، تستطيع أن تفتح المائدة الأولى بنفسك',
                 )}
             </p>
           </>
@@ -252,15 +254,15 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             const city = cityOfTables(open, restaurants);
             return city
               ? say(`이번 주 ${city}의 밥상 · Tables in ${city}, this week`, `이번 주 ${city}의 밥상`,
-                `Mesas en ${city} esta semana`, `Tables à ${city} cette semaine`)
+                `Mesas en ${city} esta semana`, `Tables à ${city} cette semaine`, `موائد ${city} هذا الأسبوع`)
               : say('이번 주의 밥상 · Tables this week', '이번 주의 밥상',
-                'Las mesas de esta semana', 'Les tables de cette semaine');
+                'Las mesas de esta semana', 'Les tables de cette semaine', 'موائد هذا الأسبوع');
           })()}
         </p>
       )}
 
       {tables !== null && (
-        <div className="week-strip" role="group" aria-label={say('Tables by day', '날짜별 밥상', 'Mesas por día', 'Les tables par jour')}>
+        <div className="week-strip" role="group" aria-label={say('Tables by day', '날짜별 밥상', 'Mesas por día', 'Les tables par jour', 'الموائد بحسب اليوم')}>
           {week.map(d => (
             <button
               key={d.ymd}
@@ -273,7 +275,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   about most was the single day they could not read. */}
               <span className="week-day__name">
                 {d.isToday
-                  ? say('Today', '오늘', 'Hoy', "Aujourd'hui")
+                  ? say('Today', '오늘', 'Hoy', "Aujourd'hui", 'اليوم')
                   : d.date.toLocaleDateString(dateLocale(locale), { weekday: 'short' })}
               </span>
               <span className="week-day__date">{d.date.getDate()}</span>
@@ -291,12 +293,12 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         <p className="tables-notice">
           {say('Tables are saved on this device only for now — shared tables go live when the server lands.',
             '지금은 밥상이 이 기기에만 저장됩니다 — 서버가 붙으면 공유 밥상이 살아납니다.',
-            'Por ahora las mesas se guardan solo en este dispositivo: las mesas compartidas llegarán con el servidor.', "Pour l'instant les tables ne sont enregistrées que sur cet appareil : les tables partagées arriveront avec le serveur.")}
+            'Por ahora las mesas se guardan solo en este dispositivo: las mesas compartidas llegarán con el servidor.', "Pour l'instant les tables ne sont enregistrées que sur cet appareil : les tables partagées arriveront avec le serveur.", 'الموائد محفوظة الآن على هذا الجهاز وحده: أمّا الموائد المشتركة فتصل مع الخادم.')}
         </p>
       )}
 
       {liveMenuIds.length > 1 && (
-        <div className="menu-chips" role="group" aria-label={say('Filter by dish', '요리로 거르기', 'Filtrar por plato', 'Filtrer par plat')}>
+        <div className="menu-chips" role="group" aria-label={say('Filter by dish', '요리로 거르기', 'Filtrar por plato', 'Filtrer par plat', 'صفِّ بالطبق')}>
           <button
             className={`menu-chip${menuFilter === null ? ' is-on' : ''}`}
             onClick={() => setMenuFilter(null)}
@@ -319,7 +321,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                     no meaning attached. */}
                 <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
                 <span className="menu-chip__en">{m.name}</span>
-                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr)}</span>
+                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr, m.glossAr)}</span>
               </button>
             );
           })}
@@ -330,13 +332,13 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           thing with more in it — the days with nothing on them — and two
           date filters stacked on one screen is a choice nobody asked for. */}
 
-      <div className="menu-chips" role="group" aria-label={say('Filter by who is going', '누가 가는지로 거르기', 'Filtrar por quién va', 'Filtrer par qui vient')}>
+      <div className="menu-chips" role="group" aria-label={say('Filter by who is going', '누가 가는지로 거르기', 'Filtrar por quién va', 'Filtrer par qui vient', 'صفِّ بمن سيأتي')}>
         <button
           className={`menu-chip${womenFilter ? ' is-on' : ''}`}
           aria-pressed={womenFilter}
           onClick={() => setWomenFilter(w => !w)}
         >
-          {say('여성 동석 · Tables with another woman going', '여성 동석', 'Mesas con otra mujer apuntada', 'Tables où une autre femme est inscrite')}
+          {say('여성 동석 · Tables with another woman going', '여성 동석', 'Mesas con otra mujer apuntada', 'Tables où une autre femme est inscrite', 'موائد مسجّلة فيها امرأة أخرى')}
         </button>
       </div>
 
@@ -348,7 +350,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           aria-busy carries the same fact to a screen reader, which cannot
           see the shimmer. */}
       {tables === null && (
-        <div className="table-list" aria-busy="true" aria-label={say('Loading tables', '밥상 불러오는 중', 'Cargando mesas', 'Chargement des tables')}>
+        <div className="table-list" aria-busy="true" aria-label={say('Loading tables', '밥상 불러오는 중', 'Cargando mesas', 'Chargement des tables', 'جارٍ تحميل الموائد')}>
           {[0, 1, 2].map(i => (
             <div key={i} className="table-card table-card--skeleton" aria-hidden="true">
               <span className="skeleton-line skeleton-line--sm" />
@@ -376,17 +378,17 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             {/* The way out is whatever the reader can actually undo. */}
             {reason === EMPTY.GENDER && (
               <button className="tables-empty__cta" translate="no" onClick={() => setWomenFilter(false)}>
-                {say('필터 끄기 · Turn this filter off', '필터 끄기', 'Quitar este filtro', 'Retirer ce filtre')}
+                {say('필터 끄기 · Turn this filter off', '필터 끄기', 'Quitar este filtro', 'Retirer ce filtre', 'أزِل هذا المصفّي')}
               </button>
             )}
             {reason === EMPTY.DAY && (
               <button className="tables-empty__cta" translate="no" onClick={() => setDayFilter(null)}>
-                {say('이번 주 전체 보기 · Show the whole week', '이번 주 전체 보기', 'Ver la semana entera', 'Voir toute la semaine')}
+                {say('이번 주 전체 보기 · Show the whole week', '이번 주 전체 보기', 'Ver la semana entera', 'Voir toute la semaine', 'انظر الأسبوع كلّه')}
               </button>
             )}
             {reason === EMPTY.DISH && (
               <button className="tables-empty__cta" translate="no" onClick={() => setMenuFilter(null)}>
-                {say('요리 전체 보기 · Show every dish', '요리 전체 보기', 'Ver todos los platos', 'Voir tous les plats')}
+                {say('요리 전체 보기 · Show every dish', '요리 전체 보기', 'Ver todos los platos', 'Voir tous les plats', 'انظر كل الأطباق')}
               </button>
             )}
 
@@ -397,13 +399,13 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               translate="no"
               onClick={onCreateTable}
             >
-              {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table')}
+              {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة')}
             </button>
             {/* Say what you wanted and let the app either find it or hand it
                 back as a table — the other half of an empty screen. */}
             <button className="tables-empty__ask" onClick={onRequestTable}>
               {say('찾는 밥상 · Tell us what you are after', '찾는 밥상',
-                'Dinos qué buscas', 'Dites-nous ce que vous cherchez')}
+                'Dinos qué buscas', 'Dites-nous ce que vous cherchez', 'أخبرنا بما تبحث عنه')}
             </button>
 
             {/* The bare-week copy says the phrases are here to read meanwhile,
@@ -416,7 +418,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 the part that works with no signal. */}
             {reason === EMPTY.NONE && (
               <button className="tables-empty__ask" translate="no" onClick={() => setPhrasesOpen(true)}>
-                {say('식탁에서 · What to say at the table', '식탁에서', 'Qué decir en la mesa', 'Quoi dire à table')}
+                {say('식탁에서 · What to say at the table', '식탁에서', 'Qué decir en la mesa', 'Quoi dire à table', 'ماذا تقول على المائدة')}
               </button>
             )}
           </div>
@@ -439,13 +441,13 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       {tables !== null && emptyReason({ open, shown, menuFilter, womenFilter, dayFilter }) === EMPTY.NONE && (
         <div className="dish-shelf">
           <p className="dish-shelf__label">{say('읽을거리 · Read about the dishes', '읽을거리',
-            'Para leer: los platos', 'À lire : les plats')}</p>
-          <div className="menu-chips" role="group" aria-label={say('Read about a dish', '요리 읽어보기', 'Leer sobre un plato', 'Lire sur un plat')}>
+            'Para leer: los platos', 'À lire : les plats', 'للقراءة: الأطباق')}</p>
+          <div className="menu-chips" role="group" aria-label={say('Read about a dish', '요리 읽어보기', 'Leer sobre un plato', 'Lire sur un plat', 'اقرأ عن طبق')}>
             {menus.map(m => (
               <button key={m.id} className="menu-chip" onClick={() => setOpenDish(m)}>
                 <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
                 <span className="menu-chip__en">{m.name}</span>
-                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr)}</span>
+                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr, m.glossAr)}</span>
               </button>
             ))}
           </div>
@@ -532,17 +534,17 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                     landing where a card-scanner never reaches it. */}
                 <span className="table-card__free" translate="no">
                   <span className="table-card__free-kr">앱 결제 없음</span>
-                  <span className="table-card__free-en">{say('No app payment', '앱 결제 없음', 'Sin pago en la app', "Aucun paiement dans l'application")}</span>
+                  <span className="table-card__free-en">{say('No app payment', '앱 결제 없음', 'Sin pago en la app', "Aucun paiement dans l'application", 'لا دفع داخل التطبيق')}</span>
                 </span>
-                {isMine && <span className="table-card__mine">{say('Your table', '내 밥상', 'Tu mesa', 'Votre table')}</span>}
-                {iAmGoing && <span className="table-card__mine">{say('You are going', '가시는 중', 'Vas a ir', 'Vous y allez')}</span>}
+                {isMine && <span className="table-card__mine">{say('Your table', '내 밥상', 'Tu mesa', 'Votre table', 'مائدتك')}</span>}
+                {iAmGoing && <span className="table-card__mine">{say('You are going', '가시는 중', 'Vas a ir', 'Vous y allez', 'أنت ذاهب')}</span>}
                 {conflicts.length > 0 && (
                   <span className="table-card__warn">contains {conflicts.join(', ')}</span>
                 )}
               </span>
 
               <h2 className="table-card__dish">{menu.name}</h2>
-              <p className="table-card__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr)}</p>
+              <p className="table-card__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr)}</p>
 
               {/* 신보람 교수님's note, answered where it is actually asked.
                   The badge above says 호스트 테이블 — a category. This says
@@ -569,7 +571,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   happens at a table, not the first one they tapped. */}
               {guideSummary(t) && (
                 <p className="table-card__guides">
-                  <span className="table-card__guides-label">{say('Host shows you', '호스트가 안내', 'El anfitrión te guía', "L'hôte vous guide")}</span>
+                  <span className="table-card__guides-label">{say('Host shows you', '호스트가 안내', 'El anfitrión te guía', "L'hôte vous guide", 'المضيف يرشدك')}</span>
                   {guideSummary(t).guides[0].en}
                   {guideSummary(t).guides.length > 1 && (
                     <span className="table-card__guides-more">
@@ -635,7 +637,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                       밥상 {hostRecords[t.hostId].tablesHosted}번
                     </span>
                   )}
-                  {t.hostVerified && <span className="table-card__verified">{say('인증 · verified', '인증', 'verificado', 'vérifié')}</span>}
+                  {t.hostVerified && <span className="table-card__verified">{say('인증 · verified', '인증', 'verificado', 'vérifié', 'موثّق')}</span>}
                   {/* Scanning a list, the language is the fastest filter a
                       traveller applies — but only if they can read it. The
                       card said 한국어 and left a Spanish speaker guessing at
@@ -643,7 +645,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                   {(t.languages ?? []).length > 0 && (
                     <span className="table-card__langs">{languageLine(t.languages)}</span>
                   )}
-                  {t.isSample && <span className="table-card__sample">{say('sample', '샘플', 'ejemplo', 'exemple')}</span>}
+                  {t.isSample && <span className="table-card__sample">{say('sample', '샘플', 'ejemplo', 'exemple', 'مثال')}</span>}
                 </span>
                 <span className="table-card__right">
                   {/* Confirmed faces, Meetup's oldest trick told honestly:
@@ -692,19 +694,19 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           worth doing. Both blocks are guests-only — a member has done all
           three steps and does not need the rules recited back. */}
       {!isMember(auth) && (
-        <div className="how-strip" aria-label={say('How Eatple works', '밥친구가 작동하는 방식', 'Cómo funciona Eatple', 'Comment Eatple fonctionne')}>
+        <div className="how-strip" aria-label={say('How Eatple works', '밥친구가 작동하는 방식', 'Cómo funciona Eatple', 'Comment Eatple fonctionne', 'كيف يعمل Eatple')}>
           <ol className="how-strip__steps">
             {HOW_STEPS.map((s, i) => (
               <li key={s.id} className="how-strip__step">
                 <span className="how-strip__num" aria-hidden="true">{i + 1}</span>
                 <span className="how-strip__kr" translate="no">{s.kr}</span>
-                <span className="how-strip__en">{say(s.en, null, s.es, s.fr)}</span>
+                <span className="how-strip__en">{say(s.en, null, s.es, s.fr, s.ar)}</span>
               </li>
             ))}
           </ol>
           <p className="how-strip__why">
             <span className="how-strip__why-kr" translate="no">{HOW_WHY.kr}</span>
-            <span className="how-strip__why-en">{say(HOW_WHY.en, null, HOW_WHY.es, HOW_WHY.fr)}</span>
+            <span className="how-strip__why-en">{say(HOW_WHY.en, null, HOW_WHY.es, HOW_WHY.fr, HOW_WHY.ar)}</span>
           </p>
         </div>
       )}
@@ -723,16 +725,16 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         <div className="promises" aria-label={PROMISES_LEAD.kr}>
           <h2 className="promises__lead promises__lead-kr" translate="no">{PROMISES_LEAD.kr}</h2>
           <h2 className="promises__lead l-en-only">
-            {say(PROMISES_LEAD.titleEn, null, PROMISES_LEAD.titleEs, PROMISES_LEAD.titleFr)}
+            {say(PROMISES_LEAD.titleEn, null, PROMISES_LEAD.titleEs, PROMISES_LEAD.titleFr, PROMISES_LEAD.titleAr)}
           </h2>
-          <p className="promises__sub">{say(PROMISES_LEAD.en, PROMISES_LEAD.ko, PROMISES_LEAD.es, PROMISES_LEAD.fr)}</p>
+          <p className="promises__sub">{say(PROMISES_LEAD.en, PROMISES_LEAD.ko, PROMISES_LEAD.es, PROMISES_LEAD.fr, PROMISES_LEAD.ar)}</p>
           <ul className="promises__list">
             {PROMISES.map(p => (
               <li key={p.id} className="promise">
                 <CheckIcon size={15} />
                 <span className="promise__body">
                   <span className="promise__kr" translate="no">{p.kr}</span>
-                  <span className="promise__en">{say(p.en, p.ko, p.es, p.fr)}</span>
+                  <span className="promise__en">{say(p.en, p.ko, p.es, p.fr, p.ar)}</span>
                 </span>
               </li>
             ))}
@@ -749,7 +751,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           <span className="tables-ask__body">
             {say('None of these? Say what you are after — we will look, and open it for you if nobody has.',
               '마음에 드는 게 없나요? 찾는 걸 말해 주시면 저희가 찾아보고, 아무도 없으면 대신 열어 드립니다.',
-              '¿Ninguna te encaja? Dinos qué buscas: lo miramos y, si nadie la ha abierto, la abrimos por ti.', "Aucune ne vous va ? Dites-nous ce que vous cherchez : on regarde, et si personne ne l'a ouverte, on l'ouvre pour vous.")}
+              '¿Ninguna te encaja? Dinos qué buscas: lo miramos y, si nadie la ha abierto, la abrimos por ti.', "Aucune ne vous va ? Dites-nous ce que vous cherchez : on regarde, et si personne ne l'a ouverte, on l'ouvre pour vous.", 'لا تناسبك أيّ منها؟ أخبرنا بما تبحث عنه: ننظر في الأمر، وإن لم يفتحها أحد فتحناها لك.')}
           </span>
         </button>
       )}

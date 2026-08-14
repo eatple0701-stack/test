@@ -219,8 +219,8 @@ button {
   flex-shrink: 0;
 }
 .chip-group + .chip-group {
-  padding-left: 8px;
-  border-left: 1px solid var(--line);
+  padding-inline-start: 8px;
+  border-inline-start: 1px solid var(--line);
 }
 .chip {
   /* 44, not 40. Chips are the filter row, the appearance switch and the
@@ -430,7 +430,7 @@ button {
   padding: 0;
   font: inherit;
   color: var(--ink);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   display: block;
   max-width: 100%;
@@ -658,8 +658,8 @@ button {
 
 .detail-sheet {
   position: fixed;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   bottom: 0;
   height: 92dvh;
   background: var(--surface);
@@ -675,7 +675,7 @@ button {
 .detail-close {
   position: absolute;
   top: 12px;
-  right: 12px;
+  inset-inline-end: 12px;
   z-index: 2;
   width: 40px;
   height: 40px;
@@ -724,7 +724,7 @@ button {
 .gallery-close {
   position: absolute;
   top: 16px;
-  right: 16px;
+  inset-inline-end: 16px;
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
   border: none;
@@ -780,10 +780,10 @@ button {
   background: rgba(255, 255, 255, 0.25);
 }
 .gallery-nav.prev {
-  left: 16px;
+  inset-inline-start: 16px;
 }
 .gallery-nav.next {
-  right: 16px;
+  inset-inline-end: 16px;
 }
 
 
@@ -893,7 +893,7 @@ button {
 }
 
 .practical-copy {
-  margin-left: auto;
+  margin-inline-start: auto;
   background: none;
   border: none;
   min-height: 44px;
@@ -1122,7 +1122,7 @@ button {
   list-style: none;
   margin: 14px 0 0;
   padding: 2px 0 2px 14px;
-  border-left: 2px solid var(--line);
+  border-inline-start: 2px solid var(--line);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1163,8 +1163,8 @@ button {
   color: var(--green-ink);
 }
 .detail-hook__quote {
-  padding-left: 16px;
-  border-left: 4px solid var(--green);
+  padding-inline-start: 16px;
+  border-inline-start: 4px solid var(--green);
   font-size: 20px;
   font-weight: 600;
   line-height: 1.5;
@@ -1178,7 +1178,7 @@ button {
 /* Trust badge: confidence × source collapsed into one word. Deliberately quiet
    — it qualifies the fact it follows, it isn't the headline. */
 .trust {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   padding: 1px 6px;
   border-radius: 999px;
   font-size: 10px;
@@ -1315,7 +1315,7 @@ button {
 .phrase-en {
   font-size: 13px;
   color: var(--ink-body);
-  text-align: right;
+  text-align: end;
   flex-shrink: 0;
 }
 
@@ -1523,8 +1523,8 @@ button {
 
 .tab-bar {
   position: fixed;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   bottom: 0;
   height: var(--tab-h);
   padding-bottom: env(safe-area-inset-bottom);
@@ -1711,7 +1711,7 @@ button {
   grid-template-rows: auto auto auto;
   align-items: center;
   gap: 2px 12px;
-  text-align: left;
+  text-align: start;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -1757,7 +1757,7 @@ button {
 .journal-recent__label {
   font-weight: 600;
   color: var(--ink);
-  margin-right: 8px;
+  margin-inline-end: 8px;
 }
 
 .journal-empty {
@@ -1910,7 +1910,7 @@ button {
   font-size: 13px;
   font-weight: 500;
   color: var(--ink-body);
-  text-align: left;
+  text-align: start;
 }
 .journal-empty__step-num {
   width: 24px;
@@ -2105,7 +2105,7 @@ button {
   /* Detail becomes a centred dialog rather than a full-height sheet. */
   .detail-sheet {
     left: 50%;
-    right: auto;
+    inset-inline-end: auto;
     bottom: auto;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -2132,8 +2132,8 @@ button {
   .tab-bar {
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     z-index: 200;
     background: var(--surface);
     border-top: 1px solid var(--line);
@@ -2146,7 +2146,7 @@ button {
 .directions-sheet__menu {
   position: absolute;
   bottom: 100%;
-  left: 0;
+  inset-inline-start: 0;
   min-width: 160px;
   margin-bottom: 8px;
   background: var(--surface);
@@ -2169,7 +2169,7 @@ button {
   font-weight: 600;
   color: var(--ink-title);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: background 0.15s ease;
 }
 .directions-btn:hover {
@@ -2512,7 +2512,7 @@ button {
 
 .place-image__initial {
   position: absolute;
-  right: 8px;
+  inset-inline-end: 8px;
   bottom: 4px;
   font-size: 34px;
   font-weight: 800;
@@ -2522,13 +2522,13 @@ button {
   pointer-events: none;
 }
 .place-image--hero .place-image__initial {
-  right: 14px;
+  inset-inline-end: 14px;
   bottom: 8px;
   font-size: 56px;
 }
 .place-image--thumb .place-image__initial {
   font-size: 22px;
-  right: 5px;
+  inset-inline-end: 5px;
   bottom: 2px;
 }
 
@@ -2614,7 +2614,7 @@ button {
   border-radius: var(--radius-xl);
   color: #fff;
   font: inherit;
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -2665,7 +2665,7 @@ button {
 
 .gather-card {
   flex: 0 0 240px;
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -2722,7 +2722,7 @@ button {
 
 .course-card {
   flex: 0 0 200px;
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -2746,7 +2746,7 @@ button {
   border-radius: 50%;
   border: 2px solid var(--surface);
   overflow: hidden;
-  margin-right: -16px;
+  margin-inline-end: -16px;
   box-shadow: var(--shadow-1);
 }
 .course-card h3 {
@@ -2762,7 +2762,7 @@ button {
 
 .food-card {
   flex: 0 0 160px;
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   background: var(--surface);
@@ -2803,7 +2803,7 @@ button {
   padding: 0 20px;
 }
 .zone-card {
-  text-align: left;
+  text-align: start;
   padding: 16px;
   background: var(--green-tint);
   border: 1px solid transparent;
@@ -2847,7 +2847,7 @@ button {
 .gather-card--kr::before {
   content: attr(data-kr);
   position: absolute;
-  right: -4px;
+  inset-inline-end: -4px;
   bottom: -12px;
   font-size: 44px;
   font-weight: 800;
@@ -2874,7 +2874,7 @@ button {
 .spotlight-card {
   display: flex;
   flex-direction: column;
-  text-align: left;
+  text-align: start;
   margin: 0 20px;
   width: calc(100% - 40px);
   background: var(--surface);
@@ -2931,7 +2931,7 @@ button {
   display: flex;
   flex-direction: column;
   width: 100%;
-  text-align: left;
+  text-align: start;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -2957,7 +2957,7 @@ button {
 }
 .place-card__tag {
   position: absolute;
-  left: 8px;
+  inset-inline-start: 8px;
   bottom: 8px;
   padding: 3px 9px;
   border-radius: 999px;
@@ -2995,7 +2995,7 @@ button {
 .place-card__save {
   position: absolute;
   top: 8px;
-  right: 8px;
+  inset-inline-end: 8px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -3022,7 +3022,7 @@ button {
   padding-top: 16px;
 }
 .home-section__count {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: 13px;
   font-weight: 700;
   color: var(--green-ink);
@@ -3031,7 +3031,7 @@ button {
 /* Story-first entry points. */
 .theme-card {
   flex: 0 0 172px;
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -3180,7 +3180,7 @@ button {
   margin: 0 20px;
   width: calc(100% - 40px);
   padding: 16px 18px;
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -3221,8 +3221,8 @@ button {
   font-size: 13px;
   line-height: 1.5;
   color: var(--ink-body);
-  padding-left: 10px;
-  border-left: 3px solid var(--green-tint);
+  padding-inline-start: 10px;
+  border-inline-start: 3px solid var(--green-tint);
 }
 .todays-pick__cta {
   display: inline-flex;
@@ -3323,7 +3323,7 @@ button {
   color: var(--ink);
 }
 .theme-page__pacing {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: 12px;
   font-weight: 600;
   color: var(--muted);
@@ -3491,7 +3491,7 @@ button {
   font-weight: 700;
 }
 .theme-page__toggle {
-  margin-left: auto;
+  margin-inline-start: auto;
   min-height: 36px;
   padding: 0 12px;
   border: none;
@@ -3661,7 +3661,7 @@ button {
   font-weight: 600;
 }
 .theme-sheet__pacing {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: 12px;
   font-weight: 600;
   color: var(--muted);
@@ -3682,16 +3682,16 @@ button {
 .theme-step {
   position: relative;
   padding: 0 0 20px 20px;
-  border-left: 2px solid var(--line);
-  margin-left: 5px;
+  border-inline-start: 2px solid var(--line);
+  margin-inline-start: 5px;
 }
 .theme-step:last-child {
-  border-left-color: transparent;
+  border-inline-start-color: transparent;
   padding-bottom: 0;
 }
 .theme-step__dot {
   position: absolute;
-  left: -6px;
+  inset-inline-start: -6px;
   top: 5px;
   width: 10px;
   height: 10px;
@@ -3701,7 +3701,7 @@ button {
 /* A completed step is the whole reason this is a Journey surface and not an
    article: you can see where you are in the path. */
 .theme-step.is-done > .theme-step__dot {
-  left: -9px;
+  inset-inline-start: -9px;
   top: 2px;
   width: 17px;
   height: 17px;
@@ -3780,7 +3780,7 @@ button {
   font-weight: 600;
   color: var(--ink);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .theme-venue:hover {
@@ -3821,7 +3821,7 @@ button {
 .market-card__hit {
   position: relative;
   flex: 1;
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -3844,7 +3844,7 @@ button {
 .market-card__hit::before {
   content: attr(data-kr);
   position: absolute;
-  right: -6px;
+  inset-inline-end: -6px;
   top: -10px;
   font-size: 46px;
   font-weight: 800;
@@ -3890,16 +3890,16 @@ button {
 .route-step {
   position: relative;
   padding: 0 0 14px 20px;
-  border-left: 2px solid var(--line);
-  margin-left: 5px;
+  border-inline-start: 2px solid var(--line);
+  margin-inline-start: 5px;
 }
 .route-step:last-child {
-  border-left-color: transparent;
+  border-inline-start-color: transparent;
   padding-bottom: 0;
 }
 .route-step__dot {
   position: absolute;
-  left: -6px;
+  inset-inline-start: -6px;
   top: 5px;
   width: 10px;
   height: 10px;
@@ -3914,7 +3914,7 @@ button {
   flex-direction: column;
   gap: 2px;
   width: 100%;
-  text-align: left;
+  text-align: start;
   background: none;
   border: none;
   padding: 0;
@@ -4030,7 +4030,7 @@ button {
 .summary-sheet__close {
   position: absolute;
   top: 12px;
-  right: 12px;
+  inset-inline-end: 12px;
   z-index: 2;
   width: 34px;
   height: 34px;
@@ -4304,7 +4304,7 @@ button {
 .match-card__available {
   position: absolute;
   top: 14px;
-  left: 14px;
+  inset-inline-start: 14px;
   font-size: 12px;
   font-weight: 700;
   color: var(--green-ink);
@@ -4325,11 +4325,11 @@ button {
   transform: rotate(-12deg);
 }
 .match-card__stamp--like {
-  right: 16px;
+  inset-inline-end: 16px;
   color: var(--green-ink);
 }
 .match-card__stamp--pass {
-  left: 16px;
+  inset-inline-start: 16px;
   color: var(--danger);
   transform: rotate(12deg);
 }
@@ -4627,11 +4627,11 @@ button {
   color: var(--ink-body);
 }
 .record-item__sub {
-  margin-left: auto;
-  padding-left: 10px;
+  margin-inline-start: auto;
+  padding-inline-start: 10px;
   font-size: 12px;
   color: var(--muted);
-  text-align: right;
+  text-align: end;
 }
 
 .passport-summary .passport-stats,
@@ -4684,7 +4684,7 @@ button {
 .toggle-switch__knob {
   position: absolute;
   top: 2px;
-  left: 2px;
+  inset-inline-start: 2px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -4798,7 +4798,7 @@ button {
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
-  text-align: left;
+  text-align: start;
 }
 .complete-next__label {
   font-size: 11px;
@@ -4814,7 +4814,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  text-align: left;
+  text-align: start;
   background: var(--green-tint);
   border: none;
   border-radius: var(--radius-md, 12px);
@@ -4916,7 +4916,7 @@ button {
    wearing one of those would say less than this does. */
 .cover__word {
   position: absolute;
-  right: -0.12em;
+  inset-inline-end: -0.12em;
   bottom: -0.34em;
   z-index: -1;
   font-family: var(--ex-kr);
@@ -4976,8 +4976,8 @@ button {
    made an honest editorial judgement read as an automated string. */
 .cover__note {
   margin-top: 22px;
-  padding-left: 14px;
-  border-left: 2px solid var(--ex-brass);
+  padding-inline-start: 14px;
+  border-inline-start: 2px solid var(--ex-brass);
 }
 .cover__note-label {
   font-size: 10px;
@@ -5062,7 +5062,7 @@ button {
   background: var(--ex-paper);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   transition: transform 0.14s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -5076,7 +5076,7 @@ button {
 
 .story-card__word {
   position: absolute;
-  right: -0.08em;
+  inset-inline-end: -0.08em;
   bottom: -0.3em;
   z-index: -1;
   font-family: var(--ex-kr);
@@ -5132,8 +5132,8 @@ button {
    hairline on the bottom edge rather than a widget in the composition. */
 .story-card__rule {
   position: absolute;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   bottom: 0;
   height: 2px;
   background: var(--line);
@@ -5367,7 +5367,7 @@ button {
   background: var(--ex-paper);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   transition: transform 0.14s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -5379,7 +5379,7 @@ button {
 
 .table-card__word {
   position: absolute;
-  right: -0.06em;
+  inset-inline-end: -0.06em;
   bottom: -0.28em;
   z-index: -1;
   font-family: var(--ex-kr);
@@ -5407,7 +5407,7 @@ button {
   color: var(--muted-strong);
 }
 .table-card__mine {
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 2px 8px;
   background: var(--green-tint);
   border-radius: 999px;
@@ -5583,7 +5583,7 @@ button {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
@@ -5740,7 +5740,7 @@ button {
 }
 .detail-hero__word {
   position: absolute;
-  right: -0.08em;
+  inset-inline-end: -0.08em;
   bottom: -0.32em;
   z-index: -1;
   font-family: var(--ex-kr);
@@ -5858,8 +5858,8 @@ button {
 }
 .detail-note {
   margin-top: 12px;
-  padding-left: 12px;
-  border-left: 2px solid var(--ex-brass);
+  padding-inline-start: 12px;
+  border-inline-start: 2px solid var(--ex-brass);
   font-family: var(--ex-display);
   font-style: italic;
   font-size: 16px;
@@ -6041,8 +6041,8 @@ button {
 }
 .phrase-card__note {
   margin-top: 10px;
-  padding-left: 11px;
-  border-left: 2px solid var(--ex-brass);
+  padding-inline-start: 11px;
+  border-inline-start: 2px solid var(--ex-brass);
   font-size: 12px;
   line-height: 1.55;
   color: var(--ink-body);
@@ -6250,7 +6250,7 @@ button {
   background: var(--ex-paper);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.12s ease;
 }
@@ -6258,7 +6258,7 @@ button {
 .lead-table:active { transform: scale(0.99); }
 .lead-table__kr {
   position: absolute;
-  right: -0.06em;
+  inset-inline-end: -0.06em;
   bottom: -0.3em;
   z-index: -1;
   font-family: var(--ex-kr);
@@ -6291,7 +6291,7 @@ button {
   background: var(--ex-paper);
   border: 1px dashed var(--line-hover);
   border-radius: var(--radius-lg);
-  text-align: left;
+  text-align: start;
   font-size: 13px;
   line-height: 1.5;
   color: var(--ink-body);
@@ -6328,7 +6328,7 @@ button {
   color: var(--muted-strong);
 }
 .detail-theme__name {
-  margin-right: auto;
+  margin-inline-end: auto;
   font-family: var(--ex-display);
   font-size: 17px;
   color: var(--ink);
@@ -6661,7 +6661,7 @@ button {
   color: var(--orange-ink);
 }
 .table-card__warn {
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 2px 8px;
   background: var(--orange-tint);
   border: 1px solid var(--orange-line);
@@ -6759,8 +6759,8 @@ button {
 /* The part worth reading out, so it gets the room. */
 .quiz__reveal {
   margin-top: 10px;
-  padding-left: 13px;
-  border-left: 2px solid var(--ex-brass);
+  padding-inline-start: 13px;
+  border-inline-start: 2px solid var(--ex-brass);
   font-size: 14px;
   line-height: 1.65;
   color: var(--ink-body);
@@ -6798,12 +6798,12 @@ button {
   background: var(--ex-field);
   color: var(--ex-paper);
   border: none;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 .today-table__kr {
   position: absolute;
-  right: -0.06em;
+  inset-inline-end: -0.06em;
   bottom: -0.3em;
   z-index: -1;
   font-family: var(--ex-kr);
@@ -6876,7 +6876,7 @@ button {
 .who-row__note {
   flex-basis: 100%;
   margin-top: 3px;
-  padding-left: 17px;
+  padding-inline-start: 17px;
   font-size: 13px;
   line-height: 1.5;
   font-style: italic;
@@ -7079,7 +7079,7 @@ button {
   background: transparent;
   border: 1px dashed var(--line-hover);
   border-radius: var(--radius);
-  text-align: left;
+  text-align: start;
   font-size: 13px;
   color: var(--muted-strong);
   cursor: pointer;
@@ -7090,7 +7090,7 @@ button {
 .quiz__source {
   display: inline-block;
   margin-top: 10px;
-  margin-right: 8px;
+  margin-inline-end: 8px;
   min-height: 44px;
   padding: 12px 13px;
   background: var(--fill);
@@ -7439,7 +7439,7 @@ body {
 .detail-note,
 .quiz__reveal,
 .phrase-card__note {
-  border-left-color: var(--accent-line);
+  border-inline-start-color: var(--accent-line);
 }
 .cover__note-label { color: var(--accent-ink); letter-spacing: 0; text-transform: none; font-size: 13px; }
 .cover__note-body { font-family: var(--font); font-style: normal; font-size: 15px; color: var(--ink-body); }
@@ -7525,7 +7525,7 @@ body {
   background: var(--accent-tint);
   border: 1px solid var(--accent-line);
   border-radius: var(--radius-lg);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 .theme-cta__title {
@@ -7561,7 +7561,7 @@ body {
   background: var(--accent-strong);
   border: none;
   border-radius: var(--radius);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 .place-table-cta__title { font-size: 17px; font-weight: 700; color: #fff; }
@@ -7644,7 +7644,7 @@ body {
    list screen has always said `sample` while this one never did.
 */
 .lead-table__sample {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   padding: 1px 6px;
   border: 1px solid var(--line-hover);
   border-radius: 999px;
@@ -7817,7 +7817,7 @@ body {
 }
 .rules-consent__list {
   margin: 0 0 16px;
-  padding-left: 18px;
+  padding-inline-start: 18px;
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -7885,7 +7885,7 @@ body {
   display: block;
   width: 100%;
   padding: 12px 14px;
-  text-align: left;
+  text-align: start;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -7902,7 +7902,7 @@ body {
   color: var(--ink);
 }
 .guide-pick__en {
-  margin-left: 7px;
+  margin-inline-start: 7px;
   font-size: 12px;
   font-weight: 600;
   color: var(--ink-secondary);
@@ -7950,7 +7950,7 @@ body {
    to look like something — an unverified host shows nothing here at all. */
 .who-row__verified,
 .table-card__verified {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   padding: 1px 7px;
   border-radius: 999px;
   background: var(--green-tint);
@@ -7971,7 +7971,7 @@ body {
    (this is not an accusation button) but it is now a target a shaking thumb
    can hit: the padding grows, the type does not. */
 .who-row__block {
-  margin-left: auto;
+  margin-inline-start: auto;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -7986,7 +7986,7 @@ body {
   white-space: nowrap;
 }
 .who-row__blocked {
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 3px 9px;
   border-radius: 999px;
   background: var(--fill);
@@ -8106,7 +8106,7 @@ body {
   color: var(--accent-ink);
 }
 .table-card__langs {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   font-size: 11.5px;
   font-weight: 600;
   color: var(--ink-secondary);
@@ -8120,7 +8120,7 @@ body {
   width: calc(100% - 40px);
   margin: 4px 20px 24px;
   padding: 16px 18px;
-  text-align: left;
+  text-align: start;
   background: var(--accent-tint);
   border: 1px solid var(--accent-line);
   border-radius: var(--radius-lg);
@@ -8170,7 +8170,7 @@ body {
   width: calc(100% - 40px);
   margin: 0 20px 8px;
   padding: 14px 16px;
-  text-align: left;
+  text-align: start;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -8419,7 +8419,7 @@ body {
   width: calc(100% - 40px);
   margin: 4px 20px 18px;
   padding: 15px 18px;
-  text-align: left;
+  text-align: start;
   background: var(--accent-tint);
   border: 1px solid var(--accent-line);
   border-radius: var(--radius-lg);
@@ -8474,7 +8474,7 @@ body {
   gap: 12px;
   width: 100%;
   padding: 13px 15px;
-  text-align: left;
+  text-align: start;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -8667,7 +8667,7 @@ body {
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 999px;
-  margin-left: 6px;
+  margin-inline-start: 6px;
   white-space: nowrap;
 }
 .upcoming-row__pending {
@@ -8713,7 +8713,7 @@ body {
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 999px;
-  margin-left: 6px;
+  margin-inline-start: 6px;
   white-space: nowrap;
   color: var(--danger);
   background: var(--danger-tint);
@@ -8785,7 +8785,7 @@ body {
 .auth-back {
   position: absolute;
   top: 8px;
-  left: 8px;
+  inset-inline-start: 8px;
   width: 44px;
   height: 44px;
   border: none;
@@ -8840,7 +8840,7 @@ body {
 .auth-close {
   position: absolute;
   top: 8px;
-  right: 8px;
+  inset-inline-end: 8px;
   width: 44px;
   height: 44px;
   border: none;
@@ -9094,7 +9094,7 @@ body {
   border-radius: 50%;
   border: 2px solid var(--surface);
   object-fit: cover;
-  margin-left: -6px;
+  margin-inline-start: -6px;
   background: var(--fill);
 }
 .avatar-stack__face:first-child { margin-left: 0; }
@@ -9265,7 +9265,7 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   color: var(--ink);
 }
 .similar-row:hover { background: var(--surface-hover); }
@@ -9278,8 +9278,8 @@ body {
    page on screen and a floating bar there is furniture. */
 .detail-cta {
   position: fixed;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   bottom: var(--tab-h);
   z-index: 14;
   display: flex;
@@ -9584,7 +9584,7 @@ body {
 
 /* Tables held, on the card where people filter. */
 .table-card__record {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   font-size: 11px;
   font-weight: 700;
   color: var(--green-ink);
@@ -9638,7 +9638,7 @@ body {
 }
 .tables-map-preview__credit {
   position: absolute;
-  right: 6px;
+  inset-inline-end: 6px;
   top: 6px;
   z-index: 1;
   padding: 2px 6px;
@@ -9750,7 +9750,7 @@ body {
 .review-photo__remove {
   position: absolute;
   top: 8px;
-  right: 8px;
+  inset-inline-end: 8px;
   border: none;
   border-radius: 999px;
   background: rgba(10, 12, 16, 0.72);
@@ -10028,9 +10028,9 @@ body {
   color: var(--danger-ink);
 }
 .form-block.is-bad {
-  border-left: 3px solid var(--danger);
-  padding-left: 13px;
-  margin-left: -16px;
+  border-inline-start: 3px solid var(--danger);
+  padding-inline-start: 13px;
+  margin-inline-start: -16px;
 }
 
 /* Tap targets in the sheets people use standing in a restaurant. Measured at
@@ -10258,7 +10258,7 @@ body {
 /* "+3" after the first guide. A count, set apart so it does not read as part
    of the guide's own name. */
 .table-card__guides-more {
-  margin-left: 5px;
+  margin-inline-start: 5px;
   padding: 1px 5px;
   border-radius: 999px;
   background: var(--green-tint);
@@ -10315,7 +10315,7 @@ body {
    the quieter voice, because it is the smaller of the two facts. */
 .table-card__going { font-weight: 700; color: var(--green-ink); }
 .table-card__left {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   font-weight: 600;
   color: var(--muted-strong);
 }
@@ -10523,7 +10523,7 @@ body {
 }
 .main-blob__tag {
   position: absolute;
-  left: -10px;
+  inset-inline-start: -10px;
   bottom: -8px;
   padding: 6px 11px;
   border-radius: 999px;
@@ -10596,7 +10596,7 @@ body {
 .main-dots__toggle {
   width: 34px;
   height: 34px;
-  margin-left: 4px;
+  margin-inline-start: 4px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -10639,6 +10639,7 @@ body {
    an English-only screen is titled in 14px grey. */
 [data-locale="en"] .main-band__title-en,
 [data-locale="es"] .main-band__title-en,
+[data-locale="ar"] .main-band__title-en,
 [data-locale="fr"] .main-band__title-en {
   font-size: 25px;
   font-weight: 800;
@@ -10664,7 +10665,7 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 .main-dish.t-brass  { box-shadow: 0 7px 0 -1px var(--ex-brass); }
@@ -10674,7 +10675,7 @@ body {
 .main-dish__arrow {
   position: absolute;
   top: 12px;
-  left: 14px;
+  inset-inline-start: 14px;
   font-size: 17px;
   font-weight: 800;
   color: var(--muted-strong);
@@ -10740,7 +10741,9 @@ body {
 [data-locale="es"] .main-how__why-en::before,
 [data-locale="es"] .how-strip__why-en::before,
 [data-locale="fr"] .main-how__why-en::before,
-[data-locale="fr"] .how-strip__why-en::before { content: none; }
+[data-locale="fr"] .how-strip__why-en::before,
+[data-locale="ar"] .main-how__why-en::before,
+[data-locale="ar"] .how-strip__why-en::before { content: none; }
 
 /* ---- Join. Meetup's phone version is a plain centred paragraph; the
         card and its floating dots belong to the desktop. ---- */
@@ -10790,7 +10793,7 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   color: var(--muted-strong);
 }
@@ -10803,8 +10806,8 @@ body {
         to earn each pixel. ---- */
 .main-sticky {
   position: fixed;
-  left: 10px;
-  right: 10px;
+  inset-inline-start: 10px;
+  inset-inline-end: 10px;
   bottom: calc(var(--tab-h) + 10px);
   z-index: 150;
   padding: 14px 16px;
@@ -10819,7 +10822,7 @@ body {
 .main-sticky__close {
   position: absolute;
   top: 2px;
-  right: 2px;
+  inset-inline-end: 2px;
   width: 44px;
   height: 44px;
   display: grid;
@@ -10833,7 +10836,7 @@ body {
 .main-sticky__close:hover { background: var(--fill); color: var(--ink-title); }
 .main-sticky__text {
   margin: 0 0 10px;
-  padding-right: 34px;
+  padding-inline-end: 34px;
   font-size: 13.5px;
   font-weight: 700;
   color: var(--ink-title);
@@ -10906,7 +10909,7 @@ body {
   color: #E7E4DD;
   font-size: 14px;
   font-weight: 600;
-  text-align: left;
+  text-align: start;
   text-decoration: none;
   cursor: pointer;
   line-height: 44px;
@@ -11046,7 +11049,9 @@ body {
 [data-locale="es"] [class$="__kr"],
 [data-locale="es"] [class$="-kr"],
 [data-locale="fr"] [class$="__kr"],
-[data-locale="fr"] [class$="-kr"] { display: none; }
+[data-locale="fr"] [class$="-kr"],
+[data-locale="ar"] [class$="__kr"],
+[data-locale="ar"] [class$="-kr"] { display: none; }
 
 /* Text written for one language that has no counterpart on the default
    screen — an English headline for a hero that was set in Korean, a Korean
@@ -11068,7 +11073,7 @@ html:not([data-locale="ko"]) .l-ko-only { display: none; }
 /* .l-en-only is "the half that is not Korean", so Spanish keeps it — hiding
    it there would blank the hero headline and the corner buttons on a screen
    that has no Korean to fall back on. */
-html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]) .l-en-only { display: none; }
+html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not([data-locale="ar"]) .l-en-only { display: none; }
 
 /* A pair written as two elements inside one parent. The middot between them
    belongs to neither language, so it hangs off the English half and leaves
@@ -11077,6 +11082,8 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]) .l-
 .l-pair > [class$="__en"]::before { content: ' · '; }
 [data-locale="en"] .l-pair > [class$="-en"]::before,
 [data-locale="en"] .l-pair > [class$="__en"]::before,
+[data-locale="ar"] .l-pair > [class$="-en"]::before,
+[data-locale="ar"] .l-pair > [class$="__en"]::before,
 [data-locale="es"] .l-pair > [class$="-en"]::before,
 [data-locale="es"] .l-pair > [class$="__en"]::before,
 [data-locale="fr"] .l-pair > [class$="-en"]::before,
@@ -11105,3 +11112,34 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]) .l-
 /* The station line, split so each language setting keeps one half. The
    Korean is what you show a taxi driver; the other is what you read. */
 .place-actions__transit-kr + .place-actions__transit-en::before { content: " "; }
+
+
+/* ── Right-to-left ─────────────────────────────────────────────────────────
+   The layout mirrors itself, because the stylesheet is written in logical
+   properties and the document carries dir="rtl". What does not mirror on its
+   own is a glyph: a chevron drawn pointing right still points right, and in
+   an Arabic interface "onward" is to the left. These are the elements whose
+   arrow carries a direction, flipped horizontally. Icons that mean a state
+   rather than a direction — a tick, a spinner, a pin — are deliberately not
+   in this list. */
+[dir="rtl"] .main-dish__arrow,
+[dir="rtl"] .tables-lead__all svg,
+[dir="rtl"] .main-footer__mastlink svg,
+[dir="rtl"] .main-hero__alt svg,
+[dir="rtl"] .journey-lead__cta svg,
+[dir="rtl"] .cover__enter svg,
+[dir="rtl"] .back-btn svg,
+[dir="rtl"] .sheet-back svg,
+[dir="rtl"] .place-teaser__more svg {
+  transform: scaleX(-1);
+}
+
+/* A Latin or Korean run inside an Arabic sentence — a dish name, a station,
+   a phone number — keeps its own direction. Without this the browser can
+   reorder the parts of "Anguk, Line 3" when it sits in an RTL paragraph. */
+[dir="rtl"] .practical-value,
+[dir="rtl"] .transit-line,
+[dir="rtl"] .menu-item__name,
+[dir="rtl"] .place-card__zone {
+  unicode-bidi: isolate;
+}

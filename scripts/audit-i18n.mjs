@@ -182,7 +182,7 @@ for (const file of files) {
 // So the rule is arity. Every say() / crashText() / chromeWord() call carries
 // one argument per language the app offers; a call with fewer has a language
 // missing, and the line number says where.
-const LANGUAGES = 4;
+const LANGUAGES = 5;
 const SPEAK = /\b(say|crashText|chromeWord)\(/g;
 
 // The call's own arguments, split on top-level commas. Strings, template

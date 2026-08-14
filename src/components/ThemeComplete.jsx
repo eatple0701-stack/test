@@ -45,10 +45,10 @@ export default function ThemeComplete({
             theme. What finished is the path they walked. */}
         <p className="complete-eyebrow">
           {remaining > 0
-            ? say('Path complete', '길 완주', 'Camino completado', 'Chemin terminé')
-            : say('Culture complete', '문화 완주', 'Cultura completada', 'Culture terminée')}
+            ? say('Path complete', '길 완주', 'Camino completado', 'Chemin terminé', 'اكتمل الطريق')
+            : say('Culture complete', '문화 완주', 'Cultura completada', 'Culture terminée', 'اكتملت الثقافة')}
         </p>
-        <h2 className="complete-title">{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr)}</h2>
+        <h2 className="complete-title">{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr)}</h2>
         {/* The Korean name under the title is the stamp itself, so it stays
             in every setting — it is what a passport stamp would actually
             read. The heading above it follows the language. */}
@@ -60,8 +60,9 @@ export default function ThemeComplete({
               `여권에 찍혔습니다. 더 보고 싶으시면 이 문화에 ${remaining}개가 남아 있어요.`,
               `Sellado en tu pasaporte. ${remaining === 1 ? 'Queda 1 experiencia' : `Quedan ${remaining} experiencias`} en esta si quieres más.`,
               `Tamponné dans votre passeport. ${remaining === 1 ? 'Il reste 1 expérience' : `Il reste ${remaining} expériences`} dans celle-ci si vous en voulez plus.`,
+              `خُتم في جواز سفرك. ${remaining === 1 ? 'بقيت تجربة واحدة' : `بقيت ${remaining} تجارب`} في هذه إن أردت المزيد منها.`,
             )
-            : say('Stamped into your passport.', '여권에 찍혔습니다.', 'Sellado en tu pasaporte.', 'Tamponné dans votre passeport.')}
+            : say('Stamped into your passport.', '여권에 찍혔습니다.', 'Sellado en tu pasaporte.', 'Tamponné dans votre passeport.', 'خُتم في جواز سفرك.')}
         </p>
 
         {/* Said on the stamp itself, because this is the moment the claim is
@@ -77,6 +78,7 @@ export default function ThemeComplete({
               '본인 확인으로 기록되었습니다 — 이 중에는 아직 확인된 방문 장소가 없어요.',
               'Registrado bajo tu palabra: ninguna de estas tenía todavía un sitio verificado que visitar.',
               "Enregistré sur votre parole — aucune de celles-ci n'avait encore d'adresse vérifiée à visiter.",
+              'سُجّل على كلمتك — لم يكن لأيّ من هذه مكان موثّق يُزار بعد.',
             )}
           </p>
         )}
@@ -84,22 +86,22 @@ export default function ThemeComplete({
           <p className="complete-basis">
             {say('Part visited, part on your own word.',
               '일부는 방문으로, 일부는 본인 확인으로.',
-              'En parte visitado, en parte bajo tu palabra.', 'En partie visité, en partie sur votre parole.')}
+              'En parte visitado, en parte bajo tu palabra.', 'En partie visité, en partie sur votre parole.', 'بعضه بالزيارة وبعضه على كلمتك.')}
           </p>
         )}
 
         {next && (
           <div className="complete-next">
-            <p className="complete-next__label">{say('Where to next', '다음은 어디로', 'Y ahora dónde', 'Et maintenant, où')}</p>
+            <p className="complete-next__label">{say('Where to next', '다음은 어디로', 'Y ahora dónde', 'Et maintenant, où', 'وإلى أين الآن')}</p>
             <button className="complete-next__btn" onClick={() => onOpenNext(next)}>
-              <span className="complete-next__name">{say(next.title, next.titleKo, next.titleEs, next.titleFr)}</span>
+              <span className="complete-next__name">{say(next.title, next.titleKo, next.titleEs, next.titleFr, next.titleAr)}</span>
               {nextReason && <span className="complete-next__reason">{nextReason}</span>}
             </button>
           </div>
         )}
 
         <button className="complete-dismiss" onClick={onClose}>
-          {say('Not now', '나중에', 'Ahora no', 'Pas maintenant')}
+          {say('Not now', '나중에', 'Ahora no', 'Pas maintenant', 'ليس الآن')}
         </button>
 
       </div>

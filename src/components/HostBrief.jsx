@@ -71,9 +71,9 @@ export default function HostBrief({ profile }) {
   if (!firstTime) return null;
 
   return (
-    <section className="host-brief" aria-label={say('Before you set a table', '상을 차리기 전에', 'Antes de poner una mesa', 'Avant de dresser une table')}>
+    <section className="host-brief" aria-label={say('Before you set a table', '상을 차리기 전에', 'Antes de poner una mesa', 'Avant de dresser une table', 'قبل أن تمدّ مائدة')}>
       <p className="host-brief__kr">밥상을 열기 전에</p>
-      <h2 className="host-brief__title">{say('Before you set a table', '상을 차리기 전에', 'Antes de poner una mesa', 'Avant de dresser une table')}</h2>
+      <h2 className="host-brief__title">{say('Before you set a table', '상을 차리기 전에', 'Antes de poner una mesa', 'Avant de dresser une table', 'قبل أن تمدّ مائدة')}</h2>
 
       <dl className="host-brief__list">
         {POINTS.map(p => (

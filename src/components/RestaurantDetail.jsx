@@ -19,17 +19,17 @@ import { tableCtaFor, mapLinksFor, transitLine, MAP_LINKS_NOTE } from '../domain
 import { featuredZones } from '../data/experiences';
 import { haversineKm, formatDistance, getOpenStatus, todaysHours, directionsUrl, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
 import {
-  dietaryBadges, isKnown, needsCheck, trustBadge, dietaryConfidence, CONFIDENCE, isQuarantined, TRUST_LABEL_KO, TRUST_LABEL_ES, TRUST_LABEL_FR } from '../data/verification';
+  dietaryBadges, isKnown, needsCheck, trustBadge, dietaryConfidence, CONFIDENCE, isQuarantined, TRUST_LABEL_KO, TRUST_LABEL_ES, TRUST_LABEL_FR, TRUST_LABEL_AR } from '../data/verification';
 import { bookable } from '../domain/policy/cancellation.js';
 import { useText, useLocale } from './localeText.js';
 import { dateLocale } from '../domain/policy/locale.js';
-import { ZONE_KO, ZONE_ES, ZONE_FR } from '../data/culture';
+import { ZONE_KO, ZONE_ES, ZONE_FR, ZONE_AR } from '../data/culture';
 
 const TRAIT_META = {
-  'Mild Taste': { Icon: MildIcon, label: 'Mild taste', labelKo: '맵지 않음', labelEs: 'Suave', labelFr: 'Peu relevé' },
-  'Fermented': { Icon: FermentIcon, label: 'Fermented', labelKo: '발효', labelEs: 'Fermentado', labelFr: 'Fermenté' },
-  'Zero-waste': { Icon: RecycleIcon, label: 'Zero waste', labelKo: '제로웨이스트', labelEs: 'Sin residuos', labelFr: 'Zéro déchet' },
-  'Local Sourcing': { Icon: SproutIcon, label: 'Locally sourced', labelKo: '지역 재료', labelEs: 'Producto local', labelFr: 'Produit local' },
+  'Mild Taste': { Icon: MildIcon, label: 'Mild taste', labelKo: '맵지 않음', labelEs: 'Suave', labelFr: 'Peu relevé', labelAr: 'غير حارّ' },
+  'Fermented': { Icon: FermentIcon, label: 'Fermented', labelKo: '발효', labelEs: 'Fermentado', labelFr: 'Fermenté', labelAr: 'مخمّر' },
+  'Zero-waste': { Icon: RecycleIcon, label: 'Zero waste', labelKo: '제로웨이스트', labelEs: 'Sin residuos', labelFr: 'Zéro déchet', labelAr: 'بلا نفايات' },
+  'Local Sourcing': { Icon: SproutIcon, label: 'Locally sourced', labelKo: '지역 재료', labelEs: 'Producto local', labelFr: 'Produit local', labelAr: 'منتج محلي' },
 };
 
 const DIETARY_ICON = { vegan: LeafIcon, halal: CrescentIcon };
@@ -38,9 +38,9 @@ const DIETARY_ICON = { vegan: LeafIcon, halal: CrescentIcon };
 // bilingual default. `ko` is the heading itself in Korean, for the
 // Korean-only setting — and when that one is in use the gloss is dropped,
 // because "현지 팁 · 현지 팁" is what happens otherwise.
-function SectionHead({ Icon, title, ko, es, fr, kr }) {
+function SectionHead({ Icon, title, ko, es, fr, ar, kr }) {
   const say = useText();
-  const heading = say(title, ko, es, fr);
+  const heading = say(title, ko, es, fr, ar);
   const glossed = kr && heading === title;
   return (
     <div className="section-head">
@@ -55,7 +55,7 @@ function Trust({ fact }) {
   const { label, tone, detail } = trustBadge(fact);
   // The tooltip stays in the language the evidence was written in: it quotes
   // a source line, and translating a quotation is not translating a label.
-  return <span className={`trust trust--${tone}`} title={detail}>{say(label, TRUST_LABEL_KO[label], TRUST_LABEL_ES[label], TRUST_LABEL_FR[label])}</span>;
+  return <span className={`trust trust--${tone}`} title={detail}>{say(label, TRUST_LABEL_KO[label], TRUST_LABEL_ES[label], TRUST_LABEL_FR[label], TRUST_LABEL_AR[label])}</span>;
 }
 
 const DIET_CAVEAT = {
@@ -64,40 +64,48 @@ const DIET_CAVEAT = {
     titleKo: '식당에 확인했습니다.',
     titleEs: 'Confirmado con el restaurante.',
     titleFr: 'Confirmé avec le restaurant.',
+    titleAr: 'مؤكَّد مع المطعم.',
     body: 'The kitchen states this itself. Menus still change, so ask if you have a strict requirement.',
     bodyKo: '주방이 직접 밝힌 내용입니다. 그래도 메뉴는 바뀌니, 꼭 지켜야 하는 조건이 있다면 물어보세요.',
     bodyEs: 'Lo dice la propia cocina. Las cartas cambian igualmente, así que pregunta si tienes un requisito estricto.',
     bodyFr: "La cuisine le dit elle-même. Les cartes changent malgré tout : demandez si vous avez une exigence stricte.",
+    bodyAr: 'المطبخ نفسه يقول ذلك. والقوائم تتغيّر رغم هذا، فاسأل إن كان لديك شرط صارم.',
   },
   [CONFIDENCE.SUPPORTED]: {
     title: 'Reported, not confirmed.',
     titleKo: '전해 들었을 뿐, 확인은 못 했습니다.',
     titleEs: 'Según la fuente, sin confirmar.',
     titleFr: 'Rapporté, non confirmé.',
+    titleAr: 'منقول، غير مؤكَّد.',
     body: `These details come from what the restaurant and our research describe. We haven't checked them in person — confirm with staff before ordering.`,
     bodyKo: '식당 소개와 저희 조사에서 가져온 내용입니다. 직접 가서 확인하지는 못했으니, 주문 전에 직원에게 물어보세요.',
     bodyEs: 'Estos datos vienen de lo que describen el restaurante y nuestra investigación. No los hemos comprobado en persona: confírmalo con el personal antes de pedir.',
     bodyFr: "Ces informations viennent de ce que décrivent le restaurant et nos recherches. Nous ne les avons pas vérifiées sur place — confirmez auprès du personnel avant de commander.",
+    bodyAr: 'هذه المعلومات من وصف المطعم ومن بحثنا. ولم نتحقّق منها على الطبيعة — أكّدها مع العاملين قبل أن تطلب.',
   },
   [CONFIDENCE.INFERRED]: {
     title: 'Partly our own reading.',
     titleKo: '일부는 저희가 읽어 낸 것입니다.',
     titleEs: 'En parte es lectura nuestra.',
     titleFr: 'En partie notre propre lecture.',
+    titleAr: 'بعضه قراءتنا نحن.',
     body: 'Some of this we read from the kind of kitchen it is, or from how the venue describes itself — not from a stated fact. Treat it as a lead and ask staff before ordering.',
     bodyKo: '어떤 종류의 주방인지, 혹은 가게가 스스로를 어떻게 설명하는지에서 읽어 낸 부분이 있습니다. 명시된 사실이 아니에요. 단서로만 보시고 주문 전에 직원에게 확인하세요.',
     bodyEs: 'Parte de esto lo hemos deducido del tipo de cocina que es, o de cómo se describe el local — no de un dato declarado. Tómalo como una pista y pregunta al personal antes de pedir.',
     bodyFr: "Une partie, nous l'avons lue du type de cuisine que c'est, ou de la façon dont le lieu se décrit — pas d'un fait déclaré. Prenez-le comme une piste et demandez au personnel avant de commander.",
+    bodyAr: 'بعضه استنتجناه من نوع المطبخ، أو من وصف المكان لنفسه — لا من واقعة معلنة. خذه دليلًا واسأل العاملين قبل أن تطلب.',
   },
   [CONFIDENCE.UNKNOWN]: {
     title: 'No dietary information yet.',
     titleKo: '식단 정보가 아직 없습니다.',
     titleEs: 'Todavía no hay información de dieta.',
     titleFr: "Pas encore d'information de régime.",
+    titleAr: 'لا معلومات عن النظام الغذائي بعد.',
     body: `We haven't established what this kitchen serves, so we don't make a claim either way.`,
     bodyKo: '이 주방이 무엇을 내는지 아직 확인하지 못해서, 어느 쪽으로도 주장하지 않습니다.',
     bodyEs: 'No hemos establecido qué sirve esta cocina, así que no afirmamos nada en ninguna dirección.',
     bodyFr: "Nous n'avons pas établi ce que sert cette cuisine, nous n'affirmons donc rien dans un sens ni dans l'autre.",
+    bodyAr: 'لم نتبيّن ما تقدّمه هذه المطابخ، فلا نؤكّد شيئًا في أي اتجاه.',
   },
 };
 
@@ -277,7 +285,7 @@ function RestaurantDetailInner({
     <>
       <div className="detail-backdrop" onClick={onClose} />
       <div className="detail-sheet" role="dialog" aria-modal="true" aria-label={name} ref={sheetRef} tabIndex={-1}>
-        <button className="detail-close" aria-label={say('Close', '닫기', 'Cerrar', 'Fermer')} onClick={onClose}>
+        <button className="detail-close" aria-label={say('Close', '닫기', 'Cerrar', 'Fermer', 'إغلاق')} onClick={onClose}>
           <XIcon size={18} />
         </button>
 
@@ -290,17 +298,17 @@ function RestaurantDetailInner({
             <header className="detail-header">
               <h2>{restaurant.name}</h2>
               <p className="detail-meta">
-                {say(restaurant.zone, ZONE_KO[restaurant.zone], ZONE_ES[restaurant.zone], ZONE_FR[restaurant.zone])}
+                {say(restaurant.zone, ZONE_KO[restaurant.zone], ZONE_ES[restaurant.zone], ZONE_FR[restaurant.zone], ZONE_AR[restaurant.zone])}
                 {distance && <><span aria-hidden="true"> · </span>{distance}</>}
               </p>
             </header>
 
             {/* 3. Diet Tags */}
             {facts.length > 0 && (
-              <ul className="fact-row" aria-label={say('Dietary and dining facts', '식단과 식사 정보', 'Datos de dieta y de mesa', 'Informations sur le régime et sur la table')}>
-                {facts.map(({ Icon, label, labelKo, labelEs, labelFr, fact: f }) => (
+              <ul className="fact-row" aria-label={say('Dietary and dining facts', '식단과 식사 정보', 'Datos de dieta y de mesa', 'Informations sur le régime et sur la table', 'معلومات عن النظام الغذائي والمائدة')}>
+                {facts.map(({ Icon, label, labelKo, labelEs, labelFr, labelAr, fact: f }) => (
                   <li key={label} className="fact">
-                    <Icon size={16} aria-hidden="true" /> {say(label, labelKo, labelEs, labelFr)}
+                    <Icon size={16} aria-hidden="true" /> {say(label, labelKo, labelEs, labelFr, labelAr)}
                     {f && <Trust fact={f} />}
                   </li>
                 ))}
@@ -309,14 +317,14 @@ function RestaurantDetailInner({
 
             <div className="diet-note">
               <p>
-                <strong>{say(caveat.title, caveat.titleKo, caveat.titleEs, caveat.titleFr)}</strong>
-                {' '}{say(caveat.body, caveat.bodyKo, caveat.bodyEs, caveat.bodyFr)}
+                <strong>{say(caveat.title, caveat.titleKo, caveat.titleEs, caveat.titleFr, caveat.titleAr)}</strong>
+                {' '}{say(caveat.body, caveat.bodyKo, caveat.bodyEs, caveat.bodyFr, caveat.bodyAr)}
               </p>
               {certClaim && (
                 <p className="diet-note__cert">
                   {say(`Certification claimed: ${certClaim.body} — we have not sighted the certificate.`,
                     `인증을 주장합니다: ${certClaim.body} — 저희가 인증서를 직접 확인하지는 못했습니다.`,
-                    `Certificación declarada: ${certClaim.body} — no hemos visto el certificado.`, `Certification déclarée : ${certClaim.body} — nous n'avons pas vu le certificat.`)}
+                    `Certificación declarada: ${certClaim.body} — no hemos visto el certificado.`, `Certification déclarée : ${certClaim.body} — nous n'avons pas vu le certificat.`, `الاعتماد مُعلَن: ${certClaim.body} — ولم نرَ الشهادة.`)}
                 </p>
               )}
             </div>
@@ -343,13 +351,13 @@ function RestaurantDetailInner({
                 >
                   <HeartIcon size={16} filled={isBookmarked} />
                   {isBookmarked
-                    ? say('저장됨 · Saved', '저장됨', 'Guardado', 'Enregistré')
-                    : say('저장하기 · Save this place', '저장하기', 'Guardar este sitio', 'Enregistrer cette adresse')}
+                    ? say('저장됨 · Saved', '저장됨', 'Guardado', 'Enregistré', 'محفوظ')
+                    : say('저장하기 · Save this place', '저장하기', 'Guardar este sitio', 'Enregistrer cette adresse', 'احفظ هذا المكان')}
                 </button>
               </div>
               {isBookmarked && (
                 <button className="saved-receipt" onClick={() => onNavigate?.('journal')}>
-                  {say('패스포트 › 저장한 곳에 있어요 · Find it under Saved places in your Passport', '패스포트 › 저장한 곳에 있어요', 'Lo tienes en Sitios guardados, en tu Pasaporte', 'Vous le retrouverez dans Lieux enregistrés, dans votre Passeport')}
+                  {say('패스포트 › 저장한 곳에 있어요 · Find it under Saved places in your Passport', '패스포트 › 저장한 곳에 있어요', 'Lo tienes en Sitios guardados, en tu Pasaporte', 'Vous le retrouverez dans Lieux enregistrés, dans votre Passeport', 'ستجده في الأماكن المحفوظة، في جواز سفرك')}
                 </button>
               )}
 
@@ -394,7 +402,7 @@ function RestaurantDetailInner({
               {mapLinks.length > 0 && (
                 <div className="map-links">
                   <p className="map-links__note">
-                    <strong>{MAP_LINKS_NOTE.kr}</strong> {say(MAP_LINKS_NOTE.en, null, MAP_LINKS_NOTE.es, MAP_LINKS_NOTE.fr)}
+                    <strong>{MAP_LINKS_NOTE.kr}</strong> {say(MAP_LINKS_NOTE.en, null, MAP_LINKS_NOTE.es, MAP_LINKS_NOTE.fr, MAP_LINKS_NOTE.ar)}
                   </p>
                   <div className="map-links__row">
                     {mapLinks.map(link => (
@@ -422,7 +430,7 @@ function RestaurantDetailInner({
                       stays beside the readable one in the bilingual default;
                       each single-language setting keeps only its own. */}
                   <strong className="place-actions__transit-kr">{transit.kr}</strong>
-                  <span className="place-actions__transit-en">{say(transit.en, null, transit.es, transit.fr)}</span>
+                  <span className="place-actions__transit-en">{say(transit.en, null, transit.es, transit.fr, transit.ar)}</span>
                 </p>
               )}
             </div>
@@ -439,13 +447,13 @@ function RestaurantDetailInner({
                       {' '}· {status.detail}{' '}
                       {today && (
                         <span className="practical-muted">
-                          ({say('today', '오늘', 'hoy', "aujourd'hui")} {today})
+                          ({say('today', '오늘', 'hoy', "aujourd'hui", 'اليوم')} {today})
                         </span>
                       )}
                     </span>
                   ) : (
                     <span className="practical-muted">
-                      {say('Opening hours unknown — check before you go', '영업시간을 알 수 없습니다 — 가시기 전에 확인하세요', 'Horario desconocido: compruébalo antes de ir', 'Horaires inconnus : vérifiez avant de vous déplacer')}
+                      {say('Opening hours unknown — check before you go', '영업시간을 알 수 없습니다 — 가시기 전에 확인하세요', 'Horario desconocido: compruébalo antes de ir', 'Horaires inconnus : vérifiez avant de vous déplacer', 'ساعات العمل غير معروفة: تحقّق قبل أن تذهب')}
                     </span>
                   )}
                 </div>
@@ -470,15 +478,15 @@ function RestaurantDetailInner({
                       <span>{restaurant.transit.value.line}</span>
                       {restaurant.transit.value.exit && (
                         <span>
-                          {say(', exit ', ', ', ', salida ', ', sortie ')}{restaurant.transit.value.exit}
-                          {say('', '번 출구', '', '')}
+                          {say(', exit ', ', ', ', salida ', ', sortie ', '، مخرج ')}{restaurant.transit.value.exit}
+                          {say('', '번 출구', '', '', '')}
                         </span>
                       )}
                       <span>
                         {' · '}
                         {say(`${restaurant.transit.value.walkingMinutes} min walk`,
                           `도보 ${restaurant.transit.value.walkingMinutes}분`,
-                          `${restaurant.transit.value.walkingMinutes} min a pie`, `${restaurant.transit.value.walkingMinutes} min à pied`)}
+                          `${restaurant.transit.value.walkingMinutes} min a pie`, `${restaurant.transit.value.walkingMinutes} min à pied`, `${restaurant.transit.value.walkingMinutes} دقائق سيرًا`)}
                       </span>
                     </span>
                   </div>
@@ -498,7 +506,7 @@ function RestaurantDetailInner({
                     <LinkIcon size={17} />
                     <span className="practical-links">
                       {isKnown(restaurant.officialUrl) && (
-                        <a className="practical-link" href={restaurant.officialUrl.value} target="_blank" rel="noreferrer noopener">{say('Website', '웹사이트', 'Sitio web', 'Site web')}</a>
+                        <a className="practical-link" href={restaurant.officialUrl.value} target="_blank" rel="noreferrer noopener">{say('Website', '웹사이트', 'Sitio web', 'Site web', 'الموقع الإلكتروني')}</a>
                       )}
                       {isKnown(restaurant.instagram) && (
                         <a className="practical-link" href={restaurant.instagram.value} target="_blank" rel="noreferrer noopener">Instagram</a>
@@ -541,7 +549,7 @@ function RestaurantDetailInner({
                 <div className="menu-rows">
                   {restaurant.menus.value.map(m => (
                     <div key={m.name} className="menu-row">
-                      <span>{say(m.name, m.nameKo, m.nameEs, m.nameFr)}</span>
+                      <span>{say(m.name, m.nameKo, m.nameEs, m.nameFr, m.nameAr)}</span>
                       <span className="menu-row__price">{m.price ?? 'Price not listed'}</span>
                     </div>
                   ))}
@@ -549,7 +557,7 @@ function RestaurantDetailInner({
                 {needsCheck(restaurant.menus) && (
                   <p className="section-note">
                     {say('Dishes and prices are unverified and may have changed.',
-                      '메뉴와 가격은 확인되지 않았고 바뀌었을 수 있습니다.', 'Los platos y precios no están verificados y pueden haber cambiado.', 'Les plats et les prix ne sont pas vérifiés et ont pu changer.')}
+                      '메뉴와 가격은 확인되지 않았고 바뀌었을 수 있습니다.', 'Los platos y precios no están verificados y pueden haber cambiado.', 'Les plats et les prix ne sont pas vérifiés et ont pu changer.', 'الأطباق والأسعار غير موثّقة وقد تكون تغيّرت.')}
                   </p>
                 )}
               </section>
@@ -558,7 +566,7 @@ function RestaurantDetailInner({
             {/* Why Locals Love This */}
             <section className="detail-section">
               <SectionHead Icon={SparkleIcon} title="Why Locals Love This" ko="현지인이 좋아하는 이유" es="Por qué gusta a los locales" fr="Pourquoi les gens d'ici y tiennent" />
-              <p className="detail-body">{say(culture.whyLocalsLoveIt, culture.whyLocalsLoveItKo, culture.whyLocalsLoveItEs, culture.whyLocalsLoveItFr)}</p>
+              <p className="detail-body">{say(culture.whyLocalsLoveIt, culture.whyLocalsLoveItKo, culture.whyLocalsLoveItEs, culture.whyLocalsLoveItFr, culture.whyLocalsLoveItAr)}</p>
             </section>
 
             {/* Local Tips — what someone who eats here would tell you */}
@@ -567,8 +575,8 @@ function RestaurantDetailInner({
               <div className="tip-cards">
                 {tipsFor(restaurant).map(t => (
                   <div key={t.tag} className="tip-card">
-                    <span className="tip-card__tag">{say(t.tag, t.tagKo, t.tagEs, t.tagFr)}</span>
-                    <span className="tip-card__detail">{say(t.detail, t.detailKo, t.detailEs, t.detailFr)}</span>
+                    <span className="tip-card__tag">{say(t.tag, t.tagKo, t.tagEs, t.tagFr, t.tagAr)}</span>
+                    <span className="tip-card__detail">{say(t.detail, t.detailKo, t.detailEs, t.detailFr, t.detailAr)}</span>
                   </div>
                 ))}
               </div>
@@ -578,16 +586,16 @@ function RestaurantDetailInner({
                 This / Fun Fact, as separate scannable cards rather than one
                 long paragraph. */}
             <section className="detail-hook">
-              <p className="detail-hook__label">{say("Why it's special", '왜 특별한가', 'Por qué es especial', "Pourquoi c'est particulier")}</p>
-              <p className="detail-hook__quote">&ldquo;{say(restaurant.vibe, restaurant.vibeKo, restaurant.vibeEs, restaurant.vibeFr)}&rdquo;</p>
+              <p className="detail-hook__label">{say("Why it's special", '왜 특별한가', 'Por qué es especial', "Pourquoi c'est particulier", 'ما الذي يميّزه')}</p>
+              <p className="detail-hook__quote">&ldquo;{say(restaurant.vibe, restaurant.vibeKo, restaurant.vibeEs, restaurant.vibeFr, restaurant.vibeAr)}&rdquo;</p>
             </section>
 
             <section className="detail-section" ref={storyRef}>
               <SectionHead Icon={BookIcon} title="Food Story" ko="음식 이야기" es="La historia del plato" fr="L'histoire du plat" kr="이야기" />
               <div className="story-grid">
                 <div className="story-mini-card">
-                  <p className="story-mini-card__label">{say('📜 Origin', '📜 유래', '📜 Origen', '📜 Origine')}</p>
-                  <p>{say(restaurant.story, restaurant.storyKo, restaurant.storyEs, restaurant.storyFr)}</p>
+                  <p className="story-mini-card__label">{say('📜 Origin', '📜 유래', '📜 Origen', '📜 Origine', '📜 الأصل')}</p>
+                  <p>{say(restaurant.story, restaurant.storyKo, restaurant.storyEs, restaurant.storyFr, restaurant.storyAr)}</p>
                   {restaurant.timeline?.length > 0 && (
                     <ol className="timeline">
                       {restaurant.timeline.map(t => (
@@ -600,16 +608,16 @@ function RestaurantDetailInner({
                   )}
                 </div>
                 <div className="story-mini-card">
-                  <p className="story-mini-card__label">{say('🌏 Cultural Meaning', '🌏 문화적 의미', '🌏 Significado cultural', '🌏 Signification culturelle')}</p>
-                  <p>{say(culture.culturalMeaning, culture.culturalMeaningKo, culture.culturalMeaningEs, culture.culturalMeaningFr)}</p>
+                  <p className="story-mini-card__label">{say('🌏 Cultural Meaning', '🌏 문화적 의미', '🌏 Significado cultural', '🌏 Signification culturelle', '🌏 المعنى الثقافي')}</p>
+                  <p>{say(culture.culturalMeaning, culture.culturalMeaningKo, culture.culturalMeaningEs, culture.culturalMeaningFr, culture.culturalMeaningAr)}</p>
                 </div>
                 <div className="story-mini-card">
-                  <p className="story-mini-card__label">{say('🍽 When Koreans Eat This', '🍽 한국 사람들은 언제 먹나', '🍽 Cuándo lo comen los coreanos', '🍽 Quand les Coréens le mangent')}</p>
-                  <p>{say(culture.whenKoreansEatThis, culture.whenKoreansEatThisKo, culture.whenKoreansEatThisEs, culture.whenKoreansEatThisFr)}</p>
+                  <p className="story-mini-card__label">{say('🍽 When Koreans Eat This', '🍽 한국 사람들은 언제 먹나', '🍽 Cuándo lo comen los coreanos', '🍽 Quand les Coréens le mangent', '🍽 متى يأكله الكوريون')}</p>
+                  <p>{say(culture.whenKoreansEatThis, culture.whenKoreansEatThisKo, culture.whenKoreansEatThisEs, culture.whenKoreansEatThisFr, culture.whenKoreansEatThisAr)}</p>
                 </div>
                 <div className="story-mini-card">
-                  <p className="story-mini-card__label">{say('✨ Fun Fact', '✨ 알아두면 좋은 것', '✨ Un dato curioso', '✨ Un détail curieux')}</p>
-                  <p>{say(culture.didYouKnow, culture.didYouKnowKo, culture.didYouKnowEs, culture.didYouKnowFr)}</p>
+                  <p className="story-mini-card__label">{say('✨ Fun Fact', '✨ 알아두면 좋은 것', '✨ Un dato curioso', '✨ Un détail curieux', '✨ معلومة طريفة')}</p>
+                  <p>{say(culture.didYouKnow, culture.didYouKnowKo, culture.didYouKnowEs, culture.didYouKnowFr, culture.didYouKnowAr)}</p>
                 </div>
               </div>
             </section>
@@ -618,7 +626,7 @@ function RestaurantDetailInner({
             <section className="detail-section">
               <SectionHead Icon={SparkleIcon} title="Dining Etiquette" ko="식사 예절" es="Etiqueta en la mesa" fr="À table, les usages" />
               <ul className="tips-list">
-                {(say(culture.diningTips, culture.diningTipsKo, culture.diningTipsEs, culture.diningTipsFr)).map(tip => (
+                {(say(culture.diningTips, culture.diningTipsKo, culture.diningTipsEs, culture.diningTipsFr, culture.diningTipsAr)).map(tip => (
                   <li key={tip} className="tip">
                     <span className="tip__dot" aria-hidden="true" />
                     <span>{tip}</span>
@@ -638,7 +646,7 @@ function RestaurantDetailInner({
                         <span className="phrase-ko">{p.ko}</span>
                         <span className="phrase-ro">{p.ro}</span>
                       </div>
-                      <span className="phrase-en">{say(p.en, p.ko_gloss, p.es, p.fr)}</span>
+                      <span className="phrase-en">{say(p.en, p.ko_gloss, p.es, p.fr, p.ar)}</span>
                     </div>
                   ))}
                 </div>
@@ -650,7 +658,7 @@ function RestaurantDetailInner({
               <section className="detail-section">
                 <SectionHead Icon={SparkleIcon} title="Conversation Tips" ko="대화 거리" es="De qué hablar" fr="De quoi parler" />
                 <ul className="tips-list">
-                  {(say(culture.conversationTips, culture.conversationTipsKo, culture.conversationTipsEs, culture.conversationTipsFr)).map(tip => (
+                  {(say(culture.conversationTips, culture.conversationTipsKo, culture.conversationTipsEs, culture.conversationTipsFr, culture.conversationTipsAr)).map(tip => (
                     <li key={tip} className="tip">
                       <span className="tip__dot" aria-hidden="true" />
                       <span>{tip}</span>
@@ -663,7 +671,7 @@ function RestaurantDetailInner({
             {/* Continue Your Journey — the meal is step one, not the end */}
             <section className="detail-section detail-section--route">
               <SectionHead Icon={CompassIcon} title="Continue Your Journey" ko="여정 잇기" es="Sigue tu recorrido" fr="Poursuivre le parcours" kr="여정 잇기" />
-              <p className="section-note">{say('Where this meal leads next.', '이 한 끼가 다음으로 이어지는 곳.', 'Adónde lleva esta comida después.', 'Où mène ce repas ensuite.')}</p>
+              <p className="section-note">{say('Where this meal leads next.', '이 한 끼가 다음으로 이어지는 곳.', 'Adónde lleva esta comida después.', 'Où mène ce repas ensuite.', 'إلى أين تقود هذه الوجبة بعد ذلك.')}</p>
               <CulturalRoute
                 place={restaurant}
                 onOpenRestaurant={onOpenRestaurant}
@@ -676,15 +684,15 @@ function RestaurantDetailInner({
               <SectionHead Icon={MapPinIcon} title="Nearby Experiences" ko="근처에서 해볼 것" es="Cerca de aquí" fr="À faire dans le coin" />
               <p className="detail-body">
                 {zoneInfo
-                  ? say(zoneInfo.blurb, zoneInfo.blurbKo, zoneInfo.blurbEs, zoneInfo.blurbFr)
+                  ? say(zoneInfo.blurb, zoneInfo.blurbKo, zoneInfo.blurbEs, zoneInfo.blurbFr, zoneInfo.blurbAr)
                   : say(`More of ${restaurant.zone.split(',')[0]} is waiting just outside.`,
                     `${restaurant.zone.split(',')[0]}은(는) 문 밖에 더 있습니다.`,
-                    `Hay más de ${restaurant.zone.split(',')[0]} justo ahí fuera.`, `Il y a plus de ${restaurant.zone.split(',')[0]} juste dehors.`)}
+                    `Hay más de ${restaurant.zone.split(',')[0]} justo ahí fuera.`, `Il y a plus de ${restaurant.zone.split(',')[0]} juste dehors.`, `هناك المزيد من ${restaurant.zone.split(',')[0]} خارج الباب مباشرة.`)}
               </p>
               <div className="cta-stack">
                 {onExploreZone && (
                   <button className="btn-primary" onClick={() => onExploreZone(restaurant.zone)}>
-                    {say('Explore Nearby', '근처 둘러보기', 'Explorar la zona', 'Explorer les environs')} <ChevronRightIcon size={16} />
+                    {say('Explore Nearby', '근처 둘러보기', 'Explorar la zona', 'Explorer les environs', 'استكشف ما حولك')} <ChevronRightIcon size={16} />
                   </button>
                 )}
               </div>
@@ -713,13 +721,13 @@ function RestaurantDetailInner({
               <section className="detail-section">
                 <SectionHead Icon={SparkleIcon} title="Passport Mission" ko="여권 미션" es="Misión de Pasaporte" fr="Mission de Passeport" kr="여권 미션" />
                 <p className="detail-body">
-                  <strong>{say(culture.passportMission, culture.passportMissionKo, culture.passportMissionEs, culture.passportMissionFr).title}</strong> — {say(culture.passportMission, culture.passportMissionKo, culture.passportMissionEs, culture.passportMissionFr).detail}
+                  <strong>{say(culture.passportMission, culture.passportMissionKo, culture.passportMissionEs, culture.passportMissionFr, culture.passportMissionAr).title}</strong> — {say(culture.passportMission, culture.passportMissionKo, culture.passportMissionEs, culture.passportMissionFr, culture.passportMissionAr).detail}
                 </p>
                 <div className={`mission-status${isVisited ? ' mission-status--done' : ''}`}>
                   {isVisited ? (
-                    <><CheckIcon size={16} /> {say('Mission complete — logged in your Passport', '미션 완료 — 여권에 기록되었습니다', 'Misión cumplida — registrada en tu Pasaporte', 'Mission accomplie — inscrite dans votre Passeport')}</>
+                    <><CheckIcon size={16} /> {say('Mission complete — logged in your Passport', '미션 완료 — 여권에 기록되었습니다', 'Misión cumplida — registrada en tu Pasaporte', 'Mission accomplie — inscrite dans votre Passeport', 'أُنجزت المهمّة — سُجّلت في جواز سفرك')}</>
                   ) : (
-                    say('Mark this place visited to complete the mission', '이곳을 가봤다고 표시하면 미션이 완료됩니다', 'Marca este sitio como visitado para completar la misión', 'Marquez cette adresse comme visitée pour terminer la mission')
+                    say('Mark this place visited to complete the mission', '이곳을 가봤다고 표시하면 미션이 완료됩니다', 'Marca este sitio como visitado para completar la misión', 'Marquez cette adresse comme visitée pour terminer la mission', 'ضع علامة زُرت هذا المكان لإتمام المهمّة')
                   )}
                 </div>
               </section>
@@ -734,13 +742,13 @@ function RestaurantDetailInner({
                 <span>
                   {restaurant.address.value}
                   {restaurant.address.precision === 'area' && (
-                    <span className="practical-muted"> {say('— area only', '— 구역 단위', '— solo la zona', '— le quartier seulement')}</span>
+                    <span className="practical-muted"> {say('— area only', '— 구역 단위', '— solo la zona', '— le quartier seulement', '— الحيّ فقط')}</span>
                   )}
                 </span>
                 <button className="practical-copy" onClick={handleCopy}>
                   {copied
-                    ? say('Copied!', '복사됨!', '¡Copiado!', 'Copié !')
-                    : say('Copy', '복사', 'Copiar', 'Copier')}
+                    ? say('Copied!', '복사됨!', '¡Copiado!', 'Copié !', 'نُسخ!')
+                    : say('Copy', '복사', 'Copiar', 'Copier', 'نسخ')}
                 </button>
               </div>
 
@@ -749,23 +757,23 @@ function RestaurantDetailInner({
                   reader ends up looking for reviews behind a directions link.
                   Named for the job now; the reviews are their own block higher
                   up, next to the button that turns this place into a table. */}
-              <p className="map-route__label">{say('길찾기 · Get there', '길찾기', 'Cómo llegar', 'Y aller')}</p>
+              <p className="map-route__label">{say('길찾기 · Get there', '길찾기', 'Cómo llegar', 'Y aller', 'الوصول إليه')}</p>
               <div className="map-route__row">
                 <button className="btn-primary" onClick={() => window.open(directionsUrl(restaurant, mapCenter), '_blank')}>
                   Google
                 </button>
                 <button className="btn-primary btn-map--naver" onClick={() => window.open(naverMapUrl(restaurant, mapCenter), '_blank')}>
-                  {say('네이버 · Naver', '네이버', 'Naver', 'Naver')}
+                  {say('네이버 · Naver', '네이버', 'Naver', 'Naver', 'نيفر')}
                 </button>
                 <button className="btn-primary btn-map--kakao" onClick={() => window.open(kakaoMapUrl(restaurant, mapCenter), '_blank')}>
-                  {say('카카오 · Kakao', '카카오', 'Kakao', 'Kakao')}
+                  {say('카카오 · Kakao', '카카오', 'Kakao', 'Kakao', 'كاكاو')}
                 </button>
               </div>
             </section>
 
             {/* Footer */}
             <footer className="provenance">
-              <p className="provenance__title">{say('About this information', '이 정보에 대하여', 'Sobre esta información', 'À propos de ces informations')}</p>
+              <p className="provenance__title">{say('About this information', '이 정보에 대하여', 'Sobre esta información', 'À propos de ces informations', 'عن هذه المعلومات')}</p>
               <p>
                 {say(
                   <>
@@ -798,23 +806,23 @@ function RestaurantDetailInner({
               </p>
               <dl className="provenance__list">
                 <div>
-                  <dt>{say('Location', '위치', 'Ubicación', 'Emplacement')}</dt>
+                  <dt>{say('Location', '위치', 'Ubicación', 'Emplacement', 'الموقع')}</dt>
                   <dd>
                     {restaurant.coordinates.source}
-                    {restaurant.address.precision === 'area' && say(' · address is area-level', ' · 주소는 구역 단위', ' · la dirección es a nivel de zona', " · l'adresse est au niveau du quartier")}
+                    {restaurant.address.precision === 'area' && say(' · address is area-level', ' · 주소는 구역 단위', ' · la dirección es a nivel de zona', " · l'adresse est au niveau du quartier", ' · العنوان على مستوى الحيّ')}
                   </dd>
                 </div>
                 <div>
-                  <dt>{say('Dietary', '식단', 'Dieta', 'Régime')}</dt>
+                  <dt>{say('Dietary', '식단', 'Dieta', 'Régime', 'النظام الغذائي')}</dt>
                   <dd>
                     {dietFacts.length > 0
                       ? [...new Set(dietFacts.map(f => f.fact.source))].join(' · ')
-                      : say('Not recorded', '기록 없음', 'Sin registrar', 'Non renseigné')}
+                      : say('Not recorded', '기록 없음', 'Sin registrar', 'Non renseigné', 'غير مسجّل')}
                   </dd>
                 </div>
                 <div>
-                  <dt>{say('Last checked', '마지막 확인', 'Última comprobación', 'Dernière vérification')}</dt>
-                  <dd>{lastChecked ?? say('Never', '없음', 'Nunca', 'Jamais')}</dd>
+                  <dt>{say('Last checked', '마지막 확인', 'Última comprobación', 'Dernière vérification', 'آخر تحقّق')}</dt>
+                  <dd>{lastChecked ?? say('Never', '없음', 'Nunca', 'Jamais', 'أبدًا')}</dd>
                 </div>
               </dl>
             </footer>
@@ -822,7 +830,7 @@ function RestaurantDetailInner({
             <div className="transparency-log">
               {lastChecked && (
                 <p>
-                  {say('Last verified: ', '마지막 검증: ', 'Última verificación: ', 'Dernière vérification : ')}
+                  {say('Last verified: ', '마지막 검증: ', 'Última verificación: ', 'Dernière vérification : ', 'آخر تحقّق: ')}
                   {new Date(lastChecked).toLocaleDateString(dateLocale(locale), { day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
               )}
@@ -834,7 +842,7 @@ function RestaurantDetailInner({
                   them. Nothing about it looked broken, which is why it sat at
                   the foot of the page for months. */}
               <p>
-                {say('To suggest an edit, email ', '수정 제안은 이 주소로 보내주세요: ', 'Para sugerir una corrección, escribe a ', 'Pour proposer une correction, écrivez à ')}
+                {say('To suggest an edit, email ', '수정 제안은 이 주소로 보내주세요: ', 'Para sugerir una corrección, escribe a ', 'Pour proposer une correction, écrivez à ', 'لاقتراح تصحيح، اكتب إلى ')}
                 <a className="practical-link" href="mailto:eatple0701@gmail.com">eatple0701@gmail.com</a>
               </p>
             </div>

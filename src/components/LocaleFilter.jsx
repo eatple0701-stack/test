@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { LOCALE, localeText, isKorean } from '../domain/policy/locale.js';
+import { LOCALE, localeText, isKorean, directionOf } from '../domain/policy/locale.js';
 
 // Applies the interface-language setting to the whole app at once.
 //
@@ -119,7 +119,15 @@ export default function LocaleFilter({ locale }) {
   useEffect(() => {
     if (typeof document === 'undefined') return undefined;
     document.documentElement.setAttribute('data-locale', locale);
-    return () => document.documentElement.removeAttribute('data-locale');
+    // The direction goes on the document too, because it is the browser that
+    // mirrors a layout — not the stylesheet alone. dir also decides which end
+    // of an input the caret starts at and which way the scrollbar sits, and
+    // neither of those is something CSS can reach.
+    document.documentElement.setAttribute('dir', directionOf(locale));
+    return () => {
+      document.documentElement.removeAttribute('data-locale');
+      document.documentElement.setAttribute('dir', 'ltr');
+    };
   }, [locale]);
 
   useEffect(() => {

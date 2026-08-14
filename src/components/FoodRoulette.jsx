@@ -46,24 +46,24 @@ export default function FoodRoulette({ onClose, onOpenTables }) {
   };
 
   return (
-    <div className="match-modal-backdrop" role="dialog" aria-label={say('Pick a dish', '요리 고르기', 'Elegir un plato', 'Choisir un plat')} onClick={onClose}>
+    <div className="match-modal-backdrop" role="dialog" aria-label={say('Pick a dish', '요리 고르기', 'Elegir un plato', 'Choisir un plat', 'اختر طبقًا')} onClick={onClose}>
       <div className="match-modal roulette" onClick={e => e.stopPropagation()}>
         <h2 className="roulette__title">
           <span translate="no">오늘 뭐 먹지</span>
-          <span className="roulette__title-en">{say('Cannot decide? Let it pick one.', '못 고르겠나요? 대신 골라 드릴게요.', '¿No te decides? Deja que elija por ti.', 'Vous hésitez ? Laissez-le choisir.')}</span>
+          <span className="roulette__title-en">{say('Cannot decide? Let it pick one.', '못 고르겠나요? 대신 골라 드릴게요.', '¿No te decides? Deja que elija por ti.', 'Vous hésitez ? Laissez-le choisir.', 'لا تستطيع أن تقرّر؟ دعه يختار.')}</span>
         </h2>
 
         <div className="roulette__stage" aria-live="polite">
-          {spinning && <span className="roulette__idle">{say('고르는 중 · Picking…', '고르는 중', 'Eligiendo…', 'Choix en cours…')}</span>}
+          {spinning && <span className="roulette__idle">{say('고르는 중 · Picking…', '고르는 중', 'Eligiendo…', 'Choix en cours…', 'يختار…')}</span>}
           {!spinning && result && (
             <>
               <span className="roulette__dish-kr" translate="no">{result.nameKo}</span>
               <span className="roulette__dish-en">{result.name}</span>
-              <span className="roulette__gloss">{say(result.gloss, result.glossKo, result.glossEs, result.glossFr)}</span>
+              <span className="roulette__gloss">{say(result.gloss, result.glossKo, result.glossEs, result.glossFr, result.glossAr)}</span>
               {/* The reason, in the dish's own words from the catalogue. A
                   wheel that names a dish and stops is a slot machine; this is
                   the line that makes it an answer. */}
-              <span className="roulette__why">{say(result.whyShared, result.whySharedKo, result.whySharedEs, result.whySharedFr)}</span>
+              <span className="roulette__why">{say(result.whyShared, result.whySharedKo, result.whySharedEs, result.whySharedFr, result.whySharedAr)}</span>
             </>
           )}
           {!spinning && !result && (
@@ -78,10 +78,10 @@ export default function FoodRoulette({ onClose, onOpenTables }) {
         </button>
         {result && onOpenTables && (
           <button className="roulette__go" translate="no" onClick={() => onOpenTables(result.id)}>
-            {say('이 요리 밥상 보기 · See tables for this', '이 요리 밥상 보기', 'Ver mesas de este plato', 'Voir les tables pour ce plat')}
+            {say('이 요리 밥상 보기 · See tables for this', '이 요리 밥상 보기', 'Ver mesas de este plato', 'Voir les tables pour ce plat', 'موائد هذا الطبق')}
           </button>
         )}
-        <button className="roulette__close" onClick={onClose} translate="no">{say('닫기 · Close', '닫기', 'Cerrar', 'Fermer')}</button>
+        <button className="roulette__close" onClick={onClose} translate="no">{say('닫기 · Close', '닫기', 'Cerrar', 'Fermer', 'إغلاق')}</button>
       </div>
     </div>
   );
