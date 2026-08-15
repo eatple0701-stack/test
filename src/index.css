@@ -10361,6 +10361,26 @@ body {
    Every offset here is logical (inline-start/end), so the deck mirrors with
    the Arabic layout instead of running the wrong way under it. */
 
+/* The window. This is the whole point of the feature and it did not exist:
+   .sheet-page is `position: static`, and DishSheet renders as the last child
+   of MainTab, so tapping a dish drew the sheet 3405px below the fold. The
+   tap worked, the sheet rendered, and nothing appeared to happen — which is
+   indistinguishable from a dead button, and is what a reviewer found in
+   about four seconds.
+
+   Same shape as .phrase-sheet, one step below it on the stack, because the
+   phrase sheet opens from inside this one. */
+.dish-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1250;
+  background: var(--bg);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: slideUp 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+  padding-bottom: 40px;
+}
+
 .dish-sheet__roman {
   margin: 10px 16px 0;
   font-size: 13px;
