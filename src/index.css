@@ -11305,3 +11305,65 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 [dir="rtl"] .place-card__zone {
   unicode-bidi: isolate;
 }
+
+/* ---------- The registry layer on the map ----------
+
+   서울관광재단's food-tourism register, drawn under the curated pins. The
+   visual difference carries the honesty: a teardrop is a place somebody on
+   this team wrote about, a dot is a row in a public dataset. Nothing about
+   the dot should read as a recommendation, so it is smaller, flatter and
+   sits below the pins in the stacking order. */
+.k-dot { background: none; border: none; }
+.nearby-pop__name { display: block; font-size: 14px; font-weight: 700; color: var(--ink-title); }
+.nearby-pop__kind {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--fill, var(--surface));
+  font-size: 11px;
+  color: var(--muted-strong);
+}
+.nearby-pop__addr,
+.nearby-pop__hours { display: block; margin-top: 5px; font-size: 12.5px; color: var(--ink-body); }
+.nearby-pop__caveat {
+  display: block;
+  margin-top: 8px;
+  padding: 7px 9px;
+  border-radius: var(--radius);
+  background: var(--orange-tint, var(--surface));
+  color: var(--orange-ink, var(--ink-body));
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.nearby-pop__links { display: flex; gap: 8px; margin-top: 9px; }
+.nearby-pop__links a {
+  flex: 1 1 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-strong);
+  text-decoration: none;
+}
+.map-overlay__nearby {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted-strong);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.map-overlay__nearby.is-on {
+  border-color: var(--orange, var(--accent-strong));
+  background: var(--orange-tint, var(--surface));
+  color: var(--orange-ink, var(--accent-strong));
+}

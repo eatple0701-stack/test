@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import React, { useEffect, useMemo, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { MAP_CENTER, coordsOf } from '../utils';
+import { MAP_CENTER, coordsOf, naverMapUrl, kakaoMapUrl } from '../utils';
+import { loadNearbyPlaces, placesInView, asPlace } from '../data/nearbyPlaces.js';
+import { useText } from './localeText.js';
 
 // Reports the map center upward after each pan/zoom so the list can re-sort by distance
 function CenterReporter({ onCenterChange }) {
@@ -41,7 +43,79 @@ const pinIcon = (selected) => L.divIcon({
   iconAnchor: [17, 42],
 });
 
-export default function MapComponent({ restaurants, onMarkerClick, selectedId, onCenterChange }) {
+// Places from the 서울관광재단 registry: a smaller, quieter mark, because
+// the difference between these and the twenty curated pins is the whole
+// point. A teardrop says "we chose this"; a dot says "this is here".
+const dotIcon = L.divIcon({
+  className: 'k-dot',
+  html: '<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">'
+    + '<circle cx="7" cy="7" r="5" fill="#F97316" fill-opacity="0.85" stroke="#FFFFFF" stroke-width="2"/></svg>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+});
+
+/**
+ * The registry layer.
+ *
+ * Loaded on first render of the map and then filtered to whatever is on
+ * screen. Below MIN_ZOOM it draws nothing at all — seven thousand dots over
+ * the whole city is a texture, not a map, and it would bury the pins that
+ * took somebody a week to write.
+ */
+function NearbyLayer() {
+  const say = useText();
+  const [layer, setLayer] = useState(null);
+  const [view, setView] = useState(null);
+
+  const map = useMapEvents({
+    moveend: () => setView({ bounds: map.getBounds(), zoom: map.getZoom() }),
+    zoomend: () => setView({ bounds: map.getBounds(), zoom: map.getZoom() }),
+  });
+
+  useEffect(() => {
+    let alive = true;
+    loadNearbyPlaces().then(l => { if (alive) setLayer(l); });
+    setView({ bounds: map.getBounds(), zoom: map.getZoom() });
+    return () => { alive = false; };
+  }, [map]);
+
+  const shown = useMemo(() => {
+    if (!layer || !view) return [];
+    const b = view.bounds;
+    return placesInView(layer, {
+      north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest(),
+    }, view.zoom);
+  }, [layer, view]);
+
+  return shown.map((p) => (
+    <Marker key={p.i} position={[p.y, p.x]} icon={dotIcon} zIndexOffset={-500}>
+      <Popup>
+        <strong className="nearby-pop__name" translate="no">{p.n}</strong>
+        {p.c && <span className="nearby-pop__kind">{p.c}</span>}
+        <span className="nearby-pop__addr">{p.a}</span>
+        {p.h && <span className="nearby-pop__hours">{p.h}</span>}
+        {/* The line that keeps this layer honest. These are registry rows;
+            nobody here has eaten in one. Said on every one of them rather
+            than once in a legend somebody scrolls past. */}
+        <span className="nearby-pop__caveat">
+          {say('Listed as offering a foreign-language menu. From the Seoul Tourism Foundation register — we have not been here, and hours change.',
+            '외국어 메뉴를 제공한다고 등록된 곳입니다. 서울관광재단 등록 정보이고, 저희가 가본 곳은 아니며 영업시간은 바뀝니다.',
+            'Registrado como que ofrece carta en otro idioma. Del registro de la Fundación de Turismo de Seúl: no hemos estado aquí, y los horarios cambian.',
+            "Enregistré comme proposant une carte en langue étrangère. Registre de la Fondation du tourisme de Séoul — nous n'y sommes pas allés, et les horaires changent.",
+            'مسجَّل على أنه يقدّم قائمة بلغة أجنبية. من سجلّ مؤسسة سول للسياحة — لم نزره، والمواعيد تتغيّر.',
+            '登记为提供外语菜单。来自首尔观光财团的登记信息——我们没有去过，营业时间也会变。',
+            '外国語のメニューがあると登録されている店です。ソウル観光財団の登録情報で、私たちが行った店ではなく、営業時間は変わります。')}
+        </span>
+        <span className="nearby-pop__links">
+          <a href={naverMapUrl(asPlace(p))} target="_blank" rel="noreferrer">{say('Naver', '네이버', 'Naver', 'Naver', 'نيفر', 'Naver', 'Naver')}</a>
+          <a href={kakaoMapUrl(asPlace(p))} target="_blank" rel="noreferrer">{say('Kakao', '카카오', 'Kakao', 'Kakao', 'كاكاو', 'Kakao', 'Kakao')}</a>
+        </span>
+      </Popup>
+    </Marker>
+  ));
+}
+
+export default function MapComponent({ restaurants, onMarkerClick, selectedId, onCenterChange, showNearby = false }) {
   return (
     <div style={{ height: '100%', width: '100%', position: 'relative' }}>
       <MapContainer center={MAP_CENTER} zoom={12} style={{ height: '100%', width: '100%' }} zoomControl={false}>
@@ -51,6 +125,7 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {showNearby && <NearbyLayer />}
         {restaurants.map(r => (
           <Marker
             key={r.id}

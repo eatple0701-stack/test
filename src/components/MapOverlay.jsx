@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import MapComponent from './MapComponent';
 import FilterBar from './FilterBar';
 import BottomSheetList from './BottomSheetList';
@@ -38,6 +38,7 @@ export default function MapOverlay({
   onResetFilters,
 }) {
   const say = useText();
+  const [nearby, setNearby] = useState(false);
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -57,6 +58,15 @@ export default function MapOverlay({
           <h2>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
         </div>
+        {/* The count is in the label because it is the honest size of the
+            offer, and because "주변 식당" with no number could mean six. */}
+        <button
+          className={`map-overlay__nearby${nearby ? ' is-on' : ''}`}
+          aria-pressed={nearby}
+          onClick={() => setNearby(v => !v)}
+        >
+          {say('Nearby · foreign-language menus', '주변 · 외국어 메뉴 되는 곳', 'Cerca · con carta en otro idioma', 'À proximité · carte en langue étrangère', 'قريب · قوائم بلغات أجنبية', '附近 · 有外语菜单', '近く · 外国語メニューあり')}
+        </button>
         <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte', 'أغلق الخريطة', '关闭地图', '地図を閉じる')} onClick={onClose}>
           <XIcon size={18} />
         </button>
@@ -68,6 +78,7 @@ export default function MapOverlay({
           onMarkerClick={onRestaurantClick}
           selectedId={selectedId}
           onCenterChange={onCenterChange}
+          showNearby={nearby}
         />
       </div>
 

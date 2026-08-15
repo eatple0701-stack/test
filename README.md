@@ -108,7 +108,7 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 542 tests, node's built-in runner, no test-framework dependency
+npm test          # 549 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 npm run audit-i18n # every user-visible string that is not wired to the language setting
@@ -173,6 +173,43 @@ structural rather than a style guide:
 - **Sample data says so.** Seeded example tables are marked `isSample`; a
   demo that quietly passes off invented strangers as real users is the one
   thing this screen must not do.
+
+### The map has two layers, and the difference is the product
+
+Twenty places in `src/data/restaurants.js` have a story somebody wrote, an
+address somebody checked and a provenance record naming who checked it. Under
+them sits `public/data/nearby-seoul.json` — 7,450 rows from 서울관광재단's
+food-tourism register (data.go.kr 15097605), filtered to the places that told
+the register they offer a foreign-language menu.
+
+Four rules keep the second from eating the first, and they live in
+`src/data/nearbyPlaces.js` and `nearbyPlaces.test.mjs`:
+
+- **Off by default.** A Jongno block holds 120 of them; drawn on open they
+  bury the curated pins under a wash of orange. It is a toggle in the map bar.
+- **Nothing below zoom 15, never more than 160 at once.** Leaflet draws every
+  marker it is handed, and seven thousand locks the main thread on a phone.
+- **A dot, not a teardrop.** The shape carries the claim: we chose this vs
+  this is here.
+- **Every pin says nobody here has been.** On the pin, not in a legend.
+
+Prices and Naver review scores sit in neighbouring fields of the same API and
+are not read — an import is exactly how a rule like that gets quietly
+dropped, so a test asserts the shipped file has no such column.
+
+The file is 1.2MB on disk and 179KB over the wire (brotli), fetched the first
+time somebody switches the layer on and served from the service worker's
+runtime cache after that. Rebuild it with:
+
+```bash
+npm run seoul-food restaurants && npm run seoul-food hours && node scripts/build-nearby-layer.mjs
+```
+
+`SEOUL_FOOD_API_KEY` is build-time only and deliberately **not** `VITE_`-prefixed
+— that prefix is exactly what decides whether a key ships to every visitor.
+See `.env.example`. The API cannot be called from the app at runtime anyway:
+it takes `pageNo` and nothing else, 1,000 rows a page, 168 pages for the
+restaurant list.
 
 ## Architecture
 
