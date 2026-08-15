@@ -747,7 +747,6 @@ button {
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
   scrollbar-width: none;
 }
 .gallery-slider::-webkit-scrollbar {
@@ -10350,54 +10349,166 @@ body {
   border-bottom-color: var(--orange-ink, var(--line));
 }
 
-/* ---------- Dish sheet ---------- */
+/* ---------- Dish sheet — a deck of cards, read sideways ----------
 
-.dish-sheet__body { padding: 16px 16px 40px; }
-.dish-sheet__gloss {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink-title);
-  line-height: 1.4;
-}
+   The review asked for a window that opens on the dish and scrolls
+   horizontally. One card per screen with scroll-snap is that. The part the
+   request did not include, and the part that decides whether it works on a
+   phone, is the label row above it: without it a sideways deck is content
+   nobody knows is there. With it the labels are the table of contents, the
+   position indicator and the controls at once.
+
+   Every offset here is logical (inline-start/end), so the deck mirrors with
+   the Arabic layout instead of running the wrong way under it. */
+
 .dish-sheet__roman {
-  margin: 4px 0 0;
+  margin: 10px 16px 0;
   font-size: 13px;
   color: var(--muted-strong);
 }
-.dish-sheet__block { margin-top: 22px; }
-.dish-sheet__label {
-  margin: 0 0 6px;
+
+.dish-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 12px 16px 10px;
+}
+.dish-tabs::-webkit-scrollbar { display: none; }
+.dish-tab {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.dish-tab.is-on {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+  color: #fff;
+}
+
+.dish-deck {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.dish-deck::-webkit-scrollbar { display: none; }
+
+/* Every card is as tall as the longest one, and the deck is as tall as that.
+   The first version made each card its own vertical scroller, which is two
+   scroll directions fighting over one gesture and gave the deck a height of
+   241px on an 812px screen. One page scroll, one deck swipe. */
+.dish-card {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  padding: 4px 16px 8px;
+  box-sizing: border-box;
+}
+.dish-card__label {
+  margin: 0 0 8px;
   font-size: 13px;
   font-weight: 700;
   color: var(--green-ink);
 }
-.dish-sheet__block p {
+.dish-card p {
   margin: 0;
   font-size: 14.5px;
   line-height: 1.6;
   color: var(--ink-body);
 }
-.dish-sheet__contains,
-.dish-sheet__zones {
-  margin-top: 8px !important;
+.dish-card__lead {
+  font-size: 16px !important;
+  font-weight: 600;
+  color: var(--ink-title) !important;
+}
+.dish-card__aside {
+  margin-top: 10px !important;
   font-size: 13px !important;
   color: var(--muted-strong) !important;
 }
-.dish-sheet__varies {
-  margin-top: 8px !important;
+.dish-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dish-card__chip {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--ink-body);
+}
+/* Said in the colour the app uses for "we have not checked this", which is
+   the same one the place page's dietary caveat wears. */
+.dish-card__caveat {
+  margin-top: 12px !important;
   padding: 9px 11px;
   border-radius: var(--radius);
   background: var(--orange-tint, var(--surface));
   color: var(--orange-ink, var(--ink-body)) !important;
   font-size: 13px !important;
 }
-.dish-sheet__zones { margin: 18px 0 0; }
+.dish-card__ask {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--accent-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent-strong);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dish-card__source {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--muted-strong);
+  text-decoration: underline;
+}
+
+/* The pronunciation, on the tiles and cards that name a dish. It was in
+   the catalogue all along and only the dish sheet showed it. Muted and
+   small: a hint under the name, not a third name competing with two. */
+.main-dish__rom,
+.table-card__rom,
+.lead-table__rom {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--muted-strong);
+  letter-spacing: 0.01em;
+}
+.table-card__rom { margin: 2px 0 0; }
+
+.dish-deck__count {
+  margin: 6px 16px 0;
+  font-size: 12px;
+  color: var(--muted-strong);
+  text-align: end;
+}
+
 .dish-sheet__cta {
   display: block;
-  width: 100%;
+  width: calc(100% - 32px);
   min-height: 52px;
-  margin-top: 26px;
+  margin: 14px 16px 24px;
   border: none;
   border-radius: var(--radius);
   background: var(--accent-strong);

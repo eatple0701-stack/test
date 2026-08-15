@@ -285,6 +285,10 @@ export default function MainTab({
               <span className="main-dish__arrow" aria-hidden="true">↗</span>
               <span className="main-dish__kr" translate="no">{m.nameKo}</span>
               <span className="main-dish__en">{m.name}</span>
+              {/* The one thing a traveller needs before they can say it out
+                  loud, and it was already in the catalogue — reachable only
+                  by opening the dish. Now it is on the tile you tap. */}
+              <span className="main-dish__rom" translate="no" data-no-locale>{m.romanization}</span>
             </button>
           ))}
         </div>

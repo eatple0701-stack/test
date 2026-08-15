@@ -129,6 +129,17 @@ export const menus = [
       "生五花肉端到嵌在桌上的烤盘上。你自己烤，用剪刀剪开，再夹一块放进生菜里，配上蒜片、包饭酱和米饭。",
     howItWorksJa:
       "生の豚バラがテーブルに埋め込まれた鉄板に運ばれてきます。自分で焼き、ハサミで切り、サンチュに包んでニンニクとサムジャンとご飯を添えて食べます。",
+    // Sourced, or absent. See src/content/sources.js — a dish whose history
+    // nobody on this team has read stays without a story rather than
+    // borrowing one from a blog.
+    storySources: ['encykorea-samgyeopsal'],
+    story: 'The name is a description: three layers, lean and fat alternating down the belly. The older word for it was 세겹살, and dedicated samgyeopsal houses only began appearing in the late 1970s. What made it national was the 1997 financial crisis — it was the meat people could still afford, and for a while it was called IMF 삼겹살.',
+    storyKo: '이름 자체가 설명입니다. 살과 비계가 번갈아 세 겹. 옛말은 세겹살이었고, 삼겹살 전문점이 생긴 것은 1970년대 후반부터입니다. 전국의 음식이 된 계기는 1997년 외환위기였어요. 그때까지도 사 먹을 수 있던 고기였고, 한동안은 IMF 삼겹살이라고 불렸습니다.',
+    storyEs: 'El nombre es una descripción: tres capas, magro y grasa alternándose a lo largo de la panceta. La palabra antigua era 세겹살, y los locales dedicados al samgyeopsal no aparecieron hasta finales de los años setenta. Lo que lo hizo nacional fue la crisis financiera de 1997: era la carne que todavía se podía pagar, y durante un tiempo se la llamó IMF 삼겹살.',
+    storyFr: "Le nom est une description : trois couches, le maigre et le gras alternant le long de la poitrine. Le mot ancien était 세겹살, et les maisons spécialisées ne sont apparues qu'à la fin des années 1970. Ce qui l'a rendu national, c'est la crise financière de 1997 — c'était la viande encore abordable, et on l'a appelée un temps IMF 삼겹살.",
+    storyAr: 'الاسم وصف: ثلاث طبقات، لحم أحمر وشحم يتناوبان على طول البطن. الكلمة الأقدم كانت 세겹살، ولم تظهر المطاعم المتخصّصة إلا في أواخر السبعينيات. وما جعله طبقًا وطنيًّا هو أزمة عام 1997 المالية — كان اللحم الذي ما زال الناس يقدرون عليه، وسُمّي حينًا IMF 삼겹살.',
+    storyZh: '这个名字本身就是描述：三层，瘦肉和肥肉在五花上一层一层交替。更早的说法是세겹살，专做삼겹살的店到1970年代末才出现。让它成为全国性食物的是1997年的金融危机——那是人们还买得起的肉，有一阵子被叫作IMF 삼겹살。',
+    storyJa: '名前がそのまま説明になっています。赤身と脂が交互に重なった三つの層。古い言い方は세겹살で、サムギョプサル専門店ができたのは1970年代の終わりごろからです。全国の食べ物になったきっかけは1997年の通貨危機でした。そのときもまだ手の届いた肉で、しばらくはIMF 삼겹살と呼ばれていました。',
     themeId: 'seoul-after-dark',
     culture:
       "The grill in the middle is a job, not a decoration: somebody turns the meat, somebody cuts it, and wrapping a piece in lettuce and handing it to the person beside you is a small act of care Koreans do without mentioning it. This is the first round of a 회식 — the after-work dinner that built most Korean working relationships.",

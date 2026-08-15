@@ -552,6 +552,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               </span>
 
               <h2 className="table-card__dish">{menu.name}</h2>
+              <p className="table-card__rom" translate="no" data-no-locale>{menu.romanization}</p>
               <p className="table-card__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr, menu.glossZh, menu.glossJa)}</p>
 
               {/* 신보람 교수님's note, answered where it is actually asked.

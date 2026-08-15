@@ -108,7 +108,7 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 529 tests, node's built-in runner, no test-framework dependency
+npm test          # 533 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 npm run audit-i18n # every user-visible string that is not wired to the language setting
@@ -157,7 +157,19 @@ structural rather than a style guide:
 - **The app never rules on a dish's dietary status.** Vegan and halal are not
   verdicts this app renders — they are a message a traveller sends to the
   host, who is the person who can actually ask the kitchen
-  (`src/data/profile.js`).
+  (`src/data/profile.js`). The dish sheet's "what's in it" card is the same
+  rule under pressure: a review asked for an allergy panel, and what it got
+  is what the dish is *normally* made of, a plain statement that nobody here
+  has stood in that kitchen, and a button into the phrase sheet so somebody
+  can go and ask. A traveller with a real allergy trusting a line we never
+  verified is the one person this product must not hurt.
+- **A dish tells no story it cannot cite.** Food history reads well and
+  almost none of what circulates about it online has a source. So `story`
+  exists only beside a `storySources` naming an entry in
+  `src/content/sources.js`, the card simply does not render without one, and
+  `dishStory.test.mjs` fails the build if a story ever arrives uncited. Ten
+  dishes, one story so far — the sparseness is the honest state, and filling
+  it means reading sources, not writing prose.
 - **Sample data says so.** Seeded example tables are marked `isSample`; a
   demo that quietly passes off invented strangers as real users is the one
   thing this screen must not do.

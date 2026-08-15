@@ -131,6 +131,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
               >
                 <span className="lead-table__kr" aria-hidden="true">{menu.nameKo}</span>
                 <span className="lead-table__dish">{menu.name}</span>
+                <span className="lead-table__rom" translate="no" data-no-locale>{menu.romanization}</span>
                 <span className="lead-table__when">{dayLabel(t.date)} · {t.time}</span>
                 <span className="lead-table__seats">
                   {say(`${left} seat${left === 1 ? '' : 's'} left`, `${left}자리 남음`,
