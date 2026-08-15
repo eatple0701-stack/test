@@ -13,6 +13,8 @@ import {
 } from './Icons';
 import CulturalRoute from './CulturalRoute';
 import { getCulture } from '../data/culture';
+import { isRegistryPlace } from '../data/seoulRegistry.js';
+import RegistryPlaceSheet from './RegistryPlaceSheet';
 import { tipsFor } from '../data/journey';
 import { restaurants } from '../data/restaurants';
 import { tableCtaFor, mapLinksFor, transitLine, MAP_LINKS_NOTE } from '../domain/policy/venue.js';
@@ -212,6 +214,15 @@ function RestaurantDetailInner({
   // it, in the effect above.
 
   if (!restaurant) return null;
+
+  // A place from the 서울관광재단 register has no story, and must not borrow
+  // its category's. Everything below this line is built from getCulture() —
+  // origin, etiquette, phrases, a Passport mission, a route onward — which is
+  // right for a place somebody chose and wrote about, and an invention for an
+  // address imported from a public dataset. See RegistryPlaceSheet.jsx.
+  if (isRegistryPlace(restaurant)) {
+    return <RegistryPlaceSheet restaurant={restaurant} onClose={onClose} onOpenTable={onOpenTableHere} />;
+  }
 
   const name = restaurant.name.split('(')[0].trim();
   // Both derived from the venue rather than fixed — see venue.js for why a

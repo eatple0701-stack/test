@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { restaurants } from './data/restaurants';
+import { loadRegistryPlaces } from './data/seoulRegistry.js';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
@@ -721,27 +722,43 @@ export default function App() {
     });
   };
 
+  // The 서울관광재단 register, added to the pool once its file arrives.
+  // Until then every screen runs on the twenty, which is not a loading
+  // state — it is the app.
+  const [registryPlaces, setRegistryPlaces] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    loadRegistryPlaces().then(list => { if (alive) setRegistryPlaces(list); });
+    return () => { alive = false; };
+  }, []);
+
+  const pool = useMemo(
+    () => (registryPlaces.length ? [...activeRestaurants, ...registryPlaces] : activeRestaurants),
+    [registryPlaces],
+  );
+
   const filteredRestaurants = useMemo(() => {
-    return activeRestaurants.filter(r => {
+    return pool.filter(r => {
       // 1. Filter chips (AND across chips). A dietary chip only matches on
       // evidence — an unknown dietary record never matches, so we never send
       // someone somewhere we can't vouch for. A group chip ORs within itself.
       const matchesChips = selectedFilters.length === 0 || selectedFilters.every(f => {
         if (DIETARY_CHIPS.includes(f)) return matchesDietary(r, f);
+        const traits = r.traits ?? [];
         const group = TRAIT_GROUPS[f];
-        return group ? r.traits.some(t => group.includes(t)) : r.traits.includes(f);
+        return group ? traits.some(t => group.includes(t)) : traits.includes(f);
       });
 
       // 2. Search Query Filtering (Match name, vibe or area)
       const query = searchQuery.toLowerCase().trim();
       const matchesSearch = query === '' ||
                             r.name.toLowerCase().includes(query) ||
-                            r.vibe.toLowerCase().includes(query) ||
-                            r.zone.toLowerCase().includes(query);
+                            (r.vibe ?? '').toLowerCase().includes(query) ||
+                            (r.zone ?? '').toLowerCase().includes(query);
 
       return matchesChips && matchesSearch;
     });
-  }, [selectedFilters, searchQuery]);
+  }, [pool, selectedFilters, searchQuery]);
 
   {/* The Prologue splash used to gate everything here — one screen you had
       to answer before seeing a single table. Retired 2026-08-04 for the

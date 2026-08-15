@@ -11367,3 +11367,57 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
   background: var(--orange-tint, var(--surface));
   color: var(--orange-ink, var(--accent-strong));
 }
+.place-list__more {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- A place that came from the register ----------
+   Shorter than a curated place page on purpose: it can only show what the
+   dataset holds. The first block says so, before anything else. */
+.registry-sheet__body { padding: 4px 16px 40px; }
+.registry-sheet__origin {
+  margin: 12px 0 20px;
+  padding: 11px 13px;
+  border-radius: var(--radius);
+  background: var(--orange-tint, var(--surface));
+  color: var(--orange-ink, var(--ink-body));
+  font-size: 13px;
+  line-height: 1.6;
+}
+.registry-sheet__facts { margin: 8px 0 0; padding: 0; list-style: none; }
+.registry-sheet__facts li {
+  display: flex;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--ink-body);
+}
+.registry-sheet__facts li:last-child { border-bottom: none; }
+.registry-sheet__key { flex: 0 0 88px; color: var(--muted-strong); font-size: 13px; }
+.registry-sheet__links { display: flex; gap: 8px; margin-top: 10px; }
+.registry-sheet__link {
+  flex: 1 1 0;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--accent-strong);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.registry-sheet__source { margin-top: 16px; font-size: 12px; color: var(--muted-strong); }

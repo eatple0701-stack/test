@@ -108,7 +108,7 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 549 tests, node's built-in runner, no test-framework dependency
+npm test          # 556 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 npm run audit-i18n # every user-visible string that is not wired to the language setting
@@ -173,6 +173,31 @@ structural rather than a style guide:
 - **Sample data says so.** Seeded example tables are marked `isSample`; a
   demo that quietly passes off invented strangers as real users is the one
   thing this screen must not do.
+
+### The register is in the list too, and it gets its own page
+
+The same 7,450 rows are in the Places list, sorted by distance beside the
+twenty. Two things make that safe rather than a dilution:
+
+**A register row branches to `RegistryPlaceSheet`, not `RestaurantDetail`.**
+This matters more than it sounds. `RestaurantDetail` builds most of its page
+from `getCulture(restaurant)` — origin, etiquette, useful phrases, a Passport
+mission, a route onward — and a register row's category comes from its 업태
+field, mechanically. Rendered through the curated component, 치보치마 printed
+"The best items sell out before noon", "One drink buys the seat", a mission
+about what came out of the oven this morning, and a walking route to
+Gwangjang Market. Every line invented for that address by a category lookup,
+and every line reading as though somebody had checked. `seoulRegistry.test.mjs`
+asserts the guard sits above the first `getCulture` call.
+
+**Every fact is `reported`, never `confirmed`.** `confirmed` is what the
+twenty carry after somebody checked two map services on a named date; a test
+fails the build if an imported fact ever claims it. `story` is null rather
+than filled with the register's own 소개문, which for all 167,659 rows is a
+mail-merge: "X는 서울특별시 Y구에 있습니다. 가장 가까운 지하철역은 Z역입니다."
+
+The list pages 40 at a time — `sorted.map` over 7,468 cards locks the main
+thread on a phone.
 
 ### The map has two layers, and the difference is the product
 

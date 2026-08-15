@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import PlaceImage from './PlaceImage';
 import { HeartIcon, CompassIcon } from './Icons';
 import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf } from '../utils';
@@ -119,6 +119,15 @@ export default function BottomSheetList({
       .sort((a, b) => a.distanceKm - b.distanceKm),
   [restaurants, mapCenter]);
 
+  // The list holds twenty places or seven thousand depending on whether the
+  // 서울관광재단 register has loaded, and `sorted.map` renders every one of
+  // them. Seven thousand cards is a locked main thread on a phone, so the
+  // list grows a page at a time.
+  const PAGE = 40;
+  const [shown, setShown] = useState(PAGE);
+  const visible = sorted.slice(0, shown);
+  const remaining = sorted.length - visible.length;
+
   return (
     <div className="place-list">
       <div className="place-list__header">
@@ -139,7 +148,7 @@ export default function BottomSheetList({
         </p>
       )}
 
-      {sorted.map(r => (
+      {visible.map(r => (
         <PlaceCard
           key={r.id}
           place={r}
@@ -151,6 +160,18 @@ export default function BottomSheetList({
           mapCenter={mapCenter}
         />
       ))}
+
+      {remaining > 0 && (
+        <button className="place-list__more" onClick={() => setShown(n => n + PAGE)}>
+          {say(`Show ${Math.min(PAGE, remaining)} more · ${remaining} left`,
+            `${Math.min(PAGE, remaining)}곳 더 보기 · ${remaining}곳 남음`,
+            `Ver ${Math.min(PAGE, remaining)} más · quedan ${remaining}`,
+            `Voir ${Math.min(PAGE, remaining)} de plus · ${remaining} restants`,
+            `أظهر ${Math.min(PAGE, remaining)} أخرى · بقي ${remaining}`,
+            `再看 ${Math.min(PAGE, remaining)} 处 · 还有 ${remaining} 处`,
+            `さらに${Math.min(PAGE, remaining)}件 · 残り${remaining}件`)}
+        </button>
+      )}
 
       {/* Two things were wrong here and both were inherited rather than
           decided. A stock photograph of somebody else's travel, loaded from
