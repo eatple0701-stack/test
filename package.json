@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "audit-i18n": "node scripts/audit-i18n.mjs",
     "seoul-food": "node scripts/seoul-food-api.mjs",
-    "seoul-food-match": "node scripts/match-seoul-food.mjs"
+    "seoul-places": "node --max-old-space-size=6144 scripts/build-seoul-places.mjs",
+    "seoul-food-match": "node --max-old-space-size=4096 scripts/match-seoul-food.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

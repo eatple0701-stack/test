@@ -7,7 +7,14 @@ import { isKnown } from './data/verification.js';
 export const MAP_CENTER = [37.5540, 126.9880];
 
 /** Coordinates are stored as a fact(); every consumer reads them through here. */
-export const coordsOf = (place) => place.coordinates.value;
+// Null-safe since the 서울관광재단 register arrived. 2,953 of its 167,659 rows
+// have no usable position — never geocoded, or geocoded outside Seoul, which
+// the build script rejects rather than pinning a restaurant a hundred
+// kilometres from its own address. They are still real places on the list;
+// they simply cannot be drawn or measured. `formatDistance` already returns
+// '' for a non-finite number, so the card degrades to no distance rather
+// than to NaN.
+export const coordsOf = (place) => place?.coordinates?.value ?? { lat: undefined, lng: undefined };
 
 export function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;

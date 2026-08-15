@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 're
 import L from 'leaflet';
 import { MAP_CENTER, coordsOf, naverMapUrl, kakaoMapUrl } from '../utils';
 import { loadNearbyPlaces, placesInView, asPlace } from '../data/nearbyPlaces.js';
+import { isRegistryPlace } from '../data/seoulRegistry.js';
 import { useText } from './localeText.js';
 
 // Reports the map center upward after each pan/zoom so the list can re-sort by distance
@@ -72,20 +73,32 @@ function NearbyLayer() {
     zoomend: () => setView({ bounds: map.getBounds(), zoom: map.getZoom() }),
   });
 
+  // Districts are fetched around wherever the map is looking, so panning
+  // across the city pulls in what it passes over rather than everything.
   useEffect(() => {
     let alive = true;
-    loadNearbyPlaces().then(l => { if (alive) setLayer(l); });
+    const c = map.getCenter();
+    loadNearbyPlaces([c.lat, c.lng]).then(l => { if (alive) setLayer(l); });
     setView({ bounds: map.getBounds(), zoom: map.getZoom() });
     return () => { alive = false; };
-  }, [map]);
+  }, [map, view?.bounds]);
+
+  // The toggle promises places with a foreign-language menu, so that is what
+  // this draws. The full register — every one of the 167,659 — is in the
+  // Places list; a map showing all of them at once is a texture, not
+  // information, and it would be a different promise than the label makes.
+  const foreignOnly = useMemo(
+    () => (layer?.rows ? { ...layer, rows: layer.rows.filter(r => r.f === 1) } : null),
+    [layer],
+  );
 
   const shown = useMemo(() => {
-    if (!layer || !view) return [];
+    if (!foreignOnly || !view) return [];
     const b = view.bounds;
-    return placesInView(layer, {
+    return placesInView(foreignOnly, {
       north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest(),
     }, view.zoom);
-  }, [layer, view]);
+  }, [foreignOnly, view]);
 
   return shown.map((p) => (
     <Marker key={p.i} position={[p.y, p.x]} icon={dotIcon} zIndexOffset={-500}>
@@ -126,7 +139,18 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {showNearby && <NearbyLayer />}
-        {restaurants.map(r => (
+        {/* The teardrop layer is the twenty curated places and nothing else.
+            Since the register joined the same pool, this list arrives holding
+            every one of its 167,659 rows too — and drawing them as teardrops
+            would both bury the curation and hand Leaflet a hundred thousand
+            markers. The register has its own layer above, drawn as dots and
+            capped to the viewport.
+
+            The coordinate check is the other half: 2,953 register rows have
+            no usable position, and Leaflet's "Invalid LatLng object:
+            (undefined, undefined)" throws hard enough to take the whole app
+            to the error boundary. */}
+        {restaurants.filter(r => !isRegistryPlace(r) && Number.isFinite(coordsOf(r).lat)).map(r => (
           <Marker
             key={r.id}
             position={[coordsOf(r).lat, coordsOf(r).lng]}

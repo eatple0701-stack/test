@@ -114,9 +114,19 @@ export default function BottomSheetList({
     restaurants
       .map(r => {
         const { lat, lng } = coordsOf(r);
-        return { ...r, distanceKm: haversineKm(mapCenter[0], mapCenter[1], lat, lng) };
+        const distanceKm = Number.isFinite(lat) && Number.isFinite(lng)
+          ? haversineKm(mapCenter[0], mapCenter[1], lat, lng)
+          : null;
+        return { ...r, distanceKm };
       })
-      .sort((a, b) => a.distanceKm - b.distanceKm),
+      // A place the register never gave a position for sorts last rather
+      // than to the top: NaN compares false against everything, which put
+      // them wherever the sort happened to leave them.
+      .sort((a, b) => {
+        if (a.distanceKm === null) return b.distanceKm === null ? 0 : 1;
+        if (b.distanceKm === null) return -1;
+        return a.distanceKm - b.distanceKm;
+      }),
   [restaurants, mapCenter]);
 
   // The list holds twenty places or seven thousand depending on whether the

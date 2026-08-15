@@ -108,7 +108,7 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 556 tests, node's built-in runner, no test-framework dependency
+npm test          # 560 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 npm run audit-i18n # every user-visible string that is not wired to the language setting
@@ -176,7 +176,7 @@ structural rather than a style guide:
 
 ### The register is in the list too, and it gets its own page
 
-The same 7,450 rows are in the Places list, sorted by distance beside the
+All 167,659 rows are in the Places list, sorted by distance beside the
 twenty. Two things make that safe rather than a dilution:
 
 **A register row branches to `RegistryPlaceSheet`, not `RestaurantDetail`.**
@@ -196,22 +196,25 @@ fails the build if an imported fact ever claims it. `story` is null rather
 than filled with the register's own 소개문, which for all 167,659 rows is a
 mail-merge: "X는 서울특별시 Y구에 있습니다. 가장 가까운 지하철역은 Z역입니다."
 
-The list pages 40 at a time — `sorted.map` over 7,468 cards locks the main
-thread on a phone.
+The list pages 40 at a time — a district alone holds 16,547 cards, and
+`sorted.map` over all of them locks the main thread on a phone.
 
 ### The map has two layers, and the difference is the product
 
 Twenty places in `src/data/restaurants.js` have a story somebody wrote, an
-address somebody checked and a provenance record naming who checked it. Under
-them sits `public/data/nearby-seoul.json` — 7,450 rows from 서울관광재단's
-food-tourism register (data.go.kr 15097605), filtered to the places that told
-the register they offer a foreign-language menu.
+address somebody checked and a provenance record naming who checked it. Under them sits `public/data/seoul/` — all 167,659 rows of 서울관광재단's
+food-tourism register (data.go.kr 15097605), split into 26 files by 구
+because as one file it is 24.4MB. The app fetches the four districts nearest
+wherever the map is looking, so a person in Insadong downloads 종로구 and its
+neighbours and nothing else. Nothing is filtered out at build time.
 
 Four rules keep the second from eating the first, and they live in
 `src/data/nearbyPlaces.js` and `nearbyPlaces.test.mjs`:
 
-- **Off by default.** A Jongno block holds 120 of them; drawn on open they
-  bury the curated pins under a wash of orange. It is a toggle in the map bar.
+- **Off by default, and it draws only the 25,561 with a foreign-language
+  menu.** A Jongno block holds 120 of those alone; all 167,659 would be a
+  texture rather than a map. It is a toggle in the map bar, and the label
+  says which cut it is showing.
 - **Nothing below zoom 15, never more than 160 at once.** Leaflet draws every
   marker it is handed, and seven thousand locks the main thread on a phone.
 - **A dot, not a teardrop.** The shape carries the claim: we chose this vs
@@ -222,12 +225,12 @@ Prices and Naver review scores sit in neighbouring fields of the same API and
 are not read — an import is exactly how a rule like that gets quietly
 dropped, so a test asserts the shipped file has no such column.
 
-The file is 1.2MB on disk and 179KB over the wire (brotli), fetched the first
-time somebody switches the layer on and served from the service worker's
-runtime cache after that. Rebuild it with:
+17.7MB on disk across 26 files, 3.48MB compressed for all of Seoul — but a
+session fetches four districts, about 1MB compressed, and the service worker's
+runtime cache keeps them. Rebuild with:
 
 ```bash
-npm run seoul-food restaurants && npm run seoul-food hours && node scripts/build-nearby-layer.mjs
+npm run seoul-food restaurants && npm run seoul-food hours && node scripts/build-seoul-places.mjs
 ```
 
 `SEOUL_FOOD_API_KEY` is build-time only and deliberately **not** `VITE_`-prefixed

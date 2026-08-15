@@ -1,6 +1,6 @@
 // The register, as places.
 //
-// 7,450 rows from 서울관광재단's food-tourism database (data.go.kr 15097605),
+// 167,659 rows from 서울관광재단's food-tourism database (data.go.kr 15097605),
 // turned into the same record shape as the twenty in restaurants.js so that
 // every screen — the list, the map, the detail sheet, the filters, saving,
 // opening a table at one — works on them without a special case.
@@ -21,10 +21,10 @@
 //
 // ── Loaded, not bundled ──────────────────────────────────────────────────
 //
-// 1.2MB of JSON, 179KB over the wire. It is fetched once, on demand, and the
-// service worker keeps it. Callers get an empty list until it arrives, which
-// is the correct reading: the twenty curated places are the app, and these
-// are an addition that has not turned up yet.
+// 24.4MB of JSON in total, so it arrives one 구 at a time — see
+// nearbyPlaces.js. Callers get whatever has loaded, which is the correct
+// reading: the twenty curated places are the app, and these are an addition
+// that turns up district by district as somebody looks around.
 
 import { loadNearbyPlaces } from './nearbyPlaces.js';
 
@@ -48,12 +48,17 @@ const reported = (value, extra = {}) => ({
  * name would be a guess dressed as a fact.
  */
 const DISTRICT_EN = {
-  종로구: 'Jongno', 중구: 'Jung-gu', 용산구: 'Yongsan', 마포구: 'Mapo', 강남구: 'Gangnam',
+  종로구: 'Jongno', 중구: 'Jung-gu', 용산구: 'Yongsan', 성동구: 'Seongdong', 광진구: 'Gwangjin',
+  동대문구: 'Dongdaemun', 중랑구: 'Jungnang', 성북구: 'Seongbuk', 강북구: 'Gangbuk', 도봉구: 'Dobong',
+  노원구: 'Nowon', 은평구: 'Eunpyeong', 서대문구: 'Seodaemun', 마포구: 'Mapo', 양천구: 'Yangcheon',
+  강서구: 'Gangseo', 구로구: 'Guro', 금천구: 'Geumcheon', 영등포구: 'Yeongdeungpo', 동작구: 'Dongjak',
+  관악구: 'Gwanak', 서초구: 'Seocho', 강남구: 'Gangnam', 송파구: 'Songpa', 강동구: 'Gangdong',
 };
 
 const zoneOf = (address) => {
-  const m = /(종로구|중구|용산구|마포구|강남구)/.exec(address ?? '');
-  return m ? `${DISTRICT_EN[m[1]]}, Seoul` : 'Seoul';
+  const m = /(\S+?구)/.exec(String(address ?? '').replace('서울특별시', ''));
+  const en = m ? DISTRICT_EN[m[1]] : null;
+  return en ? `${en}, Seoul` : 'Seoul';
 };
 
 /**
@@ -92,10 +97,17 @@ export function placeFromRegistry(row, builtAt = null) {
     name: row.n,
     zone: zoneOf(address),
     category: CATEGORY[row.c] ?? 'local-seasonal',
-    coordinates: reported({ lat: row.y, lng: row.x }, {
-      lastCheckedAt: builtAt,
-      evidence: 'Coordinates as recorded in the dataset',
-    }),
+    // Null rather than a record holding undefined. 2,953 rows have no
+    // usable position — either the register never geocoded them, or it
+    // geocoded them to a point outside Seoul, which the build script
+    // rejects. They are still restaurants; they just cannot be drawn or
+    // sorted by distance, and the list puts them after everything that can.
+    coordinates: row.y === undefined || row.x === undefined
+      ? null
+      : reported({ lat: row.y, lng: row.x }, {
+        lastCheckedAt: builtAt,
+        evidence: 'Coordinates as recorded in the dataset',
+      }),
     address: reported(address, {
       precision: 'street',
       lastCheckedAt: builtAt,
@@ -121,11 +133,12 @@ export function placeFromRegistry(row, builtAt = null) {
     esg_point: null,
     image: null, photo: null, coverImage: null, gallery: [],
     /** What the register said, kept so a screen can say why this one is here. */
-    registry: { foreignMenu: true, kind: row.c ?? null },
+    registry: { foreignMenu: row.f === 1, kind: row.c ?? null },
   };
 }
 
 let cache = null;
+let cachedCount = 0;
 
 /**
  * Every register row as a place, once the file has arrived.
@@ -134,10 +147,14 @@ let cache = null;
  * is this app working, and a screen with 7,470 is this app working with more
  * on it. Neither is an error state.
  */
-export async function loadRegistryPlaces() {
-  if (cache) return cache;
-  const layer = await loadNearbyPlaces();
-  if (!layer?.rows) return [];
-  cache = layer.rows.map(r => placeFromRegistry(r, layer.builtAt ?? null));
+export async function loadRegistryPlaces(center = null) {
+  const layer = await loadNearbyPlaces(center);
+  if (!layer?.rows?.length) return cache ?? [];
+  // Districts arrive one at a time and the set only grows, so a rebuild is
+  // needed exactly when the row count changed.
+  if (!cache || layer.rows.length !== cachedCount) {
+    cache = layer.rows.map(r => placeFromRegistry(r, layer.builtAt ?? null));
+    cachedCount = layer.rows.length;
+  }
   return cache;
 }

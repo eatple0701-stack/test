@@ -5,7 +5,7 @@ import path from 'node:path';
 import { placeFromRegistry, isRegistryPlace, REGISTRY_PREFIX } from '../../data/seoulRegistry.js';
 import { restaurants } from '../../data/restaurants.js';
 
-// 7,450 places from a public register, sitting in the same list as twenty
+// 167,659 places from a public register, sitting in the same list as twenty
 // places somebody wrote about. These tests are about the seam.
 //
 // The bug they exist for was real and shipped for about twenty minutes:
@@ -17,7 +17,8 @@ import { restaurants } from '../../data/restaurants.js';
 // Market. All of it generated for that address by a category lookup, and all
 // of it reading as though somebody had checked.
 
-const rows = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public/data/nearby-seoul.json'), 'utf8')).rows;
+const DIR = path.join(process.cwd(), 'public/data/seoul');
+const rows = JSON.parse(fs.readFileSync(path.join(DIR, 'Jongno.json'), 'utf8')).rows;
 const sample = rows.slice(0, 400).map(r => placeFromRegistry(r, '2026-08-15'));
 
 test('a register row is never mistaken for a curated place', () => {
@@ -72,8 +73,13 @@ test('the fields every screen reads unconditionally are present', () => {
     assert.equal(typeof p.zone, 'string');
     assert.ok(Array.isArray(p.traits));
     assert.equal(typeof p.vibe, 'string');
-    assert.ok(Number.isFinite(p.coordinates.value.lat));
-    assert.ok(Number.isFinite(p.coordinates.value.lng));
+    // A row with no usable position keeps everything but the coordinate.
+    // coordsOf() is null-safe and formatDistance() renders '' for it, so the
+    // card shows no distance rather than NaN.
+    if (p.coordinates) {
+      assert.ok(Number.isFinite(p.coordinates.value.lat));
+      assert.ok(Number.isFinite(p.coordinates.value.lng));
+    }
   }
 });
 
@@ -90,7 +96,10 @@ test('the detail sheet cannot fall through to the curated one', () => {
 
 test('a district maps to a zone, and an unknown one does not invent a neighbourhood', () => {
   const zones = new Set(sample.map(p => p.zone));
-  for (const z of zones) assert.match(z, /^(Jongno|Jung-gu|Yongsan|Mapo|Gangnam|Seoul), Seoul$|^Seoul$/);
+  // All 25 districts now, because the whole register is loaded and a place
+  // in 노원구 must not be filed as an unnamed 'Seoul'.
+  for (const z of zones) assert.match(z, /^[A-Za-z-]+, Seoul$|^Seoul$/);
+  assert.ok(zones.has('Jongno, Seoul'));
   const nowhere = placeFromRegistry({ i: 1, n: 'X', a: '경기도 어딘가', y: 37.5, x: 127 });
   assert.equal(nowhere.zone, 'Seoul', 'an address outside the five districts stays vague rather than guessing');
 });
