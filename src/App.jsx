@@ -19,6 +19,7 @@ import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 import { getStoredLocale, setStoredLocale } from './data/locale.js';
 import LocaleFilter from './components/LocaleFilter';
 import { LocaleContext } from './components/localeText.js';
+import AnimalAvatar from './components/AnimalAvatar.jsx';
 import { LOCALE } from './domain/policy/locale.js';
 // From the repository, not the profile module: it is the seam that knows
 // whether there is a database to write to at all. On localStorage it is a
@@ -798,7 +799,7 @@ export default function App() {
               >
                 {profile?.avatarUrl
                   ? <img className="app-chrome__avatar" src={profile.avatarUrl} alt="" />
-                  : <span className="app-chrome__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
+                  : <AnimalAvatar className="app-chrome__avatar" seed={profile?.userId} animal={profile?.avatarAnimal} size={30} />}
                 <span className="app-chrome__name">{profile?.name?.trim() || say('My passport', '내 여권', 'Mi pasaporte', 'Mon passeport', 'جوازي', '我的护照', 'わたしのパスポート')}</span>
               </button>
               {/* Beside the name it ends, which is where every site the team

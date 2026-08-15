@@ -41,6 +41,7 @@ import { themeById } from '../domain/catalog/index.js';
 import { timeText, clockWarning } from '../domain/policy/clock.js';
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 import { useText, useLocale } from './localeText.js';
+import AnimalAvatar from './AnimalAvatar.jsx';
 import { dateLocale, LOCALE } from '../domain/policy/locale.js';
 
 // One table, and the decision to sit at it.
@@ -753,7 +754,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <div className="host-card__row">
             {host.avatarUrl
               ? <img className="host-card__avatar" src={host.avatarUrl} alt="" />
-              : <span className="host-card__initial" aria-hidden="true">{(table.hostName || '?').trim().charAt(0) || '?'}</span>}
+              : <AnimalAvatar className="host-card__avatar" seed={table.hostId} animal={host.avatarAnimal} size={44} />}
             <div className="host-card__facts">
               <span className="host-card__name">{table.hostName}</span>
               {/* Both names. A traveller reading a host card is meeting

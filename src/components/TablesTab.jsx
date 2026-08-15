@@ -25,6 +25,7 @@ import { ChevronRightIcon, MapPinIcon, ClockIcon, CheckIcon } from './Icons';
 import { bookable } from '../domain/policy/cancellation.js';
 import { isMember } from '../domain/policy/access.js';
 import { useText, useLocale } from './localeText.js';
+import AnimalAvatar from './AnimalAvatar.jsx';
 import { dateLocale } from '../domain/policy/locale.js';
 
 // 밥친구 — the tables you can ask to sit at.
@@ -673,11 +674,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                         {going.slice(0, 3).map(s => (
                           s.avatarUrl
                             ? <img key={s.id} className="avatar-stack__face" src={s.avatarUrl} alt="" />
-                            : (
-                              <span key={s.id} className="avatar-stack__face avatar-stack__face--initial" aria-hidden="true">
-                                {(s.name || '?').trim().charAt(0) || '?'}
-                              </span>
-                            )
+                            : <AnimalAvatar key={s.id} className="avatar-stack__face" seed={s.id ?? s.name} animal={s.avatarAnimal} size={22} />
                         ))}
                         {going.length > 3 && <span className="avatar-stack__more">+{going.length - 3}</span>}
                       </span>

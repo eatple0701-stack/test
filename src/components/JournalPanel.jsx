@@ -18,6 +18,7 @@ import SafetySheet from './SafetySheet';
 import { restrictionLabel, dietById } from '../data/profile';
 import { languageLine } from '../domain/catalog/languages.js';
 import { useText, useLocale } from './localeText.js';
+import AnimalAvatar from './AnimalAvatar.jsx';
 import { dateLocale } from '../domain/policy/locale.js';
 
 function formatStampDate(ts) {
@@ -526,9 +527,7 @@ export default function JournalPanel({
             {profile?.avatarUrl ? (
               <img className="account-avatar" src={profile.avatarUrl} alt="" />
             ) : (
-              <span className="account-avatar account-avatar--empty" aria-hidden="true">
-                {(profile?.name ?? '?').trim().charAt(0) || '?'}
-              </span>
+              <AnimalAvatar className="account-avatar" seed={profile?.userId} animal={profile?.avatarAnimal} size={44} />
             )}
             <div className="account-block__body">
               <span className="account-block__email">{auth.email || say('(no email on file)', '(등록된 이메일 없음)', '(sin correo registrado)', '(aucune adresse enregistrée)', '(لا بريد مسجَّل)', '（没有登记邮箱）', '（登録されたメールなし）')}</span>
@@ -821,15 +820,7 @@ export default function JournalPanel({
           <div className="companion-list">
             {metPeople.map(p => (
               <div key={p.key} className="companion-card">
-                {/* The initial was white on brass — 2.51:1, under the 3.0 a
-                    16px bold glyph needs. Brass is a fill, so the letter on
-                    top takes the dark field the rest of this palette pairs
-                    it with. The colour moves to CSS while it is being fixed:
-                    an inline style is invisible to a stylesheet audit, which
-                    is why this one survived two contrast sweeps. */}
-                <div className="companion-card__avatar">
-                  {p.name.slice(0, 1)}
-                </div>
+                <AnimalAvatar className="companion-card__avatar" seed={p.key} size={44} />
                 <div className="companion-card__body">
                   <span className="companion-card__name">{p.name}</span>
                   <span className="companion-card__meta">

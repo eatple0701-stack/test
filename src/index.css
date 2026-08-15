@@ -9963,6 +9963,23 @@ body {
   flex: 0 0 auto;
   max-width: 46vw;
 }
+/* ---------- The drawn face ----------
+
+   AnimalAvatar wears whichever avatar class its call site already had, so
+   the width, the border and the stack's overlap margin keep coming from the
+   rule that was tuned for them. This adds only what an <svg> needs that an
+   <img> did not, and takes away the one thing it must not keep: those rules
+   paint a background for the letter that used to sit on them, and a tint
+   behind a drawn disc shows as a rim wherever the two do not land on the
+   same pixel. Keyed on the element as well as the class so it outranks all
+   five without !important. */
+svg.animal-avatar {
+  display: block;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: transparent;
+}
+
 .app-chrome__avatar,
 .app-chrome__initial {
   width: 30px;
