@@ -63,5 +63,10 @@ export function downloadNotice(userAgent) {
   return {
     kr: `${app.kr}에서는 파일이 캘린더로 넘어가지 않을 수 있어요.`,
     en: `${app.en}'s built-in browser often previews the file instead of adding it. Use the Google Calendar button, or open this page in Safari or Chrome.`,
+    es: `El navegador integrado de ${app.en} suele mostrar el archivo en vez de añadirlo. Usa el botón de Google Calendar, o abre esta página en Safari o Chrome.`,
+    fr: `Le navigateur intégré de ${app.en} affiche souvent le fichier au lieu de l'ajouter. Utilisez le bouton Google Agenda, ou ouvrez cette page dans Safari ou Chrome.`,
+    ar: `متصفّح ${app.en} المدمج يعرض الملف غالبًا بدل إضافته. استخدم زرّ تقويم Google، أو افتح هذه الصفحة في Safari أو Chrome.`,
+    zh: `${app.en} 自带的浏览器常常只是预览文件，而不是把它加进日历。用 Google 日历那个按钮，或者在 Safari、Chrome 里打开这个页面。`,
+    ja: `${app.en} の内蔵ブラウザはファイルを追加せず表示するだけのことが多いです。Google カレンダーのボタンを使うか、この画面を Safari か Chrome で開いてください。`,
   };
 }

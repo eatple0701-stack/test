@@ -36,6 +36,7 @@ export const EDITORIAL = {
     questionFr: "Pourquoi un moine ne laisse-t-il rien dans son bol ?",
     questionAr: 'لماذا لا يترك الراهب شيئًا في قصعته؟',
     questionZh: '僧人为什么碗里一点都不剩？',
+    questionJa: '僧はなぜ器に何も残さないのでしょう？',
     word: '사찰음식',
   },
   'street-food': {
@@ -45,6 +46,7 @@ export const EDITORIAL = {
     questionFr: "Que mange une ville avant de bâtir des salles à manger ?",
     questionAr: 'ماذا تأكل مدينة قبل أن تبني قاعات طعام؟',
     questionZh: '一座城市在盖起饭厅之前吃什么？',
+    questionJa: '街は食堂を建てる前、何を食べていたのでしょう？',
     word: '시장',
   },
   'noodle-road': {
@@ -54,6 +56,7 @@ export const EDITORIAL = {
     questionFr: "Quel plat coréen n'est chinois que de nom ?",
     questionAr: 'أيّ طبق كوري ليس صينيًّا إلا في اسمه؟',
     questionZh: '哪道韩国菜只有名字是中国的？',
+    questionJa: '名前だけが中国の韓国料理とは何でしょう？',
     word: '짜장면',
   },
   'cafe-hopping': {
@@ -63,6 +66,7 @@ export const EDITORIAL = {
     questionFr: "Pourquoi personne ne vous demandera de partir après une seule tasse ?",
     questionAr: 'لماذا لن يطلب منك أحد أن ترحل بعد فنجان واحد؟',
     questionZh: '为什么只点一杯也没人请你走？',
+    questionJa: 'なぜ一杯だけでも誰も出ていけと言わないのでしょう？',
     word: '한 잔',
   },
   'seoul-after-dark': {
@@ -72,6 +76,7 @@ export const EDITORIAL = {
     questionFr: "Pourquoi la deuxième tournée est-elle une autre conversation ?",
     questionAr: 'لماذا تكون الجولة الثانية حديثًا آخر؟',
     questionZh: '为什么二次的谈话不一样？',
+    questionJa: 'なぜ二次の会話は別のものになるのでしょう？',
     word: '이차',
   },
   'busan-seafood': {
@@ -81,6 +86,7 @@ export const EDITORIAL = {
     questionFr: "Pourquoi enveloppe-t-on le poisson au lieu de le tremper ?",
     questionAr: 'لماذا يُلفّ السمك بدل أن يُغمس؟',
     questionZh: '生鱼片为什么是包着吃，不是蘸着吃？',
+    questionJa: 'なぜ刺身はつけずに包んで食べるのでしょう？',
     word: '자갈치',
   },
   'spring-picnic': {
@@ -90,6 +96,7 @@ export const EDITORIAL = {
     questionFr: "Que fait un pays de deux semaines de cerisiers en fleur ?",
     questionAr: 'ماذا يفعل بلد بأسبوعين من أزهار الكرز؟',
     questionZh: '一个国家拿两周的樱花做什么？',
+    questionJa: '国は二週間の桜で何をするのでしょう？',
     word: '벚꽃',
   },
 };

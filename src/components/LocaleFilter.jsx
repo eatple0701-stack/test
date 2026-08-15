@@ -91,8 +91,9 @@ function reduceTextNodes(root, locale) {
     // would join them.
     const meaningful = group.filter(n => String(n[ORIGINAL] ?? '').trim() !== '');
 
-    // A node whose own text holds the separator is a whole pair by itself,
-    // whatever else sits beside it, and is reduced on its own terms.
+    // A node whose own text holds the separator *with a half on either side*
+    // is a whole pair by itself, whatever else sits beside it, and is reduced
+    // on its own terms.
     //
     // This used to be "the group has exactly one node", which is a different
     // claim and a wrong one: JSX puts a second text node beside a label
@@ -102,7 +103,18 @@ function reduceTextNodes(root, locale) {
     // pair, which it fails, so an English screen either kept both halves or,
     // once the whitespace was excused, kept the arrow and lost the label.
     // Both were live on the front page.
-    const whole = meaningful.filter(n => String(n[ORIGINAL] ?? '').includes(' · '));
+    //
+    // Testing for the separator alone was wrong in the opposite direction,
+    // and shipped: `{link.kr} · {link.en}` renders the separator as its own
+    // text node, " · " contains ' · ', so the group was declared a whole pair
+    // and *nothing* was reduced — 네이버 지도 · Naver Map, both halves, on
+    // every single-language screen. What makes a node a pair is having a
+    // half on each side of the separator, which is what localeText splits on.
+    const holdsBothHalves = (t) => {
+      const at = t.indexOf(' · ');
+      return at > 0 && t.slice(at + 3).trim() !== '';
+    };
+    const whole = meaningful.filter(n => holdsBothHalves(String(n[ORIGINAL] ?? '')));
     if (whole.length > 0) {
       for (const n of whole) {
         const next = localeText(n[ORIGINAL], locale);

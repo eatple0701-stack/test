@@ -29,14 +29,14 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
   const editorial = editorialFor(theme.id);
 
   return (
-    <section className="cover" aria-label={say("Editor's pick", '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction', 'اختيار المحرّر', '编辑推荐')}>
+    <section className="cover" aria-label={say("Editor's pick", '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction', 'اختيار المحرّر', '编辑推荐', '編集部の一皿')}>
       {editorial && (
         <span className="cover__word" aria-hidden="true">{editorial.word}</span>
       )}
 
       <div className="cover__masthead">
         <span className="cover__label" translate="no">
-          {say('오늘의 추천 · Editor\u2019s pick', '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction', 'اختيار المحرّر', '编辑推荐')}
+          {say('오늘의 추천 · Editor\u2019s pick', '오늘의 추천', 'La elección del editor', 'Le choix de la rédaction', 'اختيار المحرّر', '编辑推荐', '編集部の一皿')}
         </span>
         {/* The date follows the setting too. "Tuesday, 11 August" on an
             otherwise Korean cover is the one line that gives away that this
@@ -48,27 +48,27 @@ export default function ExploreCover({ theme, reason, progress, onOpen, at = new
 
       <h1 className="cover__question">
         {editorial
-          ? say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr, editorial.questionAr, editorial.questionZh)
-          : say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr, theme.taglineAr, theme.taglineZh)}
+          ? say(editorial.question, editorial.questionKo, editorial.questionEs, editorial.questionFr, editorial.questionAr, editorial.questionZh, editorial.questionJa)
+          : say(theme.tagline, theme.taglineKo, theme.taglineEs, theme.taglineFr, theme.taglineAr, theme.taglineZh, theme.taglineJa)}
       </h1>
 
       {/* Just the name. A tagline sat here through the first build, between
           the question and the reason, and it read as a third voice competing
           with two better ones — the question is the hook and the note is the
           judgement. Neither needs a subtitle explaining it. */}
-      <p className="cover__theme">{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr, theme.titleZh)}</p>
+      <p className="cover__theme">{say(theme.title, theme.titleKo, theme.titleEs, theme.titleFr, theme.titleAr, theme.titleZh, theme.titleJa)}</p>
 
       {reason && (
         <div className="cover__note">
-          <span className="cover__note-label">{say('Why this, today', '오늘 이걸 고른 이유', 'Por qué esto, hoy', "Pourquoi ceci, aujourd'hui", 'لماذا هذا، اليوم', '今天为什么是这个')}</span>
+          <span className="cover__note-label">{say('Why this, today', '오늘 이걸 고른 이유', 'Por qué esto, hoy', "Pourquoi ceci, aujourd'hui", 'لماذا هذا، اليوم', '今天为什么是这个', '今日これを選んだ理由')}</span>
           <p className="cover__note-body">{reason}</p>
         </div>
       )}
 
       <button className="cover__cta" onClick={() => onOpen(theme.id)}>
         {progress?.done > 0
-          ? say('이어서 보기 · Pick it back up', '이어서 보기', 'Retomarlo', 'Reprendre', 'استئناف', '接着看')
-          : say('들어가기 · Enter this culture', '들어가기', 'Entrar en esta cultura', 'Entrer dans cette culture', 'ادخل هذه الثقافة', '进入这个文化')}
+          ? say('이어서 보기 · Pick it back up', '이어서 보기', 'Retomarlo', 'Reprendre', 'استئناف', '接着看', '続きから')
+          : say('들어가기 · Enter this culture', '들어가기', 'Entrar en esta cultura', 'Entrer dans cette culture', 'ادخل هذه الثقافة', '进入这个文化', 'この文化に入る')}
         <ChevronRightIcon size={16} />
       </button>
     </section>

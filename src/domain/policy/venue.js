@@ -51,30 +51,38 @@ export function venueKind(category) {
 // phrase on every table card.
 const MEET_COPY = {
   [VENUE_KIND.MEAL]: {
-    title: '여기서 상 차리기',
+    title: '여기서 상 차리기 · Open a table here',
+    titleKo: '여기서 상 차리기',
+    titleEn: 'Open a table here',
     titleEs: 'Abrir una mesa aquí',
     titleFr: 'Ouvrir une table ici',
     titleAr: 'افتح مائدة هنا',
     titleZh: '在这里开一张饭桌',
+    titleJa: 'ここで食卓を開く',
     sub: (name) => `Open a table at ${name} and see who wants to come.`,
     subKo: (name) => `${name}에서 상을 차리고 누가 오고 싶어 하는지 보세요.`,
     subEs: (name) => `Abre una mesa en ${name} y mira quién quiere venir.`,
     subFr: (name) => `Ouvrez une table à ${name} et voyez qui veut venir.`,
     subAr: (name) => `افتح مائدة في ${name} وانظر من يريد أن يأتي.`,
     subZh: (name) => `在${name}开一张饭桌，看看谁想来。`,
+    subJa: (name) => `${name}で食卓を開いて、誰が来たがるか見てみましょう。`,
   },
   [VENUE_KIND.OUTING]: {
-    title: '여기서 같이 갈 사람 찾기',
+    title: '여기서 같이 갈 사람 찾기 · Find someone to go with',
+    titleKo: '여기서 같이 갈 사람 찾기',
+    titleEn: 'Find someone to go with',
     titleEs: 'Busca con quién ir',
     titleFr: 'Trouver avec qui y aller',
     titleAr: 'ابحث عمّن تذهب معه',
     titleZh: '找个人一起去',
+    titleJa: '一緒に行く人を見つける',
     sub: (name) => `Find someone to go to ${name} with — same idea as a table, no meal to share.`,
     subKo: (name) => `${name}에 같이 갈 사람을 찾아보세요 — 밥상과 같은 방식이고, 나눠 먹을 음식만 없습니다.`,
     subEs: (name) => `Encuentra con quién ir a ${name} — la misma idea que una mesa, sin comida que compartir.`,
     subFr: (name) => `Trouvez quelqu'un avec qui aller à ${name} — la même idée qu'une table, sans repas à partager.`,
     subAr: (name) => `ابحث عمّن تذهب معه إلى ${name} — الفكرة نفسها كالمائدة، بلا طعام يُشارَك.`,
     subZh: (name) => `找个人一起去${name}——和饭桌是同一个意思，只是没有要分着吃的饭。`,
+    subJa: (name) => `${name}へ一緒に行く人を探しましょう——食卓と同じ考え方で、分け合う食事がないだけです。`,
   },
 };
 
@@ -89,17 +97,21 @@ export function tableCtaFor(restaurant, locale = 'both') {
   const kind = venueKind(restaurant?.category);
   const copy = MEET_COPY[kind];
   const name = String(restaurant?.name ?? '').split('(')[0].trim() || 'this place';
-  const title = locale === 'es' ? copy.titleEs
-    : locale === 'fr' ? copy.titleFr
-      : locale === 'ar' ? copy.titleAr
-        : locale === 'zh' ? copy.titleZh
-          : copy.title;
+  const title = locale === 'ko' ? copy.titleKo
+    : locale === 'en' ? copy.titleEn
+      : locale === 'es' ? copy.titleEs
+        : locale === 'fr' ? copy.titleFr
+          : locale === 'ar' ? copy.titleAr
+            : locale === 'zh' ? copy.titleZh
+              : locale === 'ja' ? copy.titleJa
+                : copy.title;
   const sub = locale === 'ko' ? copy.subKo(name)
     : locale === 'es' ? copy.subEs(name)
       : locale === 'fr' ? copy.subFr(name)
         : locale === 'ar' ? copy.subAr(name)
           : locale === 'zh' ? copy.subZh(name)
-            : copy.sub(name);
+            : locale === 'ja' ? copy.subJa(name)
+              : copy.sub(name);
   return { kind, title, sub };
 }
 
@@ -187,6 +199,7 @@ export function transitLine(restaurant) {
   const frLine = lineNo ? `, ligne ${lineNo}` : enLine;
   const arLine = lineNo ? `، الخط ${lineNo}` : enLine;
   const zhLine = lineNo ? `，${lineNo}号线` : enLine;
+  const jaLine = lineNo ? `、${lineNo}号線` : enLine;
   const mins = Number.isFinite(t?.walkingMinutes) ? t.walkingMinutes : null;
 
   return {
@@ -215,6 +228,9 @@ export function transitLine(restaurant) {
     zh: mins !== null
       ? `从${station}站步行 ${mins} 分钟${zhLine}`
       : `${station}站附近${zhLine}`,
+    ja: mins !== null
+      ? `${station}駅から徒歩${mins}分${jaLine}`
+      : `${station}駅の近く${jaLine}`,
   };
 }
 
@@ -297,4 +313,5 @@ export const MAP_LINKS_NOTE = {
   fr: "Les avis et les photos vivent dans les applications de cartes, tenus à jour par ceux qui les gèrent. Eatple ne les recopie pas ici.",
   ar: 'المراجعات والصور تعيش في تطبيقات الخرائط، ويحدّثها من يديرونها. ولا ينسخها Eatple هنا.',
   zh: '评价和照片在地图应用里，由经营它们的人保持更新。Eatple 不把它们抄到这儿。',
+  ja: 'レビューと写真は地図アプリのなかにあり、運営している人たちが最新に保っています。Eatple はそれをここに写しません。',
 };

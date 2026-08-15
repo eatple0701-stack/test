@@ -49,6 +49,7 @@ export const NOTICES = [
     fr: "C'est un pilote, il y a donc encore peu de tables — et en ouvrir une vous-même est le moyen le plus rapide d'avoir une table cette semaine.",
     ar: 'هذه تجربة أولى، فالموائد ما زالت قليلة — وأن تفتح واحدة بنفسك أسرع طريق إلى مائدة هذا الأسبوع.',
     zh: '这还是试运行，所以饭桌还不多——而自己开一张，是这周吃上饭最快的办法。',
+    ja: 'これはパイロット運用なので食卓はまだ多くありません。自分で一つ開くのが、今週食卓につく最短の道です。',
     until: '2026-09-01',
   },
 ];

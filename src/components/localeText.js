@@ -29,7 +29,7 @@ export const LocaleContext = createContext(DEFAULT_LOCALE);
 export const useLocale = () => useContext(LocaleContext);
 
 /**
- * say(en, ko, es, fr, ar, zh) — the text in whichever language was asked for.
+ * say(en, ko, es, fr, ar, zh, ja) — the text in whichever language was asked for.
  *
  * English is both the first argument and the fallback, which is deliberate on
  * two counts. `both` is the screen the team has reviewed, and this app's
@@ -52,12 +52,13 @@ export function useText() {
   // every one of the 423 call sites already reads left to right in the order
   // the languages arrived. An object would be tidier and would mean editing
   // all of them to gain nothing a reader of one line can see.
-  return useMemo(() => (en, ko, es, fr, ar, zh) => {
+  return useMemo(() => (en, ko, es, fr, ar, zh, ja) => {
     if (locale === LOCALE.KO && ko) return ko;
     if (locale === LOCALE.ES && es) return es;
     if (locale === LOCALE.FR && fr) return fr;
     if (locale === LOCALE.AR && ar) return ar;
     if (locale === LOCALE.ZH && zh) return zh;
+    if (locale === LOCALE.JA && ja) return ja;
     return en;
   }, [locale]);
 }

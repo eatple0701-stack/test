@@ -238,7 +238,15 @@ export function requestState(signup, table, now = new Date()) {
  * meal already past, a cancelled evening, or a deadline further out than a
  * day, where a countdown would be noise rather than information.
  *
- * @returns {{ hours: number, kr: string, en: string, urgent: boolean } | null}
+ * Two sentences come back, not one. `kr` is the short form a card has room
+ * for; `en` is the long form the detail page prints under it, which names the
+ * consequence. They are not translations of each other, so each has its own
+ * set of languages — `short` and `full`, both keyed the way useText() reads.
+ * The card printed `kr` alone in every setting until 2026-08-15, which is a
+ * Korean sentence on a Japanese screen.
+ *
+ * @returns {{ hours: number, kr: string, en: string, urgent: boolean,
+ *   short: Record<string, string>, full: Record<string, string> } | null}
  */
 export function askDeadline(table, now = new Date()) {
   if (!table || isCancelled(table)) return null;
@@ -256,16 +264,40 @@ export function askDeadline(table, now = new Date()) {
   // card is exactly the manufactured pressure this file refuses.
   if (hours >= 24) return null;
 
-  const left = hours >= 1 ? `${hours}시간` : `${minutes}분`;
-  const leftEn = hours >= 1
+  const byHour = hours >= 1;
+  const left = byHour ? `${hours}시간` : `${minutes}분`;
+  const leftEn = byHour
     ? `${hours} hour${hours === 1 ? '' : 's'}`
     : `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  const leftEs = byHour ? `${hours} hora${hours === 1 ? '' : 's'}` : `${minutes} minuto${minutes === 1 ? '' : 's'}`;
+  const leftFr = byHour ? `${hours} heure${hours === 1 ? '' : 's'}` : `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  const leftAr = byHour ? `${hours} ساعة` : `${minutes} دقيقة`;
+  const leftZh = byHour ? `${hours} 小时` : `${minutes} 分钟`;
+  const leftJa = byHour ? `${hours}時間` : `${minutes}分`;
 
   return {
     hours,
     minutes,
     kr: `자리 요청 마감까지 ${left}`,
     en: `${leftEn} left to ask — after that the host cannot answer and the seat reopens`,
+    short: {
+      kr: `자리 요청 마감까지 ${left}`,
+      en: `${leftEn} left to ask`,
+      es: `Quedan ${leftEs} para pedir sitio`,
+      fr: `Encore ${leftFr} pour demander une place`,
+      ar: `بقي ${leftAr} لطلب مقعد`,
+      zh: `还有${leftZh}可以申请座位`,
+      ja: `席の申し込みまであと${leftJa}`,
+    },
+    full: {
+      kr: `${left} 뒤에는 호스트가 답할 수 없고 자리가 다시 열립니다`,
+      en: `${leftEn} left to ask — after that the host cannot answer and the seat reopens`,
+      es: `Quedan ${leftEs} para pedir — después el anfitrión ya no puede responder y la plaza se libera`,
+      fr: `Encore ${leftFr} pour demander — ensuite l'hôte ne peut plus répondre et la place se rouvre`,
+      ar: `بقي ${leftAr} للطلب — بعدها لا يستطيع المضيف الردّ ويعود المقعد متاحًا`,
+      zh: `还有${leftZh}可以申请——过后主人无法答复，座位会重新开放`,
+      ja: `申し込めるのはあと${leftJa}です——それを過ぎるとホストは答えられず、席はまた空きます`,
+    },
     // Under three hours the wording earns emphasis; above it, a plain line.
     urgent: hours < 3,
   };

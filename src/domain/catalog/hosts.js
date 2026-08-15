@@ -152,6 +152,11 @@ export const TABLE_KIND_LABEL = {
   [TABLE_KIND.HOSTED]: {
     kr: '호스트 테이블',
     en: 'Hosted table',
+    es: 'Mesa con anfitrión',
+    fr: 'Table avec hôte',
+    ar: 'مائدة بمضيف',
+    zh: '有主人的饭桌',
+    ja: 'ホストのいる食卓',
     blurb: 'The host walks the table through it.',
     // The professor's review, answered in one sentence where a guest is
     // actually deciding whether to choose this table over a 테이블 메이트
@@ -164,6 +169,11 @@ export const TABLE_KIND_LABEL = {
   [TABLE_KIND.MATES]: {
     kr: '테이블 메이트',
     en: 'Table mates',
+    es: 'Compañeros de mesa',
+    fr: 'Compagnons de table',
+    ar: 'رفاق مائدة',
+    zh: '同桌的人',
+    ja: 'テーブルメイト',
     blurb: 'Everyone works it out together.',
   },
 };

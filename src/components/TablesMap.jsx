@@ -109,24 +109,30 @@ export default function TablesMap({
             not make the licence go away. */}
         <span className="tables-map-preview__credit">© OpenStreetMap</span>
         <span className="tables-map-preview__cta" translate="no">
-          {say('지도로 보기 · See these on a map', '지도로 보기', 'Verlas en el mapa', 'Les voir sur la carte', 'انظرها على الخريطة', '在地图上看')}
+          {say('지도로 보기 · See these on a map', '지도로 보기', 'Verlas en el mapa', 'Les voir sur la carte', 'انظرها على الخريطة', '在地图上看', '地図で見る')}
         </span>
       </button>
     );
   }
 
   return (
-    <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label={say('Tables on the map', '지도 위의 밥상', 'Mesas en el mapa', 'Les tables sur la carte', 'الموائد على الخريطة', '地图上的饭桌')}>
+    <div className="map-overlay tables-map" role="dialog" aria-modal="true" aria-label={say('Tables on the map', '지도 위의 밥상', 'Mesas en el mapa', 'Les tables sur la carte', 'الموائد على الخريطة', '地图上的饭桌', '地図上の食卓')}>
       <header className="map-overlay__bar">
         <div className="map-overlay__heading">
-          <h2>{say('밥상 지도 · Tables near you', '밥상 지도', 'Mesas cerca de ti', 'Les tables près de vous', 'الموائد القريبة منك', '你附近的饭桌')}</h2>
+          <h2>{say('밥상 지도 · Tables near you', '밥상 지도', 'Mesas cerca de ti', 'Les tables près de vous', 'الموائد القريبة منك', '你附近的饭桌', '近くの食卓')}</h2>
           <p>
             {placed.length > 0
-              ? `${placed.length} table${placed.length === 1 ? '' : 's'} placed by their host`
-              : 'No host has dropped a pin yet'}
+              ? say(`${placed.length} table${placed.length === 1 ? '' : 's'} placed by their host`,
+                `호스트가 위치를 찍은 밥상 ${placed.length}개`,
+                `${placed.length} mesa${placed.length === 1 ? '' : 's'} situada${placed.length === 1 ? '' : 's'} por su anfitrión`,
+                `${placed.length} table${placed.length === 1 ? '' : 's'} placée${placed.length === 1 ? '' : 's'} par son hôte`,
+                `${placed.length} موائد حدّد مضيفوها مكانها`,
+                `有 ${placed.length} 张饭桌由主人标了位置`,
+                `ホストが場所を置いた食卓が${placed.length}件`)
+              : say('No host has dropped a pin yet', '아직 위치를 찍은 호스트가 없어요', 'Ningún anfitrión ha puesto un pin todavía', "Aucun hôte n'a encore posé de repère", 'لم يضع أيّ مضيف علامة بعد', '还没有主人标位置', 'まだ誰も場所を置いていません')}
           </p>
         </div>
-        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte', 'أغلق الخريطة', '关闭地图')} onClick={onClose}>
+        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte', 'أغلق الخريطة', '关闭地图', '地図を閉じる')} onClick={onClose}>
           <XIcon size={18} />
         </button>
       </header>
@@ -152,7 +158,7 @@ export default function TablesMap({
                     that navigates immediately gives no chance to check the
                     date first. */}
                 <Popup>
-                  <strong>{menu?.name ?? 'Table'}</strong><br />
+                  <strong>{menu?.name ?? say('Table', '밥상', 'Mesa', 'Table', 'مائدة', '饭桌', '食卓')}</strong><br />
                   {t.date} {t.time}<br />
                   {t.place}
                 </Popup>

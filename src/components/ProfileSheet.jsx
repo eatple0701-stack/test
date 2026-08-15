@@ -30,15 +30,22 @@ export default function ProfileSheet({ profile, onSave, onClose }) {
   };
 
   return (
-    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Edit profile', '프로필 수정', 'Editar perfil', 'Modifier le profil', 'تعديل الملف', '编辑资料')}>
+    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Edit profile', '프로필 수정', 'Editar perfil', 'Modifier le profil', 'تعديل الملف', '编辑资料', 'プロフィールを編集')}>
       <div className="auth-sheet profile-sheet">
         <button className="auth-close" onClick={onClose} aria-label="Close">
           <XIcon size={18} />
         </button>
 
-        <h2 className="auth-title">프로필 설정</h2>
+        <h2 className="auth-title">{say('Profile', '프로필 설정', 'Perfil', 'Profil', 'الملف الشخصي', '个人资料', 'プロフィール設定')}</h2>
         <p className="auth-note profile-sheet__note">
-          이 값들은 밥상에서 상대가 보게 되는 정보입니다. 저장을 눌러야 반영됩니다.
+          {say(
+            'These are what the people at a table see about you. Nothing changes until you press Save.',
+            '이 값들은 밥상에서 상대가 보게 되는 정보입니다. 저장을 눌러야 반영됩니다.',
+            'Esto es lo que ven de ti quienes están en una mesa. No cambia nada hasta que pulses Guardar.',
+            "C'est ce que les gens à une table voient de vous. Rien ne change tant que vous n'avez pas appuyé sur Enregistrer.",
+            'هذا ما يراه عنك من يجلسون إلى المائدة. لا يتغيّر شيء حتى تضغط حفظ.',
+            '这些是同桌的人会看到的关于你的信息。你按了保存才会生效。',
+            'これは食卓にいる人があなたについて見る内容です。保存を押すまで何も変わりません。')}
         </p>
 
         {/* The same fields the signup step uses, pointed at a draft instead of
@@ -48,10 +55,12 @@ export default function ProfileSheet({ profile, onSave, onClose }) {
 
         <div className="profile-sheet__foot">
           <button className="auth-switch" onClick={onClose} disabled={saving}>
-            {say('취소 · Cancel', '취소', 'Cancelar', 'Annuler', 'إلغاء', '取消')}
+            {say('취소 · Cancel', '취소', 'Cancelar', 'Annuler', 'إلغاء', '取消', 'キャンセル')}
           </button>
           <button className="auth-primary" onClick={save} disabled={saving} translate="no">
-            {saving ? '저장 중…' : '저장하기 · Save'}
+            {saving
+              ? say('Saving…', '저장 중…', 'Guardando…', 'Enregistrement…', 'جارٍ الحفظ…', '正在保存…', '保存しています…')
+              : say('Save', '저장하기', 'Guardar', 'Enregistrer', 'احفظ', '保存', '保存する')}
           </button>
         </div>
       </div>

@@ -204,19 +204,19 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
       <p className="auth-error__en">{error.en}</p>
       {error.action === AUTH_ACTION.SIGNIN && (
         <button className="auth-error__go" onClick={() => { setMode('signin'); setError(null); }}>
-          {say('로그인하기 · Go to sign in', '로그인하기', 'Ir a iniciar sesión', 'Aller à la connexion', 'الذهاب إلى تسجيل الدخول', '去登录')}
+          {say('로그인하기 · Go to sign in', '로그인하기', 'Ir a iniciar sesión', 'Aller à la connexion', 'الذهاب إلى تسجيل الدخول', '去登录', 'ログインへ')}
         </button>
       )}
       {error.action === AUTH_ACTION.SIGNUP && (
         <button className="auth-error__go" onClick={() => { setMode('signup'); setError(null); }}>
-          {say('회원가입하기 · Create an account', '회원가입하기', 'Crear una cuenta', 'Créer un compte', 'إنشاء حساب', '创建账号')}
+          {say('회원가입하기 · Create an account', '회원가입하기', 'Crear una cuenta', 'Créer un compte', 'إنشاء حساب', '创建账号', 'アカウントをつくる')}
         </button>
       )}
     </div>
   );
 
   return (
-    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Sign in', '로그인', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录')}>
+    <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label={say('Sign in', '로그인', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录', 'ログイン')}>
       <div className="auth-sheet">
         <button className="auth-close" onClick={onClose} aria-label="Close">
           <XIcon size={18} />
@@ -227,7 +227,7 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             only way out of a form somebody opened by mistake is closing the
             whole modal and starting again. */}
         {(mode === 'signup-email') && (
-          <button className="auth-back" onClick={() => { setMode('signup'); setError(null); }} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع', '返回')}>
+          <button className="auth-back" onClick={() => { setMode('signup'); setError(null); }} aria-label={say('Back', '뒤로', 'Atrás', 'Retour', 'رجوع', '返回', '戻る')}>
             <ChevronLeftIcon size={20} />
           </button>
         )}
@@ -247,26 +247,26 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
               <span className="auth-title__kr">{gate ? gate.titleKr : '회원가입'}</span>
               <span className="auth-title__en">
                 {gate
-                  ? say(gate.titleEn, null, gate.titleEs, gate.titleFr, gate.titleAr, gate.titleZh)
-                  : say('Join Eatple', null, 'Únete a Eatple', 'Rejoindre Eatple', 'انضمّ إلى Eatple', '加入 Eatple')}
+                  ? say(gate.titleEn, null, gate.titleEs, gate.titleFr, gate.titleAr, gate.titleZh, gate.titleJa)
+                  : say('Join Eatple', null, 'Únete a Eatple', 'Rejoindre Eatple', 'انضمّ إلى Eatple', '加入 Eatple', 'Eatple に参加')}
               </span>
             </h2>
-            {gate && <p className="auth-gate__body">{say(gate.body, gate.bodyKo, gate.bodyEs, gate.bodyFr, gate.bodyAr, gate.bodyZh)}</p>}
+            {gate && <p className="auth-gate__body">{say(gate.body, gate.bodyKo, gate.bodyEs, gate.bodyFr, gate.bodyAr, gate.bodyZh, gate.bodyJa)}</p>}
             <button className="auth-google" onClick={google} translate="no">
-              {say('Google로 계속 · Continue with Google', 'Google로 계속', 'Continuar con Google', 'Continuer avec Google', 'المتابعة بحساب Google', '用 Google 继续')}
+              {say('Google로 계속 · Continue with Google', 'Google로 계속', 'Continuar con Google', 'Continuer avec Google', 'المتابعة بحساب Google', '用 Google 继续', 'Google で続ける')}
             </button>
-            <p className="auth-or"><span>{say('또는 · or', '또는', 'o', 'ou', 'أو', '或')}</span></p>
+            <p className="auth-or"><span>{say('또는 · or', '또는', 'o', 'ou', 'أو', '或', 'または')}</span></p>
             {/* The email path is a step, not a wall of fields. Five inputs
                 on arrival is what the 8/4 review called 존나 불편 — and it is
                 also what Meetup avoids by putting one line here instead. */}
             <button className="auth-email-link" onClick={() => setMode('signup-email')} translate="no">
-              {say('이메일로 가입 · Sign up with email', '이메일로 가입', 'Registrarse con correo', "S'inscrire par e-mail", 'التسجيل بالبريد', '用邮箱注册')}
+              {say('이메일로 가입 · Sign up with email', '이메일로 가입', 'Registrarse con correo', "S'inscrire par e-mail", 'التسجيل بالبريد', '用邮箱注册', 'メールで登録')}
             </button>
             {errorLine}
             <p className="auth-foot">
-              <span className="auth-foot__ask">{say('이미 계정이 있으신가요? · Already have an account?', '이미 계정이 있으신가요?', '¿Ya tienes cuenta?', 'Vous avez déjà un compte ?', 'ألديك حساب بالفعل؟', '已经有账号了？')}</span>
+              <span className="auth-foot__ask">{say('이미 계정이 있으신가요? · Already have an account?', '이미 계정이 있으신가요?', '¿Ya tienes cuenta?', 'Vous avez déjà un compte ?', 'ألديك حساب بالفعل؟', '已经有账号了？', 'すでにアカウントをお持ちですか？')}</span>
               <button className="auth-foot__link" onClick={() => { setMode('signin'); setError(null); }}>
-                {say('로그인 · Sign in', '로그인', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录')}
+                {say('로그인 · Sign in', '로그인', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录', 'ログイン')}
               </button>
             </p>
           </div>
@@ -276,37 +276,39 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <div className="auth-form">
             <h2 className="auth-title">
               <span className="auth-title__kr">가입을 완료해 주세요</span>
-              <span className="auth-title__en">{say('Finish signing up', null, 'Termina el registro', "Terminer l'inscription", 'أكمل التسجيل', '完成注册')}</span>
+              <span className="auth-title__en">{say('Finish signing up', null, 'Termina el registro', "Terminer l'inscription", 'أكمل التسجيل', '完成注册', '登録を完了する')}</span>
             </h2>
 
             <Field id="email" bad={bad} problems={problems} markRef={markRef}
-              label={say('이메일 · Email — this is your login ID', '이메일 — 로그인 ID입니다', 'Correo — es tu identificador', "E-mail — c'est votre identifiant", 'البريد الإلكتروني — وهو معرّف دخولك', '邮箱 — 这就是你的登录名')}>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={say('you@example.com', 'you@example.com', 'tu@ejemplo.com', 'vous@exemple.com', 'you@example.com', 'you@example.com')} autoComplete="email" />
+              label={say('이메일 · Email — this is your login ID', '이메일 — 로그인 ID입니다', 'Correo — es tu identificador', "E-mail — c'est votre identifiant", 'البريد الإلكتروني — وهو معرّف دخولك', '邮箱 — 这就是你的登录名', 'メール — これがログイン ID です')}>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={say('you@example.com', 'you@example.com', 'tu@ejemplo.com', 'vous@exemple.com', 'you@example.com', 'you@example.com', 'you@example.com')} autoComplete="email" />
             </Field>
             <Field id="password" bad={bad} problems={problems} markRef={markRef}
-              label={say('비밀번호 · Password', '비밀번호', 'Contraseña', 'Mot de passe', 'كلمة المرور', '密码')}>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={say('8+ characters', '8자 이상', '8 caracteres o más', '8 caractères ou plus', '8 أحرف فأكثر', '8 个字符以上')} autoComplete="new-password" />
+              label={say('비밀번호 · Password', '비밀번호', 'Contraseña', 'Mot de passe', 'كلمة المرور', '密码', 'パスワード')}>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={say('8+ characters', '8자 이상', '8 caracteres o más', '8 caractères ou plus', '8 أحرف فأكثر', '8 个字符以上', '8文字以上')} autoComplete="new-password" />
             </Field>
             <Field id="name" bad={bad} problems={problems} markRef={markRef}
-              label={say('이름 · Name — what a table calls you', '이름 — 밥상에서 불릴 이름', 'Nombre — cómo te llamará una mesa', 'Nom — comment une table vous appellera', 'الاسم — ما تناديك به المائدة', '名字 — 饭桌上怎么称呼你')}>
+              label={say('이름 · Name — what a table calls you', '이름 — 밥상에서 불릴 이름', 'Nombre — cómo te llamará una mesa', 'Nom — comment une table vous appellera', 'الاسم — ما تناديك به المائدة', '名字 — 饭桌上怎么称呼你', '名前 — 食卓であなたを呼ぶ名')}>
               <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Aya" autoComplete="name" />
             </Field>
             <Field id="phone" bad={bad} problems={problems} markRef={markRef}
-              label={say('전화번호 · Phone', '전화번호', 'Teléfono', 'Téléphone', 'رقم الهاتف', '手机号')}>
+              label={say('전화번호 · Phone', '전화번호', 'Teléfono', 'Téléphone', 'رقم الهاتف', '手机号', '電話番号')}>
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+82 10-0000-0000" autoComplete="tel" />
             </Field>
             <Field id="birthdate" bad={bad} problems={problems} markRef={markRef}
-              label={say('생년월일 · Date of birth', '생년월일', 'Fecha de nacimiento', 'Date de naissance', 'تاريخ الميلاد', '出生日期')}>
+              label={say('생년월일 · Date of birth', '생년월일', 'Fecha de nacimiento', 'Date de naissance', 'تاريخ الميلاد', '出生日期', '生年月日')}>
               <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} />
             </Field>
             <p className="auth-note">
               {say('No code is sent to your email or phone — they are contact details for the team running the pilot, seen by nobody else at any table. Type them carefully; nothing checks them for you.',
                 '이메일이나 전화로 인증 코드를 보내지 않습니다 — 파일럿을 운영하는 팀의 연락처일 뿐이고, 어느 밥상에서도 다른 사람에게 보이지 않습니다. 확인해 주는 장치가 없으니 정확히 입력해 주세요.',
-                'No se envía ningún código a tu correo ni a tu teléfono: son datos de contacto para el equipo que lleva el piloto, y nadie más los ve en ninguna mesa. Escríbelos con cuidado; nada los comprueba por ti.', "Aucun code n'est envoyé à votre e-mail ni à votre téléphone : ce sont des coordonnées pour l'équipe qui mène le pilote, que personne d'autre ne voit à aucune table. Saisissez-les avec soin ; rien ne les vérifie pour vous.", 'لا يُرسَل أي رمز إلى بريدك أو هاتفك — هما وسيلتا تواصل للفريق الذي يدير التجربة، ولا يراهما أحد على أي مائدة. اكتبهما بعناية؛ فلا شيء يتحقّق منهما نيابةً عنك.', '不会有验证码发到你的邮箱或手机——它们是给做这次试运行的团队用的联系方式，任何一张饭桌上都没有别人看得到。请仔细填；没有任何东西会替你核对。')}
+                'No se envía ningún código a tu correo ni a tu teléfono: son datos de contacto para el equipo que lleva el piloto, y nadie más los ve en ninguna mesa. Escríbelos con cuidado; nada los comprueba por ti.', "Aucun code n'est envoyé à votre e-mail ni à votre téléphone : ce sont des coordonnées pour l'équipe qui mène le pilote, que personne d'autre ne voit à aucune table. Saisissez-les avec soin ; rien ne les vérifie pour vous.", 'لا يُرسَل أي رمز إلى بريدك أو هاتفك — هما وسيلتا تواصل للفريق الذي يدير التجربة، ولا يراهما أحد على أي مائدة. اكتبهما بعناية؛ فلا شيء يتحقّق منهما نيابةً عنك.', '不会有验证码发到你的邮箱或手机——它们是给做这次试运行的团队用的联系方式，任何一张饭桌上都没有别人看得到。请仔细填；没有任何东西会替你核对。', 'メールにも電話にも認証コードは送りません。これはパイロットを運営するチームのための連絡先で、どの食卓でもほかの誰にも見えません。何も照合しないので、注意して入力してください。')}
             </p>
             {errorLine}
             <button className="auth-primary" onClick={submitSignup} disabled={busy} translate="no">
-              {busy ? 'Joining…' : '가입 · Join'}
+              {busy
+                ? say('Joining…', '가입하는 중…', 'Creando cuenta…', 'Inscription…', 'جارٍ الانضمام…', '正在注册…', '登録しています…')
+                : say('Join', '가입', 'Crear cuenta', "S'inscrire", 'انضمّ', '注册', '登録する')}
             </button>
           </div>
         )}
@@ -320,28 +322,30 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
           <div className="auth-form">
             <h2 className="auth-title">
               <span className="auth-title__kr">로그인</span>
-              <span className="auth-title__en">{say('Sign in', null, 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录')}</span>
+              <span className="auth-title__en">{say('Sign in', null, 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录', 'ログイン')}</span>
             </h2>
             <button className="auth-google" onClick={google} translate="no">
-              {say('Google로 계속 · Continue with Google', 'Google로 계속', 'Continuar con Google', 'Continuer avec Google', 'المتابعة بحساب Google', '用 Google 继续')}
+              {say('Google로 계속 · Continue with Google', 'Google로 계속', 'Continuar con Google', 'Continuer avec Google', 'المتابعة بحساب Google', '用 Google 继续', 'Google で続ける')}
             </button>
-            <p className="auth-or"><span>{say('또는 · or', '또는', 'o', 'ou', 'أو', '或')}</span></p>
+            <p className="auth-or"><span>{say('또는 · or', '또는', 'o', 'ou', 'أو', '或', 'または')}</span></p>
             <Field id="email" bad={signinBad} problems={validateSignin({ email, password })}
-              label={say('이메일 · Email', '이메일', 'Correo', 'E-mail', 'البريد الإلكتروني', '邮箱')}>
+              label={say('이메일 · Email', '이메일', 'Correo', 'E-mail', 'البريد الإلكتروني', '邮箱', 'メール')}>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
             </Field>
             <Field id="password" bad={signinBad} problems={validateSignin({ email, password })}
-              label={say('비밀번호 · Password', '비밀번호', 'Contraseña', 'Mot de passe', 'كلمة المرور', '密码')}>
+              label={say('비밀번호 · Password', '비밀번호', 'Contraseña', 'Mot de passe', 'كلمة المرور', '密码', 'パスワード')}>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" />
             </Field>
             {errorLine}
             <button className="auth-primary" onClick={submitSignin} disabled={busy} translate="no">
-              {busy ? 'Signing in…' : '로그인 · Sign in'}
+              {busy
+                ? say('Signing in…', '로그인 중…', 'Entrando…', 'Connexion…', 'جارٍ الدخول…', '正在登录…', 'ログインしています…')
+                : say('Sign in', '로그인', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录', 'ログイン')}
             </button>
             <p className="auth-foot">
-              아직 계정이 없으신가요?
+              {say('No account yet?', '아직 계정이 없으신가요?', '¿Todavía no tienes cuenta?', "Pas encore de compte ?", 'ليس لديك حساب بعد؟', '还没有账号？', 'まだアカウントがありませんか？')}
               <button className="auth-foot__link" onClick={() => { setMode('signup'); setError(null); }}>
-                회원가입
+                {say('Sign up', '회원가입', 'Crear una', 'En créer un', 'أنشئ حسابًا', '注册一个', '登録する')}
               </button>
             </p>
           </div>
@@ -352,23 +356,25 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             {/* Whoever arrives missing contact details — a Google account by
                 nature, or a signup the first deploy cut in half — is asked
                 once, here, before the doors open. */}
-            <h2 className="form-label">{say('거의 다 됐어요 · Almost there', '거의 다 됐어요', 'Ya casi está', 'On y est presque', 'أوشكت على الانتهاء', '就差一点了')}</h2>
+            <h2 className="form-label">{say('거의 다 됐어요 · Almost there', '거의 다 됐어요', 'Ya casi está', 'On y est presque', 'أوشكت على الانتهاء', '就差一点了', 'あと少しです')}</h2>
             <p className="auth-note">
               {say('Your account exists but two details are missing — Google sign-ins arrive without them, and an interrupted signup can too. The team needs a phone number and a date of birth to run matching; nobody at a table ever sees either.',
                 '계정은 있는데 두 가지가 비어 있습니다. 구글 로그인은 이 정보 없이 들어오고, 중간에 끊긴 가입도 그렇습니다. 팀이 매칭을 돌리려면 전화번호와 생년월일이 필요하고, 밥상에서는 아무도 이 둘을 보지 않습니다.',
-                'Tu cuenta existe pero faltan dos datos: los accesos con Google llegan sin ellos, y un registro interrumpido también. El equipo necesita un teléfono y una fecha de nacimiento para hacer los emparejamientos; nadie en una mesa los ve nunca.', "Votre compte existe mais deux informations manquent : les connexions Google arrivent sans elles, et une inscription interrompue aussi. L'équipe a besoin d'un numéro de téléphone et d'une date de naissance pour faire les mises en relation ; personne à une table ne les voit jamais.", 'حسابك موجود لكن تنقصه معلومتان — تصل حسابات Google بدونهما، وكذلك التسجيل المتوقّف. يحتاج الفريق إلى رقم هاتف وتاريخ ميلاد لإتمام المطابقة؛ ولا يراهما أحد على أي مائدة أبدًا.', '你的账号是有的，但缺两项：用 Google 登录进来时不带这两项，注册中途断了也一样。团队需要一个手机号和一个出生日期来做配对；饭桌上没有人看得到它们。')}
+                'Tu cuenta existe pero faltan dos datos: los accesos con Google llegan sin ellos, y un registro interrumpido también. El equipo necesita un teléfono y una fecha de nacimiento para hacer los emparejamientos; nadie en una mesa los ve nunca.', "Votre compte existe mais deux informations manquent : les connexions Google arrivent sans elles, et une inscription interrompue aussi. L'équipe a besoin d'un numéro de téléphone et d'une date de naissance pour faire les mises en relation ; personne à une table ne les voit jamais.", 'حسابك موجود لكن تنقصه معلومتان — تصل حسابات Google بدونهما، وكذلك التسجيل المتوقّف. يحتاج الفريق إلى رقم هاتف وتاريخ ميلاد لإتمام المطابقة؛ ولا يراهما أحد على أي مائدة أبدًا.', '你的账号是有的，但缺两项：用 Google 登录进来时不带这两项，注册中途断了也一样。团队需要一个手机号和一个出生日期来做配对；饭桌上没有人看得到它们。', 'アカウントはありますが、二つ足りません。Google のログインはこの二つを持たずに来ますし、途中で止まった登録も同じです。組み合わせのためにチームは電話番号と生年月日を必要とします。どちらも食卓の誰にも見えません。')}
             </p>
             <label className="field">
-              <span className="field__label">{say('전화번호 · Phone', '전화번호', 'Teléfono', 'Téléphone', 'رقم الهاتف', '手机号')}</span>
+              <span className="field__label">{say('전화번호 · Phone', '전화번호', 'Teléfono', 'Téléphone', 'رقم الهاتف', '手机号', '電話番号')}</span>
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+82 10-0000-0000" autoComplete="tel" />
             </label>
             <label className="field">
-              <span className="field__label">{say('생년월일 · Date of birth', '생년월일', 'Fecha de nacimiento', 'Date de naissance', 'تاريخ الميلاد', '出生日期')}</span>
+              <span className="field__label">{say('생년월일 · Date of birth', '생년월일', 'Fecha de nacimiento', 'Date de naissance', 'تاريخ الميلاد', '出生日期', '生年月日')}</span>
               <input type="date" value={birthdate} onChange={e => setBirthdate(e.target.value)} />
             </label>
             {errorLine}
             <button className="auth-primary" onClick={submitDetails} disabled={busy}>
-              {busy ? 'Saving…' : '저장하고 계속 · Save and continue'}
+              {busy
+                ? say('Saving…', '저장하는 중…', 'Guardando…', 'Enregistrement…', 'جارٍ الحفظ…', '正在保存…', '保存しています…')
+                : say('Save and continue', '저장하고 계속', 'Guardar y seguir', 'Enregistrer et continuer', 'احفظ وتابع', '保存并继续', '保存して続ける')}
             </button>
           </div>
         )}
@@ -379,26 +385,26 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
                 structure. Saved on every tap through onProfileChange exactly
                 as they are when edited later on the Passport, so skipping
                 ahead loses nothing that was already touched. */}
-            <h2 className="form-label">{say('프로필 · Your profile', '프로필', 'Tu perfil', 'Votre profil', 'ملفك', '你的资料')}</h2>
+            <h2 className="form-label">{say('프로필 · Your profile', '프로필', 'Tu perfil', 'Votre profil', 'ملفك', '你的资料', 'あなたのプロフィール')}</h2>
             <p className="auth-note">
               {say('This is what a table sees and what the app cooks with — languages, what you cannot eat, how you eat. Change any of it later on your Passport.',
                 '밥상이 보는 것이자 앱이 쓰는 재료입니다 — 쓰는 언어, 못 드시는 것, 드시는 방식. 나중에 여권에서 언제든 바꾸실 수 있어요.',
-                'Esto es lo que ve una mesa y con lo que trabaja la app: idiomas, lo que no puedes comer, cómo comes. Puedes cambiarlo después en tu Pasaporte.', "Voici ce qu'une table voit et ce avec quoi l'application travaille : les langues, ce que vous ne pouvez pas manger, comment vous mangez. Vous pourrez tout modifier ensuite dans votre Passeport.", 'هذا ما تراه المائدة وما يعمل به التطبيق: اللغات، وما لا تستطيع أكله، وكيف تأكل. ويمكنك تغيير أيّ منه لاحقًا في جواز سفرك.', '这就是一张饭桌看到的、也是这个应用拿来用的东西——语言、你不能吃什么、你怎么吃。之后都可以在护照里改。')}
+                'Esto es lo que ve una mesa y con lo que trabaja la app: idiomas, lo que no puedes comer, cómo comes. Puedes cambiarlo después en tu Pasaporte.', "Voici ce qu'une table voit et ce avec quoi l'application travaille : les langues, ce que vous ne pouvez pas manger, comment vous mangez. Vous pourrez tout modifier ensuite dans votre Passeport.", 'هذا ما تراه المائدة وما يعمل به التطبيق: اللغات، وما لا تستطيع أكله، وكيف تأكل. ويمكنك تغيير أيّ منه لاحقًا في جواز سفرك.', '这就是一张饭桌看到的、也是这个应用拿来用的东西——语言、你不能吃什么、你怎么吃。之后都可以在护照里改。', 'これは食卓が見るもので、アプリが使うものです——言語、食べられないもの、食べ方。あとからパスポートでいつでも変えられます。')}
             </p>
             <ProfileFields profile={profile} onProfileChange={onProfileChange} />
             <button className="auth-primary" onClick={() => setMode('avatar')}>
-              {say('계속 · Continue', '계속', 'Continuar', 'Continuer', 'متابعة', '继续')}
+              {say('계속 · Continue', '계속', 'Continuar', 'Continuer', 'متابعة', '继续', '続ける')}
             </button>
           </div>
         )}
 
         {mode === 'avatar' && (
           <div className="auth-form auth-avatar">
-            <h2 className="form-label">{say('프로필 사진 · A photo to be recognised by', '프로필 사진', 'Una foto para reconocerte', 'Une photo pour vous reconnaître', 'صورة يُعرَف بها وجهك', '一张能被认出来的照片')}</h2>
+            <h2 className="form-label">{say('프로필 사진 · A photo to be recognised by', '프로필 사진', 'Una foto para reconocerte', 'Une photo pour vous reconnaître', 'صورة يُعرَف بها وجهك', '一张能被认出来的照片', '見分けてもらうための写真')}</h2>
             <p className="auth-note">
               {say('This is how a table spots you at the station exit — the app has no chat, so a face does real work here. Square-cropped, shrunk small, shown beside your name.',
                 '역 출구에서 밥상 사람들이 당신을 알아보는 방법입니다. 이 앱에는 채팅이 없어서 얼굴이 실제로 일을 합니다. 정사각형으로 잘라 작게 줄여서, 이름 옆에 보입니다.',
-                'Así te reconoce una mesa a la salida del metro: la app no tiene chat, así que aquí una cara hace trabajo de verdad. Recortada en cuadrado, reducida y mostrada junto a tu nombre.', "C'est ainsi qu'une table vous repère à la sortie du métro : l'application n'a pas de messagerie, alors ici un visage fait un vrai travail. Recadré en carré, réduit, affiché à côté de votre nom.", 'هكذا تلمحك المائدة عند مخرج المترو: لا محادثة في التطبيق، فالوجه هنا يقوم بعمل حقيقي. تُقصّ مربّعة، وتُصغَّر، وتُعرض بجانب اسمك.', '饭桌就是靠这个在地铁出口认出你——应用里没有聊天，所以一张脸在这里是真在干活。会裁成方的、缩小，放在你名字旁边。')}
+                'Así te reconoce una mesa a la salida del metro: la app no tiene chat, así que aquí una cara hace trabajo de verdad. Recortada en cuadrado, reducida y mostrada junto a tu nombre.', "C'est ainsi qu'une table vous repère à la sortie du métro : l'application n'a pas de messagerie, alors ici un visage fait un vrai travail. Recadré en carré, réduit, affiché à côté de votre nom.", 'هكذا تلمحك المائدة عند مخرج المترو: لا محادثة في التطبيق، فالوجه هنا يقوم بعمل حقيقي. تُقصّ مربّعة، وتُصغَّر، وتُعرض بجانب اسمك.', '饭桌就是靠这个在地铁出口认出你——应用里没有聊天，所以一张脸在这里是真在干活。会裁成方的、缩小，放在你名字旁边。', '食卓は駅の出口でこれを頼りにあなたを見つけます。アプリにチャットはないので、ここでは顔が本当に働きます。正方形に切り、小さくして、名前の横に出します。')}
             </p>
             <input
               ref={fileRef}
@@ -409,10 +415,12 @@ export default function AuthSheet({ door, initialMode, profile, onProfileChange,
             />
             {errorLine}
             <button className="auth-primary" onClick={() => fileRef.current?.click()} disabled={busy}>
-              {busy ? 'Uploading…' : '사진 고르기 · Choose a photo'}
+              {busy
+                ? say('Uploading…', '올리는 중…', 'Subiendo…', 'Envoi…', 'جارٍ الرفع…', '上传中…', 'アップロード中…')
+                : say('Choose a photo', '사진 고르기', 'Elegir una foto', 'Choisir une photo', 'اختر صورة', '选一张照片', '写真を選ぶ')}
             </button>
             <button className="auth-switch" onClick={finish} disabled={busy}>
-              {say('나중에 · Later — you can add one any time', '나중에 — 언제든 추가할 수 있어요', 'Más tarde — puedes añadirla cuando quieras', 'Plus tard — vous pourrez en ajouter une à tout moment', 'لاحقًا — تستطيع إضافتها في أي وقت', '以后再说 — 你随时可以加')}
+              {say('나중에 · Later — you can add one any time', '나중에 — 언제든 추가할 수 있어요', 'Más tarde — puedes añadirla cuando quieras', 'Plus tard — vous pourrez en ajouter une à tout moment', 'لاحقًا — تستطيع إضافتها في أي وقت', '以后再说 — 你随时可以加', 'あとで — いつでも追加できます')}
             </button>
           </div>
         )}

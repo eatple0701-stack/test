@@ -7736,9 +7736,9 @@ body {
   color: var(--ink-secondary);
 }
 .host-brief__def { margin: 0; }
-.host-brief__ko,
+.host-brief__kr,
 .host-brief__en { display: block; }
-.host-brief__ko {
+.host-brief__kr {
   font-size: 13.5px;
   line-height: 1.55;
   color: var(--ink);
@@ -9806,7 +9806,7 @@ body {
 }
 .detail-deadline svg { flex: 0 0 auto; margin-top: 2px; }
 .detail-deadline.is-urgent { background: var(--orange-tint); color: var(--orange-ink); }
-.detail-deadline__en {
+.detail-deadline__full {
   display: block;
   margin-top: 2px;
   font-size: 12px;
@@ -10641,6 +10641,7 @@ body {
 [data-locale="es"] .main-band__title-en,
 [data-locale="ar"] .main-band__title-en,
 [data-locale="zh"] .main-band__title-en,
+[data-locale="ja"] .main-band__title-en,
 [data-locale="fr"] .main-band__title-en {
   font-size: 25px;
   font-weight: 800;
@@ -10746,7 +10747,9 @@ body {
 [data-locale="ar"] .main-how__why-en::before,
 [data-locale="ar"] .how-strip__why-en::before,
 [data-locale="zh"] .main-how__why-en::before,
-[data-locale="zh"] .how-strip__why-en::before { content: none; }
+[data-locale="zh"] .how-strip__why-en::before,
+[data-locale="ja"] .main-how__why-en::before,
+[data-locale="ja"] .how-strip__why-en::before { content: none; }
 
 /* ---- Join. Meetup's phone version is a plain centred paragraph; the
         card and its floating dots belong to the desktop. ---- */
@@ -11056,7 +11059,9 @@ body {
 [data-locale="ar"] [class$="__kr"],
 [data-locale="ar"] [class$="-kr"],
 [data-locale="zh"] [class$="__kr"],
-[data-locale="zh"] [class$="-kr"] { display: none; }
+[data-locale="zh"] [class$="-kr"],
+[data-locale="ja"] [class$="__kr"],
+[data-locale="ja"] [class$="-kr"] { display: none; }
 
 /* Text written for one language that has no counterpart on the default
    screen — an English headline for a hero that was set in Korean, a Korean
@@ -11078,7 +11083,7 @@ html:not([data-locale="ko"]) .l-ko-only { display: none; }
 /* .l-en-only is "the half that is not Korean", so Spanish keeps it — hiding
    it there would blank the hero headline and the corner buttons on a screen
    that has no Korean to fall back on. */
-html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not([data-locale="ar"]):not([data-locale="zh"]) .l-en-only { display: none; }
+html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not([data-locale="ar"]):not([data-locale="zh"]):not([data-locale="ja"]) .l-en-only { display: none; }
 
 /* A pair written as two elements inside one parent. The middot between them
    belongs to neither language, so it hangs off the English half and leaves
@@ -11087,6 +11092,8 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 .l-pair > [class$="__en"]::before { content: ' · '; }
 [data-locale="en"] .l-pair > [class$="-en"]::before,
 [data-locale="en"] .l-pair > [class$="__en"]::before,
+[data-locale="ja"] .l-pair > [class$="-en"]::before,
+[data-locale="ja"] .l-pair > [class$="__en"]::before,
 [data-locale="zh"] .l-pair > [class$="-en"]::before,
 [data-locale="zh"] .l-pair > [class$="__en"]::before,
 [data-locale="ar"] .l-pair > [class$="-en"]::before,

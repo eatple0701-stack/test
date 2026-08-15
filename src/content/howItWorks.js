@@ -27,6 +27,7 @@ export const HOW_STEPS = [
     fr: "Trouvez une table servant un plat que personne ne peut commander seul.",
     ar: 'اعثر على مائدة تقدّم طبقًا لا يستطيع أحد أن يطلبه وحده.',
     zh: '找一张饭桌，上面是一个人点不了的菜。',
+    ja: '一人では頼めない料理が出ている食卓を見つける。',
   },
   {
     id: 'ask',
@@ -36,6 +37,7 @@ export const HOW_STEPS = [
     fr: "Demandez la place. L'hôte lit qui vous êtes et dit oui par votre nom : votre nom est tout le formulaire.",
     ar: 'اطلب المقعد. يقرأ المضيف من أنت ويقول نعم باسمك: اسمك هو الاستمارة كلّها.',
     zh: '申请那个位子。主人会读你是谁，然后按名字答应：你的名字就是全部的表格。',
+    ja: '席をリクエストする。ホストがあなたが誰かを読み、名前を見て承認します。あなたの名前がフォームのすべてです。',
   },
   {
     id: 'eat',
@@ -52,6 +54,7 @@ export const HOW_STEPS = [
     fr: "Vous vous retrouvez et vous partagez le repas. Eatple ne touche pas à l'argent : vous payez au restaurant ce que vous mangez, donc personne à table ne doit rien à personne.",
     ar: 'تلتقون وتتشاركون الطعام. لا يمسّ Eatple المال: تدفع للمطعم ثمن ما تأكل، فلا يكون على أحد في المائدة دَين لأحد.',
     zh: '见面，一起吃。Eatple 不经手钱：你吃了什么就付给饭馆多少，所以桌上没有谁欠谁。',
+    ja: '会って、一緒に食べる。Eatple はお金を扱いません。食べた分をお店に払うので、卓の誰も誰かに借りをつくりません。',
   },
 ];
 
@@ -63,4 +66,5 @@ export const HOW_WHY = {
   fr: "Une table coréenne se dresse pour être partagée. Parcourir les plats et les conseils est gratuit ; le compte sert à avoir la place.",
   ar: 'تُمدّ المائدة الكورية لتُشارَك. تصفّح الأطباق والنصائح مجاني؛ والحساب إنما هو للمقعد.',
   zh: '韩国的饭桌是摆出来分着吃的。看菜、看攻略都免费；账号是为了那个位子。',
+  ja: '韓国の食卓は分け合うために整えられます。料理も案内も見るのは無料で、アカウントは席のためにあります。',
 };

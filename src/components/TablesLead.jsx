@@ -57,7 +57,7 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
   const anyUpcoming = tables.some(t => !isPast(t));
 
   return (
-    <section className="tables-lead" aria-label={say('Open tables', '열린 밥상', 'Mesas abiertas', 'Tables ouvertes', 'موائد مفتوحة', '开着的饭桌')}>
+    <section className="tables-lead" aria-label={say('Open tables', '열린 밥상', 'Mesas abiertas', 'Tables ouvertes', 'موائد مفتوحة', '开着的饭桌', '開いている食卓')}>
       <div className="tables-lead__head">
         <div>
           {/* The 밥친구 label above this heading is gone: the wordmark is in
@@ -83,15 +83,15 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
           </h2>
           <h2 className="tables-lead__title tables-lead__title-en">
             {open.length > 0
-              ? say('Tables you could join this week', null, 'Mesas a las que podrías unirte esta semana', 'Des tables où vous pourriez vous asseoir cette semaine', 'موائد تستطيع الجلوس إليها هذا الأسبوع', '这周你可以坐进去的饭桌')
+              ? say('Tables you could join this week', null, 'Mesas a las que podrías unirte esta semana', 'Des tables où vous pourriez vous asseoir cette semaine', 'موائد تستطيع الجلوس إليها هذا الأسبوع', '这周你可以坐进去的饭桌', '今週あなたが座れる食卓')
               : anyUpcoming
-                ? say('You are in every table that is open', null, 'Ya estás en todas las mesas abiertas', 'Vous êtes déjà à toutes les tables ouvertes', 'أنت بالفعل على كل مائدة مفتوحة', '开着的饭桌你都已经在里面了')
-                : say('Nobody has set a table yet', null, 'Todavía nadie ha puesto una mesa', "Personne n'a encore dressé de table", 'لم يمدّ أحد مائدة بعد', '还没有人摆过饭桌')}
+                ? say('You are in every table that is open', null, 'Ya estás en todas las mesas abiertas', 'Vous êtes déjà à toutes les tables ouvertes', 'أنت بالفعل على كل مائدة مفتوحة', '开着的饭桌你都已经在里面了', '開いている食卓には、もう全部入っています')
+                : say('Nobody has set a table yet', null, 'Todavía nadie ha puesto una mesa', "Personne n'a encore dressé de table", 'لم يمدّ أحد مائدة بعد', '还没有人摆过饭桌', 'まだ誰も食卓を整えていません')}
           </h2>
         </div>
         <button className="tables-lead__all" onClick={onOpenTables}>
           <span className="l-ko-only" translate="no">전체</span>
-          <span className="tables-lead__all-en">{say('All', null, 'Todas', 'Toutes', 'الكل', '全部')}</span>
+          <span className="tables-lead__all-en">{say('All', null, 'Todas', 'Toutes', 'الكل', '全部', 'すべて')}</span>
           <ChevronRightIcon size={13} />
         </button>
       </div>
@@ -107,10 +107,10 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
             {anyUpcoming
               ? say('Nothing else to ask for this week. Open a table of your own and see who comes.', null,
                 'Nada más que pedir esta semana. Abre una mesa tuya y mira quién viene.',
-                "Rien d'autre à demander cette semaine. Ouvrez votre propre table et voyez qui vient.", 'لا شيء آخر تطلبه هذا الأسبوع. افتح مائدتك أنت وانظر من يأتي.', '这周没有别的可以申请了。自己开一张，看看谁来。')
+                "Rien d'autre à demander cette semaine. Ouvrez votre propre table et voyez qui vient.", 'لا شيء آخر تطلبه هذا الأسبوع. افتح مائدتك أنت وانظر من يأتي.', '这周没有别的可以申请了。自己开一张，看看谁来。', '今週これ以上リクエストできるものはありません。自分の食卓を開いて、誰が来るか見てみてください。')
               : say('Samgyeopsal starts at two servings. Open a table and see who comes.', null,
                 'El samgyeopsal empieza en dos raciones. Abre una mesa y mira quién viene.',
-                'Le samgyeopsal commence à deux parts. Ouvrez une table et voyez qui vient.', 'السامغيوبسال يبدأ من حصتين. افتح مائدة وانظر من يأتي.', '五花肉从两人份起。开一张饭桌，看看谁来。')}
+                'Le samgyeopsal commence à deux parts. Ouvrez une table et voyez qui vient.', 'السامغيوبسال يبدأ من حصتين. افتح مائدة وانظر من يأتي.', '五花肉从两人份起。开一张饭桌，看看谁来。', 'サムギョプサルは二人前からです。食卓を開いて、誰が来るか見てみてください。')}
           </span>
         </button>
       ) : (
@@ -133,12 +133,15 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
                 <span className="lead-table__dish">{menu.name}</span>
                 <span className="lead-table__when">{dayLabel(t.date)} · {t.time}</span>
                 <span className="lead-table__seats">
-                  {left} seat{left === 1 ? '' : 's'} left
+                  {say(`${left} seat${left === 1 ? '' : 's'} left`, `${left}자리 남음`,
+                    `${left} sitio${left === 1 ? '' : 's'} libre${left === 1 ? '' : 's'}`,
+                    `${left} place${left === 1 ? '' : 's'} libre${left === 1 ? '' : 's'}`,
+                    `بقي ${left} مقعد`, `还剩 ${left} 个位子`, `残り${left}席`)}
                   {/* The table list has said `sample` since the day these were
                       seeded; this screen never did, which meant the first
                       three tables anybody ever saw were invented and unlabelled
                       on the highest-traffic screen in the app. */}
-                  {t.isSample && <span className="lead-table__sample">{say('sample', '샘플', 'ejemplo', 'exemple', 'مثال', '示例')}</span>}
+                  {t.isSample && <span className="lead-table__sample">{say('sample', '샘플', 'ejemplo', 'exemple', 'مثال', '示例', 'サンプル')}</span>}
                 </span>
               </button>
             );

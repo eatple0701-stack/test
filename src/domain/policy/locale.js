@@ -31,6 +31,13 @@
 // the pair splitter is safe: a Chinese screen takes the English half of a
 // "한국어 · English" pair, exactly as Spanish, French and Arabic do.
 //
+// 日本語 joined on 2026-08-14, and it shares kanji with Chinese the way it
+// shares them with Korean hanja. That makes the two guard suites care about
+// each other for the first time: a check for "is this Han script" passes on
+// either language, so the Japanese tests look for kana — which Chinese never
+// has — and the Chinese tests now reject kana rather than merely requiring
+// Han. Neither language can be pasted into the other's field and go unseen.
+//
 // Español is here since 2026-08-12 because the words are. It arrived the way
 // Korean-only content did: a second string in the data for every article,
 // dish and card, picked by useText(). What it does not have is the pair
@@ -56,9 +63,12 @@ export const LOCALE = {
   FR: 'fr',       // Français seulement
   AR: 'ar',       // العربية فقط
   ZH: 'zh',       // 仅简体中文
+  JA: 'ja',       // 日本語のみ
 };
 
-export const LOCALES = [LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR, LOCALE.ZH];
+export const LOCALES = [
+  LOCALE.BOTH, LOCALE.KO, LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR, LOCALE.ZH, LOCALE.JA,
+];
 
 export const isLocale = (l) => LOCALES.includes(l);
 
@@ -78,6 +88,7 @@ export const LOCALE_LABEL = {
   [LOCALE.FR]: { kr: '프랑스어', en: 'Français' },
   [LOCALE.AR]: { kr: '아랍어', en: 'العربية' },
   [LOCALE.ZH]: { kr: '중국어', en: '简体中文' },
+  [LOCALE.JA]: { kr: '일본어', en: '日本語' },
 };
 
 /**
@@ -89,7 +100,9 @@ export const LOCALE_LABEL = {
  * splitter and the stylesheet agree on which locales are "English underneath"
  * instead of each deciding separately and drifting.
  */
-export const ENGLISH_FALLBACK = [LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR, LOCALE.ZH];
+export const ENGLISH_FALLBACK = [
+  LOCALE.EN, LOCALE.ES, LOCALE.FR, LOCALE.AR, LOCALE.ZH, LOCALE.JA,
+];
 
 /**
  * Which way this language reads.
@@ -120,6 +133,7 @@ export const DATE_LOCALE = {
   // that does not match the one on the restaurant's door.
   [LOCALE.AR]: 'ar-EG',
   [LOCALE.ZH]: 'zh-CN',
+  [LOCALE.JA]: 'ja-JP',
 };
 export const dateLocale = (locale) => DATE_LOCALE[locale] ?? 'en-GB';
 export const fallsBackToEnglish = (l) => ENGLISH_FALLBACK.includes(l);

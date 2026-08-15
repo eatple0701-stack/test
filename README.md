@@ -108,13 +108,41 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 513 tests, node's built-in runner, no test-framework dependency
+npm test          # 529 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
+npm run audit-i18n # every user-visible string that is not wired to the language setting
 ```
 
 Verify UI changes at **375×812** — desktop-width verification has missed real
 regressions before.
+
+### The language audit is the instrument, and it lies if you let it
+
+The app offers eight settings (both, ko, en, es, fr, ar, zh, ja) and a missing
+translation **falls back to English**, so a half-translated screen looks
+finished to anybody who reads English. Nothing about it shows on screen, in
+the console, or to the lint rule. `scripts/audit-i18n.mjs` is the only thing
+that sees it, and it has been wrong twice:
+
+- It reported zero for a month while `pass 2` was a stub that measured nothing.
+- It reported zero again while 169 sentences were English on every screen,
+  because its JSX-text regex could not match text with a `{value}` in the
+  middle — which is the shape almost every sentence in this app has.
+
+It reads a real syntax tree now (oxc, via the `rolldown` vite already
+installs) and asks four questions: a string that reaches the screen without
+`say()`; a `say()` short of a language; a Korean-and-English pair left for the
+DOM to split; a prop family like SectionHead's `title/ko/es/fr/ar/zh/ja` with
+members missing. **A zero from this script is only worth what its last
+deliberate regression proved** — break one of the four on purpose and check it
+still says so before believing it.
+
+Static checks are also not enough on their own. The locale is read once on
+mount, so verification means one page load per language, walking the tabs *and
+the screens behind a tap*. That render diff is what caught the front-page
+hero, the footer sitemap, the Passport goals, the place page's thirteen
+English headings, and a CTA whose only title was Korean.
 
 ## Trust and honesty rules — enforced by tests, not just documentation
 

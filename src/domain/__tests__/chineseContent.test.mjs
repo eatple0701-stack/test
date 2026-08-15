@@ -34,9 +34,15 @@ import { LOCALE, isRtl, isKorean, localeText, dateLocale } from '../policy/local
 // so an untranslated record is invisible to anybody who reads English.
 
 const nonEmpty = (s) => typeof s === 'string' && s.trim().length > 0;
-// CJK ideographs. Hangul is a different block, so this cannot pass on Korean
-// text, and a Latin string sitting in a Zh field is caught rather than counted.
-const isHan = (s) => /[一-鿿]/.test(s);
+// CJK ideographs, and no kana.
+//
+// Requiring Han was enough while Chinese was the only language here written
+// with it. Japanese uses the same characters, so "does this contain Han" now
+// passes on Japanese too, and a Japanese string pasted into a Zh field would
+// have gone unseen. Chinese never uses hiragana or katakana, so rejecting
+// them is what separates the two.
+const KANA = /[ぁ-ゟ゠-ヿ]/;
+const isHan = (s) => /[一-鿿]/.test(s) && !KANA.test(s);
 
 test('every dish carries its four paragraphs in Chinese', () => {
   for (const m of menus) {

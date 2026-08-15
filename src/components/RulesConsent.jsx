@@ -34,7 +34,8 @@ export default function RulesConsent({ profile, onProfileChange, action }) {
         className="form-submit"
         onClick={() => onProfileChange?.({ ...profile, ...rulesAgreement(PURPOSE.version) })}
       >
-        동의하고 계속 · I agree — {action}
+        {say(`I agree — ${action}`, `동의하고 계속 — ${action}`, `Acepto — ${action}`,
+          `J'accepte — ${action}`, `أوافق — ${action}`, `我同意 — ${action}`, `同意します — ${action}`)}
       </button>
 
       {/* Said plainly, because the alternative is somebody discovering it
@@ -42,7 +43,7 @@ export default function RulesConsent({ profile, onProfileChange, action }) {
       <p className="rules-consent__note">
         {say('Asked once. You can read this again any time under 도움이 필요하면.',
           '한 번만 여쭙니다. 도움이 필요하면 메뉴에서 언제든 다시 읽으실 수 있어요.',
-          'Se pregunta una sola vez. Puedes volver a leerlo cuando quieras en 도움이 필요하면.', 'Demandé une seule fois. Vous pouvez le relire à tout moment dans 도움이 필요하면.', 'يُسأل مرة واحدة. وتستطيع قراءته مجددًا في أي وقت تحت 도움이 필요하면.', '只问一次。你随时可以在 도움이 필요하면 里再读一遍。')}
+          'Se pregunta una sola vez. Puedes volver a leerlo cuando quieras en 도움이 필요하면.', 'Demandé une seule fois. Vous pouvez le relire à tout moment dans 도움이 필요하면.', 'يُسأل مرة واحدة. وتستطيع قراءته مجددًا في أي وقت تحت 도움이 필요하면.', '只问一次。你随时可以在 도움이 필요하면 里再读一遍。', '一度だけ尋ねます。도움이 필요하면 からいつでも読み返せます。')}
       </p>
     </div>
   );

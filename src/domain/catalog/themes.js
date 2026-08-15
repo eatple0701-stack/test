@@ -30,12 +30,14 @@ export const themes = [
     titleFr: 'La table du temple',
     titleAr: 'مائدة المعبد',
     titleZh: '寺院的饭桌',
+    titleJa: '寺の食卓',
     tagline: 'Eat like a monk, at the pace of one.',
     taglineKo: '스님처럼, 스님의 속도로.',
     taglineEs: 'Comer como un monje, al ritmo de un monje.',
     taglineFr: "Manger comme un moine, au rythme d'un moine.",
     taglineAr: 'كُل كما يأكل الراهب، وعلى إيقاعه.',
     taglineZh: '像僧人那样吃，也按僧人的节奏。',
+    taglineJa: '僧のように、僧の速さで食べる。',
     narrative:
       'Korean Buddhist temples kept a cuisine alive through centuries of war and industrialisation by refusing to hurry it. Sitting at a temple table is the closest a visitor gets to the country\'s idea of restraint as a pleasure rather than a denial.',
     narrativeKo:
@@ -48,6 +50,8 @@ export const themes = [
       'أبقت المعابد البوذية الكورية مطبخًا حيًّا عبر قرون من الحرب والتصنيع، برفضها أن تستعجله. والجلوس إلى مائدة معبد أقرب ما يصل إليه زائر من الفكرة الكورية عن ضبط النفس بوصفه متعة لا حرمانًا.',
     narrativeZh:
       '韩国的寺院靠拒绝把它做快，让一种饮食在几百年的战争与工业化里活了下来。坐到寺院的饭桌前，是一个外来者最接近这个国家那种感觉的方式——把节制当作乐趣，而不是缺失。',
+    narrativeJa:
+      '韓国の寺は、急がせることを拒むというやり方で、戦争と工業化の数百年を通してひとつの食を生かしてきました。寺の食卓に座ることは、抑制を欠乏ではなく愉しみとして捉えるこの国の感覚に、訪れる人がいちばん近づける方法です。',
     region: 'seoul',
     status: STATUS.PUBLISHED,
   },
@@ -60,12 +64,14 @@ export const themes = [
     titleFr: 'Manger au marché',
     titleAr: 'الأكل في السوق',
     titleZh: '在市场吃饭',
+    titleJa: '市場で食べる',
     tagline: 'The market is the restaurant.',
     taglineKo: '시장이 곧 식당입니다.',
     taglineEs: 'El mercado es el restaurante.',
     taglineFr: 'Le marché est le restaurant.',
     taglineAr: 'السوق هو المطعم.',
     taglineZh: '市场本身就是饭馆。',
+    taglineJa: '市場そのものが食堂です。',
     narrative:
       'Before Seoul had dining rooms it had markets, and the markets never stopped being where the city actually eats. A stall is a kitchen with no walls: you watch the food being made, you eat it standing, and you talk to whoever is next to you because there is nowhere else to look.',
     narrativeKo:
@@ -78,6 +84,8 @@ export const themes = [
       'قبل أن يكون لسول قاعات طعام كانت لها أسواق، ولم تكفّ الأسواق يومًا عن كونها المكان الذي تأكل فيه المدينة فعلًا. البسطة مطبخ بلا جدران: ترى الطعام يُصنع، وتأكله واقفًا، وتحدّث من بجانبك لأنه لا مكان آخر تنظر إليه.',
     narrativeZh:
       '首尔有饭厅之前先有市场，而市场从来没有不再是这座城市真正吃饭的地方。一个摊位就是一间没有墙的厨房：你看着饭被做出来，站着吃掉，然后跟旁边的人说话——因为再没有别处可看。',
+    narrativeJa:
+      'ソウルに食堂ができるより先に市場がありました。そして市場は、この街が実際に食べる場所であることをやめたことがありません。屋台は壁のない厨房です。料理ができるのを見て、立ったまま食べ、隣の人と話す——ほかに見るところがないからです。',
     region: 'seoul',
     status: STATUS.PREVIEW,
   },
@@ -90,12 +98,14 @@ export const themes = [
     titleFr: 'La route des nouilles',
     titleAr: 'طريق المعكرونة',
     titleZh: '面条之路',
+    titleJa: '麺の道',
     tagline: 'A Chinese dish that became the most Korean meal there is.',
     taglineKo: '중국 음식이 가장 한국적인 한 끼가 되기까지.',
     taglineEs: 'Un plato chino convertido en la comida más coreana que existe.',
     taglineFr: 'Un plat chinois devenu le repas le plus coréen qui soit.',
     taglineAr: 'طبق صيني صار أكثر الوجبات كوريّةً على الإطلاق.',
     taglineZh: '一道中国菜，成了最韩国的一顿饭。',
+    taglineJa: '中国の料理が、いちばん韓国的な一食になるまで。',
     narrative:
       'Follow one bowl from the docks of Incheon\'s Chinatown to every delivery scooter in the country. Jajangmyeon is the clearest case of Korea absorbing a foreign food so completely that its origin survives only in the name.',
     narrativeKo:
@@ -108,6 +118,8 @@ export const themes = [
       'اتبع صحنًا واحدًا من أرصفة الحي الصيني في إنتشون إلى كل درّاجة توصيل في البلاد. الجاجانغميون أوضح حالة استوعبت فيها كوريا طعامًا أجنبيًا استيعابًا تامًّا حتى لم يبقَ من أصله إلا الاسم.',
     narrativeZh:
       '跟着一只碗，从仁川中华街的码头一路到全国每一辆送餐摩托。炸酱面是韩国把一样外来食物吸收得最彻底的一例——彻底到它的来处只剩在名字里。',
+    narrativeJa:
+      '一杯の丼を追って、仁川チャイナタウンの埠頭から全国の配達バイクまで。チャジャンミョンは、韓国が外国の食べものをあまりに完全に取り込んだために、その出自が名前にしか残っていない、いちばんはっきりした例です。',
     region: 'nationwide',
     status: STATUS.PUBLISHED,
   },
@@ -120,12 +132,14 @@ export const themes = [
     titleFr: 'De café en café',
     titleAr: 'من مقهى إلى مقهى',
     titleZh: '一间间咖啡馆',
+    titleJa: 'カフェを渡り歩く',
     tagline: 'One drink buys the afternoon.',
     taglineKo: '한 잔이면 오후가 통째로 내 것.',
     taglineEs: 'Una consumición te compra la tarde entera.',
     taglineFr: "Une consommation vous achète l'après-midi entier.",
     taglineAr: 'مشروب واحد يشتري لك بعد الظهر كلّه.',
     taglineZh: '一杯就买下一个下午。',
+    taglineJa: '一杯で午後がまるごと手に入ります。',
     narrative:
       'Seoul has one of the highest cafe densities on earth, and the room is the product as much as the coffee. Nobody will rush you out after one cup, which is why the cafe became where this city works, meets and waits.',
     narrativeKo:
@@ -138,6 +152,8 @@ export const themes = [
       'في سول واحدة من أعلى كثافات المقاهي في العالم، والقاعة هنا منتج بقدر القهوة نفسها. لن يستعجلك أحد بعد فنجان واحد، ولهذا صار المقهى المكان الذي تعمل فيه هذه المدينة وتلتقي وتنتظر.',
     narrativeZh:
       '首尔是地球上咖啡馆密度最高的城市之一，而在这里，那个空间和咖啡一样是商品。喝完一杯不会有人催你走，所以咖啡馆成了这座城市工作、见面和等待的地方。',
+    narrativeJa:
+      'ソウルは地上でもっともカフェの密度が高い都市のひとつで、ここでは空間そのものがコーヒーと同じくらい商品です。一杯で追い立てられることがない。だからカフェは、この街が働き、人と会い、待つ場所になりました。',
     region: 'nationwide',
     status: STATUS.PUBLISHED,
   },
@@ -150,12 +166,14 @@ export const themes = [
     titleFr: 'Séoul après minuit',
     titleAr: 'سول بعد منتصف الليل',
     titleZh: '入夜后的首尔',
+    titleJa: '夜のソウル',
     tagline: 'The city gets honest after ten.',
     taglineKo: '열 시가 넘으면 도시가 솔직해집니다.',
     taglineEs: 'A partir de las diez la ciudad se vuelve sincera.',
     taglineFr: 'Passé dix heures, la ville devient sincère.',
     taglineAr: 'بعد العاشرة تصير المدينة صادقة.',
     taglineZh: '过了十点，这座城市就诚实了。',
+    taglineJa: '十時を過ぎると、街は正直になります。',
     narrative:
       'Korean nights move in rounds, and the conversation at the second one is not the conversation at the first. Late eating here is less about appetite than about the hours a working day leaves over.',
     narrativeKo:
@@ -168,6 +186,8 @@ export const themes = [
       'تمضي الليالي الكورية على جولات، وحديث الجولة الثانية ليس حديث الأولى. والأكل متأخرًا هنا شأنه بالساعات التي يفيضها يوم العمل أكثر منه بالشهية.',
     narrativeZh:
       '韩国的夜晚是按"차수"走的，二次的谈话和一次不是同一种。在这里吃得晚，与其说关乎胃口，不如说关乎一天工作之后剩下的那几个钟头。',
+    narrativeJa:
+      '韓国の夜は차수（次）で進み、二次の会話は一次の会話とは違います。ここで遅くに食べるのは、食欲というより、一日の仕事が余らせた時間の話です。',
     region: 'seoul',
     status: STATUS.PREVIEW,
   },
@@ -180,12 +200,14 @@ export const themes = [
     titleFr: 'Les fruits de mer de Busan',
     titleAr: 'مأكولات بوسان البحرية',
     titleZh: '釜山的海鲜',
+    titleJa: '釜山の海のもの',
     tagline: 'A port city argues about freshness for a living.',
     taglineKo: '항구 도시는 신선도를 두고 매일 다툽니다.',
     taglineEs: 'Una ciudad portuaria discute de frescura para ganarse la vida.',
     taglineFr: 'Une ville portuaire discute de fraîcheur pour gagner sa vie.',
     taglineAr: 'مدينة ميناء تتجادل في الطزاجة لتكسب رزقها.',
     taglineZh: '一座港口城市，靠争论新鲜度过日子。',
+    taglineJa: '港町が、鮮度をめぐる言い合いで生計を立てています。',
     narrative:
       'Busan built its identity on the sea and on the people the Korean War pushed south into it. The market that fed those refugees is still the largest seafood market in the country, and its habits — choose the fish live, wrap it rather than dip it — travel with the food wherever it goes.',
     narrativeKo:
@@ -198,6 +220,8 @@ export const themes = [
       'بنت بوسان هويتها على البحر وعلى من دفعتهم الحرب الكورية جنوبًا. والسوق الذي أطعم أولئك اللاجئين ما زال أكبر سوق سمك في البلاد، وعاداته — اختيار السمك حيًّا، ولفّه لا غمسه — تسافر مع الطعام أينما ذهب.',
     narrativeZh:
       '釜山把自己的身份建在海上，也建在被朝鲜战争推向南方的人身上。当年养活那些难民的市场，如今仍是全国最大的鱼市，而它的规矩——挑活鱼、包着吃而不是蘸着吃——跟着这些食物走到哪儿算哪儿。',
+    narrativeJa:
+      '釜山は自らの輪郭を海の上に、そして朝鮮戦争が南へ押しやった人々の上に築きました。その避難民を食べさせた市場はいまも国内最大の魚市場で、その作法——魚を生きたまま選ぶ、つけるのではなく包む——は、この食べものが行くところどこへでも一緒に旅をします。',
     region: 'nationwide',
     status: STATUS.PREVIEW,
   },
@@ -210,12 +234,14 @@ export const themes = [
     titleFr: 'Pique-nique de printemps',
     titleAr: 'نزهة الربيع',
     titleZh: '春天的野餐',
+    titleJa: '春のピクニック',
     tagline: 'Two weeks a year, the country eats outdoors.',
     taglineKo: '일 년에 두 주, 온 나라가 밖에서 먹습니다.',
     taglineEs: 'Dos semanas al año, el país entero come al aire libre.',
     taglineFr: "Deux semaines par an, le pays entier mange dehors.",
     taglineAr: 'أسبوعان في السنة يأكل فيهما البلد كلّه في الخلاء.',
     taglineZh: '一年里有两周，整个国家都在户外吃饭。',
+    taglineJa: '年に二週間、国じゅうが外で食べます。',
     narrative:
       'Blossom season is Korea\'s clearest seasonal ritual, and its shortness is the point. Parks fill with mats and shared bottles for a fortnight, and then it is over for a year.',
     narrativeKo:
@@ -228,6 +254,8 @@ export const themes = [
       'موسم أزهار الكرز أوضح طقس موسمي في كوريا، وقِصَره هو معناه بالضبط. تمتلئ الحدائق بالحُصر والزجاجات المشتركة خمسة عشر يومًا، ثم ينتهي الأمر إلى العام المقبل.',
     narrativeZh:
       '樱花季是韩国最清晰的一个季节仪式，而它的短暂正是它的意思所在。公园会被野餐垫和分着喝的酒瓶填满十五天，然后就结束了，等明年。',
+    narrativeJa:
+      '桜の季節は韓国のもっともはっきりした季節の儀式で、その短さこそが意味です。公園はレジャーシートと分け合う瓶で十五日ほど埋まり、それで来年まで終わりです。',
     region: 'nationwide',
     status: STATUS.PREVIEW,
   },

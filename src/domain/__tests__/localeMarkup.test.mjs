@@ -87,7 +87,7 @@ test('every tab in the bar is labelled in every language the app offers', () => 
   const list = bar.slice(bar.indexOf('const tabs = ['), bar.indexOf('export default'));
   const ids = list.match(/id: '/g) ?? [];
   assert.equal(ids.length, 5, 'the bar should still be five tabs');
-  for (const field of ['kr', 'es', 'fr', 'ar', 'zh']) {
+  for (const field of ['kr', 'es', 'fr', 'ar', 'zh', 'ja']) {
     const found = list.match(new RegExp(`${field}: '`, 'g')) ?? [];
     assert.equal(found.length, ids.length, `a tab without a ${field} label cannot follow the setting`);
   }
@@ -95,7 +95,7 @@ test('every tab in the bar is labelled in every language the app offers', () => 
   // that could hold exactly two; the bar has three languages now, and five
   // items sharing a 375px screen still have room for one word each.
   assert.ok(
-    bar.includes('<span className="tab-label">{say(t.label, t.kr, t.es, t.fr, t.ar, t.zh)}</span>'),
+    bar.includes('<span className="tab-label">{say(t.label, t.kr, t.es, t.fr, t.ar, t.zh, t.ja)}</span>'),
     'the label should be one element asking say() for the right language',
   );
   assert.equal(bar.includes('l-ko-only'), false, 'the CSS-pair version should be gone');
@@ -106,18 +106,18 @@ test('the three buttons in the top corner speak every setting', () => {
   // they are the first thing a traveller has to find. The corner fits one
   // word, so these pick rather than pair — chromeWord, not say().
   const app = read('App.jsx');
-  for (const [korean, english, spanish, french, arabic, chinese] of [
-    ['로그인', 'Sign in', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录'],
-    ['가입하기', 'Join', 'Únete', "S'inscrire", 'إنشاء حساب', '注册'],
-    ['로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج', '退出登录'],
+  for (const [korean, english, spanish, french, arabic, chinese, japanese] of [
+    ['로그인', 'Sign in', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录', 'ログイン'],
+    ['가입하기', 'Join', 'Únete', "S'inscrire", 'إنشاء حساب', '注册', '登録'],
+    ['로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج', '退出登录', 'ログアウト'],
   ]) {
     const quoted = french.includes("'") ? `"${french}"` : `'${french}'`;
     assert.ok(
-      app.includes(`chromeWord('${korean}', '${english}', '${spanish}', ${quoted}, '${arabic}', '${chinese}')`),
+      app.includes(`chromeWord('${korean}', '${english}', '${spanish}', ${quoted}, '${arabic}', '${chinese}', '${japanese}')`),
       `${korean} is not offered in every setting`,
     );
   }
-  assert.ok(app.includes('const chromeWord = (kr, en, es, fr, ar, zh) =>'));
+  assert.ok(app.includes('const chromeWord = (kr, en, es, fr, ar, zh, ja) =>'));
 });
 
 test('a pair beside an icon is still reduced, not treated as one half', () => {
@@ -129,12 +129,31 @@ test('a pair beside an icon is still reduced, not treated as one half', () => {
   // fails the one-half test, and the front page showed both halves to an
   // English reader. The rule is now about the node, not the count: a node
   // whose own text holds the separator is a whole pair by itself.
+  //
+  // Then the fix for that broke the opposite case, and shipped: `{link.kr} ·
+  // {link.en}` renders the separator as a text node of its own, " · "
+  // contains ' · ', so the group was declared a whole pair and nothing was
+  // reduced at all — 네이버 지도 · Naver Map, both halves, on every
+  // single-language screen. A node is a pair when it has a half on either
+  // side of the separator, which is what localeText splits on; the separator
+  // alone is neither half.
   const src = read('components/LocaleFilter.jsx');
   assert.ok(
-    src.includes("const whole = meaningful.filter(n => String(n[ORIGINAL] ?? '').includes(' · '));"),
+    src.includes('const whole = meaningful.filter(n => holdsBothHalves(String(n[ORIGINAL] ?? \'\')));'),
     'the filter should decide by the node, not by how many siblings it has',
   );
   assert.equal(src.includes('if (group.length === 1) {'), false, 'the count-based branch should be gone');
+
+  // The predicate itself, run rather than read: a separator on its own must
+  // not pass, or the three-node pair goes unreduced again.
+  const holdsBothHalves = (t) => {
+    const at = t.indexOf(' · ');
+    return at > 0 && t.slice(at + 3).trim() !== '';
+  };
+  assert.equal(holdsBothHalves(' · '), false, 'a lone separator is not a pair');
+  assert.equal(holdsBothHalves('밥상 · tables'), true);
+  assert.equal(holdsBothHalves('네이버 지도'), false, 'one half is not a pair');
+  assert.equal(holdsBothHalves('가입 · '), false, 'a separator with nothing after it is not a pair');
 
   // And the two front-page buttons that exposed it still carry an icon,
   // so the case the rule exists for is still on the screen.

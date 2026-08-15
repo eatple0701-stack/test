@@ -33,8 +33,11 @@ export default function QuizDeck({ menuId }) {
   return (
     <div className="quiz">
       <p className="quiz__count">
-        {i + 1} of {questions.length}
-        {q.menuId && <span className="quiz__tag">{say('this dish', '이 요리', 'este plato', 'ce plat', 'هذا الطبق', '这道菜')}</span>}
+        {say(`${i + 1} of ${questions.length}`, `${questions.length}개 중 ${i + 1}번`,
+          `${i + 1} de ${questions.length}`, `${i + 1} sur ${questions.length}`,
+          `${i + 1} من ${questions.length}`, `第 ${i + 1} / ${questions.length} 题`,
+          `${questions.length}問中 ${i + 1}問目`)}
+        {q.menuId && <span className="quiz__tag">{say('this dish', '이 요리', 'este plato', 'ce plat', 'هذا الطبق', '这道菜', 'この料理')}</span>}
       </p>
 
       <div className="quiz__card">
@@ -43,19 +46,26 @@ export default function QuizDeck({ menuId }) {
         {!answered ? (
           <div className="quiz__choices">
             {/* O and X, the way the question would be written in Korean. */}
-            <button className="quiz__choice" onClick={() => setPicked(true)} aria-label={say('True', '맞다', 'Verdadero', 'Vrai', 'صحيح', '对')}>
+            <button className="quiz__choice" onClick={() => setPicked(true)} aria-label={say('True', '맞다', 'Verdadero', 'Vrai', 'صحيح', '对', '正しい')}>
               <span className="quiz__mark">○</span>
-              <span className="quiz__word">{say('True', '맞다', 'Verdadero', 'Vrai', 'صحيح', '对')}</span>
+              <span className="quiz__word">{say('True', '맞다', 'Verdadero', 'Vrai', 'صحيح', '对', '正しい')}</span>
             </button>
-            <button className="quiz__choice" onClick={() => setPicked(false)} aria-label={say('False', '아니다', 'Falso', 'Faux', 'خطأ', '错')}>
+            <button className="quiz__choice" onClick={() => setPicked(false)} aria-label={say('False', '아니다', 'Falso', 'Faux', 'خطأ', '错', '誤り')}>
               <span className="quiz__mark">✕</span>
-              <span className="quiz__word">{say('False', '아니다', 'Falso', 'Faux', 'خطأ', '错')}</span>
+              <span className="quiz__word">{say('False', '아니다', 'Falso', 'Faux', 'خطأ', '错', '誤り')}</span>
             </button>
           </div>
         ) : (
           <div className="quiz__result">
             <p className={`quiz__verdict${correct ? ' is-right' : ''}`}>
-              {correct ? 'Right' : 'Not quite'} — the answer is {q.answer ? 'True' : 'False'}.
+              {say(
+                `${correct ? 'Right' : 'Not quite'} — the answer is ${q.answer ? 'True' : 'False'}.`,
+                `${correct ? '맞았어요' : '아쉬워요'} — 정답은 ${q.answer ? '참' : '거짓'}입니다.`,
+                `${correct ? 'Correcto' : 'Casi'} — la respuesta es ${q.answer ? 'verdadero' : 'falso'}.`,
+                `${correct ? 'Juste' : 'Pas tout à fait'} — la réponse est ${q.answer ? 'vrai' : 'faux'}.`,
+                `${correct ? 'صحيح' : 'ليس تمامًا'} — الجواب ${q.answer ? 'صحيح' : 'خطأ'}.`,
+                `${correct ? '答对了' : '差一点'} — 答案是${q.answer ? '对' : '错'}。`,
+                `${correct ? '正解です' : 'おしいです'} — 答えは${q.answer ? '○' : '×'}です。`)}
             </p>
             {/* The part worth reading out. */}
             <p className="quiz__reveal">{q.reveal}</p>
@@ -68,7 +78,7 @@ export default function QuizDeck({ menuId }) {
               </a>
             ))}
 
-            <button className="quiz__next" onClick={next}>{say('Next question', '다음 문제', 'Siguiente pregunta', 'Question suivante', 'السؤال التالي', '下一题')}</button>
+            <button className="quiz__next" onClick={next}>{say('Next question', '다음 문제', 'Siguiente pregunta', 'Question suivante', 'السؤال التالي', '下一题', '次の問題')}</button>
           </div>
         )}
       </div>

@@ -64,6 +64,20 @@ export const cultureByCategory = {
     passportMissionZh: { title: "空碗", detail: "把每一粒米都吃完，像발우공양本来的意思那样。什么都不剩下不是礼貌，是全部的修行。" },
     culturalMeaningZh: "寺院的饭承载着一种佛教式的、带着觉察的吃：不浪费，不纵容，每一样都有意思。",
     whenKoreansEatThisZh: "在寺院寄宿时，佛教节日里，或者谁想从城市的饭里安静地缓一缓的时候。",
+    didYouKnowJa: "韓国の寺の料理はニンニク、タマネギ、ニラ、ネギ、ノビルという「五辛」を使いません。強い感情をかき立てると僧が考えるからです。ここで感じる深い味はすべて、発酵と時間から来ています。",
+    diningTipsJa: [
+          "僧のように食べてください。器を空にすることがこの実践の要点で、発鉢供養は米粒ひとつ残しません。",
+          "小皿はひとつずつ味わってください。どのおかずもご飯と一緒に食べるように味つけされていて、単独で食べるものではありません。",
+          "ここの食事は静かで急ぎません。地元の人はこれを昼食ではなく瞑想として扱います。",
+    ],
+    whyLocalsLoveItJa: "常連は食べものと同じくらい、その静けさのために戻ってきます。寺の食卓は、ソウルで誰も携帯を見ていない数少ない場所のひとつです。",
+    conversationTipsJa: [
+          "発鉢供養の意味を店の人に尋ねてみてください。空の器の作法を、たいてい喜んで説明してくれます。",
+          "声は低めに。寺の食堂は瞑想の間の延長として扱われます。",
+    ],
+    passportMissionJa: { title: "空の器", detail: "発鉢供養が意図するとおり、米粒ひとつ残さず食べきってください。何も残さないのは礼儀ではなく、実践のすべてです。" },
+    culturalMeaningJa: "寺の食べものは、意識をもって食べるという仏教の考えを表しています。無駄がなく、貪らず、すべてに意図がある。",
+    whenKoreansEatThisJa: "テンプルステイのあいだ、仏教の祝日に、あるいは街の食事から静かに離れたいときに。",
     didYouKnowKo: "한국의 사찰음식은 마늘, 양파, 부추, 파, 달래 — 이른바 오신채 — 를 쓰지 않습니다. 스님들이 이것들이 강한 감정을 일으킨다고 보기 때문이에요. 여기서 느끼는 깊은 맛은 전부 발효와 오래 기다린 시간에서 옵니다.",
     diningTipsKo: [
           "스님처럼 드세요. 그릇을 비우는 것이 핵심입니다 — 발우공양은 밥알 하나 남기지 않는 수행이에요.",
@@ -91,9 +105,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Regulars come back for the quiet as much as the food — a temple meal is one of the few places in Seoul where no one is checking their phone.",
     usefulKorean: [
-      { ko: '잘 먹겠습니다', ro: 'jal meokkesseumnida', en: 'I will eat well (said before the meal)', ko_gloss: '식사 전에 하는 인사', es: 'Comeré bien (se dice antes de comer)', fr: "Je vais bien manger (se dit avant le repas)", ar: "سآكل جيدًا (تُقال قبل الطعام)", zh: "我要好好吃了（饭前说的）" },
-      { ko: '공양', ro: 'gongyang', en: 'a temple meal offering', ko_gloss: "절에서 올리는 공양", es: "la ofrenda de una comida de templo", fr: "l'offrande d'un repas de temple", ar: "قربان وجبة في المعبد", zh: "寺院供养的一餐" },
-      { ko: '맛있어요', ro: 'masisseoyo', en: "It's delicious", ko_gloss: "맛있다는 말", es: "Está delicioso", fr: "C'est délicieux", ar: "إنه لذيذ", zh: "很好吃" },
+      { ko: '잘 먹겠습니다', ro: 'jal meokkesseumnida', en: 'I will eat well (said before the meal)', ko_gloss: '식사 전에 하는 인사', es: 'Comeré bien (se dice antes de comer)', fr: "Je vais bien manger (se dit avant le repas)", ar: "سآكل جيدًا (تُقال قبل الطعام)", zh: "我要好好吃了（饭前说的）", ja: "いただきます（食事の前に言う挨拶）" },
+      { ko: '공양', ro: 'gongyang', en: 'a temple meal offering', ko_gloss: "절에서 올리는 공양", es: "la ofrenda de una comida de templo", fr: "l'offrande d'un repas de temple", ar: "قربان وجبة في المعبد", zh: "寺院供养的一餐", ja: "寺で供される食事" },
+      { ko: '맛있어요', ro: 'masisseoyo', en: "It's delicious", ko_gloss: "맛있다는 말", es: "Está delicioso", fr: "C'est délicieux", ar: "إنه لذيذ", zh: "很好吃", ja: "おいしいです" },
     ],
     conversationTips: [
       'Ask the staff what 발우공양 means — most are happy to explain the empty-bowl ritual to curious travelers.',
@@ -163,6 +177,20 @@ export const cultureByCategory = {
     passportMissionZh: { title: "像本地人那样点", detail: "给这桌点一份炸酱面和一份炒码面，吃到一半互换——面对一个选不出来的选择，韩国人的标准解法。" },
     culturalMeaningZh: "炸酱面承载着韩国华人社群的记忆：一道完全变成韩国菜、却留着外来名字的菜。",
     whenKoreansEatThisZh: "搬家那天，成绩单发下来那天，或者任何一个谁都不想做饭的工作日晚上。",
+    didYouKnowJa: "チャジャンミョンは1905年ごろ、故郷を離れた中国人の港湾労働者によって仁川のチャイナタウンで生まれました。いまや韓国では一日に何百万杯も食べられ、いまも引っ越しの日の食事として、新しい部屋の床まで届けられます。",
+    diningTipsJa: [
+          "最初のひと口の前に黒い豆の醤をよく混ぜてください。そして麺がふやける前に、早めに食べること。",
+          "添えられた黄色いたくあん（단무지）は濃さを断ち切るためのものです。交互にどうぞ。",
+          "ここでは音を立ててすするのは失礼ではありません。麺を冷ましつつ、おいしく食べている合図になります。",
+    ],
+    whyLocalsLoveItJa: "ソウルが引っ越しの日にも、ひとりの夜にも食べるものです。チャジャンミョンはまず慰めで、料理であるのはそのあとです。",
+    conversationTipsJa: [
+          "店の人がどの麺屋で育ったか訊いてみてください。韓国では誰にでも子ども時代のチャジャンミョンの店があります。",
+          "짜장 か 짬뽕 か（黒豆の醤か、辛い海鮮か）を持ち出してみてください。この対立は確実な話の糸口です。",
+    ],
+    passportMissionJa: { title: "地元のように頼む", detail: "チャジャンミョンとチャンポンを一つずつ卓に頼んで、途中で交換してください。勝ち目のない選択への、韓国の標準的な解です。" },
+    culturalMeaningJa: "チャジャンミョンは韓国の華僑の記憶を運んでいます。完全に韓国のものになりながら、外国の名前を保った料理です。",
+    whenKoreansEatThisJa: "引っ越しの日、通知表が出る日、あるいは誰も料理したくない平日の夜。",
     didYouKnowKo: "짜장면은 1905년 무렵 인천 차이나타운에서, 고향을 멀리 떠나온 중국인 부두 노동자들의 손에서 태어났습니다. 지금 한국 사람들은 하루에 수백만 그릇을 먹고, 여전히 이사하는 날 새 집 바닥에 배달시켜 먹는 음식이에요.",
     diningTipsKo: [
           "첫 젓가락 전에 춘장을 면에 골고루 비비세요. 그리고 면이 붇기 전에 빨리 드세요.",
@@ -190,9 +218,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "It's the food Seoul eats on moving day and lonely nights alike — jajangmyeon is comfort food first, cuisine second.",
     usefulKorean: [
-      { ko: '곱빼기', ro: 'gopbaegi', en: 'double portion', ko_gloss: "곱빼기 = 두 배", es: "ración doble", fr: "portion double", ar: "حصة مضاعفة", zh: "加大份" },
-      { ko: '단무지 더 주세요', ro: 'danmuji deo juseyo', en: 'More pickled radish, please', ko_gloss: "단무지를 더 달라는 말", es: "Más rábano encurtido, por favor", fr: "Encore du radis mariné, s'il vous plaît", ar: "المزيد من الفجل المخلّل، من فضلك", zh: "请再来点腌萝卜" },
-      { ko: '짜장면 하나요', ro: 'jjajangmyeon hanayo', en: 'One jajangmyeon, please', ko_gloss: "짜장면 하나 주문", es: "Un jajangmyeon, por favor", fr: "Un jajangmyeon, s'il vous plaît", ar: "جاجانغميون واحد، من فضلك", zh: "一份炸酱面，谢谢" },
+      { ko: '곱빼기', ro: 'gopbaegi', en: 'double portion', ko_gloss: "곱빼기 = 두 배", es: "ración doble", fr: "portion double", ar: "حصة مضاعفة", zh: "加大份", ja: "大盛り" },
+      { ko: '단무지 더 주세요', ro: 'danmuji deo juseyo', en: 'More pickled radish, please', ko_gloss: "단무지를 더 달라는 말", es: "Más rábano encurtido, por favor", fr: "Encore du radis mariné, s'il vous plaît", ar: "المزيد من الفجل المخلّل، من فضلك", zh: "请再来点腌萝卜", ja: "たくあんをもう少しください" },
+      { ko: '짜장면 하나요', ro: 'jjajangmyeon hanayo', en: 'One jajangmyeon, please', ko_gloss: "짜장면 하나 주문", es: "Un jajangmyeon, por favor", fr: "Un jajangmyeon, s'il vous plaît", ar: "جاجانغميون واحد، من فضلك", zh: "一份炸酱面，谢谢", ja: "チャジャンミョンをひとつください" },
     ],
     conversationTips: [
       'Ask which noodle shop the staff grew up eating at — everyone in Korea has a childhood jjajangmyeon spot.',
@@ -258,6 +286,19 @@ export const cultureByCategory = {
     passportMissionZh: { title: "问问厨房", detail: "问问豆制的\"肉\"是用什么做的。韩国的植物性厨房为这门手艺自豪，会很乐意讲给你听。" },
     culturalMeaningZh: "在韩国吃素，比\"纯素\"这个词早了好几个世纪——今天的厨房是在复活一张古老得多的、以蔬菜为主的餐桌。",
     whenKoreansEatThisZh: "越来越是任何一天：过去十年里，首尔的纯素从小众长成了一个正经的品类。",
+    didYouKnowJa: "韓国の菜食は나물（ナムル）というとても古い考えに支えられています。野の菜を和える技です。「ヴィーガン」という語ができるずっと前から、きちんとした韓国の食卓は何十もの野菜の皿の上に成り立っていました。",
+    diningTipsJa: [
+          "疑っていても大豆の「肉」は試してみてください。韓国の厨房は寺の料理の数十年でその食感を磨いてきました。",
+          "おかず（バンチャン）はたいていおかわりできます。もう一度頼むのは無作法ではなく、厨房への褒め言葉です。",
+    ],
+    whyLocalsLoveItJa: "ソウルの菜食の厨房には修行中の僧も運動選手も懐疑派も来ます。そして全員が、肉の味がしたかどうかを言い合いながら出ていきます。",
+    conversationTipsJa: [
+          "大豆の「肉」が何からできているか尋ねてください。ソウルの菜食の厨房はその技を誇っていて、喜んで説明してくれます。",
+          "韓国のヴィーガンはまだ小さく密なつながりです。店の人が市内のほかの菜食の店を全部知っていることも珍しくありません。",
+    ],
+    passportMissionJa: { title: "厨房に尋ねる", detail: "大豆の「肉」が何からできているか尋ねてください。韓国の菜食の厨房はその技を誇っていて、喜んで案内してくれます。" },
+    culturalMeaningJa: "韓国の菜食は「ヴィーガン」という語より何世紀もさかのぼります。いまの厨房は、はるかに古い野菜中心の食卓を蘇らせているのです。",
+    whenKoreansEatThisJa: "ますますどの日でも。ソウルの菜食はこの十年で、隅の話から独立した分類へと育ちました。",
     didYouKnowKo: "한국의 식물성 식문화를 떠받치는 건 아주 오래된 개념입니다. 나물, 즉 들에서 난 푸성귀를 무쳐 내는 기술이요. 비건이라는 말이 생기기 훨씬 전부터 제대로 차린 한국 밥상은 이미 수십 가지 채소 요리로 이루어져 있었습니다.",
     diningTipsKo: [
           "콩고기 요리는 의심이 들더라도 한 번 드셔 보세요. 한국 주방은 사찰음식을 거치며 수십 년 동안 그 식감을 다듬어 왔습니다.",
@@ -283,9 +324,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Seoul's plant-based kitchens draw a mixed crowd of monks-in-training, athletes and skeptics — everyone leaves arguing about whether it tasted like meat.",
     usefulKorean: [
-      { ko: '비건이에요', ro: 'bigeon-ieyo', en: "I'm vegan", ko_gloss: "비건이라고 밝히는 말", es: "Soy vegano", fr: "Je suis végane", ar: "أنا نباتي صِرف", zh: "我吃纯素" },
-      { ko: '고기 안 들어가요?', ro: 'gogi an deureogayo?', en: 'Does this have meat in it?', ko_gloss: '고기가 들었는지 묻는 말', es: '¿Lleva carne?', fr: "Est-ce qu'il y a de la viande dedans ?", ar: "هل فيه لحم؟", zh: "这里面有肉吗？" },
-      { ko: '두부', ro: 'dubu', en: 'tofu', ko_gloss: "두부", es: "tofu", fr: "tofu", ar: "توفو", zh: "豆腐" },
+      { ko: '비건이에요', ro: 'bigeon-ieyo', en: "I'm vegan", ko_gloss: "비건이라고 밝히는 말", es: "Soy vegano", fr: "Je suis végane", ar: "أنا نباتي صِرف", zh: "我吃纯素", ja: "私はヴィーガンです" },
+      { ko: '고기 안 들어가요?', ro: 'gogi an deureogayo?', en: 'Does this have meat in it?', ko_gloss: '고기가 들었는지 묻는 말', es: '¿Lleva carne?', fr: "Est-ce qu'il y a de la viande dedans ?", ar: "هل فيه لحم؟", zh: "这里面有肉吗？", ja: "これに肉は入っていますか？" },
+      { ko: '두부', ro: 'dubu', en: 'tofu', ko_gloss: "두부", es: "tofu", fr: "tofu", ar: "توفو", zh: "豆腐", ja: "豆腐" },
     ],
     conversationTips: [
       'Ask what the soy-meat is made from — most Seoul vegan kitchens are proud of the technique and love to explain it.',
@@ -355,6 +396,20 @@ export const cultureByCategory = {
     passportMissionZh: { title: "听听这家人的故事", detail: "问问这家人开这个厨房多久了。很多是第一代，而那个答案通常是你带走的最好的东西。" },
     culturalMeaningZh: "这些厨房是韩国家常菜和伊斯兰饮食律法之间一场安静的协商——它们从来没有看上去那么远。",
     whenKoreansEatThisZh: "对首尔的穆斯林社群来说这就是平常的晚饭；对来访的人，往往是通向韩国味道的第一座桥。",
+    didYouKnowJa: "ソウルのハラール韓国料理は、ソウル中央聖院の脇の坂道、ウサダン路で育ちました。1970年代からムスリムの商人と旅人を迎えてきた界隈です。",
+    diningTipsJa: [
+          "プルコギとサムゲタンは韓国の味へのもっとも穏やかな入口です。味は深く、辛さの衝撃はありません。",
+          "韓国の食事は共有です。料理は卓の真ん中に届き、全員で分けます。",
+          "正式なハラールの保証が欲しければ、レジのそばの KMF（韓国イスラーム連盟）の証書を探してください。",
+    ],
+    whyLocalsLoveItJa: "ソウルに住むムスリムにとって、これらの厨房は物珍しさというより命綱です。家庭的な韓国の食事に原材料の翻訳が要らない唯一の場所だからです。",
+    conversationTipsJa: [
+          "ハラールに対応してくれていることに礼を言ってください。梨泰院の外ではまだ珍しく、店の人はそれに気づき、うれしく思います。",
+          "この店を家族で何年やっているか尋ねてみてください。いくつかは一世代目の、誇りをもって語られる移民の話です。",
+    ],
+    passportMissionJa: { title: "家族の話を聞く", detail: "この厨房を家族で何年やっているか尋ねてください。多くは一世代目で、その答えはたいてい、持ち帰るいちばんいいものになります。" },
+    culturalMeaningJa: "これらの厨房は、韓国の家庭料理とイスラームの食の規範とのあいだの静かな交渉です。二つが見た目ほど遠くなかったことの証拠でもあります。",
+    whenKoreansEatThisJa: "ソウルのムスリムの人たちにとっては、これは単に平日の夕食です。訪れる人にとっては、韓国の味への最初の橋になることが多い。",
     didYouKnowKo: "서울의 할랄 한식은 서울중앙성원 옆 비탈길, 우사단로에서 자랐습니다. 1970년대부터 무슬림 상인과 여행자를 맞아 온 동네예요.",
     diningTipsKo: [
           "불고기와 삼계탕이 한국 맛으로 들어가는 가장 부드러운 입구입니다. 깊고 구수하며, 매운맛의 충격이 없어요.",
@@ -382,9 +437,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "For Seoul's Muslim residents, these kitchens are less a novelty and more a lifeline — the one place a home-style Korean meal doesn't require a translated ingredient list.",
     usefulKorean: [
-      { ko: '할랄 음식 있어요?', ro: 'hallal eumsik isseoyo?', en: 'Do you have halal food?', ko_gloss: '할랄 음식이 있는지 묻는 말', es: '¿Tienen comida halal?', fr: "Avez-vous de la nourriture halal ?", ar: "هل لديكم طعام حلال؟", zh: "你们有清真食品吗？" },
-      { ko: '돼지고기 안 들어가요', ro: 'dwaejigogi an deureogayo', en: 'No pork in this', ko_gloss: "돼지고기가 없다는 말", es: "Esto no lleva cerdo", fr: "Il n'y a pas de porc dedans", ar: "لا يوجد فيه لحم خنزير", zh: "这里面没有猪肉" },
-      { ko: '감사합니다', ro: 'gamsahamnida', en: 'Thank you', ko_gloss: "고맙다는 인사", es: "Gracias", fr: "Merci", ar: "شكرًا", zh: "谢谢" },
+      { ko: '할랄 음식 있어요?', ro: 'hallal eumsik isseoyo?', en: 'Do you have halal food?', ko_gloss: '할랄 음식이 있는지 묻는 말', es: '¿Tienen comida halal?', fr: "Avez-vous de la nourriture halal ?", ar: "هل لديكم طعام حلال؟", zh: "你们有清真食品吗？", ja: "ハラールの料理はありますか？" },
+      { ko: '돼지고기 안 들어가요', ro: 'dwaejigogi an deureogayo', en: 'No pork in this', ko_gloss: "돼지고기가 없다는 말", es: "Esto no lleva cerdo", fr: "Il n'y a pas de porc dedans", ar: "لا يوجد فيه لحم خنزير", zh: "这里面没有猪肉", ja: "これには豚肉は入っていません" },
+      { ko: '감사합니다', ro: 'gamsahamnida', en: 'Thank you', ko_gloss: "고맙다는 인사", es: "Gracias", fr: "Merci", ar: "شكرًا", zh: "谢谢", ja: "ありがとうございます" },
     ],
     conversationTips: [
       "Thank the kitchen for catering to halal diets — it's still rare enough outside Itaewon that staff notice and appreciate it.",
@@ -450,6 +505,19 @@ export const cultureByCategory = {
     passportMissionZh: { title: "问下一家", detail: "仁川做清真的老板们通常互相认识。问问他们休息那天在哪儿吃，然后照着去。" },
     culturalMeaningZh: "仁川的清真厨房是一座港口城市职责的活证据：把世界的食物吸收进来，并在桌上给它腾出位置。",
     whenKoreansEatThisZh: "构成仁川最多元街区的国际工人和学生的午休时间。",
+    didYouKnowJa: "仁川は一世紀以上、世界の食が韓国に入る門でした。その港が国内最初のチャイナタウンを開き、いまはそのハラールの厨房が、韓国でもっとも国際的な地区のひとつを食べさせています。",
+    diningTipsJa: [
+          "量は分け合う前提です。韓国式に、卓にいくつか頼んでください。",
+          "カレーやケバブの横に韓国式の漬けものを出す店が少なくありません。試す価値のある、小さな土地の融合です。",
+    ],
+    whyLocalsLoveItJa: "仁川のハラールの厨房は本当に国際的な界隈を食べさせています。ここで頼めば、隣に座るのは韓国の常連かもしれないし、同じ旅人かもしれません。",
+    conversationTipsJa: [
+          "母国の版と仁川の版で何が違うか尋ねてください。港町の厨房は手に入る材料に合わせて作り方を変えることがよくあります。",
+          "仁川のハラールの輪は店主どうしが知り合っている程度の大きさです。近くのもう一軒を教えてもらってください。",
+    ],
+    passportMissionJa: { title: "次の一軒を訊く", detail: "仁川のハラールの店主はたいてい互いを知っています。休みの日にどこで食べるか尋ねて、そこへ行ってみてください。" },
+    culturalMeaningJa: "仁川のハラールの厨房は、港町の仕事の生きた証拠です。世界の食を受け止め、食卓にその場所をつくること。",
+    whenKoreansEatThisJa: "仁川のもっとも多様な地区をつくっている、国際的な労働者と学生の昼休み。",
     didYouKnowKo: "인천은 백 년 넘게 한국이 세계의 음식을 받아들이는 관문이었습니다. 이 항구가 한국 최초의 차이나타운을 열었고, 지금은 그 할랄 주방들이 한국에서 가장 국제적인 동네를 먹이고 있어요.",
     diningTipsKo: [
           "양이 나눠 먹기에 맞춰져 있습니다. 한국식으로 여러 가지를 상에 시키세요.",
@@ -475,9 +543,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Incheon's halal kitchens feed a genuinely international neighborhood — order here and you're as likely to sit next to a Korean regular as a fellow traveler.",
     usefulKorean: [
-      { ko: '이거 매워요?', ro: 'igeo maewoyo?', en: 'Is this spicy?', ko_gloss: '매운지 묻는 말', es: '¿Esto pica?', fr: "Est-ce que c'est piquant ?", ar: "هل هذا حارّ؟", zh: "这个辣吗？" },
-      { ko: '포장이요', ro: 'pojang-iyo', en: 'To go, please', ko_gloss: "포장해 달라는 말", es: "Para llevar, por favor", fr: "À emporter, s'il vous plaît", ar: "سفري، من فضلك", zh: "打包，谢谢" },
-      { ko: '물 좀 주세요', ro: 'mul jom juseyo', en: 'Water, please', ko_gloss: "물을 달라는 말", es: "Agua, por favor", fr: "De l'eau, s'il vous plaît", ar: "ماء، من فضلك", zh: "请给我水" },
+      { ko: '이거 매워요?', ro: 'igeo maewoyo?', en: 'Is this spicy?', ko_gloss: '매운지 묻는 말', es: '¿Esto pica?', fr: "Est-ce que c'est piquant ?", ar: "هل هذا حارّ؟", zh: "这个辣吗？", ja: "これは辛いですか？" },
+      { ko: '포장이요', ro: 'pojang-iyo', en: 'To go, please', ko_gloss: "포장해 달라는 말", es: "Para llevar, por favor", fr: "À emporter, s'il vous plaît", ar: "سفري، من فضلك", zh: "打包，谢谢", ja: "持ち帰りでお願いします" },
+      { ko: '물 좀 주세요', ro: 'mul jom juseyo', en: 'Water, please', ko_gloss: "물을 달라는 말", es: "Agua, por favor", fr: "De l'eau, s'il vous plaît", ar: "ماء، من فضلك", zh: "请给我水", ja: "お水をください" },
     ],
     conversationTips: [
       "Ask what's different about the Incheon version of the dish versus back home — port-city kitchens often adapt recipes for local ingredients.",
@@ -543,6 +611,19 @@ export const cultureByCategory = {
     passportMissionZh: { title: "什么都别留下", detail: "拒绝一样一次性的东西——杯子、袋子或吸管。顺便问问厨余最后去了哪儿。" },
     culturalMeaningZh: "零废弃的吃法呼应着一种很韩国的节俭和会过日子的本能，只是如今对准的是气候，而不只是钱包。",
     whenKoreansEatThisZh: "任何时候，只要有人希望自己这顿饭尽量少留下东西——这越来越是日常的选择，而不是特殊场合。",
+    didYouKnowJa: "韓国は生ごみのおよそ95%を再資源化していて、2013年から分別は義務です。家庭は指定袋かカード式の回収箱で、重さに応じて負担します。使い捨てのないカフェはもう一歩進んで、そもそもごみをカウンターの向こうへ通しません。",
+    diningTipsJa: [
+          "タンブラーか容器を持って行ってください。たいていの店が少し値引きします。",
+          "「根から葉まで」の調理は、野菜の見慣れない部位が皿に来ることを意味します。厨房を信じてください。",
+    ],
+    whyLocalsLoveItJa: "常連は言われなくても自分の容器を持ってきます。ここではそれは宣伝というより、この界隈が実際に身につけた習慣です。",
+    conversationTipsJa: [
+          "食べ残しがどこへ行くのか尋ねてみてください。韓国の生ごみ再資源化のしくみは、初めて来た人のほとんどを驚かせます。",
+          "持っているなら繰り返し使えるカップを。たいていの店が静かに少しだけ値引きしてくれます。",
+    ],
+    passportMissionJa: { title: "何も残さない", detail: "使い捨てをひとつ断ってください——カップ、袋、ストロー。ついでに、食べ残しがどこへ行くのかも尋ねてみてください。" },
+    culturalMeaningJa: "使い捨てのない食事は、倹約と工夫というとても韓国的な本能を映しています。いまはそれが財布だけでなく気候に向いているだけです。",
+    whenKoreansEatThisJa: "自分の食事ができるだけ何も残さないようにと望むときいつでも。特別な日ではなく、日常の選択になりつつあります。",
     didYouKnowKo: "한국은 음식물 쓰레기의 약 95%를 재활용하고, 2013년부터 분리배출이 의무입니다. 가정은 전용 봉투나 카드형 수거함으로 무게만큼 값을 냅니다. 제로웨이스트 카페는 한 걸음 더 나아가, 애초에 일회용품이 계산대를 넘어오지 않게 합니다.",
     diningTipsKo: [
           "텀블러나 용기를 들고 가세요. 대부분의 제로웨이스트 가게가 작은 할인을 해 줍니다.",
@@ -573,9 +654,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Regulars bring their own containers without being asked — it's less a marketing angle here and more an actual habit the neighborhood has picked up.",
     usefulKorean: [
-      { ko: '텀블러 있어요', ro: 'teombeulleo isseoyo', en: 'I have my own tumbler/cup', ko_gloss: "텀블러를 가져왔다는 말", es: "Traigo mi propio vaso", fr: "J'ai ma propre tasse", ar: "معي كوبي الخاص", zh: "我自己带了杯子" },
-      { ko: '일회용품 필요 없어요', ro: 'ilhoeyongpum piryo eopseoyo', en: "I don't need disposables", ko_gloss: "일회용품이 필요 없다는 말", es: "No necesito desechables", fr: "Je n'ai pas besoin de jetable", ar: "لا أحتاج إلى أدوات تُرمى", zh: "我不需要一次性用品" },
-      { ko: '잘 먹었습니다', ro: 'jal meogeotseumnida', en: 'That was a good meal (said after eating)', ko_gloss: '식사 후에 하는 인사', es: 'He comido muy bien (se dice al terminar)', fr: "C'était un bon repas (se dit après avoir mangé)", ar: "كانت وجبة طيّبة (تُقال بعد الأكل)", zh: "这顿饭很好（吃完说的）" },
+      { ko: '텀블러 있어요', ro: 'teombeulleo isseoyo', en: 'I have my own tumbler/cup', ko_gloss: "텀블러를 가져왔다는 말", es: "Traigo mi propio vaso", fr: "J'ai ma propre tasse", ar: "معي كوبي الخاص", zh: "我自己带了杯子", ja: "自分のタンブラーがあります" },
+      { ko: '일회용품 필요 없어요', ro: 'ilhoeyongpum piryo eopseoyo', en: "I don't need disposables", ko_gloss: "일회용품이 필요 없다는 말", es: "No necesito desechables", fr: "Je n'ai pas besoin de jetable", ar: "لا أحتاج إلى أدوات تُرمى", zh: "我不需要一次性用品", ja: "使い捨てのものは要りません" },
+      { ko: '잘 먹었습니다', ro: 'jal meogeotseumnida', en: 'That was a good meal (said after eating)', ko_gloss: '식사 후에 하는 인사', es: 'He comido muy bien (se dice al terminar)', fr: "C'était un bon repas (se dit après avoir mangé)", ar: "كانت وجبة طيّبة (تُقال بعد الأكل)", zh: "这顿饭很好（吃完说的）", ja: "ごちそうさまでした（食後に言う挨拶）" },
     ],
     conversationTips: [
       "Ask what happens to the food scraps — Korea's food-waste recycling system surprises most first-time visitors.",
@@ -641,6 +722,19 @@ export const cultureByCategory = {
     passportMissionZh: { title: "今早烤的", detail: "问问今天出炉的是什么，点那个，而不是你原本打算点的。品项每天都变，而且很少写进菜单。" },
     culturalMeaningZh: "首尔的咖啡馆本身就是一种社会机构——一个被看见、工作、消磨时间的地方——建立在借来又重新做过的烘焙传统之上。",
     whenKoreansEatThisZh: "周末的上午，几乎是仪式性的：那是一周里最慢、最从容的一顿。",
+    didYouKnowJa: "ソウルは地上でもっともカフェの密度が高い都市のひとつで、週末のブランチは食事というより儀式に近いものです。韓国の版は重いソースではなく、季節の野菜とゆっくりした焼きに寄っています。",
+    diningTipsJa: [
+          "韓国のカフェは居座る場所です。一杯で午後のあいだ席は気持ちよくあなたのものになります。",
+          "今日は何を焼いたか尋ねてください。少量ずつ焼くパン屋は、いちばんいいものを昼前に売り切ります。",
+    ],
+    whyLocalsLoveItJa: "ソウルは週末のブランチを食事ではなく行き先として扱います。地元の人は、先週の昼までに売り切れたパン屋のために街を横断します。",
+    conversationTipsJa: [
+          "今朝焼きたてなのは何か尋ねてください。少量ずつ焼くパン屋は毎日品揃えを変えていて、訊かれるのを喜びます。",
+          "ここは居座る文化です。一杯のあとで追い立てられることはありません。",
+    ],
+    passportMissionJa: { title: "今朝焼けたもの", detail: "今日オーブンから出たものを尋ねて、予定していたものの代わりにそれを頼んでください。品揃えは毎日変わり、品書きに載ることはめったにありません。" },
+    culturalMeaningJa: "ソウルのカフェはそれ自体がひとつの社会制度です。見られる場所、働く場所、居座る場所——借りてきて作り直した製パンの伝統の周りに建っています。",
+    whenKoreansEatThisJa: "週末の遅い午前、ほとんど儀式のように。一週間でもっとも遅く、もっとも意識的な一食です。",
     didYouKnowKo: "서울은 지구에서 카페 밀도가 가장 높은 도시 중 하나이고, 주말 브런치는 끼니라기보다 의식에 가깝습니다. 한국식은 무거운 소스보다 제철 채소와 느린 베이킹 쪽으로 기울어요.",
     diningTipsKo: [
           "한국에서 카페는 머무는 공간입니다. 한 잔이면 오후 내내 그 자리가 편안히 내 것이 돼요.",
@@ -666,9 +760,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Seoul treats weekend brunch as a destination, not a meal — locals will cross the city for a bakery that sold out by noon last week.",
     usefulKorean: [
-      { ko: '오늘 뭐가 맛있어요?', ro: 'oneul mwoga masisseoyo?', en: "What's good today?", ko_gloss: '오늘 뭐가 좋은지 묻는 말', es: '¿Qué está bueno hoy?', fr: "Qu'est-ce qui est bon aujourd'hui ?", ar: "ما الطيّب اليوم؟", zh: "今天什么好？" },
-      { ko: '여기서 먹을게요', ro: 'yeogiseo meogeulgeyo', en: "I'll eat here (not takeout)", ko_gloss: '매장에서 먹겠다는 말', es: 'Voy a comer aquí (no para llevar)', fr: "Je mange sur place (pas à emporter)", ar: "سآكل هنا (لا سفري)", zh: "我在这儿吃（不打包）" },
-      { ko: '커피 한 잔이요', ro: 'keopi han janiyo', en: 'One coffee, please', ko_gloss: "커피 한 잔 주문", es: "Un café, por favor", fr: "Un café, s'il vous plaît", ar: "قهوة واحدة، من فضلك", zh: "一杯咖啡，谢谢" },
+      { ko: '오늘 뭐가 맛있어요?', ro: 'oneul mwoga masisseoyo?', en: "What's good today?", ko_gloss: '오늘 뭐가 좋은지 묻는 말', es: '¿Qué está bueno hoy?', fr: "Qu'est-ce qui est bon aujourd'hui ?", ar: "ما الطيّب اليوم؟", zh: "今天什么好？", ja: "今日は何がおいしいですか？" },
+      { ko: '여기서 먹을게요', ro: 'yeogiseo meogeulgeyo', en: "I'll eat here (not takeout)", ko_gloss: '매장에서 먹겠다는 말', es: 'Voy a comer aquí (no para llevar)', fr: "Je mange sur place (pas à emporter)", ar: "سآكل هنا (لا سفري)", zh: "我在这儿吃（不打包）", ja: "ここで食べます（持ち帰りではなく）" },
+      { ko: '커피 한 잔이요', ro: 'keopi han janiyo', en: 'One coffee, please', ko_gloss: "커피 한 잔 주문", es: "Un café, por favor", fr: "Un café, s'il vous plaît", ar: "قهوة واحدة، من فضلك", zh: "一杯咖啡，谢谢", ja: "コーヒーをひとつください" },
     ],
     conversationTips: [
       'Ask what was baked fresh this morning — small-batch bakeries change their lineup daily and love being asked.',
@@ -734,6 +828,19 @@ export const cultureByCategory = {
     passportMissionZh: { title: "让季节点菜", detail: "问一句 제철 음식이 뭐예요？然后点回答里的那样——哪怕你还念不出它的名字。" },
     culturalMeaningZh: "按 제철（jecheol）吃，是把日历当成真正的菜单：跟着土地此刻正在产出的东西吃。",
     whenKoreansEatThisZh: "每逢季节转换——这个月在你桌上的那道菜，六周后就不在了。",
+    didYouKnowJa: "韓国の料理は제철（チェチョル）、「季節の巡り」に従います。材料が旬に入ると品書きは静かに変わっていくので、地元の人は品書きを読むかわりに「今日は何がいいですか」と尋ねます。",
+    diningTipsJa: [
+          "何が旬か尋ねてください。いちばんいい一皿は、印刷された品書きに載っていないことがよくあります。",
+          "これだけ運ぶ距離が短いと、皿の野菜はおそらく一日か二日前に収穫されたものです。",
+    ],
+    whyLocalsLoveItJa: "常連は品書きを求めません。何が旬かを尋ねます。厨房は印刷が追いつく前に変えてしまうからです。",
+    conversationTipsJa: [
+          "今週この辺りで採れているものを尋ねてください。제철（チェチョル、「季節の巡り」）は本物の土地の誇りです。",
+          "印刷された品書きになくても訊いてみてください。いちばんいい旬のものは載っていないことが多いのです。",
+    ],
+    passportMissionJa: { title: "季節に注文させる", detail: "제철 음식이 뭐예요？と尋ねて、返ってきたものを頼んでください。まだ発音できなくても構いません。" },
+    culturalMeaningJa: "제철（チェチョル）の食事は、暦を本当の品書きとして扱います。土地がいま出しているものと歩調を合わせて食べるということです。",
+    whenKoreansEatThisJa: "季節が巡るたびに。今月あなたの卓にある一皿は、六週間後にはそこにありません。",
     didYouKnowKo: "한국 요리는 제철을 따릅니다. 재료가 철을 맞으면 메뉴가 조용히 바뀌고, 그래서 현지 사람들은 메뉴판을 읽는 대신 \"오늘 뭐가 좋아요?\"라고 묻습니다.",
     diningTipsKo: [
           "제철이 뭔지 물어보세요. 가장 좋은 요리는 인쇄된 메뉴판에 없는 경우가 많습니다.",
@@ -759,9 +866,9 @@ export const cultureByCategory = {
     whyLocalsLoveIt:
       "Regulars don't ask for the menu — they ask what's in season, because the kitchen changes it before the printed version catches up.",
     usefulKorean: [
-      { ko: '제철 음식이 뭐예요?', ro: 'jecheol eumsigi mwoyeyo?', en: "What's in season right now?", ko_gloss: '제철 음식이 뭔지 묻는 말', es: '¿Qué es de temporada ahora?', fr: "Qu'est-ce qui est de saison en ce moment ?", ar: "ما الذي في موسمه الآن؟", zh: "现在什么是当季的？" },
-      { ko: '오늘의 메뉴', ro: 'oneurui menyu', en: "today's menu", ko_gloss: "오늘의 메뉴", es: "el menú de hoy", fr: "le menu du jour", ar: "قائمة اليوم", zh: "今日菜单" },
-      { ko: '잘 먹었습니다', ro: 'jal meogeotseumnida', en: 'That was a good meal (said after eating)', ko_gloss: '식사 후에 하는 인사', es: 'He comido muy bien (se dice al terminar)', fr: "C'était un bon repas (se dit après avoir mangé)", ar: "كانت وجبة طيّبة (تُقال بعد الأكل)", zh: "这顿饭很好（吃完说的）" },
+      { ko: '제철 음식이 뭐예요?', ro: 'jecheol eumsigi mwoyeyo?', en: "What's in season right now?", ko_gloss: '제철 음식이 뭔지 묻는 말', es: '¿Qué es de temporada ahora?', fr: "Qu'est-ce qui est de saison en ce moment ?", ar: "ما الذي في موسمه الآن؟", zh: "现在什么是当季的？", ja: "いま旬のものは何ですか？" },
+      { ko: '오늘의 메뉴', ro: 'oneurui menyu', en: "today's menu", ko_gloss: "오늘의 메뉴", es: "el menú de hoy", fr: "le menu du jour", ar: "قائمة اليوم", zh: "今日菜单", ja: "本日の品書き" },
+      { ko: '잘 먹었습니다', ro: 'jal meogeotseumnida', en: 'That was a good meal (said after eating)', ko_gloss: '식사 후에 하는 인사', es: 'He comido muy bien (se dice al terminar)', fr: "C'était un bon repas (se dit après avoir mangé)", ar: "كانت وجبة طيّبة (تُقال بعد الأكل)", zh: "这顿饭很好（吃完说的）", ja: "ごちそうさまでした（食後に言う挨拶）" },
     ],
     conversationTips: [
       'Ask what\'s harvested nearby this week — 제철 (jecheol, "the season\'s turn") is a genuine point of local pride.',
@@ -942,6 +1049,37 @@ export const ZONE_ZH = {
   "Gaehang-ro, Incheon": "仁川开港路",
 };
 
+// The same categories in Japanese.
+export const CATEGORY_LABEL_JA = {
+  temple: "寺の料理",
+  "korean-chinese": "韓国式中華",
+  "vegan-dining": "菜食",
+  "halal-korean": "ハラール韓国料理",
+  "world-halal": "各国のハラール",
+  "zero-waste": "使い捨てなし",
+  "brunch-bakery": "ブランチとパン",
+  "local-seasonal": "旬のもの",
+};
+
+// Neighbourhood names in Japanese. Korean place names have established
+// Japanese readings written in the same kanji, so these follow those rather
+// than transliterating the romanisation — 종로 is 鍾路, read Chongno.
+export const ZONE_JA = {
+  "Jongno, Seoul": "ソウル・鍾路",
+  "Insadong, Seoul": "ソウル・仁寺洞",
+  "Itaewon, Seoul": "ソウル・梨泰院",
+  "Myeongdong, Seoul": "ソウル・明洞",
+  "Hoehyeon, Seoul": "ソウル・会賢",
+  "Bukchon, Seoul": "ソウル・北村",
+  "Seochon, Seoul": "ソウル・西村",
+  "Songdo, Incheon": "仁川・松島",
+  "Guwol-dong, Incheon": "仁川・九月洞",
+  "Cheongna, Incheon": "仁川・青蘿",
+  "Yeonsu, Incheon": "仁川・延寿",
+  "Chinatown, Jemulpo-gu, Incheon": "仁川・済物浦区チャイナタウン",
+  "Gaehang-ro, Incheon": "仁川・開港路",
+};
+
 export function getCulture(place) {
   const base = cultureByCategory[place.category] ?? cultureByCategory['local-seasonal'];
   return {
@@ -1004,5 +1142,14 @@ export function getCulture(place) {
     passportMissionZh: place.passportMission ? place.passportMissionZh : base.passportMissionZh,
     culturalMeaningZh: place.culturalMeaning ? place.culturalMeaningZh : base.culturalMeaningZh,
     whenKoreansEatThisZh: place.whenKoreansEatThis ? place.whenKoreansEatThisZh : base.whenKoreansEatThisZh,
+
+    // Japanese, through the same override chain and for the same reason.
+    didYouKnowJa: place.didYouKnow ? place.didYouKnowJa : base.didYouKnowJa,
+    diningTipsJa: place.diningTips ? place.diningTipsJa : base.diningTipsJa,
+    whyLocalsLoveItJa: place.whyLocalsLoveIt ? place.whyLocalsLoveItJa : base.whyLocalsLoveItJa,
+    conversationTipsJa: place.conversationTips ? place.conversationTipsJa : base.conversationTipsJa,
+    passportMissionJa: place.passportMission ? place.passportMissionJa : base.passportMissionJa,
+    culturalMeaningJa: place.culturalMeaning ? place.culturalMeaningJa : base.culturalMeaningJa,
+    whenKoreansEatThisJa: place.whenKoreansEatThis ? place.whenKoreansEatThisJa : base.whenKoreansEatThisJa,
   };
 }

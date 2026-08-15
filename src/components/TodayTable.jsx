@@ -67,22 +67,30 @@ export default function TodayTable({ profile, onOpenTable }) {
           <button key={t.id} className="today-table" onClick={() => onOpenTable(t.id)}>
             <span className="today-table__kr" aria-hidden="true">{menu.nameKo}</span>
             <span className="today-table__eyebrow">
-              Today · {t.time}
-              {t.hosted && <span className="today-table__badge">{say('you host', '내가 호스트', 'eres anfitrión', 'vous êtes hôte', 'أنت المضيف', '你是主人')}</span>}
+              {say(`Today · ${t.time}`, `오늘 · ${t.time}`, `Hoy · ${t.time}`, `Aujourd'hui · ${t.time}`,
+                `اليوم · ${t.time}`, `今天 · ${t.time}`, `今日 · ${t.time}`)}
+              {t.hosted && <span className="today-table__badge">{say('you host', '내가 호스트', 'eres anfitrión', 'vous êtes hôte', 'أنت المضيف', '你是主人', 'あなたがホスト')}</span>}
             </span>
             <span className="today-table__dish">{menu.name}</span>
 
             {/* The two lines somebody actually reads at a station exit. */}
             <span className="today-table__where">{t.place}</span>
             {t.others.length > 0 && (
-              <span className="today-table__who">Look for {t.others.join(', ')}</span>
+              <span className="today-table__who">{say(
+                `Look for ${t.others.join(', ')}`, `${t.others.join(', ')}님을 찾으세요`,
+                `Busca a ${t.others.join(', ')}`, `Cherchez ${t.others.join(', ')}`,
+                `ابحث عن ${t.others.join('، ')}`, `找${t.others.join('、')}`,
+                `${t.others.join('、')}さんを探してください`)}</span>
             )}
             {t.restaurant && (
-              <span className="today-table__shop">Eating at {t.restaurant}</span>
+              <span className="today-table__shop">{say(
+                `Eating at ${t.restaurant}`, `${t.restaurant}에서 먹어요`, `Comemos en ${t.restaurant}`,
+                `On mange à ${t.restaurant}`, `نأكل في ${t.restaurant}`, `在${t.restaurant}吃`,
+                `${t.restaurant}で食べます`)}</span>
             )}
 
             <span className="today-table__cta">
-              Everything about tonight <ChevronRightIcon size={14} />
+              {say('Everything about tonight', '오늘 저녁 자세히', 'Todo sobre esta noche', 'Tout sur ce soir', 'كلّ شيء عن هذه الليلة', '今晚的全部', '今夜のすべて')} <ChevronRightIcon size={14} />
             </span>
           </button>
         );

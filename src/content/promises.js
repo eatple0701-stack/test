@@ -28,6 +28,7 @@ export const PROMISES = [
     fr: "L'hôte lit qui vous êtes et vous dit oui, par votre nom. Aucune table ne se remplit toute seule.",
     ar: 'يقرأ المضيف من أنت ويقول لك نعم، باسمك. ولا تمتلئ مائدة من تلقاء نفسها.',
     zh: '主人会读你是谁，然后按名字答应你。没有哪张饭桌是自己坐满的。',
+    ja: 'ホストがあなたが誰かを読み、名前を見て承認します。ひとりでに埋まる食卓はありません。',
     backedBy: 'src/domain/policy/seatRequest.js',
   },
   {
@@ -39,6 +40,7 @@ export const PROMISES = [
     fr: "Une demande restée sans réponse libère sa place 12 heures avant le repas, pour que personne ne garde une chaise par oubli.",
     ar: 'الطلب الذي يبقى بلا ردّ يُفرج عن مقعده قبل الوجبة باثنتي عشرة ساعة، حتى لا يحتجز أحد كرسيًّا نسيانًا.',
     zh: '没有回应的申请会在开饭前十二小时把位子放开，免得有人只是忘了就一直占着一把椅子。',
+    ja: '返事のないリクエストは、食事の12時間前に席を手放します。忘れていただけで席を押さえたままの人が出ないように。',
     backedBy: 'src/domain/policy/seatRequest.js',
   },
   {
@@ -50,6 +52,7 @@ export const PROMISES = [
     fr: "Une absence est consignée — non comme une note, mais pour que le carnet cesse d'appeler « rencontré » quelqu'un que vous n'avez pas rencontré.",
     ar: 'يُسجَّل التخلّف عن الحضور — لا كدرجة، بل كي يكفّ السجلّ عن تسمية من لم تلتقِه لقاءً.',
     zh: '没来会被记下——不是为了打分，而是为了让记录别把没见过的人算成见过的人。',
+    ja: '来なかったことは記録に残ります。点数をつけるためではなく、会っていない人を会った人と呼ばないためです。',
     backedBy: 'src/domain/policy/attendance.js',
   },
   {
@@ -61,6 +64,7 @@ export const PROMISES = [
     fr: "Ce que vous ne pouvez pas manger voyage avec votre demande. Halal, végétalien, une allergie : l'hôte le lit avant de choisir l'adresse.",
     ar: 'ما لا تستطيع أكله يسافر مع طلبك. حلال، نباتي صرف، حساسية: يقرأه المضيف قبل أن يختار المحل.',
     zh: '你不能吃的东西会跟着你的申请一起过去。清真、纯素、过敏——主人在挑店之前就读到了。',
+    ja: '食べられないものはリクエストと一緒に伝わります。ハラール、ヴィーガン、アレルギー——ホストは店を選ぶ前にそれを読みます。',
     backedBy: 'src/data/profile.js',
   },
   {
@@ -72,6 +76,7 @@ export const PROMISES = [
     fr: "Vous pouvez signaler une table à l'équipe, ou bloquer quelqu'un pour ne plus jamais partager de table. Ni l'un ni l'autre n'est communiqué à la personne concernée.",
     ar: 'يمكنك إبلاغ الفريق عن مائدة، أو حظر شخص فلا تشاركه مائدة أبدًا. ولا يُبلَّغ الطرف الآخر بأيٍّ منهما.',
     zh: '你可以向团队举报一张饭桌，也可以拉黑某个人、从此不再同桌。两件事都不会通知对方。',
+    ja: '食卓をチームに報告することも、特定の人をブロックして二度と同じ卓につかないようにすることもできます。どちらも相手には知らされません。',
     backedBy: 'src/domain/policy/report.js',
   },
 ];
@@ -89,6 +94,8 @@ export const PROMISES_LEAD = {
   fr: "D'autres applications laissent cela à un paragraphe que l'organisateur tape et que personne ne fait respecter. Ici, c'est le fonctionnement même de l'application.",
   ar: 'تطبيقات أخرى تترك هذا لفقرة يكتبها المنظّم ولا يُلزم بها أحد. هنا هو طريقة عمل التطبيق نفسها.',
   zh: '别的应用把这些交给主办人自己敲的一段话，而没有人去执行。在这里，它们就是应用运作的方式本身。',
+  ja: 'ほかのアプリはこれを、主催者が自分で打った一段落に任せていて、誰もそれを守らせません。ここではそれらがアプリの動き方そのものです。',
+  titleJa: 'Eatple が違うところ',
   titleZh: 'Eatple 不一样的地方',
   titleAr: 'ما الذي يجعل Eatple مختلفًا',
   titleFr: 'Ce qui rend Eatple différent',

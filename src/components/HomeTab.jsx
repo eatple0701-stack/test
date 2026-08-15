@@ -131,10 +131,10 @@ export default function HomeTab({
         <div className="stack-head">
           <span className="stack-head__kr" translate="no">문화</span>
           <h2 className="stack-head__title">
-            {say('Seven questions about how Korea eats', '한국이 어떻게 먹는지에 대한 일곱 가지 질문', 'Siete preguntas sobre cómo come Corea', 'Sept questions sur la façon dont la Corée mange', 'سبعة أسئلة عن طريقة كوريا في الأكل', '关于韩国怎么吃的七个问题')}
+            {say('Seven questions about how Korea eats', '한국이 어떻게 먹는지에 대한 일곱 가지 질문', 'Siete preguntas sobre cómo come Corea', 'Sept questions sur la façon dont la Corée mange', 'سبعة أسئلة عن طريقة كوريا في الأكل', '关于韩国怎么吃的七个问题', '韓国の食べ方についての七つの問い')}
           </h2>
           <p className="stack-head__sub">
-            {say('Each one is a culture you can walk into.', '하나하나가 걸어 들어가 볼 수 있는 문화입니다.', 'Cada una es una cultura en la que puedes entrar.', 'Chacune est une culture dans laquelle entrer.', 'كل واحد منها ثقافة تستطيع أن تدخلها.', '每一个都是一个可以走进去的文化。')}
+            {say('Each one is a culture you can walk into.', '하나하나가 걸어 들어가 볼 수 있는 문화입니다.', 'Cada una es una cultura en la que puedes entrar.', 'Chacune est une culture dans laquelle entrer.', 'كل واحد منها ثقافة تستطيع أن تدخلها.', '每一个都是一个可以走进去的文化。', 'どれもが、歩いて入れるひとつの文化です。')}
           </p>
         </div>
         <div className="story-stack">
@@ -155,11 +155,11 @@ export default function HomeTab({
         <div className="surprise-row">
           <button className="surprise-btn" onClick={() => { setCultureStart(0); setShowCulture(true); }}>
             <span className="surprise-btn__kr">문화</span>
-            <span className="surprise-btn__label">{say('Culture Cards', '문화 카드', 'Fichas de cultura', 'Fiches de culture', 'بطاقات ثقافية', '文化卡片')}</span>
+            <span className="surprise-btn__label">{say('Culture Cards', '문화 카드', 'Fichas de cultura', 'Fiches de culture', 'بطاقات ثقافية', '文化卡片', '文化カード')}</span>
           </button>
           <button className="surprise-btn" onClick={() => setShowRoulette(true)}>
             <span className="surprise-btn__kr">오늘 뭐 먹지</span>
-            <span className="surprise-btn__label">{say('Pick a dish for me', '골라주세요', 'Elige un plato por mí', 'Choisis un plat pour moi', 'اختر لي طبقًا', '替我挑一道菜')}</span>
+            <span className="surprise-btn__label">{say('Pick a dish for me', '골라주세요', 'Elige un plato por mí', 'Choisis un plat pour moi', 'اختر لي طبقًا', '替我挑一道菜', '料理を選んでもらう')}</span>
           </button>
         </div>
       </div>

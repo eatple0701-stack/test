@@ -20,7 +20,7 @@ import React from 'react';
 // on <html> instead: no context, no hook, no import that could itself throw.
 // If the attribute is missing the crash screen is English, which is the same
 // fallback everything else uses.
-const crashText = (en, ko, es, fr, ar, zh) => {
+const crashText = (en, ko, es, fr, ar, zh, ja) => {
   const locale = typeof document !== 'undefined'
     ? document.documentElement.getAttribute('data-locale')
     : null;
@@ -29,6 +29,7 @@ const crashText = (en, ko, es, fr, ar, zh) => {
   if (locale === 'fr') return fr;
   if (locale === 'ar') return ar;
   if (locale === 'zh') return zh;
+  if (locale === 'ja') return ja;
   return en;
 };
 
@@ -68,7 +69,7 @@ export default class ErrorBoundary extends React.Component {
           <h1 className="crash__title">
             {crashText('This screen stopped responding.',
               '이 화면이 멈췄어요.',
-              'Esta pantalla ha dejado de responder.', 'Cet écran ne répond plus.', 'توقّفت هذه الشاشة عن الاستجابة.', '这个页面没有反应了。')}
+              'Esta pantalla ha dejado de responder.', 'Cet écran ne répond plus.', 'توقّفت هذه الشاشة عن الاستجابة.', '这个页面没有反应了。', 'この画面が応答しなくなりました。')}
           </h1>
 
           {translated ? (
@@ -80,6 +81,7 @@ export default class ErrorBoundary extends React.Component {
                 "Votre navigateur traduit cette page, et sa traduction réécrit la page pendant que l'application s'en sert. Désactiver la traduction pour ce site suffit à l'empêcher. Rien de ce que vous avez enregistré n'a été perdu.",
                 'متصفّحك يترجم هذه الصفحة، وترجمته تعيد كتابة الصفحة بينما التطبيق يستعملها. وإيقاف الترجمة لهذا الموقع يكفي لمنع ذلك. ولم يضع شيء ممّا حفظته.',
                 '你的浏览器正在翻译这个页面，而它的翻译会在应用正用着页面的时候把页面重写一遍。对这个网站关掉翻译就不会再发生。你保存过的东西一样都没丢。',
+                'ブラウザがこのページを翻訳していて、その翻訳がアプリの使っている画面を書き換えています。このサイトで翻訳を切れば起きなくなります。保存したものは何も失われていません。',
               )}
             </p>
           ) : (
@@ -91,6 +93,7 @@ export default class ErrorBoundary extends React.Component {
                 "Quelque chose s'est mal passé sur cet écran. Rien de ce que vous avez enregistré n'a été perdu — vos tables et votre passeport sont toujours là.",
                 'حدث خلل في هذه الشاشة. ولم يضع شيء ممّا حفظته — موائدك وجواز سفرك ما زالت هنا.',
                 '这个页面出错了。你保存过的东西一样都没丢——你的饭桌和护照都还在。',
+                'この画面で問題が起きました。保存したものは何も失われていません——食卓もパスポートもそのままです。',
               )}
             </p>
           )}
@@ -99,15 +102,15 @@ export default class ErrorBoundary extends React.Component {
             {/* Back to a working screen without a reload where possible: the
                 error is in one subtree, not in the stored data. */}
             <button className="crash__primary" onClick={() => this.setState({ error: null })}>
-              {crashText('다시 시도 · Try again', '다시 시도', 'Reintentar', 'Réessayer', 'حاول مرة أخرى', '再试一次')}
+              {crashText('다시 시도 · Try again', '다시 시도', 'Reintentar', 'Réessayer', 'حاول مرة أخرى', '再试一次', 'もう一度試す')}
             </button>
             <button className="crash__secondary" onClick={() => window.location.reload()}>
-              {crashText('Reload the app', '앱 새로고침', 'Recargar la app', "Recharger l'application", 'أعِد تحميل التطبيق', '重新加载应用')}
+              {crashText('Reload the app', '앱 새로고침', 'Recargar la app', "Recharger l'application", 'أعِد تحميل التطبيق', '重新加载应用', 'アプリを読み込み直す')}
             </button>
           </div>
 
           <details className="crash__details">
-            <summary>{crashText('Technical detail', '기술적 상세', 'Detalle técnico', 'Détail technique', 'تفصيل تقني', '技术细节')}</summary>
+            <summary>{crashText('Technical detail', '기술적 상세', 'Detalle técnico', 'Détail technique', 'تفصيل تقني', '技术细节', '技術的な詳細')}</summary>
             <pre>{String(error?.stack ?? error?.message ?? error)}</pre>
           </details>
         </div>

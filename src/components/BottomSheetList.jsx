@@ -80,7 +80,7 @@ function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, l
           aria-label={`Read the story of ${name}`}
           onClick={() => onReadStory(place)}
         >
-          {say('Read Story', '이야기 읽기', 'Leer la historia', "Lire l'histoire", 'اقرأ الحكاية', '读这个故事')}
+          {say('Read Story', '이야기 읽기', 'Leer la historia', "Lire l'histoire", 'اقرأ الحكاية', '读这个故事', '物語を読む')}
         </button>
 
         <div className="place-card__actions">
@@ -122,8 +122,10 @@ export default function BottomSheetList({
   return (
     <div className="place-list">
       <div className="place-list__header">
-        <h3>{sorted.length} {sorted.length === 1 ? 'place' : 'places'}</h3>
-        {sorted.length > 1 && <span className="place-list__hint">{say('Nearest first', '가까운 순', 'Más cercanos primero', 'Les plus proches en premier', 'الأقرب أولًا', '近的排前面')}</span>}
+        <h3>{say(`${sorted.length} place${sorted.length === 1 ? '' : 's'}`, `${sorted.length}곳`,
+          `${sorted.length} sitio${sorted.length === 1 ? '' : 's'}`, `${sorted.length} lieu${sorted.length === 1 ? '' : 'x'}`,
+          `${sorted.length} أماكن`, `${sorted.length} 处`, `${sorted.length}件`)}</h3>
+        {sorted.length > 1 && <span className="place-list__hint">{say('Nearest first', '가까운 순', 'Más cercanos primero', 'Les plus proches en premier', 'الأقرب أولًا', '近的排前面', '近い順')}</span>}
       </div>
 
       {/* Said once for the whole list rather than on every card: the same
@@ -133,7 +135,7 @@ export default function BottomSheetList({
         <p className="section-note place-list__note">
           {say('Described by the restaurant and our research; not independently audited.',
             '식당 소개와 저희 조사에 따른 것이며, 독립적으로 검증되지는 않았습니다.',
-            'Según lo que describen el restaurante y nuestra investigación; sin auditoría independiente.', 'Décrit par le restaurant et par nos recherches ; sans audit indépendant.', 'بحسب وصف المطعم وبحثنا؛ دون تدقيق مستقلّ.', '依据餐厅的说明和我们的调研；没有独立审核。')}
+            'Según lo que describen el restaurante y nuestra investigación; sin auditoría independiente.', 'Décrit par le restaurant et par nos recherches ; sans audit indépendant.', 'بحسب وصف المطعم وبحثنا؛ دون تدقيق مستقلّ.', '依据餐厅的说明和我们的调研；没有独立审核。', '店の説明と私たちの調べによります。第三者の検証は受けていません。')}
         </p>
       )}
 
@@ -165,11 +167,11 @@ export default function BottomSheetList({
           <p className="place-list__empty-en">
             {say('No place matches all of the filters at once. Removing one usually brings the list back.',
               '모든 필터를 동시에 만족하는 곳이 없습니다. 하나를 빼면 대개 목록이 돌아옵니다.',
-              'Ningún sitio cumple todos los filtros a la vez. Quitar uno suele devolver la lista.', 'Aucune adresse ne remplit tous les filtres à la fois. En retirer un ramène en général la liste.', 'لا مكان يستوفي كل عوامل التصفية معًا. وإزالة واحد منها تعيد القائمة عادةً.', '没有哪个地方同时满足所有筛选条件。去掉一个，列表通常就回来了。')}
+              'Ningún sitio cumple todos los filtros a la vez. Quitar uno suele devolver la lista.', 'Aucune adresse ne remplit tous les filtres à la fois. En retirer un ramène en général la liste.', 'لا مكان يستوفي كل عوامل التصفية معًا. وإزالة واحد منها تعيد القائمة عادةً.', '没有哪个地方同时满足所有筛选条件。去掉一个，列表通常就回来了。', 'すべての条件を同時に満たす場所がありません。ひとつ外すとたいてい一覧が戻ります。')}
           </p>
           {onResetFilters && (
             <button className="place-list__empty-cta" translate="no" onClick={onResetFilters}>
-              {say('필터 모두 끄기 · Clear the filters', '필터 모두 끄기', 'Quitar los filtros', 'Effacer les filtres', 'امسح عوامل التصفية', '清除筛选')}
+              {say('필터 모두 끄기 · Clear the filters', '필터 모두 끄기', 'Quitar los filtros', 'Effacer les filtres', 'امسح عوامل التصفية', '清除筛选', '条件をすべて外す')}
             </button>
           )}
         </div>

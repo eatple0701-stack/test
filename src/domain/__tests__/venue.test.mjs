@@ -29,7 +29,12 @@ test('a cafe is never told to set a table', () => {
 test('a restaurant still sets a table', () => {
   const cta = tableCtaFor({ name: 'Balwoo Gongyang (발우공양)', category: 'temple' });
   assert.equal(cta.kind, VENUE_KIND.MEAL);
-  assert.equal(cta.title, '여기서 상 차리기');
+  // The default is the bilingual pair, which is what the both setting shows.
+  // It used to be the Korean alone, and that Korean was also what an English
+  // reader got — the fallthrough covered both, ko and en at once.
+  assert.equal(cta.title, '여기서 상 차리기 · Open a table here');
+  assert.equal(tableCtaFor({ name: 'Balwoo Gongyang (발우공양)', category: 'temple' }, 'en').title, 'Open a table here');
+  assert.equal(tableCtaFor({ name: 'Balwoo Gongyang (발우공양)', category: 'temple' }, 'ko').title, '여기서 상 차리기');
   assert.match(cta.sub, /Balwoo Gongyang/);
 });
 

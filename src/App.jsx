@@ -169,20 +169,22 @@ export default function App() {
   // because App renders the provider and so sits outside it. Same order,
   // same English fallback — a second implementation that disagreed would be
   // worse than none.
-  const say = (en, ko, es, fr, ar, zh) => {
+  const say = (en, ko, es, fr, ar, zh, ja) => {
     if (locale === LOCALE.KO && ko) return ko;
     if (locale === LOCALE.ES && es) return es;
     if (locale === LOCALE.FR && fr) return fr;
     if (locale === LOCALE.AR && ar) return ar;
     if (locale === LOCALE.ZH && zh) return zh;
+    if (locale === LOCALE.JA && ja) return ja;
     return en;
   };
-  const chromeWord = (kr, en, es, fr, ar, zh) => {
+  const chromeWord = (kr, en, es, fr, ar, zh, ja) => {
     if (locale === LOCALE.EN) return en;
     if (locale === LOCALE.ES) return es;
     if (locale === LOCALE.FR) return fr;
     if (locale === LOCALE.AR) return ar;
     if (locale === LOCALE.ZH) return zh;
+    if (locale === LOCALE.JA) return ja;
     return kr;
   };
   const [mapCenter, setMapCenter] = useState(MAP_CENTER);
@@ -781,9 +783,9 @@ export default function App() {
         <span className="app-chrome__end">
           <button
             className={`app-chrome__gear${activeTab === 'settings' ? ' is-on' : ''}`}
-            aria-label={say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات', '设置')}
+            aria-label={say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات', '设置', '設定')}
             aria-current={activeTab === 'settings' ? 'page' : undefined}
-            title={say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات', '设置')}
+            title={say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات', '设置', '設定')}
             onClick={() => { setOpenThemeId(null); goToTab('settings'); }}
           >
             <GearIcon size={20} />
@@ -797,7 +799,7 @@ export default function App() {
                 {profile?.avatarUrl
                   ? <img className="app-chrome__avatar" src={profile.avatarUrl} alt="" />
                   : <span className="app-chrome__initial" aria-hidden="true">{(profile?.name ?? '?').trim().charAt(0) || '?'}</span>}
-                <span className="app-chrome__name">{profile?.name?.trim() || 'My passport'}</span>
+                <span className="app-chrome__name">{profile?.name?.trim() || say('My passport', '내 여권', 'Mi pasaporte', 'Mon passeport', 'جوازي', '我的护照', 'わたしのパスポート')}</span>
               </button>
               {/* Beside the name it ends, which is where every site the team
                   studied puts it. Signing out lived only inside Settings —
@@ -807,13 +809,13 @@ export default function App() {
                   signing back in restores the same account. */}
               <button
                 className="app-chrome__signout"
-                title={say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج', '退出登录')}
+                title={say('로그아웃 · Sign out', '로그아웃', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج', '退出登录', 'ログアウト')}
                 onClick={async () => {
                   await signOutMember().catch(() => {});
                   await refreshAuth();
                 }}
               >
-                <span className="app-chrome__word">{chromeWord('로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج', '退出登录')}</span>
+                <span className="app-chrome__word">{chromeWord('로그아웃', 'Sign out', 'Cerrar sesión', 'Se déconnecter', 'تسجيل الخروج', '退出登录', 'ログアウト')}</span>
               </button>
             </>
           ) : (
@@ -826,10 +828,10 @@ export default function App() {
                made the two most important controls the least legible. */
             <span className="app-chrome__auth">
               <button className="app-chrome__signin" onClick={() => setAuthMode('signin')}>
-                <span className="app-chrome__word">{chromeWord('로그인', 'Sign in', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录')}</span>
+                <span className="app-chrome__word">{chromeWord('로그인', 'Sign in', 'Entrar', 'Se connecter', 'تسجيل الدخول', '登录', 'ログイン')}</span>
               </button>
               <button className="app-chrome__join" onClick={() => setAuthMode('signup')}>
-                <span className="app-chrome__word">{chromeWord('가입하기', 'Join', 'Únete', "S'inscrire", 'إنشاء حساب', '注册')}</span>
+                <span className="app-chrome__word">{chromeWord('가입하기', 'Join', 'Únete', "S'inscrire", 'إنشاء حساب', '注册', '登録')}</span>
               </button>
             </span>
           )}

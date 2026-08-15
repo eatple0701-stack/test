@@ -25,7 +25,7 @@ const QUIZ = 'quiz';
 const GROUPS = [PHRASE_GROUP.ORDER, PHRASE_GROUP.DIETARY, PHRASE_GROUP.TABLE, PHRASE_GROUP.TALK, QUIZ];
 // Korean on top, English under it — the shape every other label in the app
 // has. The Korean was already sitting in GROUP_LABEL and this file threw it
-// away, so the sheet titled {say('식탁에서 · What to say at the table', '식탁에서', 'Qué decir en la mesa', 'Quoi dire à table', 'ماذا تقول على المائدة', '在桌上该说什么')} was followed
+// away, so the sheet titled {say('식탁에서 · What to say at the table', '식탁에서', 'Qué decir en la mesa', 'Quoi dire à table', 'ماذا تقول على المائدة', '在桌上该说什么', '食卓で何を言うか')} was followed
 // by five tabs that had stopped speaking Korean. Two lines rather than a
 // middot because five tabs share one row: 주문할 때 · Ordering, side by side,
 // would not fit at 375px.
@@ -85,18 +85,30 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
   return (
-    <div className="phrase-sheet" role="dialog" aria-label={say('Korean phrases for the table', '식탁에서 쓰는 한국어', 'Frases en coreano para la mesa', 'Phrases coréennes pour la table', 'عبارات كورية للمائدة', '桌上用得到的韩语')}>
+    <div className="phrase-sheet" role="dialog" aria-label={say('Korean phrases for the table', '식탁에서 쓰는 한국어', 'Frases en coreano para la mesa', 'Phrases coréennes pour la table', 'عبارات كورية للمائدة', '桌上用得到的韩语', '食卓で使う韓国語')}>
       <header className="sheet-page__head">
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
         </button>
-        <h1>{say('식탁에서 · At the table', '식탁에서', 'En la mesa', 'À table', 'على المائدة', '在桌上')}</h1>
+        <h1>{say('식탁에서 · At the table', '식탁에서', 'En la mesa', 'À table', 'على المائدة', '在桌上', '食卓で')}</h1>
       </header>
 
       <p className="phrase-intro">
         {dish
-          ? `Show the phone, or tap to say it out loud. You are eating ${dish}.`
-          : 'Show the phone to whoever you are talking to, or tap to say it out loud.'}
+          ? say(`Show the phone, or tap to say it out loud. You are eating ${dish}.`,
+            `화면을 보여 주거나, 눌러서 소리 내어 말해 보세요. 오늘 드시는 건 ${dish}입니다.`,
+            `Enseña el móvil, o toca para decirlo en voz alta. Estás comiendo ${dish}.`,
+            `Montrez le téléphone, ou touchez pour le dire à voix haute. Vous mangez ${dish}.`,
+            `أرِ الهاتف، أو اضغط لتقولها بصوت عالٍ. أنت تأكل ${dish}.`,
+            `把手机给对方看，或者点一下大声说出来。你吃的是${dish}。`,
+            `画面を見せるか、タップして声に出してみてください。今日は${dish}です。`)
+          : say('Show the phone to whoever you are talking to, or tap to say it out loud.',
+            '상대에게 화면을 보여 주거나, 눌러서 소리 내어 말해 보세요.',
+            'Enseña el móvil a quien tengas delante, o toca para decirlo en voz alta.',
+            'Montrez le téléphone à votre interlocuteur, ou touchez pour le dire à voix haute.',
+            'أرِ الهاتف لمن تحدّثه، أو اضغط لتقولها بصوت عالٍ.',
+            '把手机给对面的人看，或者点一下大声说出来。',
+            '話す相手に画面を見せるか、タップして声に出してみてください。')}
       </p>
 
       <div className="phrase-tabs" role="tablist">
@@ -119,7 +131,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
           <p className="phrase-note-lead">
             {say('Ask one out loud. The answer matters less than the sentence after it.',
               '하나를 소리 내어 물어보세요. 답보다 그 다음에 이어지는 문장이 중요합니다.',
-              'Pregunta una en voz alta. La respuesta importa menos que la frase que viene después.', 'Posez-en une à voix haute. La réponse compte moins que la phrase qui suit.', 'اسأل واحدة بصوت مسموع. الجواب أقلّ أهمية من الجملة التي تليه.', '挑一句大声问出来。答案没有它之后那句话重要。')}
+              'Pregunta una en voz alta. La respuesta importa menos que la frase que viene después.', 'Posez-en une à voix haute. La réponse compte moins que la phrase qui suit.', 'اسأل واحدة بصوت مسموع. الجواب أقلّ أهمية من الجملة التي تليه.', '挑一句大声问出来。答案没有它之后那句话重要。', 'ひとつ声に出して尋ねてみてください。答えより、そのあとに続く一言のほうが大事です。')}
           </p>
           <QuizDeck menuId={menuId} />
         </div>
@@ -132,7 +144,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
           <p className="phrase-note-lead">
             {say('One question at a time. Hand the phone over — it is written both ways.',
               '한 번에 하나씩. 휴대폰을 건네주세요 — 양쪽 언어로 적혀 있습니다.',
-              'Una pregunta cada vez. Pásale el móvil: está escrito en los dos idiomas.', "Une question à la fois. Passez le téléphone : c'est écrit dans les deux langues.", 'سؤال واحد في كل مرة. ناوِل الهاتف: العبارة مكتوبة باللغتين.', '一次问一句。把手机递过去——两种语言都写着。')}
+              'Una pregunta cada vez. Pásale el móvil: está escrito en los dos idiomas.', "Une question à la fois. Passez le téléphone : c'est écrit dans les deux langues.", 'سؤال واحد في كل مرة. ناوِل الهاتف: العبارة مكتوبة باللغتين.', '一次问一句。把手机递过去——两种语言都写着。', '一度にひとつずつ。携帯を渡してください——二つの言語で書いてあります。')}
           </p>
 
           <div className="ask-card">
@@ -152,7 +164,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
           </div>
 
           <button className="ask-next" onClick={() => setAskAt(i => (i + 1) % deck.length)}>
-            {say('다음 질문 · Another', '다음 질문', 'Otra', 'Une autre', 'أخرى', '再来一句')}
+            {say('다음 질문 · Another', '다음 질문', 'Otra', 'Une autre', 'أخرى', '再来一句', 'もうひとつ')}
           </button>
           <p className="ask-count">{askAt + 1} / {deck.length}</p>
         </div>
@@ -176,7 +188,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
                   onClick={() => speak(p)}
                   aria-label={`Say "${p.en}" in Korean`}
                 >
-                  {say('소리 · Say it', '소리', 'Escúchala', 'Écouter', 'استمع', '听一下')}
+                  {say('소리 · Say it', '소리', 'Escúchala', 'Écouter', 'استمع', '听一下', '音を聞く')}
                 </button>
               )}
             </div>
@@ -189,7 +201,7 @@ export default function PhraseSheet({ onClose, dish, menuId, avoids }) {
             <p className="phrase-no-voice">
               {say('This device has no Korean voice installed, so the phrases cannot be spoken aloud. Showing the screen works just as well.',
                 '이 기기에 한국어 음성이 설치되어 있지 않아 문장을 소리로 들려드릴 수 없습니다. 화면을 보여 주는 것으로도 충분해요.',
-                'Este dispositivo no tiene voz coreana instalada, así que las frases no se pueden pronunciar. Enseñar la pantalla funciona igual de bien.', "Cet appareil n'a pas de voix coréenne installée, les phrases ne peuvent donc pas être prononcées. Montrer l'écran marche tout aussi bien.", 'لا صوت كوري مثبّت على هذا الجهاز، فلا يمكن نطق العبارات. وعرض الشاشة يؤدّي الغرض تمامًا.', '这台设备没有装韩语语音，所以这些句子念不出来。把屏幕给对方看，效果一样好。')}
+                'Este dispositivo no tiene voz coreana instalada, así que las frases no se pueden pronunciar. Enseñar la pantalla funciona igual de bien.', "Cet appareil n'a pas de voix coréenne installée, les phrases ne peuvent donc pas être prononcées. Montrer l'écran marche tout aussi bien.", 'لا صوت كوري مثبّت على هذا الجهاز، فلا يمكن نطق العبارات. وعرض الشاشة يؤدّي الغرض تمامًا.', '这台设备没有装韩语语音，所以这些句子念不出来。把屏幕给对方看，效果一样好。', 'この端末に韓国語の音声が入っていないので、読み上げられません。画面を見せるだけでも十分に伝わります。')}
             </p>
           )}
         </div>

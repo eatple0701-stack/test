@@ -90,18 +90,22 @@ test('a kr/en pair held as two fields reduces the same way', () => {
 });
 
 test('only the languages the app actually holds words for are offered', () => {
-  // This asserted three, then four, then five, then six, and now seven — each
-  // because the words arrived, not because the list was loosened. Offering
-  // a language the app cannot speak would be claiming a translation nobody
-  // wrote, so the guard is the one it always was: 日本語 is still not
-  // offered, for exactly the reason Español, Français and العربية once were
-  // not.
-  assert.deepEqual(LOCALES, ['both', 'ko', 'en', 'es', 'fr', 'ar', 'zh']);
+  // This asserted three, then four, five, six, seven, and now eight — each
+  // time because the words arrived, not because the list was loosened.
+  // Offering a language the app cannot speak would be claiming a translation
+  // nobody wrote, so the guard is the one it always was.
+  //
+  // 日本語 was this test's example of a language that is *not* offered, right
+  // up until it was. That is the guard working: the line naming it had to be
+  // deleted by the same change that wrote the words, and the suite failed
+  // until it was. ไทย stands in that place now, on the same terms.
+  assert.deepEqual(LOCALES, ['both', 'ko', 'en', 'es', 'fr', 'ar', 'zh', 'ja']);
   assert.equal(isLocale('es'), true);
   assert.equal(isLocale('fr'), true);
   assert.equal(isLocale('ar'), true);
   assert.equal(isLocale('zh'), true);
-  assert.equal(isLocale('ja'), false);
+  assert.equal(isLocale('ja'), true);
+  assert.equal(isLocale('th'), false);
   assert.equal(isLocale(null), false);
 });
 
