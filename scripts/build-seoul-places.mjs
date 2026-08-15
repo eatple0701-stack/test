@@ -6,8 +6,19 @@
 // 강남구 at 332KB compressed, and the app fetches the districts near wherever
 // the person is looking.
 //
-// So "all of it" is true in the sense that matters: every row is reachable,
-// none is filtered out, and nothing is downloaded that nobody looked at.
+// One filter, and it is the app's whole premise: a restaurant is kept only
+// if its menu carries one of the twenty-four dishes a person cannot order
+// alone — the six groups in dish-match.mjs. 8,118 of the 167,659 do. The
+// rest are cafes, burger counters and 김밥천국, and a traveller who cannot
+// order 삼겹살 for one is not helped by seeing them.
+//
+// The match is on the menu, not on the 업태 field. 업태 says 한식 for 51,282
+// places and cannot tell a 족발집 from a 김밥천국. It is also a floor rather
+// than a census: the menus come from the 2022 bulk download, which covers
+// 14,099 of these restaurants, so a place absent from it is absent from here
+// even if it grills 삼겹살 tonight. Under-listing is the failure this file
+// chooses; the other one puts somebody outside a restaurant that never
+// served what we said it did.
 //
 // Rows with no usable coordinates are kept. They cannot be drawn on a map or
 // sorted by distance, but they are real restaurants and dropping them would
@@ -20,6 +31,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fetchAll } from './seoul-food-api.mjs';
+
+// Which restaurants serve one of the twenty-four dishes — built by
+// scripts/dish-match.mjs from the register's own 873,117 menu rows.
+const DISHES = new Map(JSON.parse(fs.readFileSync('scripts/.cache.local/dish-match.json', 'utf8')));
 
 const OUT = 'public/data/seoul';
 
@@ -52,8 +67,11 @@ const buckets = new Map();
 let withGeo = 0;
 let outOfRange = 0;
 let foreignMenu = 0;
+let kept = 0;
 
 for (const r of places) {
+  const dishes = DISHES.get(r.RSTR_ID);
+  if (!dishes?.length) continue;
   const lat = Number(r.RSTR_LA);
   const lng = Number(r.RSTR_LO);
   const hasGeo = Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0 && lng !== 0 && inSeoul(lat, lng);
@@ -71,7 +89,11 @@ for (const r of places) {
     c: r.BSNS_STATM_BZCND_NM || undefined,
     // The one flag worth carrying for this app's reader: 외국어 메뉴 제공 여부.
     f: h?.FGGG_MENU_OFR_YN === 'Y' ? 1 : undefined,
+    // Which of the twenty-four it was matched on, so a screen can say why
+    // this place is here rather than asking anybody to trust the filter.
+    d: dishes,
   };
+  kept += 1;
   if (hasGeo) withGeo += 1;
   else if (Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0) outOfRange += 1;
   if (row.f) foreignMenu += 1;
@@ -122,14 +144,14 @@ fs.writeFileSync(path.join(OUT, 'index.json'), JSON.stringify({
   source: '서울관광재단 · 포스트코로나 음식관광 데이터베이스 (data.go.kr 15097605)',
   licence: 'no usage restriction',
   builtAt: new Date().toISOString().slice(0, 10),
-  total: places.length,
+  total: kept,
   withGeo,
   foreignMenu,
   districts: index,
 }));
 
-console.log(`${OUT}/: ${index.length} districts, ${places.length} places`);
-console.log(`  with coordinates: ${withGeo} (${(100 * withGeo / places.length).toFixed(1)}%)`);
+console.log(`${OUT}/: ${index.length} districts, ${kept} places serving one of the 24 (of ${places.length} in the register)`);
+console.log(`  with coordinates: ${withGeo} (${(100 * withGeo / kept).toFixed(1)}%)`);
 console.log(`  foreign-language menu: ${foreignMenu}`);
 console.log(`  ${(totalRaw / 1024 / 1024).toFixed(1)}MB on disk, ${(totalBr / 1024 / 1024).toFixed(2)}MB compressed across all districts`);
 console.log(`  largest: ${index[0].gu} ${index[0].count} places`);

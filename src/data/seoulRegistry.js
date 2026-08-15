@@ -26,7 +26,7 @@
 // reading: the twenty curated places are the app, and these are an addition
 // that turns up district by district as somebody looks around.
 
-import { loadNearbyPlaces } from './nearbyPlaces.js';
+import { loadAllPlaces } from './nearbyPlaces.js';
 
 /** Every fact from the register shares one provenance record. */
 const reported = (value, extra = {}) => ({
@@ -132,8 +132,13 @@ export function placeFromRegistry(row, builtAt = null) {
     story: null, storyKo: null, storyEs: null, storyFr: null, storyAr: null, storyZh: null, storyJa: null,
     esg_point: null,
     image: null, photo: null, coverImage: null, gallery: [],
-    /** What the register said, kept so a screen can say why this one is here. */
-    registry: { foreignMenu: row.f === 1, kind: row.c ?? null },
+    /**
+     * What the register said, kept so a screen can say why this one is here.
+     * `dishes` is the answer to that question: the ids from
+     * src/domain/catalog/dishGroups.js that this place's own menu matched,
+     * which is the only reason it survived the filter.
+     */
+    registry: { foreignMenu: row.f === 1, kind: row.c ?? null, dishes: row.d ?? [] },
   };
 }
 
@@ -141,17 +146,22 @@ let cache = null;
 let cachedCount = 0;
 
 /**
- * Every register row as a place, once the file has arrived.
+ * Every register row as a place, once the files have arrived.
+ *
+ * All 8,118, in one call — it used to take a map centre and fetch the four
+ * districts around it, which was the right shape when this was 167,659 rows
+ * and 3.4MB. Filtered to the twenty-four dishes it is a quarter of a
+ * megabyte, and a list that silently held only the districts you had
+ * happened to pan over was a worse thing than the download it saved.
  *
  * Returns [] rather than throwing or blocking: a screen with twenty places
- * is this app working, and a screen with 7,470 is this app working with more
+ * is this app working, and a screen with 8,138 is this app working with more
  * on it. Neither is an error state.
  */
-export async function loadRegistryPlaces(center = null) {
-  const layer = await loadNearbyPlaces(center);
+export async function loadRegistryPlaces() {
+  const layer = await loadAllPlaces();
   if (!layer?.rows?.length) return cache ?? [];
-  // Districts arrive one at a time and the set only grows, so a rebuild is
-  // needed exactly when the row count changed.
+  // Built once. The row count is what says whether anything changed.
   if (!cache || layer.rows.length !== cachedCount) {
     cache = layer.rows.map(r => placeFromRegistry(r, layer.builtAt ?? null));
     cachedCount = layer.rows.length;

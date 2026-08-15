@@ -11314,21 +11314,66 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
    the dot should read as a recommendation, so it is smaller, flatter and
    sits below the pins in the stacking order. */
 .k-dot { background: none; border: none; }
-.nearby-pop__name { display: block; font-size: 14px; font-weight: 700; color: var(--ink-title); }
-.nearby-pop__kind {
-  display: inline-block;
-  margin-top: 4px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: var(--fill, var(--surface));
-  font-size: 11px;
-  color: var(--muted-strong);
+/* The card a register dot opens.
+   Not a Leaflet popup: measured on a 375x812 phone, a popup opened 149px
+   above the top edge of a 325px-tall map and overflow:hidden ate the
+   restaurant's name. This is anchored to the bottom of the map instead, so
+   it cannot be clipped and does not move when the map does. */
+.nearby-card {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 1000;
+  max-height: calc(100% - 20px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 13px 40px 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--card, #FFFFFF);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
 }
-.nearby-pop__addr,
-.nearby-pop__hours { display: block; margin-top: 5px; font-size: 12.5px; color: var(--ink-body); }
-.nearby-pop__caveat {
-  display: block;
-  margin-top: 8px;
+.nearby-card__close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+.nearby-card__name { display: block; font-size: 15px; font-weight: 700; color: var(--ink-title); }
+.nearby-card__groups { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.nearby-card__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.nearby-card__menu {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--ink-title);
+}
+.nearby-card__addr,
+.nearby-card__hours { margin: 5px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-body); }
+.nearby-card__caveat {
+  margin: 9px 0 0;
   padding: 7px 9px;
   border-radius: var(--radius);
   background: var(--orange-tint, var(--surface));
@@ -11336,16 +11381,16 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
   font-size: 11.5px;
   line-height: 1.5;
 }
-.nearby-pop__links { display: flex; gap: 8px; margin-top: 9px; }
-.nearby-pop__links a {
+.nearby-card__links { display: flex; gap: 8px; margin-top: 10px; }
+.nearby-card__links a {
   flex: 1 1 0;
-  min-height: 36px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--accent-strong);
   text-decoration: none;
@@ -11381,6 +11426,10 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
   cursor: pointer;
 }
 
+/* A dish-group chip on a list card: the group colour, so the card and the
+   dot on the map name the same thing the same way. */
+.tag-chip--dish { color: #FFFFFF; border-color: transparent; font-weight: 700; }
+
 /* ---------- A place that came from the register ----------
    Shorter than a curated place page on purpose: it can only show what the
    dataset holds. The first block says so, before anything else. */
@@ -11393,6 +11442,32 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
   color: var(--orange-ink, var(--ink-body));
   font-size: 13px;
   line-height: 1.6;
+}
+/* Why this place survived a filter that removed 159,541 others. The chip
+   carries its group's colour — the same colour as its dot on the map. */
+.registry-sheet__groups { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.registry-sheet__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.registry-sheet__menu {
+  margin: 10px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--ink-title);
+}
+.registry-sheet__menu-note {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted-strong);
 }
 .registry-sheet__facts { margin: 8px 0 0; padding: 0; list-style: none; }
 .registry-sheet__facts li {

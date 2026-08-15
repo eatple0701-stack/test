@@ -61,10 +61,35 @@ const key = () => {
   return k;
 };
 
-/** One page. The service answers `pageNo` and ignores everything else. */
-async function page(endpoint, pageNo) {
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+/**
+ * One page, with the backoff this service turned out to need.
+ *
+ * The menu endpoints are 574 pages and the server answers 429 partway
+ * through — page 13 on the first attempt here. Without a retry that is a
+ * crash after twelve seconds of work, and worse, a crash that writes no
+ * cache file, so every rerun starts from zero. Two runs at once made it
+ * certain, which is its own lesson: one job at a time against a free public
+ * API somebody else pays for.
+ */
+async function page(endpoint, pageNo, attempt = 0) {
   const url = `${BASE}${endpoint}?serviceKey=${encodeURIComponent(key())}&pageNo=${pageNo}`;
-  const res = await fetch(url);
+  let res;
+  try {
+    res = await fetch(url);
+  } catch (err) {
+    if (attempt >= 5) throw err;
+    await sleep(2000 * 2 ** attempt);
+    return page(endpoint, pageNo, attempt + 1);
+  }
+  if (res.status === 429 || res.status >= 500) {
+    if (attempt >= 6) throw new Error(`${endpoint} page ${pageNo}: HTTP ${res.status} after ${attempt} retries`);
+    // 2s, 4s, 8s, 16s, 32s, 64s. The window this service throttles on is
+    // not documented, so the ladder is long enough to outlast a minute.
+    await sleep(2000 * 2 ** attempt);
+    return page(endpoint, pageNo, attempt + 1);
+  }
   if (!res.ok) throw new Error(`${endpoint} page ${pageNo}: HTTP ${res.status}`);
   const json = await res.json();
   if (json.header?.resultCode !== '00') {
@@ -91,21 +116,38 @@ export async function fetchAll(name, { refresh = false, maxPages = Infinity } = 
     return cached;
   }
 
-  const first = await page(endpoint, 1);
+  // Resume from a part file. 574 pages is fifteen minutes, and dying on page
+  // 570 used to mean starting again — which is how the first two attempts at
+  // this endpoint were spent.
+  const part = file + '.part';
+  let rows = [];
+  let from = 1;
+  if (!refresh && fs.existsSync(part)) {
+    const saved = JSON.parse(fs.readFileSync(part, 'utf8'));
+    rows = saved.rows;
+    from = saved.nextPage;
+    console.error(`${name}: resuming at page ${from} with ${rows.length} rows`);
+  }
+
+  const first = await page(endpoint, from);
   const total = first.header.totalCount;
   const per = first.body.length;
   const pages = Math.min(Math.ceil(total / per), maxPages);
-  const rows = [...first.body];
+  rows.push(...first.body);
   process.stderr.write(`${name}: ${total} rows over ${pages} pages `);
 
-  for (let p = 2; p <= pages; p += 1) {
+  for (let p = from + 1; p <= pages; p += 1) {
     const next = await page(endpoint, p);
     rows.push(...next.body);
-    if (p % 20 === 0) process.stderr.write('.');
+    if (p % 20 === 0) {
+      process.stderr.write('.');
+      fs.writeFileSync(part, JSON.stringify({ nextPage: p + 1, rows }));
+    }
   }
   process.stderr.write(' done\n');
 
   fs.writeFileSync(file, JSON.stringify(rows));
+  if (fs.existsSync(part)) fs.unlinkSync(part);
   return rows;
 }
 

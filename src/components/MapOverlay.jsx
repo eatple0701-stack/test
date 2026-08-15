@@ -65,7 +65,7 @@ export default function MapOverlay({
           aria-pressed={nearby}
           onClick={() => setNearby(v => !v)}
         >
-          {say('Nearby · foreign-language menus', '주변 · 외국어 메뉴 되는 곳', 'Cerca · con carta en otro idioma', 'À proximité · carte en langue étrangère', 'قريب · قوائم بلغات أجنبية', '附近 · 有外语菜单', '近く · 外国語メニューあり')}
+          {say('Dishes you cannot order alone', '혼자서는 주문할 수 없는 음식', 'Platos que no puedes pedir solo', 'Les plats qu’on ne commande pas seul', 'أطباق لا تُطلب لشخص واحد', '一个人点不了的菜', 'ひとりでは頼めない料理')}
         </button>
         <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte', 'أغلق الخريطة', '关闭地图', '地図を閉じる')} onClick={onClose}>
           <XIcon size={18} />

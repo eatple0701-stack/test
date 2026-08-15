@@ -3,37 +3,51 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { placesInView, asPlace, MIN_ZOOM, NEAR_DISTRICTS } from '../../data/nearbyPlaces.js';
+import { DISH_IDS } from '../catalog/dishGroups.js';
 
-// The whole register — 167,659 restaurants — split into 26 district files by
-// scripts/build-seoul-places.mjs, because as one file it is 24.4MB and 3.4MB
-// compressed. These tests run against the shipped files.
+// The register, filtered to the app's premise and split into 25 district
+// files by scripts/build-seoul-places.mjs. Of 167,659 restaurants, 8,118
+// serve one of the twenty-four dishes a person cannot order alone; the rest
+// are cafes, burger counters and 김밥천국, and they are not here.
 //
-// The thing being protected is that "all of it" stays true while nothing
-// downloads more than it needs: every row present, no filter applied at
-// build time, and the app fetching only the districts somebody looked at.
+// The thing being protected is that the filter is real and legible: every
+// row carries the dishes it was kept for, no row is here without one, and
+// the app still fetches only the districts somebody looked at.
 
 const DIR = path.join(process.cwd(), 'public/data/seoul');
 const index = JSON.parse(fs.readFileSync(path.join(DIR, 'index.json'), 'utf8'));
 const districtFiles = fs.readdirSync(DIR).filter(f => f !== 'index.json');
 const loadDistrict = (slug) => JSON.parse(fs.readFileSync(path.join(DIR, `${slug}.json`), 'utf8'));
 
-test('the index accounts for every row in the dataset', () => {
-  // 167,659 is the register's own totalCount. If a filter ever creeps into
-  // the build script, this is where it shows up.
-  assert.equal(index.total, 167659);
+test('the index accounts for every row it ships', () => {
+  assert.equal(index.total, 8118);
   const summed = index.districts.reduce((n, d) => n + d.count, 0);
   assert.equal(summed, index.total, 'the districts do not add up to the whole');
   assert.equal(districtFiles.length, index.districts.length);
 });
 
+test('every place is here because of a dish, and says which', () => {
+  // This is the filter, asserted rather than trusted. A row without `d` is a
+  // restaurant nobody can explain the presence of — which is how 159,541
+  // cafes and burger counters would come back in through a build-script edit.
+  const known = new Set(DISH_IDS);
+  let checked = 0;
+  for (const d of index.districts) {
+    for (const r of loadDistrict(d.slug).rows) {
+      assert.ok(Array.isArray(r.d) && r.d.length > 0, `${r.n} is here for no stated reason`);
+      for (const dish of r.d) assert.ok(known.has(dish), `${r.n} carries unknown dish "${dish}"`);
+      checked += 1;
+    }
+  }
+  assert.equal(checked, index.total);
+});
+
 test('rows the register gave no coordinates for are kept, not dropped', () => {
-  // 2953 of them. They cannot be drawn or sorted by distance, but they are
-  // real restaurants, and dropping them would make this a partial import
-  // claiming to be a complete one.
+  // 24 of them. They cannot be drawn or sorted by distance, but they serve
+  // the dish and they are real restaurants; dropping them would hide a place
+  // for a reason that has nothing to do with the food.
   assert.ok(index.withGeo < index.total, 'some rows have no coordinates');
-  // 2,925 the register never geocoded, plus 28 it placed outside Seoul —
-  // the 새문안로 block that all carried a point near Sejong.
-  assert.equal(index.total - index.withGeo, 2953);
+  assert.equal(index.total - index.withGeo, 24);
   const jongno = loadDistrict('Jongno');
   const summedGeo = index.districts.reduce((n, d) => n + d.withGeo, 0);
   assert.ok(summedGeo === index.withGeo);
@@ -57,7 +71,7 @@ test('nothing this app refuses to print came along for the ride', () => {
   for (const banned of ['price', 'p', 'grade', 'g', 'rating', 'r', 'score', 's']) {
     assert.equal(keys.has(banned), false, `the layer carries a "${banned}" field`);
   }
-  assert.deepEqual([...keys].sort(), ['a', 'c', 'f', 'h', 'i', 'n', 't', 'x', 'y']);
+  assert.deepEqual([...keys].sort(), ['a', 'c', 'd', 'f', 'h', 'i', 'n', 't', 'x', 'y']);
 });
 
 test('the layer draws nothing until the map is close enough to read', () => {
@@ -70,11 +84,28 @@ test('the layer draws nothing until the map is close enough to read', () => {
 });
 
 test('a viewport is capped, because Leaflet draws everything it is given', () => {
-  // 종로구 alone holds 8,649. Handing them all to Leaflet locks the thread.
+  // 종로구 alone holds 487, and a city-wide box reaches all of them. Handing
+  // that many to Leaflet at once locks the thread on a phone.
   const layer = { rows: loadDistrict('Jongno').rows };
   const wide = { north: 37.70, south: 37.45, east: 127.20, west: 126.80 };
   assert.equal(placesInView(layer, wide, 16).length, 160, 'the default cap');
   assert.equal(placesInView(layer, wide, 16, 12).length, 12, 'and it is a parameter');
+});
+
+test('the cap samples across the viewport instead of taking the first rows', () => {
+  // The rows are ordered by district and then by id, so "the first 160" at
+  // city zoom was 160 dots inside one district and an empty map everywhere
+  // else — a picture that reads as a claim about where the food in Seoul is.
+  // Nobody would have seen it as a bug; it just looked like a map.
+  const layer = { rows: loadDistrict('Gangnam').rows.filter(r => r.y !== undefined) };
+  const wide = { north: 37.70, south: 37.45, east: 127.20, west: 126.80 };
+  const shown = placesInView(layer, wide, 16, 40);
+  assert.equal(shown.length, 40);
+  // The last one drawn comes from the end of the district, not from row 40.
+  const ids = layer.rows.map(r => r.i);
+  assert.ok(ids.indexOf(shown[39].i) > 40, 'the cap is still truncating');
+  // And every one of them is a real distinct row.
+  assert.equal(new Set(shown.map(r => r.i)).size, 40);
 });
 
 test('a row with no coordinates is never placed on the map', () => {

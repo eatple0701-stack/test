@@ -1,23 +1,23 @@
-// The register, fetched a district at a time.
+// The register, filtered to the dishes this app exists for.
 //
-// 167,659 restaurants from 서울관광재단's food-tourism database (data.go.kr
-// 15097605), built into public/data/seoul/ by scripts/build-seoul-places.mjs
-// — one file per 구, plus a small index naming each district's bounding box
-// and count.
+// 서울관광재단's food-tourism database (data.go.kr 15097605) holds 167,659
+// restaurants. 8,118 of them serve one of the twenty-four dishes a person
+// cannot order alone — see src/domain/catalog/dishGroups.js — and those are
+// the ones built into public/data/seoul/ by scripts/build-seoul-places.mjs:
+// one file per 구, plus a small index naming each district's box and count.
 //
-// ── Why split, and why not one file ──────────────────────────────────────
+// ── Why the whole city now loads at once ─────────────────────────────────
 //
-// All of it is 24.4MB, 3.4MB compressed. That is a download nobody on mobile
-// data should be asked for to look at one street, and one the service worker
-// would then hold on the device forever. By district the largest single file
-// is 강남구 at 332KB compressed, and a person looking at Insadong fetches
-// 종로구 and nothing else.
+// Unfiltered this was 24.4MB, 3.4MB compressed, which is why it used to
+// arrive four districts at a time. Filtered it is 1.1MB, 0.25MB compressed —
+// smaller than one photograph — so the map fetches all of Seoul and draws it.
+// The district split survives because it is how the files are organised and
+// how the service worker caches them, not because anybody is being rationed.
 //
-// Nothing is filtered out. Every row is reachable; the app just does not
-// download districts nobody looked at. Rows the register gave no usable
-// coordinates for (2,925 of them) are kept too — they cannot be drawn or
-// sorted by distance, but they are real restaurants, and dropping them would
-// make this a partial import claiming to be a complete one.
+// Rows the register gave no usable coordinates for (24 of them) are kept —
+// they cannot be drawn or sorted by distance, but they serve the dish, and
+// hiding a restaurant for a reason unrelated to its food is not a filter
+// anybody asked for.
 //
 // ── Why these are not `restaurants` ──────────────────────────────────────
 //
@@ -114,7 +114,7 @@ export async function loadNearbyPlaces(center = null) {
   return { rows: merged, builtAt: index.builtAt, source: index.source, index };
 }
 
-/** Every district file, for the rare caller that genuinely wants all of Seoul. */
+/** All of Seoul: twenty-five files, a quarter of a megabyte compressed. */
 export async function loadAllPlaces() {
   const index = await loadIndex();
   if (!index?.districts) return { rows: [], builtAt: null };
@@ -131,24 +131,42 @@ export async function loadAllPlaces() {
 }
 
 /**
- * Nothing below the zoom where individual restaurants are worth looking at.
+ * The zoom the map opens at, so the dots are there on arrival.
  *
- * Leaflet draws every marker it is handed, and a district holds sixteen
- * thousand of them.
+ * This was 15 — four zoom levels in from the opening view — because the layer
+ * then held every restaurant in Seoul and a city-wide box meant handing
+ * Leaflet a hundred thousand markers. With the filter applied it is 8,118 in
+ * the whole city, and somebody who opens the map should see that it has
+ * something on it.
  */
-export const MIN_ZOOM = 15;
+export const MIN_ZOOM = 12;
 
-export function placesInView(layer, bounds, zoom, limit = 160) {
+/**
+ * What to draw for this viewport.
+ *
+ * Leaflet draws every marker it is handed and keeps a DOM node per marker, so
+ * a viewport is capped. Over the cap the survivors are taken at an even
+ * stride through the list rather than as the first N: the rows are ordered by
+ * district and then by id, so "the first 160" at city zoom is 160 dots in
+ * 강남구 and an empty map everywhere else — which reads as a claim about
+ * where the food is, and it is not one this data supports.
+ */
+export const VIEW_LIMIT = 160;
+
+export function placesInView(layer, bounds, zoom, limit = VIEW_LIMIT) {
   if (!layer?.rows || !bounds || zoom < MIN_ZOOM) return [];
   const { north, south, east, west } = bounds;
-  const out = [];
+  const inside = [];
   for (const p of layer.rows) {
     // A row with no coordinates is a real restaurant that cannot be drawn.
     if (p.y === undefined || p.x === undefined) continue;
     if (p.y < south || p.y > north || p.x < west || p.x > east) continue;
-    out.push(p);
-    if (out.length >= limit) break;
+    inside.push(p);
   }
+  if (inside.length <= limit) return inside;
+  const stride = inside.length / limit;
+  const out = [];
+  for (let i = 0; i < limit; i += 1) out.push(inside[Math.floor(i * stride)]);
   return out;
 }
 

@@ -28,3 +28,11 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# 서울관광재단 원본 다운로드 (data.go.kr 15097605)
+#
+# 444MB of CSV and a text file holding the API key. Both are inputs to
+# scripts/, not part of the app: what ships is public/data/seoul/, built
+# from them. Committing them would put the key in the history and half a
+# gigabyte in every clone.
+서울관광재단*/

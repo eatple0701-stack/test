@@ -3,6 +3,8 @@ import PlaceImage from './PlaceImage';
 import { HeartIcon, CompassIcon } from './Icons';
 import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf } from '../utils';
 import { dietaryBadges } from '../data/verification';
+import { isRegistryPlace } from '../data/seoulRegistry.js';
+import { groupsOf } from '../domain/catalog/dishGroups.js';
 import { useText } from './localeText.js';
 
 // The traits that make up the sustainability axis (see TRAIT_GROUPS in App).
@@ -27,6 +29,13 @@ function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, l
   const badges = [...dietaryBadges(place).map(b => b.label), ...traits];
   const extraBadges = badges.length - 3;
 
+  // A register row has no dietary record and no traits, so its badge row was
+  // empty — a card that said nothing about why it was in the list. What it
+  // does have is the dish its own menu carries, which is the only reason it
+  // survived the filter, so that is what the chips say instead.
+  const fromRegister = isRegistryPlace(place);
+  const groups = fromRegister ? groupsOf(place.registry?.dishes) : [];
+
   return (
     <article className="place-card">
       <div className="place-card__body">
@@ -50,10 +59,20 @@ function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, l
         </p>
 
         <div className="place-card__badges">
-          {badges.slice(0, 3).map(label => (
-            <span key={label} className="tag-chip">{label}</span>
-          ))}
-          {extraBadges > 0 && <span className="tag-chip">+{extraBadges}</span>}
+          {fromRegister
+            ? groups.map(g => (
+              <span key={g.id} className="tag-chip tag-chip--dish" style={{ background: g.tint }}>
+                {g.emoji} {say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}
+              </span>
+            ))
+            : (
+              <>
+                {badges.slice(0, 3).map(label => (
+                  <span key={label} className="tag-chip">{label}</span>
+                ))}
+                {extraBadges > 0 && <span className="tag-chip">+{extraBadges}</span>}
+              </>
+            )}
         </div>
 
         {/* The restaurant's own recorded line, verbatim — the same string the
@@ -77,10 +96,12 @@ function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, l
       <div className="place-card__foot">
         <button
           className="place-card__story-btn"
-          aria-label={`Read the story of ${name}`}
+          aria-label={fromRegister ? `What the register holds about ${name}` : `Read the story of ${name}`}
           onClick={() => onReadStory(place)}
         >
-          {say('Read Story', '이야기 읽기', 'Leer la historia', "Lire l'histoire", 'اقرأ الحكاية', '读这个故事', '物語を読む')}
+          {fromRegister
+            ? say('Address & hours', '주소·영업시간', 'Dirección y horario', 'Adresse et horaires', 'العنوان والمواعيد', '地址·营业时间', '住所・営業時間')
+            : say('Read Story', '이야기 읽기', 'Leer la historia', "Lire l'histoire", 'اقرأ الحكاية', '读这个故事', '物語を読む')}
         </button>
 
         <div className="place-card__actions">

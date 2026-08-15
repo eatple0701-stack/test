@@ -726,14 +726,13 @@ export default function App() {
   // Until then every screen runs on the twenty, which is not a loading
   // state — it is the app.
   const [registryPlaces, setRegistryPlaces] = useState([]);
-  // Districts are fetched around wherever the map is looking, and the set
-  // only grows — panning to Mapo keeps Jongno, because a place just behind
-  // you is still one of the nearest.
+  // Fetched once, not per pan: the whole filtered register is a quarter of
+  // a megabyte, so there is nothing left to ration by district.
   useEffect(() => {
     let alive = true;
-    loadRegistryPlaces(mapCenter).then(list => { if (alive) setRegistryPlaces(list); });
+    loadRegistryPlaces().then(list => { if (alive) setRegistryPlaces(list); });
     return () => { alive = false; };
-  }, [mapCenter]);
+  }, []);
 
   const pool = useMemo(
     () => (registryPlaces.length ? [...activeRestaurants, ...registryPlaces] : activeRestaurants),
