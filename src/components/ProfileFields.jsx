@@ -61,7 +61,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
         <Field
           control
           label={say('이름 · Your name', '이름', 'Tu nombre', 'Votre nom', 'اسمك', '你的名字', 'あなたの名前')}
-          hint="What the table looks for when you arrive."
+          hint={say('What the table looks for when you arrive.', '밥상에서 상대가 찾을 이름이에요.', 'Lo que la mesa busca cuando llegas.', "Ce que la table cherche à votre arrivée.", 'ما تبحث عنه المائدة حين تصل.', '同桌的人到时候就找这个名字。', '食卓の人が探すのはこの名前です。')}
         >
           <input
             type="text"
@@ -72,7 +72,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
           />
         </Field>
 
-        <Field control label={say('출신 · Where you are from', '출신', 'De dónde eres', "D'où vous venez", 'من أين أنت', '你从哪儿来', '出身')} hint="Optional. Shown to the table, nowhere else.">
+        <Field control label={say('출신 · Where you are from', '출신', 'De dónde eres', "D'où vous venez", 'من أين أنت', '你从哪儿来', '出身')} hint={say('Optional. Only the table sees it.', '선택이에요. 밥상에서만 보입니다.', 'Opcional. Solo lo ve la mesa.', 'Facultatif. Seule la table le voit.', 'اختياري. لا يراه إلا أهل المائدة.', '可以不填。只有同桌的人看得到。', '任意です。食卓の人にだけ見えます。')}>
           <input
             type="text"
             className="profile-input"
@@ -84,7 +84,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
 
         <Field
           label={say('할 수 있는 언어 · Languages you speak', '할 수 있는 언어', 'Idiomas que hablas', 'Langues que vous parlez', 'اللغات التي تتحدّثها', '你会说的语言', '話せる言語')}
-          hint="So a host knows what the table will run in."
+          hint={say('So a host knows what the table will run in.', '밥상이 어떤 언어로 돌아갈지 호스트가 알 수 있게요.', 'Para que el anfitrión sepa en qué idioma irá la mesa.', "Pour que l'hôte sache dans quelle langue se passera la table.", 'ليعرف المضيف بأيّ لغة ستدور المائدة.', '让主人知道这桌会用什么语言。', 'この食卓が何語で進むか、ホストが分かるように。')}
         >
           <div className="chip-row">
             {LANGUAGES.map(l => (
@@ -112,7 +112,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             (TablesTab.jsx), which is the feature this field exists for. */}
         <Field
           label={say('성별 · Gender (optional)', '성별 (선택)', 'Género (opcional)', 'Genre (facultatif)', 'الجنس (اختياري)', '性别（可选）', '性別（任意）')}
-          hint="Not verified — just what you tell the table. Used only for the 'tables with another woman' filter on Tables."
+          hint={say('Not verified. Lets you filter for tables with another woman.', '확인하지 않습니다. 여성이 있는 밥상만 골라 보는 데 쓰여요.', 'Sin verificar. Sirve para filtrar mesas donde hay otra mujer.', "Non vérifié. Sert à filtrer les tables où il y a une autre femme.", 'غير مُتحقَّق منه. يُستخدم لتصفية الموائد التي فيها امرأة أخرى.', '不做核实。用来筛选有其他女性的饭桌。', '確認はしません。女性がいる食卓を絞り込むのに使います。')}
         >
           <div className="chip-row">
             {GENDERS.map(g => (
@@ -135,7 +135,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             acts on is decoration. */}
         <Field
           label={say('못 먹는 것 · What you do not eat', '못 먹는 것', 'Lo que no comes', 'Ce que vous ne mangez pas', 'ما لا تأكله', '你不吃什么', '食べないもの')}
-          hint="Tables serving these are flagged before you ask for a seat. Nothing is hidden from you — the warning is on the card."
+          hint={say('Tables serving these are flagged before you ask. Nothing is hidden — the warning is on the card.', '이걸 내는 밥상은 요청 전에 표시됩니다. 감추지 않고, 카드에 적어 둡니다.', 'Las mesas que los sirven se marcan antes de pedir sitio. No se oculta nada: el aviso está en la tarjeta.', "Les tables qui en servent sont signalées avant votre demande. Rien n'est caché — l'avertissement est sur la carte.", 'تُعلَّم الموائد التي تقدّمها قبل أن تطلب مقعدًا. لا شيء مخفيّ — التنبيه على البطاقة.', '上这些菜的饭桌，在你申请之前就会标出来。什么都不藏——提示就在卡片上。', 'これを出す食卓は、申し込む前に印がつきます。隠しません——カードに書いてあります。')}
         >
           <div className="chip-row">
             {RESTRICTIONS.map(r => (
@@ -160,7 +160,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
         <Field
           control
           label={say('그 밖에 못 먹는 것 · Anything else you cannot eat? (optional)', '그 밖에 못 먹는 것 (선택)', '¿Algo más que no puedas comer? (opcional)', 'Autre chose que vous ne pouvez pas manger ? (facultatif)', 'أشيء آخر لا تستطيع أكله؟ (اختياري)', '还有别的不能吃的吗？（可选）', 'ほかに食べられないものはありますか？（任意）')}
-          hint="Free text, sent to the host with your seat request — not checked against any menu, just carried."
+          hint={say('Free text, sent to the host with your request. Not checked against any menu.', '자유롭게 적으시면 요청과 함께 호스트에게 갑니다. 메뉴와 대조하지는 않습니다.', 'Texto libre, va al anfitrión con tu solicitud. No se contrasta con ninguna carta.', "Texte libre, transmis à l'hôte avec votre demande. Non recoupé avec une carte.", 'نصّ حرّ يصل إلى المضيف مع طلبك. لا يُقابَل بأيّ قائمة طعام.', '随便写，会跟着申请一起给主人。不会拿去和菜单对照。', '自由に書けます。申し込みと一緒にホストへ届きます。品書きとの照合はしません。')}
         >
           <textarea
             rows={2}
@@ -181,7 +181,7 @@ export default function ProfileFields({ profile, onProfileChange }) {
             passes the word to somebody who can ask the kitchen. */}
         <Field
           label={say('식사 방식 · How you eat', '식사 방식', 'Cómo comes', 'Comment vous mangez', 'كيف تأكل', '你怎么吃', '食べ方')}
-          hint="Sent to the host with your seat request. The app does not judge dishes by this — it tells the person who can ask."
+          hint={say('Sent to the host with your request. The app does not judge dishes by it — the host can ask the kitchen.', '요청과 함께 호스트에게 갑니다. 앱이 이걸로 요리를 판정하지는 않아요 — 주방에 물어볼 수 있는 사람은 호스트입니다.', 'Va al anfitrión con tu solicitud. La app no juzga platos con esto: el anfitrión puede preguntar en la cocina.', "Transmis à l'hôte avec votre demande. L'app ne juge pas les plats là-dessus — l'hôte peut demander en cuisine.", 'يصل إلى المضيف مع طلبك. لا يحكم التطبيق على الأطباق بناءً عليه — المضيف هو من يستطيع سؤال المطبخ.', '跟着申请一起给主人。应用不拿这个去判定菜——能问厨房的是主人。', '申し込みと一緒にホストへ届きます。アプリがこれで料理を判定することはありません——厨房に聞けるのはホストです。')}
         >
           <div className="chip-row">
             {DIETS.map(d => (

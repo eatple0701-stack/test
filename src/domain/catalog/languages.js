@@ -28,7 +28,11 @@
 // languages.
 
 /** The stored values. Order is the order every list renders in. */
-export const LANGUAGES = ['English', '한국어', '日本語', '中文', 'Español', 'Français', 'العربية'];
+export const LANGUAGES = [
+  'English', '한국어', '日本語', '中文', 'Español', 'Français', 'العربية',
+  // Added 2026-08-15 on the 8/7 review's note that the list was too short.
+  'Tiếng Việt', 'ไทย', 'Bahasa Indonesia', 'Deutsch', 'Русский', 'Português',
+];
 
 /**
  * The English name for each. English's own entry is null rather than
@@ -43,6 +47,12 @@ export const LANGUAGE_EN = {
   'Español': 'Spanish',
   'Français': 'French',
   'العربية': 'Arabic',
+  'Tiếng Việt': 'Vietnamese',
+  'ไทย': 'Thai',
+  'Bahasa Indonesia': 'Indonesian',
+  'Deutsch': 'German',
+  'Русский': 'Russian',
+  'Português': 'Portuguese',
 };
 
 export const isLanguage = (l) => LANGUAGES.includes(l);

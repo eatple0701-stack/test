@@ -54,7 +54,10 @@ const SPEAK = new Set(['say', 'crashText', 'chromeWord']);
 const LANGUAGES = 7;
 
 /** Props a person reads. className and href are not among them. */
-const VISIBLE_ATTR = new Set(['title', 'alt', 'placeholder', 'aria-label', 'label']);
+// "hint" is on this list because it was not, and seven of them shipped in
+// English under fields written in seven languages — including the one the
+// 8/7 review called out as too long and awkward.
+const VISIBLE_ATTR = new Set(['title', 'alt', 'placeholder', 'aria-label', 'label', 'hint']);
 
 const LATIN = /[A-Za-z]/;
 const HANGUL = /[가-힣]/;
