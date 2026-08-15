@@ -10,7 +10,9 @@
     "check-data": "node scripts/check-data.mjs",
     "test": "node --test \"src/**/*.test.mjs\"",
     "preview": "vite preview",
-    "audit-i18n": "node scripts/audit-i18n.mjs"
+    "audit-i18n": "node scripts/audit-i18n.mjs",
+    "seoul-food": "node scripts/seoul-food-api.mjs",
+    "seoul-food-match": "node scripts/match-seoul-food.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",
