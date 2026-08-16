@@ -38,7 +38,10 @@ export default function MapOverlay({
   onResetFilters,
 }) {
   const say = useText();
-  const [nearby, setNearby] = useState(false);
+  // On, because the point of the map is the 8,118 places on it. Off by
+  // default meant opening the map and seeing twenty pins and an empty city,
+  // with the whole import hidden behind a button nobody had reason to press.
+  const [nearby, setNearby] = useState(true);
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };

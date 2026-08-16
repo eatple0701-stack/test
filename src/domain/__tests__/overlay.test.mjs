@@ -66,3 +66,17 @@ test('the phrase sheet stays above the dish sheet that opens it', () => {
     'the phrase sheet would open underneath the dish sheet',
   );
 });
+
+test('the map draws the register without being asked to', () => {
+  // The 8,118 places were behind a toggle that started off, so opening the
+  // map showed twenty pins over an empty city and the whole import looked
+  // like it had not shipped. Same failure as the rest of this file — the
+  // thing is there and the screen does not show it — one state variable in.
+  const src = fs.readFileSync(new URL('../../components/MapOverlay.jsx', import.meta.url), 'utf8');
+  assert.match(src, /useState\(true\);\s*$/m, 'MapOverlay has no state defaulting to on');
+  assert.doesNotMatch(
+    src.replace(/\/\/.*$/gm, ''),
+    /const \[nearby, setNearby\] = useState\(false\)/,
+    'the register layer is off until somebody presses a button',
+  );
+});
