@@ -154,17 +154,12 @@ function NearbyCard({ place, onClose }) {
       <p className="nearby-card__addr">{place.a}</p>
       {place.h && <p className="nearby-card__hours">{place.h}</p>}
 
-      {/* The line that keeps this layer honest. These are register rows;
-          nobody here has eaten in one. Said on every one of them rather than
-          once in a legend somebody scrolls past. */}
-      <p className="nearby-card__caveat">
-        {say('These dishes are on its menu in the Seoul Tourism Foundation register. Nobody here has eaten at it, and menus change.',
-          '서울관광재단 등록부에 이 요리들이 메뉴로 올라 있습니다. 저희가 가본 곳은 아니고, 메뉴는 바뀝니다.',
-          'Estos platos constan en su carta en el registro de la Fundación de Turismo de Seúl. Nadie de aquí ha comido allí, y las cartas cambian.',
-          "Ces plats figurent à sa carte dans le registre de la Fondation du tourisme de Séoul. Personne ici n'y a mangé, et les cartes changent.",
-          'هذه الأطباق مذكورة في قائمته بسجلّ مؤسسة سول للسياحة. لم يأكل أحد منّا فيه، والقوائم تتغيّر.',
-          '这些菜在首尔观光财团的登记信息里列在它的菜单上。我们没有人在这儿吃过，菜单也会变。',
-          'これらの料理はソウル観光財団の登録にある品書きに載っています。私たちの誰も食べに行っておらず、品書きは変わります。')}
+      {/* One line, not a paragraph. Where it came from, which is the only
+          part a reader cannot work out for themselves. */}
+      <p className="nearby-card__source">
+        {say('Seoul Tourism Foundation register', '서울관광재단 등록 정보',
+          'Registro de la Fundación de Turismo de Seúl', 'Registre de la Fondation du tourisme de Séoul',
+          'سجلّ مؤسسة سول للسياحة', '首尔观光财团登记信息', 'ソウル観光財団の登録情報')}
       </p>
 
       <div className="nearby-card__links">

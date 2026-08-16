@@ -55,20 +55,6 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
       </header>
 
       <div className="registry-sheet__body">
-        {/* First, and not in small print at the bottom. Somebody who opened
-            this expecting the page 발우공양 has needs to know in the first
-            line why this one is shorter. */}
-        <p className="registry-sheet__origin">
-          {say(
-            'This one is from a public register, not from us. It is here because the menu the Seoul Tourism Foundation recorded for it carries a dish you cannot order for one. Nobody here has eaten at it, so there is no story below — only what the register holds, which can be out of date, and menus change.',
-            '이 장소는 저희가 쓴 것이 아니라 공공 등록 정보입니다. 서울관광재단이 기록한 메뉴에 혼자서는 주문할 수 없는 음식이 있어서 여기 있습니다. 저희가 가본 곳이 아니어서 아래에 이야기가 없고, 등록부에 있는 사실만 있으며 그마저 오래됐을 수 있고 메뉴는 바뀝니다.',
-            'Este viene de un registro público, no de nosotros. Está aquí porque la carta que registró la Fundación de Turismo de Seúl incluye un plato que no se puede pedir para uno. Nadie de aquí ha comido en él, así que no hay historia debajo: solo lo que consta en el registro, que puede estar desactualizado, y las cartas cambian.',
-            "Celui-ci vient d'un registre public, pas de nous. Il est là parce que la carte enregistrée par la Fondation du tourisme de Séoul comporte un plat qu'on ne commande pas pour une personne. Personne ici n'y a mangé : il n'y a donc pas de récit ci-dessous, seulement ce que contient le registre, qui peut dater, et les cartes changent.",
-            'هذا المكان من سجلّ عامّ لا منّا. هو هنا لأنّ القائمة التي سجّلتها مؤسسة سول للسياحة تضمّ طبقًا لا يُطلب لشخص واحد. لم يأكل أحد منّا فيه، فلا حكاية أدناه — فقط ما في السجلّ، وقد يكون قديمًا، والقوائم تتغيّر.',
-            '这一处来自公开登记信息，不是我们写的。它在这里，是因为首尔观光财团登记的菜单上有一道一个人点不了的菜。我们没有人在这里吃过，所以下面没有故事——只有登记信息，可能已经过时，菜单也会变。',
-            'この店は私たちが書いたものではなく、公開されている登録情報です。ソウル観光財団が記録した品書きに、ひとりでは頼めない料理があるので載っています。私たちの誰も食べに行っていないので、以下に物語はありません。登録にある事実だけで、それも古くなっている場合があり、品書きは変わります。')}
-        </p>
-
         {dishes.length > 0 && (
           <section className="detail-section">
             <div className="section-head">
@@ -84,15 +70,6 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
             </div>
             <p className="registry-sheet__menu" translate="no" data-no-locale>
               {dishes.map(d => DISH_KO[d]).filter(Boolean).join(' · ')}
-            </p>
-            <p className="registry-sheet__menu-note">
-              {say('On its menu in the register — not a recommendation, and not checked this week.',
-                '등록부의 메뉴에 있는 항목입니다. 추천이 아니고, 이번 주에 확인한 것도 아닙니다.',
-                'Consta en su carta en el registro: no es una recomendación, y no se ha comprobado esta semana.',
-                "Figure à sa carte dans le registre — ce n'est pas une recommandation, et ce n'a pas été vérifié cette semaine.",
-                'مذكور في قائمته بالسجلّ — ليس ترشيحًا، ولم يُتحقَّق منه هذا الأسبوع.',
-                '登记信息的菜单上有——这不是推荐，也不是本周核实过的。',
-                '登録の品書きに載っています。おすすめではなく、今週確認したものでもありません。')}
             </p>
           </section>
         )}

@@ -11372,14 +11372,11 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 }
 .nearby-card__addr,
 .nearby-card__hours { margin: 5px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-body); }
-.nearby-card__caveat {
+.nearby-card__source {
   margin: 9px 0 0;
-  padding: 7px 9px;
-  border-radius: var(--radius);
-  background: var(--orange-tint, var(--surface));
-  color: var(--orange-ink, var(--ink-body));
-  font-size: 11.5px;
+  font-size: 11px;
   line-height: 1.5;
+  color: var(--muted-strong);
 }
 .nearby-card__links { display: flex; gap: 8px; margin-top: 10px; }
 .nearby-card__links a {
@@ -11434,15 +11431,6 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
    Shorter than a curated place page on purpose: it can only show what the
    dataset holds. The first block says so, before anything else. */
 .registry-sheet__body { padding: 4px 16px 40px; }
-.registry-sheet__origin {
-  margin: 12px 0 20px;
-  padding: 11px 13px;
-  border-radius: var(--radius);
-  background: var(--orange-tint, var(--surface));
-  color: var(--orange-ink, var(--ink-body));
-  font-size: 13px;
-  line-height: 1.6;
-}
 /* Why this place survived a filter that removed 159,541 others. The chip
    carries its group's colour — the same colour as its dot on the map. */
 .registry-sheet__groups { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
@@ -11462,12 +11450,6 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
   font-weight: 700;
   line-height: 1.5;
   color: var(--ink-title);
-}
-.registry-sheet__menu-note {
-  margin: 5px 0 0;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--muted-strong);
 }
 .registry-sheet__facts { margin: 8px 0 0; padding: 0; list-style: none; }
 .registry-sheet__facts li {
