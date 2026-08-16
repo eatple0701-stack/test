@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
+import { DISH_GROUPS, groupOfMenu } from '../domain/catalog/dishGroups.js';
 import { seatsRemaining, isPast, attendance } from '../domain/policy/table.js';
 import {
   listTables, listAllSignups, listBlocks, seedSampleTables, isLocalOnly,
@@ -51,13 +52,17 @@ const dayLabel = (date) => {
 // onOpenPassport is gone with the top bar it served: the way to your own
 // Passport is the chip in the app chrome now, on every screen rather than
 // this one.
-export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth }) {
+export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, initialGroup = null }) {
   const say = useText();
   const locale = useLocale();
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
   const [blockedIds, setBlockedIds] = useState([]);
   const [menuFilter, setMenuFilter] = useState(null);
+  // The six groups above the dishes. Arrives already set when one of the
+  // front page's category cards brought the reader here — that is the
+  // matching flow: say what you came to eat, then see who is already going.
+  const [groupFilter, setGroupFilter] = useState(initialGroup);
   // A personal view preference, not a rule the app enforces on who may sit
   // where — like menuFilter, it changes what this one screen shows and
   // nothing else. See HANDOFF.md §4: praised by a reviewer for existing
@@ -105,8 +110,15 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     [tables, blockedIds],
   );
 
+  // Group first, dish second. The dish chips are themselves narrowed to
+  // the chosen group below, so the two filters cannot disagree.
+  const inGroup = useMemo(
+    () => (groupFilter ? open.filter(t => groupOfMenu(t.menuId)?.id === groupFilter) : open),
+    [open, groupFilter],
+  );
+
   const shown = useMemo(() => {
-    let list = menuFilter ? open.filter(t => t.menuId === menuFilter) : open;
+    let list = menuFilter ? inGroup.filter(t => t.menuId === menuFilter) : inGroup;
     if (womenFilter) {
       list = list.filter(t => tableIncludesGender(t, signupsFor[t.id] ?? [], 'Woman'));
     }
@@ -114,7 +126,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     // named windows redundant and this comparison exact.
     if (dayFilter) list = list.filter(t => t.date === dayFilter);
     return list;
-  }, [open, menuFilter, womenFilter, dayFilter, signupsFor]);
+  }, [inGroup, menuFilter, womenFilter, dayFilter, signupsFor]);
 
   // Counted from every open table rather than from what the filters left, so
   // the strip keeps telling the truth about the week while a filter is on.
@@ -151,9 +163,17 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // Only offer a filter for dishes somebody is actually eating — a chip that
   // always returns nothing is a dead end dressed as a choice.
   const liveMenuIds = useMemo(
-    () => menus.filter(m => open.some(t => t.menuId === m.id)).map(m => m.id),
-    [open],
+    () => menus.filter(m => inGroup.some(t => t.menuId === m.id)).map(m => m.id),
+    [inGroup],
   );
+
+  // Choosing a group drops a dish filter that no longer belongs to it —
+  // otherwise 🔥 K-BBQ plus a lingering 보쌈 chip shows nothing and blames
+  // neither.
+  const pickGroup = (gid) => {
+    setGroupFilter(gid);
+    if (gid && menuFilter && groupOfMenu(menuFilter)?.id !== gid) setMenuFilter(null);
+  };
 
   return (
     <section className="tables-tab" aria-label={say('Eatple tables', '밥친구 밥상', 'Mesas de Eatple', 'Les tables Eatple', 'موائد Eatple', 'Eatple 的饭桌', 'Eatple の食卓')}>
@@ -302,6 +322,32 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </p>
       )}
 
+      {/* The six groups, always all six. That deliberately breaks the rule
+          the dish chips live by — no chip that can return nothing — because
+          these are the app's own taxonomy and the front page offers every
+          one of them. A category that vanished whenever the week was thin
+          would make that offer a lie; an empty one lands on an empty state
+          whose answer is 상 차리기. */}
+      <div className="menu-chips group-chips" role="group" aria-label={say('Filter by kind of food', '음식 종류로 거르기', 'Filtrar por tipo de comida', 'Filtrer par type de plat', 'صفِّ بنوع الطعام', '按种类筛选', '種類で絞る')}>
+        <button
+          className={`menu-chip${groupFilter === null ? ' is-on' : ''}`}
+          onClick={() => pickGroup(null)}
+        >
+          {say('All', '전체', 'Todas', 'Toutes', 'الكل', '全部', 'すべて')}
+        </button>
+        {DISH_GROUPS.map(g => (
+          <button
+            key={g.id}
+            className={`menu-chip group-chip${groupFilter === g.id ? ' is-on' : ''}`}
+            style={groupFilter === g.id ? { background: g.tint, borderColor: g.tint, color: '#FFFFFF' } : undefined}
+            aria-pressed={groupFilter === g.id}
+            onClick={() => pickGroup(groupFilter === g.id ? null : g.id)}
+          >
+            <span aria-hidden="true">{g.emoji}</span> {say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}
+          </button>
+        ))}
+      </div>
+
       {liveMenuIds.length > 1 && (
         <div className="menu-chips" role="group" aria-label={say('Filter by dish', '요리로 거르기', 'Filtrar por plato', 'Filtrer par plat', 'صفِّ بالطبق', '按菜筛选', '料理で絞る')}>
           <button
@@ -372,8 +418,8 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           checked before it did: "No table for this one yet" named a dish
           nobody had chosen once the app had no tables to offer chips for, and
           "Other days have tables" was printed under a bare week. */}
-      {tables !== null && emptyReason({ open, shown, menuFilter, womenFilter, dayFilter }) && (() => {
-        const reason = emptyReason({ open, shown, menuFilter, womenFilter, dayFilter });
+      {tables !== null && emptyReason({ open, shown, menuFilter, groupFilter, womenFilter, dayFilter }) && (() => {
+        const reason = emptyReason({ open, shown, menuFilter, groupFilter, womenFilter, dayFilter });
         const text = emptyText(reason, { otherDays: hasOtherDays(open, dayFilter), locale });
         return (
           <div className="tables-empty">
@@ -394,6 +440,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             {reason === EMPTY.DISH && (
               <button className="tables-empty__cta" translate="no" onClick={() => setMenuFilter(null)}>
                 {say('요리 전체 보기 · Show every dish', '요리 전체 보기', 'Ver todos los platos', 'Voir tous les plats', 'انظر كل الأطباق', '看全部的菜', 'すべての料理を見る')}
+              </button>
+            )}
+            {reason === EMPTY.GROUP && (
+              <button className="tables-empty__cta" translate="no" onClick={() => pickGroup(null)}>
+                {say('종류 전체 보기 · Show every category', '종류 전체 보기', 'Ver todas las categorías', 'Voir toutes les catégories', 'انظر كل الفئات', '看全部种类', 'すべての種類を見る')}
               </button>
             )}
 

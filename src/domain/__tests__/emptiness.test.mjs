@@ -26,6 +26,18 @@ test('a filter the reader set explains it better than the app being bare', () =>
   assert.equal(emptyReason({ open: [], shown: [], menuFilter: 'bossam' }), EMPTY.DISH);
 });
 
+test('a group explains an empty list, and a dish explains it better', () => {
+  // The front page's category cards set groupFilter; the dish chips inside a
+  // group set menuFilter on top. When both are on, the dish is the narrower
+  // choice and the one the reset button undoes first.
+  assert.equal(emptyReason({ open: [], shown: [], groupFilter: 'kbbq' }), EMPTY.GROUP);
+  assert.equal(
+    emptyReason({ open: [], shown: [], groupFilter: 'kbbq', menuFilter: 'samgyeopsal' }),
+    EMPTY.DISH,
+  );
+  assert.match(emptyText(EMPTY.GROUP).title, /category/);
+});
+
 test('the day case never promises tables it has not seen', () => {
   const week = [table('2026-08-06'), table('2026-08-07')];
   assert.equal(hasOtherDays(week, '2026-08-06'), true);

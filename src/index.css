@@ -252,6 +252,42 @@ button {
   color: #fff;
 }
 
+
+/* ---------- The six groups on the front page ----------
+   Matching starts by naming what you came to eat. Each card carries its
+   group's tint on the left edge — the same colour its dots wear on the map
+   and its chip wears in the list, so one colour means one thing across the
+   whole app. */
+.main-groups {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.main-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 13px 14px 12px;
+  border: 1px solid var(--line);
+  border-inline-start: 5px solid var(--tint);
+  border-radius: var(--radius-lg);
+  background: var(--card, var(--surface));
+  text-align: start;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.main-group:hover { transform: translateY(-2px); box-shadow: var(--shadow-card, 0 6px 18px rgba(0, 0, 0, 0.08)); }
+.main-group__emoji { font-size: 22px; line-height: 1; }
+.main-group__name { font-size: 14.5px; font-weight: 800; color: var(--ink-title); }
+.main-group__dishes { font-size: 12px; line-height: 1.5; color: var(--muted-strong); }
+.main-group__go { margin-top: 5px; font-size: 12.5px; font-weight: 700; color: var(--tint); }
+
+@media (min-width: 768px) {
+  .main-groups { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .main-group { padding: 16px 16px 14px; }
+}
+
 /* ---------- Map overlay ----------
    The map is summoned, not resident. It opens over the content, brings the
    search, filters and list that used to live in the shell, and closes again. */

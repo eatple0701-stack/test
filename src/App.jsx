@@ -902,6 +902,12 @@ export default function App() {
             profile={profile}
             onNavigate={goToTab}
             onOpenAuth={(mode) => setAuthMode(mode)}
+            /* The matching flow: a category card on the front page opens the
+               tables screen already filtered to that category. */
+            onPickGroup={(gid) => {
+              setActiveTab('match');
+              setTableView({ screen: 'list', group: gid });
+            }}
             onOpenTable={(id) => {
               setActiveTab('match');
               setTableView({ screen: 'detail', tableId: id });
@@ -951,6 +957,8 @@ export default function App() {
             the table list, so nothing that existed has gone away. */}
         {!openThemeId && activeTab === 'match' && tableView.screen === 'list' && (
           <TablesTab
+            key={tableView.group ?? 'all'}
+            initialGroup={tableView.group ?? null}
             profile={profile}
             auth={auth}
             onOpenAuth={(mode) => setAuthMode(mode)}

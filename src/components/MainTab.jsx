@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { menus } from '../domain/catalog/menus.js';
+import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
 import { isMember } from '../domain/policy/access.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import { MAIN_PHOTOS } from '../content/mainPhotos.js';
@@ -90,7 +91,7 @@ const Squiggle = ({ className }) => (
 );
 
 export default function MainTab({
-  auth, profile, onNavigate, onOpenTable, onCreateTable, onOpenAuth,
+  auth, profile, onNavigate, onOpenTable, onCreateTable, onOpenAuth, onPickGroup,
 }) {
   const say = useText();
   const [openDish, setOpenDish] = useState(null);
@@ -258,6 +259,34 @@ export default function MainTab({
           </button>
         </div>
       </header>
+
+      {/* ---- The six groups: matching starts by naming what you came
+              to eat. Each card is a door into the tables screen with that
+              category already chosen — the same taxonomy the map's dots and
+              the register filter run on, from the same file. ---- */}
+      <div className="main-band main-band--groups">
+        <h2 className="main-band__title">
+          <span className="main-band__title-kr" translate="no">한국에서 혼자 먹기 어려웠던 음식을 함께 먹어보세요</span>
+          <span className="main-band__title-en">
+            {say('The food that was hard to eat alone in Korea — eat it together', null,
+              'La comida difícil de comer solo en Corea — para comerla juntos',
+              'Ces plats difficiles à manger seul en Corée — à partager ensemble',
+              'الطعام الذي يصعب أكله وحيدًا في كوريا — كُلْه مع آخرين',
+              '在韩国一个人很难吃到的东西——一起去吃吧',
+              '韓国でひとりでは食べにくかったものを、一緒に食べてみませんか')}
+          </span>
+        </h2>
+        <div className="main-groups" role="group" aria-label={say('Pick a kind of food', '음식 종류 고르기', 'Elige un tipo de comida', 'Choisissez un type de plat', 'اختر نوع الطعام', '选一种吃的', '食べたいものを選ぶ')}>
+          {DISH_GROUPS.map(g => (
+            <button key={g.id} className="main-group" style={{ '--tint': g.tint }} onClick={() => onPickGroup?.(g.id)}>
+              <span className="main-group__emoji" aria-hidden="true">{g.emoji}</span>
+              <span className="main-group__name">{say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}</span>
+              <span className="main-group__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
+              <span className="main-group__go">{say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* ---- This week ---- */}
       <div className="main-band">

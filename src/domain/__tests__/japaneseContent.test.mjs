@@ -146,7 +146,7 @@ test('the label maps keep the same keys in Japanese', () => {
 });
 
 test('the sentence-writing policies answer in Japanese', () => {
-  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GENDER]) {
+  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GROUP, EMPTY.GENDER]) {
     const ja = emptyText(reason, { locale: 'ja' });
     assert.ok(isJapanese(ja.title), `${reason} title`);
     assert.ok(isJapanese(ja.body), `${reason} body`);

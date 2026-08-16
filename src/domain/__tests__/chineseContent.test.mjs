@@ -137,7 +137,7 @@ test('the label maps keep the same keys in Chinese', () => {
 });
 
 test('the sentence-writing policies answer in Chinese', () => {
-  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GENDER]) {
+  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GROUP, EMPTY.GENDER]) {
     const zh = emptyText(reason, { locale: 'zh' });
     assert.ok(isHan(zh.title), `${reason} title`);
     assert.ok(isHan(zh.body), `${reason} body`);

@@ -28,6 +28,7 @@ export const EMPTY = {
   GENDER: 'gender',   // the 여성 동석 filter emptied it
   DAY: 'day',         // a chosen day has nothing
   DISH: 'dish',       // a chosen dish has nothing
+  GROUP: 'group',     // a chosen group (🔥 K-BBQ …) has nothing
   NONE: 'none',       // the app itself has no upcoming table
 };
 
@@ -40,11 +41,14 @@ export const EMPTY = {
  * explanation than the state of the whole app, because it is the one they can
  * undo.
  */
-export function emptyReason({ open = [], shown = [], menuFilter = null, womenFilter = false, dayFilter = null } = {}) {
+export function emptyReason({ open = [], shown = [], menuFilter = null, groupFilter = null, womenFilter = false, dayFilter = null } = {}) {
   if (shown.length > 0) return null;
   if (womenFilter) return EMPTY.GENDER;
   if (dayFilter) return EMPTY.DAY;
+  // A dish is narrower than its group, so it is the better explanation when
+  // both are set — it is also the one undone first.
   if (menuFilter) return EMPTY.DISH;
+  if (groupFilter) return EMPTY.GROUP;
   // Nothing the reader chose is hiding anything: the week is genuinely bare.
   return open.length === 0 ? EMPTY.NONE : EMPTY.DISH;
 }
@@ -123,6 +127,22 @@ export function emptyText(reason, { otherDays = false, locale = 'both' } = {}) {
           'افتحها بنفسك وتكون المقاعد لك تملؤها كما تشاء.',
           '自己开一张，位子就归你来坐满。',
           '自分で開けば、席は自分で埋めていくものになります。',
+        ),
+      };
+    case EMPTY.GROUP:
+      // The reader arrived through one of the six front-page categories and
+      // the week holds nothing in it. Same answer as the dish case: the
+      // first table in a category is somebody's to open.
+      return {
+        title: pick('No table in this category yet.', '이 카테고리로 열린 밥상이 아직 없어요.', 'Aún no hay mesa en esta categoría.', 'Pas encore de table dans cette catégorie.', 'لا مائدة في هذه الفئة بعد.', '这一类还没有饭桌。', 'このカテゴリーの食卓はまだありません。'),
+        body: pick(
+          'Open the first one and the seats are yours to fill.',
+          '첫 상을 직접 차리시면 그 자리는 원하는 사람들로 채우실 수 있습니다.',
+          'Abre tú la primera y los sitios son tuyos para llenarlos.',
+          'Ouvrez la première et les places sont à vous pour les remplir.',
+          'افتح الأولى بنفسك وتكون المقاعد لك تملؤها كما تشاء.',
+          '自己开第一张，位子就归你来坐满。',
+          '最初の一つを自分で開けば、席は自分で埋めていくものになります。',
         ),
       };
     case EMPTY.NONE:

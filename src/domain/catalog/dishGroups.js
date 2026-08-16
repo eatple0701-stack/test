@@ -121,6 +121,20 @@ const GROUP_OF = new Map(DISH_GROUPS.flatMap(g => g.dishes.map(d => [d, g])));
 export const groupOfDish = (dishId) => GROUP_OF.get(dishId) ?? null;
 
 /**
+ * The menu catalog's ids, into the groups.
+ *
+ * domain/catalog/menus.js predates the groups and spells two ids
+ * differently — 부대찌개 is `budae-jjigae` there and `budae` here,
+ * 간장게장 is `ganjang-gejang` and `gejang`. This is the bridge, and a
+ * test walks the whole catalog through it so a new dish cannot arrive
+ * without a group.
+ */
+const MENU_ALIAS = { 'budae-jjigae': 'budae', 'ganjang-gejang': 'gejang' };
+
+/** The group a table's menuId belongs to, or null. */
+export const groupOfMenu = (menuId) => GROUP_OF.get(MENU_ALIAS[menuId] ?? menuId) ?? null;
+
+/**
  * The groups a place belongs to, from the dish ids on its `d` field.
  *
  * A place can be in several — a 고깃집 with 된장찌개 and 파전 is K-BBQ and

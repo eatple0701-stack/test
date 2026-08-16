@@ -109,7 +109,7 @@ test('the label maps keep the same keys in all three languages', () => {
 });
 
 test('the two sentence-writing policies answer in Spanish', () => {
-  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GENDER]) {
+  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GROUP, EMPTY.GENDER]) {
     const es = emptyText(reason, { locale: 'es' });
     assert.ok(nonEmpty(es.title), `${reason} title`);
     assert.ok(nonEmpty(es.body), `${reason} body`);

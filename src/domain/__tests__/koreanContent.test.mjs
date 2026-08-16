@@ -99,7 +99,7 @@ test('the dietary badges keep the same keys in both languages', () => {
 test('the two policies that write their own sentences answer in Korean', () => {
   // These are not translated by a component: the policy assembles them from a
   // theme name, a count and a date, so it has to know the language itself.
-  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GENDER]) {
+  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GROUP, EMPTY.GENDER]) {
     const ko = emptyText(reason, { locale: 'ko' });
     assert.ok(hasKorean(ko.title), `${reason} title`);
     assert.ok(hasKorean(ko.body), `${reason} body`);

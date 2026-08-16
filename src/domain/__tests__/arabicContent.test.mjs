@@ -136,7 +136,7 @@ test('the label maps keep the same keys in Arabic', () => {
 });
 
 test('the sentence-writing policies answer in Arabic', () => {
-  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GENDER]) {
+  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GROUP, EMPTY.GENDER]) {
     const ar = emptyText(reason, { locale: 'ar' });
     assert.ok(isArabic(ar.title), `${reason} title`);
     assert.ok(isArabic(ar.body), `${reason} body`);

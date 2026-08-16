@@ -135,7 +135,7 @@ test('the label maps keep the same keys in French', () => {
 });
 
 test('the sentence-writing policies answer in French', () => {
-  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GENDER]) {
+  for (const reason of [EMPTY.NONE, EMPTY.DAY, EMPTY.DISH, EMPTY.GROUP, EMPTY.GENDER]) {
     const fr = emptyText(reason, { locale: 'fr' });
     assert.ok(nonEmpty(fr.title), `${reason} title`);
     assert.ok(nonEmpty(fr.body), `${reason} body`);
