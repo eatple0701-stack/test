@@ -293,6 +293,9 @@ button {
   font-size: 12.5px;
   color: var(--muted);
   margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .map-overlay__close {
   flex-shrink: 0;
@@ -311,10 +314,103 @@ button {
 .map-overlay__close:hover {
   background: var(--line);
 }
+/* What the colours on the map mean.
+   Six tinted dots with no key is decoration, not information: the reader can
+   see that they differ and has no way to learn what the difference is. Sits
+   directly under the bar, above the map, so the answer is in the same glance
+   as the question. Scrolls sideways rather than wrapping to three rows on a
+   narrow phone — the map is what the screen is for. */
+.map-legend {
+  flex-shrink: 0;
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.map-legend::-webkit-scrollbar { display: none; }
+.map-legend .map-overlay__nearby { flex: 0 0 auto; min-height: 30px; padding: 5px 11px; font-size: 11.5px; }
+.map-legend__item {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-title);
+  white-space: nowrap;
+}
+.map-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+.map-legend__dishes { font-weight: 500; color: var(--muted-strong); }
+
 .map-overlay__map {
-  flex: 0 0 clamp(240px, 40vh, 440px);
+  /* 40vh was 325px on a phone, which reads as a strip rather than a map.
+     The fold button below hands over the rest on demand; this is what the
+     map is worth before anybody asks. */
+  flex: 0 0 clamp(260px, 46vh, 480px);
   min-height: 0;
   position: relative;
+}
+/* Folded, the map takes everything the list was using. The state lives on
+   the overlay root rather than on the panel, because the map is the panel's
+   earlier sibling and no combinator reaches backwards. */
+.map-overlay.is-folded .map-overlay__map { flex: 1; }
+.map-overlay.is-folded .map-overlay__panel { flex: 0 0 auto; }
+.map-overlay.is-folded .map-overlay__panel > *:not(.map-overlay__fold) { display: none; }
+
+/* The fold control. Full width and 48px tall because on a phone this is the
+   control that decides whether the map is a keyhole or the whole screen. */
+.map-overlay__fold {
+  flex-shrink: 0;
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted-strong);
+  cursor: pointer;
+  position: relative;
+}
+.map-overlay__grip {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+}
+.map-overlay__fold-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.map-overlay__fold-count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--fill, var(--bg));
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-title);
 }
 .map-overlay__panel {
   flex: 1;

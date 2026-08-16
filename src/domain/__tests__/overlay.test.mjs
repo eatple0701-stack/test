@@ -80,3 +80,33 @@ test('the map draws the register without being asked to', () => {
     'the register layer is off until somebody presses a button',
   );
 });
+
+test('the map says what its colours mean', () => {
+  // Six tints of dot and no key is decoration. The legend is built from the
+  // same DISH_GROUPS the dots take their colour from, so a seventh group
+  // cannot appear on the map without appearing in the legend.
+  const src = fs.readFileSync(new URL('../../components/MapOverlay.jsx', import.meta.url), 'utf8');
+  assert.match(src, /from '\.\.\/domain\/catalog\/dishGroups\.js'/, 'the legend is not built from the groups');
+  assert.match(src, /map-legend__dot[\s\S]{0,80}background: g\.tint/, 'the swatch is not the group tint');
+  assert.match(src, /className="map-legend"/);
+});
+
+test('folding the list names only classes the overlay actually renders', () => {
+  // The first version of the fold hid ".filter-bar". FilterBar's root element
+  // is ".home-header", so folding left 129px of search box on screen and the
+  // map grew by less than half of what it should have. A CSS rule naming a
+  // class nothing renders fails silently, which is why this counts them.
+  const jsx = fs.readFileSync(new URL('../../components/MapOverlay.jsx', import.meta.url), 'utf8');
+  const css = fs.readFileSync(new URL('../../index.css', import.meta.url), 'utf8');
+  const rules = css.match(/^\.map-overlay\.is-folded[^{]*\{/gm) ?? [];
+  assert.ok(rules.length > 0, 'nothing implements the fold');
+  for (const rule of rules) {
+    for (const cls of rule.match(/\.[a-z][a-z0-9_-]*/g) ?? []) {
+      if (cls === '.map-overlay' || cls === '.is-folded') continue;
+      assert.ok(
+        jsx.includes(`"${cls.slice(1)}`) || jsx.includes(`\`${cls.slice(1)}`),
+        `the fold rule targets ${cls}, which MapOverlay never renders`,
+      );
+    }
+  }
+});

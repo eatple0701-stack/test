@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import MapComponent from './MapComponent';
 import FilterBar from './FilterBar';
 import BottomSheetList from './BottomSheetList';
-import { XIcon } from './Icons';
+import { XIcon, ChevronDownIcon, ChevronUpIcon } from './Icons';
+import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
 import { useText } from './localeText.js';
 
 // The map as a tool rather than a substrate.
@@ -42,6 +43,9 @@ export default function MapOverlay({
   // default meant opening the map and seeing twenty pins and an empty city,
   // with the whole import hidden behind a button nobody had reason to press.
   const [nearby, setNearby] = useState(true);
+  // The list can be folded away. The map is 40vh of a phone with the list
+  // open, which is a keyhole; folded it takes the whole overlay.
+  const [listOpen, setListOpen] = useState(true);
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -55,14 +59,22 @@ export default function MapOverlay({
   if (!open) return null;
 
   return (
-    <div className="map-overlay" role="dialog" aria-modal="true" aria-label={title}>
+    <div className={`map-overlay${listOpen ? '' : ' is-folded'}`} role="dialog" aria-modal="true" aria-label={title}>
       <header className="map-overlay__bar">
         <div className="map-overlay__heading">
           <h2>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
         </div>
-        {/* The count is in the label because it is the honest size of the
-            offer, and because "주변 식당" with no number could mean six. */}
+        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte', 'أغلق الخريطة', '关闭地图', '地図を閉じる')} onClick={onClose}>
+          <XIcon size={18} />
+        </button>
+      </header>
+
+      {/* What the colours mean. Without this the map showed six colours of
+          dot and no way to learn what any of them was — the information was
+          on screen and unreadable, which is the same as not being there.
+          Hidden when the layer is off, because then they mean nothing. */}
+      <div className="map-legend" aria-label={say('What the colours mean', '색깔이 뜻하는 것', 'Qué significan los colores', 'Ce que signifient les couleurs', 'معنى الألوان', '颜色的含义', '色の意味')}>
         <button
           className={`map-overlay__nearby${nearby ? ' is-on' : ''}`}
           aria-pressed={nearby}
@@ -70,10 +82,14 @@ export default function MapOverlay({
         >
           {say('Dishes you cannot order alone', '혼자서는 주문할 수 없는 음식', 'Platos que no puedes pedir solo', 'Les plats qu’on ne commande pas seul', 'أطباق لا تُطلب لشخص واحد', '一个人点不了的菜', 'ひとりでは頼めない料理')}
         </button>
-        <button className="map-overlay__close" aria-label={say('Close map', '지도 닫기', 'Cerrar el mapa', 'Fermer la carte', 'أغلق الخريطة', '关闭地图', '地図を閉じる')} onClick={onClose}>
-          <XIcon size={18} />
-        </button>
-      </header>
+        {nearby && DISH_GROUPS.map(g => (
+          <span key={g.id} className="map-legend__item">
+            <span className="map-legend__dot" style={{ background: g.tint }} aria-hidden="true" />
+            {g.emoji} {say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}
+            <span className="map-legend__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
+          </span>
+        ))}
+      </div>
 
       <div className="map-overlay__map">
         <MapComponent
@@ -86,6 +102,24 @@ export default function MapOverlay({
       </div>
 
       <div className="map-overlay__panel">
+        {/* The fold. A full-width bar rather than a small chevron, because on
+            a phone this is the control that decides whether the map is a
+            keyhole or the screen. */}
+        <button
+          className="map-overlay__fold"
+          aria-expanded={listOpen}
+          onClick={() => setListOpen(v => !v)}
+        >
+          <span className="map-overlay__grip" aria-hidden="true" />
+          <span className="map-overlay__fold-label">
+            {listOpen
+              ? say('Hide the list', '목록 접기', 'Ocultar la lista', 'Masquer la liste', 'إخفاء القائمة', '收起列表', 'リストをたたむ')
+              : say('Show the list', '목록 펼치기', 'Mostrar la lista', 'Afficher la liste', 'إظهار القائمة', '展开列表', 'リストを開く')}
+            <span className="map-overlay__fold-count">{restaurants.length.toLocaleString()}</span>
+          </span>
+          {listOpen ? <ChevronDownIcon size={16} /> : <ChevronUpIcon size={16} />}
+        </button>
+
         <FilterBar
           searchQuery={searchQuery}
           onSearchChange={onSearchChange}
