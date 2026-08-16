@@ -135,6 +135,15 @@ const MENU_ALIAS = { 'budae-jjigae': 'budae', 'ganjang-gejang': 'gejang' };
 export const groupOfMenu = (menuId) => GROUP_OF.get(MENU_ALIAS[menuId] ?? menuId) ?? null;
 
 /**
+ * The same bridge, walked the other way: the id the menu catalog files a
+ * dish under. For handing a register place's dish to the open-a-table form,
+ * whose menu picker speaks catalog ids. The caller still checks the catalog
+ * actually has it — 14 of the 24 dishes have no catalog entry yet.
+ */
+const DISH_TO_MENU = { budae: 'budae-jjigae', gejang: 'ganjang-gejang' };
+export const menuIdOfDish = (dishId) => DISH_TO_MENU[dishId] ?? dishId;
+
+/**
  * The groups a place belongs to, from the dish ids on its `d` field.
  *
  * A place can be in several — a 고깃집 with 된장찌개 and 파전 is K-BBQ and

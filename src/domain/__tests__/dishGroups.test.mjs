@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { menus } from '../catalog/menus.js';
 import {
-  DISH_GROUPS, DISH_IDS, DISH_KO, groupOfDish, groupOfMenu, groupsOf, primaryGroup,
+  DISH_GROUPS, DISH_IDS, DISH_KO, groupOfDish, groupOfMenu, groupsOf, primaryGroup, menuIdOfDish,
 } from '../catalog/dishGroups.js';
 
 // The six groups are the app's taxonomy: the front page offers them, the
@@ -54,4 +54,20 @@ test('a place can be in several groups, and the first is the pin colour', () => 
   assert.deepEqual(gs.map(g => g.id), ['kbbq', 'street']);
   assert.equal(primaryGroup(['samgyeopsal', 'jeon']).id, 'kbbq');
   assert.equal(primaryGroup([]), null);
+});
+
+test('a dish id files back into the catalog under the catalog spelling', () => {
+  // The prefill path: a register place's dish, handed to the open-a-table
+  // form, whose picker speaks catalog ids. Round-tripping through both
+  // bridges must land in the same group, or the form would open on a dish
+  // from a different category than the place was kept for.
+  for (const id of DISH_IDS) {
+    assert.equal(groupOfMenu(menuIdOfDish(id))?.id, groupOfDish(id).id, id);
+  }
+  assert.equal(menuIdOfDish('budae'), 'budae-jjigae');
+  assert.equal(menuIdOfDish('gejang'), 'ganjang-gejang');
+  // Every catalog dish is reachable from some register dish id.
+  for (const m of menus) {
+    assert.ok(DISH_IDS.some(d => menuIdOfDish(d) === m.id), m.id + ' is unreachable from the register');
+  }
 });

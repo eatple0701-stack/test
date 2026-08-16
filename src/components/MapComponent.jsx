@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import L from 'leaflet';
 import { MAP_CENTER, coordsOf, naverMapUrl, kakaoMapUrl } from '../utils';
 import { loadAllPlaces, placesInView, asPlace } from '../data/nearbyPlaces.js';
-import { isRegistryPlace } from '../data/seoulRegistry.js';
+import { isRegistryPlace, placeFromRegistry } from '../data/seoulRegistry.js';
 import { DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
 import { useText } from './localeText.js';
 
@@ -109,7 +109,7 @@ function NearbyLayer({ onSelect }) {
       position={[p.y, p.x]}
       icon={dotIcon(primaryGroup(p.d)?.tint ?? '#F97316')}
       zIndexOffset={-500}
-      eventHandlers={{ click: () => onSelect(p) }}
+      eventHandlers={{ click: () => onSelect({ row: p, builtAt: layer?.builtAt ?? null }) }}
     />
   ));
 }
@@ -129,7 +129,7 @@ function NearbyLayer({ onSelect }) {
  * is a real 44px target, and it has room for the caveat that has to be on
  * every one of these.
  */
-function NearbyCard({ place, onClose }) {
+function NearbyCard({ place, onClose, onDetails }) {
   const say = useText();
   if (!place) return null;
   const groups = groupsOf(place.d);
@@ -163,6 +163,15 @@ function NearbyCard({ place, onClose }) {
       </p>
 
       <div className="nearby-card__links">
+        {/* The app's own page for this place — hours, phone, and 상 차리기.
+            Without it the map was a dead end: a dot could only hand the
+            reader to Naver, and the one thing this app can do that a map
+            app cannot (open a table here) was unreachable from the map. */}
+        {onDetails && (
+          <button className="nearby-card__details" onClick={onDetails}>
+            {say('Details', '자세히', 'Detalles', 'Détails', 'التفاصيل', '详情', '詳しく')}
+          </button>
+        )}
         <a href={naverMapUrl(asPlace(place))} target="_blank" rel="noreferrer">{say('Naver', '네이버', 'Naver', 'Naver', 'نيفر', 'Naver', 'Naver')}</a>
         <a href={kakaoMapUrl(asPlace(place))} target="_blank" rel="noreferrer">{say('Kakao', '카카오', 'Kakao', 'Kakao', 'كاكاو', 'Kakao', 'Kakao')}</a>
       </div>
@@ -208,7 +217,14 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
           />
         ))}
       </MapContainer>
-      <NearbyCard place={nearbySelected} onClose={() => setNearbySelected(null)} />
+      <NearbyCard
+        place={nearbySelected?.row}
+        onClose={() => setNearbySelected(null)}
+        onDetails={onMarkerClick && nearbySelected ? () => {
+          onMarkerClick(placeFromRegistry(nearbySelected.row, nearbySelected.builtAt));
+          setNearbySelected(null);
+        } : null}
+      />
     </div>
   );
 }

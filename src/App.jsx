@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { restaurants } from './data/restaurants';
+import { menuById } from './domain/catalog/menus.js';
+import { menuIdOfDish } from './domain/catalog/dishGroups.js';
 import { loadRegistryPlaces } from './data/seoulRegistry.js';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
@@ -1159,6 +1161,11 @@ export default function App() {
             // them — a temple kitchen does not do 삼겹살 — so the host still
             // chooses. Names only: prices are never shown in this app.
             venueMenus: (r.menus?.value ?? []).map(m => m.name).filter(Boolean),
+            // A register place is in this app for exactly one reason: the
+            // dishes its menu was matched on. When the catalog knows one of
+            // them, the form opens with that dish already chosen — a hint
+            // the host can change, not a decision made for them.
+            menuId: (r.registry?.dishes ?? []).map(menuIdOfDish).find(id => menuById(id)) ?? null,
             venueName: r.name.split('(')[0].trim(),
           });
           setSelectedRestaurant(null);
