@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { restaurants } from './data/restaurants';
 import { menuById } from './domain/catalog/menus.js';
 import { menuIdOfDish } from './domain/catalog/dishGroups.js';
-import { loadRegistryPlaces } from './data/seoulRegistry.js';
+import { loadRegistryPlaces, servesGroup } from './data/seoulRegistry.js';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
@@ -748,6 +748,9 @@ export default function App() {
       // someone somewhere we can't vouch for. A group chip ORs within itself.
       const matchesChips = selectedFilters.length === 0 || selectedFilters.every(f => {
         if (DIETARY_CHIPS.includes(f)) return matchesDietary(r, f);
+        // A dish-group chip ("group:kbbq") answers from the register's menu
+        // evidence — see servesGroup for why curated places sit this one out.
+        if (f.startsWith('group:')) return servesGroup(r, f.slice('group:'.length));
         const traits = r.traits ?? [];
         const group = TRAIT_GROUPS[f];
         return group ? traits.some(t => group.includes(t)) : traits.includes(f);

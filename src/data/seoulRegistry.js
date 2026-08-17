@@ -27,6 +27,7 @@
 // that turns up district by district as somebody looks around.
 
 import { loadAllPlaces } from './nearbyPlaces.js';
+import { groupsOf } from '../domain/catalog/dishGroups.js';
 
 /** Every fact from the register shares one provenance record. */
 const reported = (value, extra = {}) => ({
@@ -140,6 +141,22 @@ export function placeFromRegistry(row, builtAt = null) {
      */
     registry: { foreignMenu: row.f === 1, kind: row.c ?? null, dishes: row.d ?? [] },
   };
+}
+
+/**
+ * Does this place serve a dish from this group, per the register's menu?
+ *
+ * Registry places only: the answer comes from `registry.dishes`, which is
+ * the menu evidence the place was kept for. A curated place returns false —
+ * not because 발우공양 serves nothing, but because nobody has matched the
+ * twenty curated menus against the twenty-four dishes, and a filter that
+ * guesses is worse than one that under-reports. The chips' own label says
+ * what is being filtered: places from the register.
+ */
+export function servesGroup(place, groupId) {
+  const dishes = place?.registry?.dishes;
+  if (!dishes?.length) return false;
+  return groupsOf(dishes).some(g => g.id === groupId);
 }
 
 let cache = null;

@@ -1,4 +1,5 @@
 import React from 'react';
+import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
 import { useText } from './localeText.js';
 
 // Grouped so sustainability reads as an axis rather than two chips lost in a
@@ -26,6 +27,29 @@ export default function FilterBar({ selectedFilters, onToggleFilter, searchQuery
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />
+      </div>
+
+      {/* The six dish groups, first because they are why the 8,000
+          register places are in this list at all. Same colours as the map's
+          dots and the front page's cards — one colour, one category. These
+          filter on the register's menu evidence, so the twenty curated
+          places sit out a group chip rather than being guessed about. */}
+      <div className="chip-row no-scrollbar" role="group" aria-label={say('Filter by kind of food', '음식 종류로 거르기', 'Filtrar por tipo de comida', 'Filtrer par type de plat', 'صفِّ بنوع الطعام', '按种类筛选', '種類で絞る')}>
+        {DISH_GROUPS.map(g => {
+          const id = `group:${g.id}`;
+          const isActive = selectedFilters.includes(id);
+          return (
+            <button
+              key={g.id}
+              className={`chip chip--group${isActive ? ' active' : ''}`}
+              style={isActive ? { background: g.tint, borderColor: g.tint, color: '#FFFFFF' } : undefined}
+              aria-pressed={isActive}
+              onClick={() => onToggleFilter(id)}
+            >
+              <span aria-hidden="true">{g.emoji}</span> {say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}
+            </button>
+          );
+        })}
       </div>
 
       <div className="chip-row no-scrollbar">

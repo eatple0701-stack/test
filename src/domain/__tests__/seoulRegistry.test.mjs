@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { placeFromRegistry, isRegistryPlace, REGISTRY_PREFIX } from '../../data/seoulRegistry.js';
+import { placeFromRegistry, isRegistryPlace, REGISTRY_PREFIX , servesGroup } from '../../data/seoulRegistry.js';
 import { restaurants } from '../../data/restaurants.js';
 
 // 167,659 places from a public register, sitting in the same list as twenty
@@ -102,4 +102,16 @@ test('a district maps to a zone, and an unknown one does not invent a neighbourh
   assert.ok(zones.has('Jongno, Seoul'));
   const nowhere = placeFromRegistry({ i: 1, n: 'X', a: '경기도 어딘가', y: 37.5, x: 127 });
   assert.equal(nowhere.zone, 'Seoul', 'an address outside the five districts stays vague rather than guessing');
+});
+
+test('a group chip answers from menu evidence, and only from it', () => {
+  // The register place: kept for 삼겹살, so it serves kbbq and nothing else.
+  const reg = { registry: { dishes: ['samgyeopsal', 'jeon'] } };
+  assert.equal(servesGroup(reg, 'kbbq'), true);
+  assert.equal(servesGroup(reg, 'street'), true);
+  assert.equal(servesGroup(reg, 'hotpot'), false);
+  // A curated place has no registry evidence, so it never matches a group
+  // chip — under-reporting, chosen over guessing from its prose.
+  assert.equal(servesGroup({ name: '발우공양', category: 'templefood' }, 'table'), false);
+  assert.equal(servesGroup(null, 'kbbq'), false);
 });
