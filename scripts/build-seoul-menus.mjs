@@ -24,8 +24,18 @@
 // category columns. Names only. The download has no prices, so for once
 // there is nothing to refuse.
 //
+// ── Prices ────────────────────────────────────────────────────────────────
+//
+// The live API's /api/menu/korean carries MENU_PRICE as a clean integer of
+// won, keyed by the same RSTR_ID as everything else — no name-join needed
+// for the restaurant, only for the menu line. The app refused prices while
+// none could be sourced; these can (the register is the source), and they
+// ship with that provenance on the screen: 등록부 기준, which is 2021–22
+// data. The owner asked for prices on 2026-08-17 and this is the honest
+// version of yes.
+//
 // Output: public/data/seoul/menus/<district>.json, loaded lazily when a
-// register place's page opens — the whole set is ~2MB compressed and nobody
+// register place's page opens — the whole set is ~3MB compressed and nobody
 // reads more than one district of it at a time.
 
 import fs from 'node:fs';
@@ -121,6 +131,27 @@ for (const [k, csvIds] of csvIdsByKey) {
   apiOfCsv.set([...csvIds][0], apiIds[0]);
 }
 
+// ── Pass 1.5: the live API's menus, for prices and for the 43 gaps ───────
+
+/** api id -> [{ n: normalised name, raw, price }] */
+const apiMenus = new Map();
+{
+  const rows = JSON.parse(fs.readFileSync('scripts/.cache.local/menusKo.json', 'utf8'));
+  const keptIds = new Set(slugOfApi.keys());
+  for (const r of rows) {
+    if (!keptIds.has(r.RSTR_ID)) continue;
+    const price = Number(r.MENU_PRICE);
+    if (!apiMenus.has(r.RSTR_ID)) apiMenus.set(r.RSTR_ID, []);
+    apiMenus.get(r.RSTR_ID).push({
+      n: norm(r.MENU_NM),
+      raw: String(r.MENU_NM ?? '').trim(),
+      // Sanity band: a 0 is "not recorded", and a menu line over two million
+      // won in this register is a typo, not an omakase.
+      price: Number.isFinite(price) && price > 0 && price < 2_000_000 ? price : 0,
+    });
+  }
+}
+
 // ── Pass 2: the other three languages, joined by 메뉴(ID) ────────────────
 
 /** menuId -> { en, ja, zh } — only for menus we are going to ship. */
@@ -141,15 +172,46 @@ const byDistrict = new Map();
 let restaurantsOut = 0;
 let itemsOut = 0;
 
+let priced = 0;
+const served = new Set();
+
+/** The register's price for this line of this restaurant, or 0. */
+const priceFor = (apiId, koName) => {
+  const list = apiMenus.get(apiId);
+  if (!list) return 0;
+  const n = norm(koName);
+  return list.find(m => m.n === n)?.price ?? 0;
+};
+
 for (const [csvId, apiId] of apiOfCsv) {
   const slug = slugOfApi.get(apiId);
   if (!slug) continue;
   const items = (rowsByCsv.get(csvId) ?? []).map(({ menuId, ko }) => {
     const t = wanted.get(menuId) ?? {};
-    // [ko, en, ja, zh] — empty string where the register has no translation,
-    // which the screen turns into a fallback rather than a blank.
-    return [ko, t.en ?? '', t.ja ?? '', t.zh ?? ''];
+    // [ko, en, ja, zh, price] — empty string where the register has no
+    // translation, 0 where it recorded no price. The screen turns both
+    // into a fallback rather than a blank.
+    const price = priceFor(apiId, ko);
+    if (price) priced += 1;
+    return [ko, t.en ?? '', t.ja ?? '', t.zh ?? '', price];
   }).filter(m => m[0]);
+  if (!items.length) continue;
+  if (!byDistrict.has(slug)) byDistrict.set(slug, {});
+  byDistrict.get(slug)[apiId] = items;
+  served.add(apiId);
+  restaurantsOut += 1;
+  itemsOut += items.length;
+}
+
+// The restaurants the download names ambiguously get the API's own menu —
+// Korean and a price, no translations. A shorter true menu over none.
+for (const [apiId, list] of apiMenus) {
+  if (served.has(apiId)) continue;
+  const slug = slugOfApi.get(apiId);
+  if (!slug) continue;
+  const items = list.slice(0, MAX_ITEMS)
+    .filter(m => m.raw)
+    .map(m => { if (m.price) priced += 1; return [m.raw, '', '', '', m.price]; });
   if (!items.length) continue;
   if (!byDistrict.has(slug)) byDistrict.set(slug, {});
   byDistrict.get(slug)[apiId] = items;
@@ -175,5 +237,5 @@ for (const [slug, m] of byDistrict) {
 }
 
 console.log(`${OUT}/: menus for ${restaurantsOut} of ${slugOfApi.size} kept restaurants (${(100 * restaurantsOut / slugOfApi.size).toFixed(1)}%)`);
-console.log(`  ${itemsOut} menu lines, ${byDistrict.size} district files`);
+console.log(`  ${itemsOut} menu lines, ${priced} with a register price (${(100 * priced / itemsOut).toFixed(1)}%), ${byDistrict.size} district files`);
 console.log(`  ${(raw / 1e6).toFixed(1)}MB on disk, ${(br / 1e6).toFixed(2)}MB compressed`);

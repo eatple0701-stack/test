@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { menuName } from '../../data/seoulMenus.js';
+import { menuName, menuPrice, formatWon } from '../../data/seoulMenus.js';
 
 // The register's menus, shipped next to the register's restaurants. The
 // join between the two files was made by name because the id spaces of the
@@ -38,24 +38,30 @@ test('most kept restaurants have their menu, and the gap is bounded', () => {
     `only ${withMenu} of ${index.total} restaurants have a menu on file`);
 });
 
-test('an item is four names and nothing else — no prices came along', () => {
-  // The download has no price column, so nothing had to be refused; this
-  // pins that a future rebuild cannot quietly add one.
+test('an item is four names and a register price, nothing else', () => {
+  // The price rides as its own numeric field with the register as its
+  // source; it must never leak into a name, and nothing score-like may
+  // join it. 0 means "the register recorded none".
   const { m } = JSON.parse(fs.readFileSync(path.join(MENUS, 'Jongno.json'), 'utf8'));
   let items = 0;
+  let priced = 0;
   for (const list of Object.values(m)) {
     assert.ok(Array.isArray(list) && list.length > 0 && list.length <= 60);
     for (const item of list) {
-      assert.equal(item.length, 4, 'an item is [ko, en, ja, zh]');
+      assert.equal(item.length, 5, 'an item is [ko, en, ja, zh, price]');
       assert.ok(item[0].length > 0, 'the Korean name is the anchor and cannot be empty');
-      for (const name of item) {
+      for (const name of item.slice(0, 4)) {
         assert.equal(typeof name, 'string');
         assert.ok(!/[₩￦]|\d{4,}원/.test(name), `"${name}" looks like it carries a price`);
       }
+      const price = item[4];
+      assert.ok(Number.isFinite(price) && price >= 0 && price < 2_000_000, `price ${price} is out of band`);
+      if (price > 0) priced += 1;
       items += 1;
     }
   }
   assert.ok(items > 1000, 'Jongno should hold thousands of menu lines');
+  assert.ok(priced / items > 0.25, 'the register priced far more lines than this');
 });
 
 test('the reader gets their language when the register wrote it, Korean when not', () => {
@@ -76,4 +82,11 @@ test('every menu file names its source', () => {
     const { source } = JSON.parse(fs.readFileSync(path.join(MENUS, f), 'utf8'));
     assert.match(source ?? '', /서울관광재단/);
   }
+});
+
+test('a price is spoken in the reader own convention', () => {
+  assert.equal(formatWon(22000, 'ko'), '22,000원');
+  assert.equal(formatWon(22000, 'en'), '₩22,000');
+  assert.equal(menuPrice(['삼겹살', '', '', '', 15000]), 15000);
+  assert.equal(menuPrice(['삼겹살', '', '', '']), 0);
 });

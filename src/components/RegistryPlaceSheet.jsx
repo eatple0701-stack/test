@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ChevronLeftIcon, ClockIcon, MapPinIcon, CompassIcon, BowlIcon, MenuIcon } from './Icons';
 import { useText, useLocale } from './localeText.js';
 import { DISH_KO, groupsOf } from '../domain/catalog/dishGroups.js';
-import { menusFor, menuName } from '../data/seoulMenus.js';
+import { menusFor, menuName, menuPrice, formatWon } from '../data/seoulMenus.js';
 import { tableCtaFor, mapLinksFor } from '../domain/policy/venue.js';
 import { getOpenStatus, todaysHours, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
 
@@ -115,9 +115,23 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
                   {locale !== 'ko' && m[0] !== menuName(m, locale) && (
                     <span className="registry-sheet__menu-orig">{m[0]}</span>
                   )}
+                  {menuPrice(m) > 0 && (
+                    <span className="registry-sheet__menu-price">{formatWon(menuPrice(m), locale)}</span>
+                  )}
                 </li>
               ))}
             </ul>
+            {shownMenu.some(m => menuPrice(m) > 0) && (
+              <p className="registry-sheet__menu-note">
+                {say('Prices as the register recorded them (2021–22) — today’s may differ.',
+                  '가격은 등록부 기록(2021–22) 기준이라 지금과 다를 수 있습니다.',
+                  'Precios tal como los anotó el registro (2021–22): los de hoy pueden variar.',
+                  "Prix tels que notés au registre (2021–22) — ceux d'aujourd'hui peuvent différer.",
+                  'الأسعار كما دوّنها السجلّ (2021–22) — وقد تختلف اليوم.',
+                  '价格以登记信息（2021–22）为准，现在可能不同。',
+                  '価格は登録記録（2021–22）時点のもので、現在は異なる場合があります。')}
+              </p>
+            )}
             {restCount > 0 && (
               <p className="registry-sheet__menu-more">
                 {say(`And ${restCount} more lines on the register.`, `외 ${restCount}개.`,

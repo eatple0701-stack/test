@@ -45,6 +45,14 @@ export async function menusFor(place) {
   return file?.m?.[id] ?? null;
 }
 
+/** The register's price for an item, in won — 0 means it recorded none. */
+export const menuPrice = (item) => item[4] ?? 0;
+
+/** 22000 → "22,000원" for a Korean reader, "₩22,000" for everyone else. */
+export const formatWon = (price, locale) => (locale === 'ko'
+  ? price.toLocaleString('ko-KR') + '원'
+  : '₩' + price.toLocaleString('en-US'));
+
 /** The name to lead with for this reader, falling back toward Korean. */
 export function menuName(item, locale) {
   const [ko, en, ja, zh] = item;

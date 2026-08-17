@@ -108,7 +108,7 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 578 tests, node's built-in runner, no test-framework dependency
+npm test          # 579 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 npm run audit-i18n # every user-visible string that is not wired to the language setting
@@ -149,7 +149,10 @@ English headings, and a CTA whose only title was Korean.
 This is a government-adjacent cultural project, so the honesty rules are
 structural rather than a style guide:
 
-- **No prices anywhere.** There is no way to verify them.
+- **No unsourced prices.** A price appears only with its source on the same
+  screen: a directory listing with a check date on a curated place, or
+  등록부 기준 (2021–22) on a register place. Never a bare number the team
+  cannot back, and never somebody else's review score.
 - **Every quiz question needs a source.** `quizFor` filters out anything
   unsourced before it can reach a traveller — see `src/content/sources.js`,
   where every entry is a source somebody on the team actually opened and
@@ -221,9 +224,11 @@ Four rules keep the second from eating the first, and they live in
   this is here.
 - **Every pin says nobody here has been.** On the pin, not in a legend.
 
-Prices and Naver review scores sit in neighbouring fields of the same API and
-are not read — an import is exactly how a rule like that gets quietly
-dropped, so a test asserts the shipped file has no such column.
+Naver and TripAdvisor review scores sit in neighbouring fields of the same
+API and are not read — this app does not quote other people's judgements.
+Register prices are read and shipped since 2026-08-17, always labelled with
+the register as their source; a test asserts the district files carry no
+score-like column and the menu files nothing but four names and a price.
 
 17.7MB on disk across 26 files, 3.48MB compressed for all of Seoul — but a
 session fetches four districts, about 1MB compressed, and the service worker's
