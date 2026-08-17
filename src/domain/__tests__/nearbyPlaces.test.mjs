@@ -16,7 +16,8 @@ import { DISH_IDS } from '../catalog/dishGroups.js';
 
 const DIR = path.join(process.cwd(), 'public/data/seoul');
 const index = JSON.parse(fs.readFileSync(path.join(DIR, 'index.json'), 'utf8'));
-const districtFiles = fs.readdirSync(DIR).filter(f => f !== 'index.json');
+// Files only: menus/ lives beside the district files and is not one.
+const districtFiles = fs.readdirSync(DIR).filter(f => f.endsWith('.json') && f !== 'index.json');
 const loadDistrict = (slug) => JSON.parse(fs.readFileSync(path.join(DIR, `${slug}.json`), 'utf8'));
 
 test('the index accounts for every row it ships', () => {

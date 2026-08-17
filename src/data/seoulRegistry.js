@@ -47,7 +47,7 @@ const reported = (value, extra = {}) => ({
  * register does not record a neighbourhood, and inventing one from a road
  * name would be a guess dressed as a fact.
  */
-const DISTRICT_EN = {
+export const DISTRICT_EN = {
   종로구: 'Jongno', 중구: 'Jung-gu', 용산구: 'Yongsan', 성동구: 'Seongdong', 광진구: 'Gwangjin',
   동대문구: 'Dongdaemun', 중랑구: 'Jungnang', 성북구: 'Seongbuk', 강북구: 'Gangbuk', 도봉구: 'Dobong',
   노원구: 'Nowon', 은평구: 'Eunpyeong', 서대문구: 'Seodaemun', 마포구: 'Mapo', 양천구: 'Yangcheon',

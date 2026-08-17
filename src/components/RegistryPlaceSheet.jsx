@@ -1,7 +1,8 @@
-import React from 'react';
-import { ChevronLeftIcon, ClockIcon, MapPinIcon, CompassIcon, BowlIcon } from './Icons';
+import React, { useEffect, useState } from 'react';
+import { ChevronLeftIcon, ClockIcon, MapPinIcon, CompassIcon, BowlIcon, MenuIcon } from './Icons';
 import { useText, useLocale } from './localeText.js';
 import { DISH_KO, groupsOf } from '../domain/catalog/dishGroups.js';
+import { menusFor, menuName } from '../data/seoulMenus.js';
 import { tableCtaFor, mapLinksFor } from '../domain/policy/venue.js';
 import { getOpenStatus, todaysHours, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
 
@@ -35,6 +36,19 @@ import { getOpenStatus, todaysHours, naverMapUrl, kakaoMapUrl, coordsOf } from '
 export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable }) {
   const say = useText();
   const locale = useLocale();
+  // The register's menu for this place, fetched when the page opens. Null
+  // while loading and null when the register has none — the section simply
+  // is not there in either case, because "loading" a static file from the
+  // same host is not a state worth a spinner.
+  const [menu, setMenu] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    setMenu(null);
+    if (restaurant) menusFor(restaurant).then(m => { if (alive) setMenu(m); });
+    return () => { alive = false; };
+    // The id is the identity; the object is rebuilt per render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurant?.id]);
   if (!restaurant) return null;
 
   const cta = tableCtaFor(restaurant, locale);
@@ -44,6 +58,8 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
   const coords = coordsOf(restaurant);
   const dishes = restaurant.registry?.dishes ?? [];
   const groups = groupsOf(dishes);
+  const shownMenu = menu ? menu.slice(0, 14) : [];
+  const restCount = menu ? menu.length - shownMenu.length : 0;
 
   return (
     <div className="dish-sheet sheet-page registry-sheet" role="dialog" aria-label={restaurant.name}>
@@ -71,6 +87,37 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
             <p className="registry-sheet__menu" translate="no" data-no-locale>
               {dishes.map(d => DISH_KO[d]).filter(Boolean).join(' · ')}
             </p>
+          </section>
+        )}
+
+        {shownMenu.length > 0 && (
+          <section className="detail-section">
+            <div className="section-head">
+              <span className="section-head__icon" aria-hidden="true"><MenuIcon size={17} /></span>
+              <h3>{say('The menu, as the register recorded it', '등록부에 기록된 메뉴', 'La carta, tal como consta en el registro', "La carte, telle que le registre l'a notée", 'القائمة كما دوّنها السجلّ', '登记信息里记录的菜单', '登録に記録された品書き')}</h3>
+            </div>
+            {/* Every line the register holds for this place, in the reader's
+                language where the register wrote one. The Korean original
+                stays under the translation because the menu on the wall — the
+                one they will point at — is the Korean one. */}
+            <ul className="registry-sheet__menu-list" translate="no" data-no-locale>
+              {shownMenu.map((m, i) => (
+                <li key={i}>
+                  <span className="registry-sheet__menu-main">{menuName(m, locale)}</span>
+                  {locale !== 'ko' && m[0] !== menuName(m, locale) && (
+                    <span className="registry-sheet__menu-orig">{m[0]}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+            {restCount > 0 && (
+              <p className="registry-sheet__menu-more">
+                {say(`And ${restCount} more lines on the register.`, `외 ${restCount}개.`,
+                  `Y ${restCount} líneas más en el registro.`, `Et ${restCount} autres lignes au registre.`,
+                  `و${restCount} سطرًا آخر في السجلّ.`, `登记信息里还有 ${restCount} 条。`,
+                  `登録にはあと${restCount}品あります。`)}
+              </p>
+            )}
           </section>
         )}
 
