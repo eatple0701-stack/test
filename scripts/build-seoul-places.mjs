@@ -49,6 +49,16 @@ const inSeoul = (lat, lng) => lat >= SEOUL.s && lat <= SEOUL.n && lng >= SEOUL.w
 const [places, hours] = await Promise.all([fetchAll('restaurants'), fetchAll('hours')]);
 const hoursOf = new Map(hours.map(h => [h.RSTR_ID, h]));
 
+// The register's own photographs — 8,087 of them, but concentrated on 1,370
+// restaurants, of which 95 survived the dish filter. First photo per place;
+// the URL is the register's CDN, checked alive 2026-08-17.
+const photoOf = new Map();
+for (const img of JSON.parse(fs.readFileSync('scripts/.cache.local/restaurantImages.json', 'utf8'))) {
+  if (!photoOf.has(img.RSTR_ID) && img.RSTR_IMG_URL?.startsWith('https://')) {
+    photoOf.set(img.RSTR_ID, img.RSTR_IMG_URL);
+  }
+}
+
 /** The district, which is both the file name and the only geography the register records. */
 const districtOf = (address) => {
   const m = /서울특별시\s+(\S+?구)/.exec(address ?? '');
@@ -92,6 +102,8 @@ for (const r of places) {
     // Which of the twenty-four it was matched on, so a screen can say why
     // this place is here rather than asking anybody to trust the filter.
     d: dishes,
+    // The register's own photograph, where it took one.
+    p: photoOf.get(r.RSTR_ID),
   };
   kept += 1;
   if (hasGeo) withGeo += 1;
@@ -103,7 +115,10 @@ for (const r of places) {
 }
 
 fs.mkdirSync(OUT, { recursive: true });
-for (const f of fs.readdirSync(OUT)) fs.unlinkSync(path.join(OUT, f));
+// Files only: menus/ lives here too and is rebuilt by its own script.
+for (const f of fs.readdirSync(OUT)) {
+  if (fs.statSync(path.join(OUT, f)).isFile()) fs.unlinkSync(path.join(OUT, f));
+}
 
 const index = [];
 let totalRaw = 0;

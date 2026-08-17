@@ -71,6 +71,14 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
       </header>
 
       <div className="registry-sheet__body">
+        {restaurant.photo && (
+          <figure className="registry-sheet__photo">
+            <img src={restaurant.photo} alt="" loading="lazy" referrerPolicy="no-referrer" />
+            <figcaption>
+              {say('Photo from the Seoul Tourism Foundation register', '서울관광재단 등록 사진', 'Foto del registro de la Fundación de Turismo de Seúl', 'Photo du registre de la Fondation du tourisme de Séoul', 'صورة من سجلّ مؤسسة سول للسياحة', '首尔观光财团登记照片', 'ソウル観光財団の登録写真')}
+            </figcaption>
+          </figure>
+        )}
         {dishes.length > 0 && (
           <section className="detail-section">
             <div className="section-head">

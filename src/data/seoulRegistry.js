@@ -132,7 +132,9 @@ export function placeFromRegistry(row, builtAt = null) {
     vibe: '', vibeKo: '', vibeEs: '', vibeFr: '', vibeAr: '', vibeZh: '', vibeJa: '',
     story: null, storyKo: null, storyEs: null, storyFr: null, storyAr: null, storyZh: null, storyJa: null,
     esg_point: null,
-    image: null, photo: null, coverImage: null, gallery: [],
+    // The register's own photograph where it took one (95 of 8,118).
+    // PlaceImage renders `photo` when present, illustration otherwise.
+    image: null, photo: row.p ?? null, coverImage: null, gallery: [],
     /**
      * What the register said, kept so a screen can say why this one is here.
      * `dishes` is the answer to that question: the ids from

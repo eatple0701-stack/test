@@ -69,10 +69,14 @@ test('nothing this app refuses to print came along for the ride', () => {
   // endpoints. The rule against both predates this dataset, and an import
   // is exactly how a rule like that gets quietly dropped.
   const keys = new Set(loadDistrict('Jongno').rows.flatMap(Object.keys));
-  for (const banned of ['price', 'p', 'grade', 'g', 'rating', 'r', 'score', 's']) {
+  // 'p' left this list 2026-08-17: it is the register's own photo URL now,
+  // which is appearance, not a judgement. The judgements stay banned.
+  for (const banned of ['price', 'grade', 'g', 'rating', 'r', 'score', 's']) {
     assert.equal(keys.has(banned), false, `the layer carries a "${banned}" field`);
   }
-  assert.deepEqual([...keys].sort(), ['a', 'c', 'd', 'f', 'h', 'i', 'n', 't', 'x', 'y']);
+  // 'p' is the register's own photo URL — appearance, not a score.
+  const allowed = ['a', 'c', 'd', 'f', 'h', 'i', 'n', 'p', 't', 'x', 'y'];
+  for (const k of keys) assert.ok(allowed.includes(k), `unexpected field "${k}" shipped`);
 });
 
 test('the layer draws nothing until the map is close enough to read', () => {

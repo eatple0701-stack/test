@@ -41,6 +41,7 @@ export default function PlaceImage({ place, variant = 'thumb', className = '', o
           src={real}
           alt=""
           loading="lazy"
+          referrerPolicy="no-referrer"
           className={`place-image__photo${loaded ? ' is-loaded' : ''}`}
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
