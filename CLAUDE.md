@@ -51,5 +51,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
   that is what the audit is for.
 
 ## Git
-Branch `master` locally, pushed to remote `test`, branch `main`
-(`git push test master:main`) → auto-deploys on Vercel.
+Default branch is `main`; pushing it auto-deploys on Vercel. On a fresh
+clone just work on `main` and `git push`. (강민's original machine has a
+historical quirk — local branch `master`, remote named `test`, pushed via
+`git push test master:main` — do not copy that setup.)
