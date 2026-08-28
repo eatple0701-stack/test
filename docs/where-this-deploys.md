@@ -6,7 +6,7 @@ so this file exists to make the boundary hard to miss.
 
 | Folder | App | Repository | Production URL |
 | --- | --- | --- | --- |
-| `베이스/` | **밥친구 잇플 / Eatple** — this one | `github.com/eatple0701-stack/test`, branch `main` | https://test-umber-phi-78.vercel.app |
+| `베이스/` | **밥친구 잇플 / Eatple** — this one | `github.com/eatple0701-stack/test`, branch `main` | https://eatple.vercel.app |
 | `../k-food-map/` | **K-Food Map** — a different app | `github.com/rkdals0121/kfoodmap`, branch `master` | https://kfoodmap.vercel.app |
 
 > **2026-08-22 — the repository moved to the team account.** 밥친구 was

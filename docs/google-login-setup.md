@@ -29,7 +29,7 @@
 2. **Enable** 켜기
 3. 1부에서 받은 **Client ID / Client Secret** 붙여넣기 → **Save**
 4. **Authentication → URL Configuration**:
-   - Site URL: `https://test-umber-phi-78.vercel.app`
+   - Site URL: `https://eatple.vercel.app`
    - Redirect URLs에 추가: `http://localhost:5177` (로컬 개발용)
 
 ## 확인

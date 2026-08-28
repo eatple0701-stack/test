@@ -835,7 +835,7 @@ begin
       || t.date || ' ' || to_char(t.time, 'HH24:MI') || ', ' || t.place || '.'
       || E'\n\n' || '요청에 답해 주세요. 답이 없으면 식사 12시간 전에 요청이 만료되고 좌석이 다시 풀립니다.'
       || E'\n' || 'Please answer — unanswered requests lapse 12 hours before the meal and the seat opens up again.'
-      || E'\n\n' || 'https://test-umber-phi-78.vercel.app/tables/' || t.id
+      || E'\n\n' || 'https://eatple.vercel.app/tables/' || t.id
       || E'\n\n' || '— 밥친구 · Eatple',
     t.id);
   return null;
@@ -870,7 +870,7 @@ begin
         || ', meet at ' || t.place || '.'
         || E'\n\n' || '만나는 요령(호스트 인상착의 등)은 밥상 페이지에 있어요 — 확정된 사람에게만 보입니다.'
         || E'\n' || 'How to spot the host is on the table page — visible to confirmed guests only.'
-        || E'\n\n' || 'https://test-umber-phi-78.vercel.app/tables/' || t.id
+        || E'\n\n' || 'https://eatple.vercel.app/tables/' || t.id
         || E'\n\n' || '— 밥친구 · Eatple',
       t.id);
   else
@@ -880,7 +880,7 @@ begin
       'The host could not fit you in this time — usually the table filled up.'
         || E'\n\n' || '다른 밥상이 열려 있어요. 같은 메뉴를 직접 열면 그 상의 호스트는 당신입니다.'
         || E'\n' || 'Other tables are open — or open the same dish yourself and the seats are yours to give.'
-        || E'\n\n' || 'https://test-umber-phi-78.vercel.app/'
+        || E'\n\n' || 'https://eatple.vercel.app/'
         || E'\n\n' || '— 밥친구 · Eatple',
       t.id);
   end if;
@@ -914,7 +914,7 @@ begin
         || to_char(new.time, 'HH24:MI') || ' at ' || new.place || '.'
         || E'\n\n' || '만나기로 한 곳에 가지 마세요. 다른 밥상이 열려 있습니다.'
         || E'\n' || 'Do not go to the meeting point. Other tables are open.'
-        || E'\n\n' || 'https://test-umber-phi-78.vercel.app/'
+        || E'\n\n' || 'https://eatple.vercel.app/'
         || E'\n\n' || '— 밥친구 · Eatple',
       new.id);
   end loop;
@@ -941,7 +941,7 @@ begin
     'Reason: ' || new.reason
       || case when new.note <> '' then E'\n\n' || new.note else '' end
       || case when new.table_id is not null
-           then E'\n\n' || 'Table: https://test-umber-phi-78.vercel.app/tables/' || new.table_id
+           then E'\n\n' || 'Table: https://eatple.vercel.app/tables/' || new.table_id
            else '' end
       || E'\n\n' || '자세한 내용은 대시보드 reports 테이블에서 — reporter id 포함.'
       || E'\n' || '— 밥친구 · Eatple',

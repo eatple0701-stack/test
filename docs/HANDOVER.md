@@ -28,7 +28,7 @@ This is a **KF Digital Public Diplomacy Academy** project. That framing is
 not decoration — the advisors' single strongest note (see §5) is that the
 product must be cultural *exchange*, not a cost-splitting utility.
 
-- Deployed: https://test-umber-phi-78.vercel.app — live and current, but
+- Deployed: https://eatple.vercel.app — live and current, but
   this URL changes when Vercel moves to the team account. See §7 and
   `docs/account-migration.md`.
 - Stack: React 19 + Vite, mobile-first 375×812, Leaflet maps, Supabase
@@ -282,11 +282,12 @@ fallback, so a Vercel project without `VITE_SUPABASE_URL` and
 localStorage, and tables stop being shared between devices. Both values are
 public-safe and already committed as fallbacks in `api/table-og.js`.
 
-When the Vercel URL changes: update Supabase Auth → URL Configuration →
-Site URL, and every hardcoded reference — `git grep test-umber-phi-78`
-finds all 19 across 11 files. The five inside `supabase/schema.sql` are
-notification-email bodies and need the file re-run in the SQL editor, not
-just edited.
+**Vercel moved to the team account on 2026-08-22** and the app now lives
+at https://eatple.vercel.app. All seventeen hardcoded references were
+updated with it. If the URL ever changes again: `git grep vercel.app`
+finds them, and the five inside `supabase/schema.sql` are
+notification-email bodies that need re-applying in the SQL editor — editing
+the file alone changes nothing that is already running.
 
 ## 8. Commands
 

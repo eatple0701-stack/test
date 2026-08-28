@@ -22,7 +22,7 @@ import { seatsRemaining } from '../src/domain/policy/table.js';
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL ?? 'https://zqpxyhygvenlcjaoxcns.supabase.co';
 // The publishable key ships in every client bundle; it is not a secret.
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY ?? 'sb_publishable_MUduy1sLbWEnvXTQD-AAlA_1UBGvM_E';
-const SITE = 'https://test-umber-phi-78.vercel.app';
+const SITE = 'https://eatple.vercel.app';
 
 const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -54,7 +54,7 @@ function page({ title, description }, url) {
      icon rather than a photo of the dish on purpose — the project has no
      photograph of anybody's 보쌈, and a stock one would be the card
      promising a meal that is not the one being shared. -->
-<meta property="og:image" content="https://test-umber-phi-78.vercel.app/icon-192.png">
+<meta property="og:image" content="https://eatple.vercel.app/icon-192.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="192">
 <meta property="og:image:height" content="192">
@@ -62,7 +62,7 @@ function page({ title, description }, url) {
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
-<meta name="twitter:image" content="https://test-umber-phi-78.vercel.app/icon-192.png">
+<meta name="twitter:image" content="https://eatple.vercel.app/icon-192.png">
 <meta http-equiv="refresh" content="0;url=${esc(url)}">
 </head>
 <body>${esc(title)}</body>
