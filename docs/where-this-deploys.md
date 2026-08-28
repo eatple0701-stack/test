@@ -63,7 +63,8 @@ is, not because Vercel is serving a promoted older build.
 It was done as an ordinary commit rather than a force push. The 87 밥친구
 commits in between stay reachable, so no existing clone breaks, nobody has to
 reset, and `git pull` does the right thing. Those commits were never at risk in
-any case — all 87 are in `rkdals0121/test`, which is where 밥친구 deploys from.
+any case — all 87 were in `rkdals0121/test`, which was where 밥친구 deployed
+from at the time, and travelled with it to the team account.
 The pre-restore state is also kept at
 `backup/master-before-restore-2026-08-02`.
 
