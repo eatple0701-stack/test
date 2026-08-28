@@ -1,14 +1,21 @@
-# 개인 계정 → 팀 계정 이관 절차
+# 개인 계정 → 팀 계정 이관 — 완료 기록
 
-2026-08-22 기준. GitHub은 **이미 이관 완료**, 남은 것은 Vercel입니다.
+**2026-08-22에 끝났습니다.** 아래는 완료된 상태이고, 절차는 같은 일을 다시
+할 사람(또는 다른 프로젝트)을 위해 그대로 남겨 둡니다.
 
-| | 지금 | 목표 |
-|---|---|---|
-| GitHub | ✅ `eatple0701-stack/test` (완료) | — |
-| Vercel | ⏳ 강민 개인 계정 (팀 레포를 보고 배포 중) | 팀 계정 |
-| Supabase | ⏳ 강민 개인 계정 | 팀 조직 (선택) |
-| Google Cloud (OAuth) | ✅ 팀 계정 (eatple0701) | — |
-| data.go.kr API 키 | 강민 개인 명의 | 팀원 재발급 (데이터 재빌드할 때만 필요) |
+| | 상태 |
+|---|---|
+| GitHub | ✅ `eatple0701-stack/test` |
+| Vercel | ✅ 팀 계정 · **https://eatple.vercel.app** |
+| Supabase | ✅ `Eatple` 조직 — 프로젝트 이전(Transfer), 주소·키·데이터 그대로 |
+| 알림 메일 링크 | ✅ DB 함수 4개 갱신 (`notify_seat_requested`, `notify_seat_decided`, `notify_table_cancelled`, `notify_report_filed`) |
+| Site URL / Redirect URLs | ✅ `eatple.vercel.app` + `/**` + `localhost:*` |
+| Google Cloud (OAuth) | ✅ 팀 계정 — 이번 이관에서 **손댈 필요 없었음** (리디렉션이 Supabase 주소를 가리켜서) |
+| data.go.kr API 키 | 강민 개인 명의 — 데이터 재빌드할 때만 필요, 팀원은 각자 발급 |
+
+**이관에서 배운 것 하나**: Supabase 프로젝트를 *이전*하면 주소·키·데이터가
+그대로라 앱은 한 줄도 안 바뀝니다. *새로 만들면* 구글 OAuth 재등록, 지메일
+앱 비밀번호 재발급, 스키마 재실행이 전부 따라옵니다. 이전이 압도적으로 쌉니다.
 
 ---
 
@@ -75,20 +82,49 @@ Production / Preview / Development 모두 체크. → **Deploy**
 
 ### 5. Supabase 쪽 주소 갱신
 Supabase 대시보드 → **Authentication → URL Configuration**
-- **Site URL**: 새 URL로 교체
-- **Redirect URLs**: 새 URL 추가 (`http://localhost:5177`은 그대로 두세요)
+- **Site URL**: 새 URL로 교체 → Save changes
+- **Redirect URLs**: 새 주소를 **먼저 추가**하고 나서 옛 주소를 지우세요.
+  순서를 바꾸면 그 사이에 로그인이 깨집니다. 하위 경로(`/tables/xxx`)로
+  돌아오는 경우가 있어 와일드카드까지 넣습니다:
+  `https://<새주소>/**`. `http://localhost:*`는 남겨 두세요 (로컬 개발용)
 
 > 구글 OAuth는 **손댈 필요 없습니다.** 구글에 등록된 리디렉션 주소는 앱이
 > 아니라 Supabase 주소(`…supabase.co/auth/v1/callback`)라서, 앱 URL이 바뀌어도
 > 그대로 유효합니다.
 
-### 6. 코드 안 옛 주소 교체 — 클로드에게 맡기세요
-새 URL을 알려주시면 아래를 한 번에 바꿔 드립니다 (총 11개 파일 19곳):
-- `index.html` OG 태그 3곳 (카톡·SNS 공유 미리보기)
-- `api/table-og.js` 3곳 (밥상 링크 공유 카드)
-- **`supabase/schema.sql` 5곳 — 알림 메일 본문의 링크.** 이건 파일만 고쳐선
-  안 되고 **Supabase SQL Editor에서 다시 실행**해야 반영됩니다
-- 문서 8곳
+### 6. 코드 안 옛 주소 교체
+17곳이 있었습니다: `index.html` OG 태그 3곳(카톡 공유 미리보기),
+`api/table-og.js` 3곳(밥상 링크 카드), `supabase/schema.sql` 5곳(알림 메일
+본문), 문서 6곳. 파일 쪽은 커밋 한 번으로 끝납니다.
+
+**DB 안의 5곳은 파일을 고쳐도 안 바뀝니다.** Postgres에 이미 컴파일돼 저장된
+함수라서요. SQL Editor에 이것만 붙여넣고 Run 하면 됩니다 — 옛 주소가 든 함수를
+찾아 정의를 꺼내 주소만 바꿔 다시 넣습니다. 트리거는 함수를 이름으로
+참조하므로 **건드릴 필요가 없습니다**:
+
+```sql
+do $do$
+declare r record; n int := 0;
+begin
+  for r in select oid, proname from pg_proc
+            where prosrc like '%예전주소.vercel.app%'
+  loop
+    execute replace(pg_get_functiondef(r.oid),
+                    '예전주소.vercel.app', '새주소.vercel.app');
+    n := n + 1;
+  end loop;
+  raise notice '% function(s) updated', n;
+end
+$do$;
+```
+
+확인: `select proname from pg_proc where prosrc like '%새주소.vercel.app%';`
+→ `notify_seat_requested` / `notify_seat_decided` /
+`notify_table_cancelled` / `notify_report_filed` 4개가 나오면 성공.
+
+(`supabase/migrations/2026-08-22-new-app-url.sql`에 함수 전문을 붙여넣는
+방식도 있지만, 그쪽은 트리거까지 드롭·재생성해서 굳이 필요 없는 위험을
+만듭니다. 위 방법을 쓰세요.)
 
 ### 7. 옛 Vercel 프로젝트 정리
 새 배포가 확인되면, 강민님 Vercel의 옛 프로젝트를 **삭제하거나 GitHub 연결을

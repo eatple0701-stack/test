@@ -269,8 +269,8 @@ selection.
 | Service | Today | Target |
 |---|---|---|
 | GitHub repo | ✅ **done 2026-08-22** — `eatple0701-stack/test`, branch `main`. The old address redirects. | — |
-| Vercel | 강민 personal, auto-deploys from the repo | team account re-import (**URL will change** — grep the repo for the old URL and update; or buy a custom domain and never care again) |
-| Supabase | 강민 personal | transfer project to team org — project ref/keys/data survive, zero app changes |
+| Vercel | ✅ **done 2026-08-22** — team account, https://eatple.vercel.app | — |
+| Supabase | ✅ **done 2026-08-22** — `Eatple` org, transferred. Project ref, keys and data unchanged, so nothing in the app moved with it. | — |
 | Google Cloud (OAuth) | **already team** (eatple0701) | add pilot testers / publish consent screen |
 | data.go.kr key | 강민 personal | any team member requests their own key for dataset 15097605, swap `.env.local` |
 | Gmail (notifications) | team (eatple0701) via Edge Function secret | no change |
