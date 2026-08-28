@@ -28,9 +28,9 @@ This is a **KF Digital Public Diplomacy Academy** project. That framing is
 not decoration — the advisors' single strongest note (see §5) is that the
 product must be cultural *exchange*, not a cost-splitting utility.
 
-- Deployed: https://eatple.vercel.app — live and current, but
-  this URL changes when Vercel moves to the team account. See §7 and
-  `docs/account-migration.md`.
+- Deployed: **https://eatple.vercel.app** — team Vercel account, live and
+  current. (It was `test-umber-phi-78.vercel.app` until 2026-08-22; see
+  `docs/account-migration.md`.)
 - Stack: React 19 + Vite, mobile-first 375×812, Leaflet maps, Supabase
   (auth + tables + email notifications via Edge Function), PWA/offline.
 - No paid APIs at runtime. All heavy data is fetched at build time and
@@ -202,8 +202,12 @@ verified-host pillar, under-built today); (b) keep the no-dating framing
 explicit (rules consent — shipped) and consider 3+-person matching
 defaults; (c) answer the UX questions the plan left open: which menus
 qualify (answered: the 24-dish taxonomy), how long until a match confirms,
-**what happens on a no-show (still unanswered — needs a policy, then a
-screen)**; (d) marketing to people who don't know 나눠 먹는 문화 — the
+what happens on a no-show — **answered in code, not in this file's first
+draft**: `src/domain/policy/attendance.js` already carries `isNoShow`,
+`countsAsMet` and `canRecordAttendance` (only the host, only after the
+meal, only for somebody who had a seat), and the Passport drops the people
+recorded absent. Approval has the same shape in `seatRequest.js`. Do not
+rebuild either; (d) marketing to people who don't know 나눠 먹는 문화 — the
 dish stories and SNS card news are that answer.
 
 ### What the foreign testers changed (8/1, 8/8)
@@ -237,32 +241,32 @@ selection.
    test users (or publish the consent screen) — 5 minutes in the team's
    Google Cloud account, but forgotten = nobody can sign in with Google
    on Saturday.
-3. Create and end-to-end test the 8/22 table (open table → request →
-   accept → email notification → .ics) on the production URL with the
-   test accounts listed in HANDOFF.md §계정.
-4. Finish the account migration (§7) *or* consciously postpone it to
-   after 8/22 — do not do it on 8/21.
+3. Create and end-to-end test a real table (open table → request → accept →
+   email notification → .ics) on the production URL. The pilot test
+   accounts are not written down in this repository on purpose — ask 강민
+   for them.
+4. ~~Finish the account migration~~ — **done 2026-08-22**, see §7 and
+   `docs/account-migration.md`.
 
 **Next (from the documents, in rough order of value):**
 5. **Guest mode** — nickname-only participation (8/2 meeting + tester ask).
-6. **No-show policy** (신보람) — decide with the team, then implement
-   (a table state, a message, maybe a host note).
-7. Dish stories for the remaining dishes — *sourced only*, one dish at a
+   Confirmed absent from the code.
+6. Dish stories for the remaining dishes — *sourced only*, one dish at a
    time; this also feeds the SNS card news directly.
-8. Search over menus/dishes, not just names ("갈비" should find places).
-9. Dish photography from the register (`/api/food/img`, 1,198 photos,
+7. Search over menus/dishes, not just names ("갈비" should find places).
+8. Dish photography from the register (`/api/food/img`, 1,198 photos,
    endpoint already wired in `scripts/seoul-food-api.mjs`, not yet
    fetched) — could give the dish deck real photos before the team's own
    shoot happens.
-10. Language expansion decision (vi/de/ru) — team call, then the i18n
+9. Language expansion decision (vi/de/ru) — team call, then the i18n
     pipeline makes it mechanical.
 
 **Later / strategic (the advisors' arc):**
-11. Host verification flow + host-forward matching surfaces (신보람's
+10. Host verification flow + host-forward matching surfaces (신보람's
     Korean-host × foreigner emphasis — the highest-leverage public-
     diplomacy feature not yet built).
-12. Taste-based personalisation and post-meal culture follow-ups (김훈).
-13. SNS export: turn a dish card / table recap into a shareable image.
+11. Taste-based personalisation and post-meal culture follow-ups (김훈).
+12. SNS export: turn a dish card / table recap into a shareable image.
 
 ## 7. Accounts & migration state (2026-08-17)
 

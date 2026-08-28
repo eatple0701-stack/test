@@ -1,6 +1,6 @@
 # 밥친구 잇플 / Eatple — 인수인계
 
-**HEAD:** `388093c` · 2026-08-03 · 워킹트리 깨끗
+**최종 갱신:** 2026-08-28 · 배포 중인 최신 커밋 기준
 **테스트:** 579개 전부 통과 (`npm test`)
 **배포:** https://eatple.vercel.app
 
@@ -93,7 +93,10 @@ npm run build
 사실을 가르칩니다. 그래서 정직성 규칙이 문서가 아니라 **테스트로** 박혀
 있습니다.
 
-- **가격을 쓰지 않습니다.** 확인할 방법이 없습니다.
+- **출처 없는 가격을 쓰지 않습니다.** 확인할 방법이 없는 숫자는 안 싣습니다.
+  2026-08-17부터 등록부 가격 94,515건을 싣되, **같은 화면에 반드시**
+  `등록부 기준 (2021–22)`이라고 출처와 연도를 밝힙니다. 남의 별점(네이버·
+  트립어드바이저)은 같은 API에 있지만 **영원히 안 씁니다.**
 - **출처 없는 퀴즈 문제는 여행자에게 도달하지 않습니다.** `quizFor`가
   거릅니다. 파일에는 남고 화면에는 안 나옵니다.
 - **샘플 데이터는 샘플이라고 표시**합니다.
@@ -434,7 +437,7 @@ delete from public.signups; delete from public.tables; delete from public.profil
 `kfm-bookmarks`, `kfm-markets`, `kfm-experiences`, `kfm-prologue`
 (`kfm-` 접두사는 K-Food Map 시절 이름이 남은 것입니다).
 
-**테스트:** Node 24 내장 러너, 의존성 0. `src/**/*.test.mjs`, 22개 파일 243개.
+**테스트:** Node 24 내장 러너, 의존성 0. `src/**/*.test.mjs`, 60개 파일 579개.
 로컬(localStorage) 백엔드인 `tableRepository.js`는 직접 테스트가 없습니다 —
 도메인 계층(순수 함수)을 통해서만 검증하고, 백엔드 자체는 필요할 때 수동
 스모크 스크립트로 확인하는 게 이 저장소의 방식입니다.
@@ -452,13 +455,21 @@ delete from public.signups; delete from public.tables; delete from public.profil
 
 ## 8. 배포
 
+저장소는 2026-08-22에 팀 계정으로 옮겨졌습니다:
+**`github.com/eatple0701-stack/test`**, 기본 브랜치 `main`.
+
 ```bash
-git push        # master → test/main → Vercel
+git push        # main → Vercel 자동 배포
 ```
 
-`origin`은 제거했고 `master`는 `test/main`을 추적합니다. Vercel 환경변수에
-`VITE_SUPABASE_URL`과 `VITE_SUPABASE_ANON_KEY`가 들어 있어야 프로덕션이 공유
-저장소를 씁니다.
+> 강민님 원래 컴퓨터에는 예전 설정이 남아 있습니다 — 로컬 브랜치가
+> `master`, 리모트 이름이 `test`라 `git push test master:main`으로 밉니다.
+> **새로 클론한 곳에서는 따라 하지 마세요.** 그냥 `main`에서 `git push`면
+> 됩니다.
+
+Vercel 환경변수에 `VITE_SUPABASE_URL`과 `VITE_SUPABASE_ANON_KEY`가 들어
+있어야 프로덕션이 공유 저장소를 씁니다. **없으면 배포는 성공하는데 조용히
+localStorage로 떨어져 상 공유가 끊깁니다.**
 
 전체 배치는 `docs/where-this-deploys.md`. **옆 폴더의 K-Food Map은 다른 앱이고
 다른 URL이며, 두 앱은 초기 git 이력을 공유합니다.** 그게 사고가 가능했던
