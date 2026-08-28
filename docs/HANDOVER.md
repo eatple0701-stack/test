@@ -221,10 +221,12 @@ Still open from their lists: **guest mode** (nickname-only participation),
 translation work, the pipeline supports it), simpler profile country
 selection.
 
-### The calendar (from 회의록 8/17 — this drives *now*)
-- **8/22 (Sat) 11:00 — first real Table Mate pilot meal.** Foreign
-  participants confirmed via supporters/friends; an English-speaking team
-  member attends; the meal is photographed for SNS.
+### The calendar (from 회의록 8/17, updated 2026-08-28)
+- ✅ **8/22 (Sat) 11:00 — the first real Table Mate pilot meal happened,
+  and it went well.** That was the thing the whole August build was aimed
+  at, and the product survived contact with real foreign guests. Details of
+  how it went are with the team, not in this repository — ask them before
+  planning the next round.
 - SNS: Instagram **eat.ple_project** is live; card news for the 9–10
   representative dishes is being made in Canva; the app's dish-deck
   content and register data can (and should) feed it.
@@ -234,13 +236,16 @@ selection.
 
 ## 6. Prioritised roadmap for the incoming Claude
 
-**Pilot-blocking (this week, before 8/22):**
+**Still blocking, now for the second round rather than the first:**
 1. 개인정보 처리방침 + 이용약관 — *humans must write these*; wire the two
-   reserved footer slots when they exist. Do not generate them.
-2. Google OAuth consent screen: add the confirmed participants' emails as
-   test users (or publish the consent screen) — 5 minutes in the team's
-   Google Cloud account, but forgotten = nobody can sign in with Google
-   on Saturday.
+   reserved footer slots when they exist. Do not generate them. Confirmed
+   still open in `src/components/MainTab.jsx` (the footer's 준비 중
+   placeholders), and signup already collects email, phone and birth date,
+   so this is the one item that is a legal exposure rather than a feature.
+2. Google OAuth consent screen: add each new round's participants as test
+   users (or publish the consent screen) — 5 minutes in the team's Google
+   Cloud account, but forgotten = nobody can sign in with Google. Email
+   sign-up needs no such step, which is the safe fallback on the day.
 3. Create and end-to-end test a real table (open table → request → accept →
    email notification → .ics) on the production URL. The pilot test
    accounts are not written down in this repository on purpose — ask 강민
