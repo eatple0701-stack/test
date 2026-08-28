@@ -28,8 +28,9 @@ This is a **KF Digital Public Diplomacy Academy** project. That framing is
 not decoration — the advisors' single strongest note (see §5) is that the
 product must be cultural *exchange*, not a cost-splitting utility.
 
-- Deployed: https://test-umber-phi-78.vercel.app (URL will change when the
-  Vercel account moves — see §7)
+- Deployed: https://test-umber-phi-78.vercel.app — live and current, but
+  this URL changes when Vercel moves to the team account. See §7 and
+  `docs/account-migration.md`.
 - Stack: React 19 + Vite, mobile-first 375×812, Leaflet maps, Supabase
   (auth + tables + email notifications via Edge Function), PWA/offline.
 - No paid APIs at runtime. All heavy data is fetched at build time and
@@ -267,16 +268,25 @@ selection.
 
 | Service | Today | Target |
 |---|---|---|
-| GitHub repo | 강민 personal (`rkdals0121/test`, branch `main`; local branch `master`, remote named `test`) | team org, repo transfer |
+| GitHub repo | ✅ **done 2026-08-22** — `eatple0701-stack/test`, branch `main`. The old address redirects. | — |
 | Vercel | 강민 personal, auto-deploys from the repo | team account re-import (**URL will change** — grep the repo for the old URL and update; or buy a custom domain and never care again) |
 | Supabase | 강민 personal | transfer project to team org — project ref/keys/data survive, zero app changes |
 | Google Cloud (OAuth) | **already team** (eatple0701) | add pilot testers / publish consent screen |
 | data.go.kr key | 강민 personal | any team member requests their own key for dataset 15097605, swap `.env.local` |
 | Gmail (notifications) | team (eatple0701) via Edge Function secret | no change |
 
+**Step-by-step runbook: `docs/account-migration.md`.** It carries the one
+trap worth repeating here — `src/data/supabaseBackend.js` has no env
+fallback, so a Vercel project without `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_ANON_KEY` deploys successfully and then silently drops to
+localStorage, and tables stop being shared between devices. Both values are
+public-safe and already committed as fallbacks in `api/table-og.js`.
+
 When the Vercel URL changes: update Supabase Auth → URL Configuration →
-Site URL, and every hardcoded reference (`docs/where-this-deploys.md`
-lists the deployment story; `git grep test-umber-phi-78` finds the rest).
+Site URL, and every hardcoded reference — `git grep test-umber-phi-78`
+finds all 19 across 11 files. The five inside `supabase/schema.sql` are
+notification-email bodies and need the file re-run in the SQL editor, not
+just edited.
 
 ## 8. Commands
 

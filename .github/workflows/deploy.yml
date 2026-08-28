@@ -1,8 +1,15 @@
+# GitHub Pages was an early, second deployment target. Production has been
+# Vercel for a long time, and after the 2026-08-22 move to the team account
+# this job failed on every push — GitHub Pages settings do not survive a
+# repository transfer, so it tried to publish to a Pages site that does not
+# exist and put a red cross on every commit.
+#
+# Left in place rather than deleted, but it no longer runs on push. If the
+# team ever wants a Pages mirror, enable Pages in the repository settings
+# and run this from the Actions tab. If nobody wants one, delete this file.
 name: Deploy static content to Pages
 
 on:
-  push:
-    branches: ['main', 'master']
   workflow_dispatch:
 
 permissions:

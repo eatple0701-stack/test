@@ -12,18 +12,25 @@
 # a bare `git push` is already safe. This hook is the part that survives
 # somebody re-adding a remote later, including me.
 #
-# Install once:
+# Install once (per clone — hooksPath is local config and does not travel):
 #   git config core.hooksPath .githooks
 #
 # To push somewhere new on purpose, add its host below rather than deleting
 # this file — the list is the record of where this app is allowed to go.
+#
+# 2026-08-22: the repository moved to the team account. Both entries are kept
+# on purpose — the old one so that a clone made before the transfer, or a
+# remote still pointing at the redirect, is not blocked; the new one because
+# that is where 밥친구 lives now.
 
-ALLOWED='rkdals0121/test'
+ALLOWED='eatple0701-stack/test'
+ALLOWED_LEGACY='rkdals0121/test'
 
 remote_url="$2"
 
 case "$remote_url" in
   *"$ALLOWED"*) exit 0 ;;
+  *"$ALLOWED_LEGACY"*) exit 0 ;;
 esac
 
 cat >&2 <<EOF
@@ -31,7 +38,7 @@ cat >&2 <<EOF
   push refused: this is 밥친구, and "$remote_url" is not its repository.
 
   밥친구 belongs to      github.com/$ALLOWED   (branch main)
-                          → test-umber-phi-78.vercel.app
+                          (formerly github.com/$ALLOWED_LEGACY)
 
   The K-Food Map app lives in ../k-food-map and owns
                           github.com/rkdals0121/kfoodmap

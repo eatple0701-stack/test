@@ -6,8 +6,15 @@ so this file exists to make the boundary hard to miss.
 
 | Folder | App | Repository | Production URL |
 | --- | --- | --- | --- |
-| `베이스/` | **밥친구 잇플 / Eatple** — this one | `github.com/rkdals0121/test`, branch `main` | https://test-umber-phi-78.vercel.app |
+| `베이스/` | **밥친구 잇플 / Eatple** — this one | `github.com/eatple0701-stack/test`, branch `main` | https://test-umber-phi-78.vercel.app |
 | `../k-food-map/` | **K-Food Map** — a different app | `github.com/rkdals0121/kfoodmap`, branch `master` | https://kfoodmap.vercel.app |
+
+> **2026-08-22 — the repository moved to the team account.** 밥친구 was
+> transferred from `rkdals0121/test` to `eatple0701-stack/test`. The old
+> address still redirects, so an older clone keeps working, but the team
+> address is the one to use. Everything below the "What happened" heading
+> is the record of an August 2 incident and names the repositories as they
+> were called *then* — it is history, and it is left as written.
 
 밥친구 grew out of K-Food Map, so the two share early git history. That is why
 the mistake was easy to make and why the histories look compatible: they are.
@@ -15,13 +22,21 @@ They are still two products with two audiences and two live URLs.
 
 ## Deploying 밥친구
 
+On a fresh clone of `eatple0701-stack/test` this is simply:
+
 ```sh
-git push            # master → test/main → Vercel builds
+git push            # main → Vercel builds
 ```
 
-`origin` has been removed from this clone and `master` tracks `test/main`, so a
-bare push goes to the right place. `.githooks/pre-push` refuses any push to a
-repository other than `rkdals0121/test`; enable it in a fresh clone with:
+On 강민's original machine the same thing is spelled `git push` too, but only
+because `origin` was removed and the local `master` tracks a remote named
+`test` — a leftover of the incident below, not a pattern to copy.
+
+`.githooks/pre-push` refuses any push to a repository that is not 밥친구's.
+It allows both the team address and the old personal one (the redirect), and
+still refuses `kfoodmap`, which is the whole reason it exists. The hook is
+committed but `core.hooksPath` is local config, so **each clone has to turn it
+on once**:
 
 ```sh
 git config core.hooksPath .githooks
