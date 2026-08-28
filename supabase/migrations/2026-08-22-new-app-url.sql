@@ -6,8 +6,14 @@
 -- pasted into the Supabase SQL editor once, against the live project.
 --
 -- It is the same text as supabase/schema.sql lines 820-964, only with the
--- URL already updated. Every statement is "create or replace", so running it
--- is safe and repeatable — no table, row, or trigger is dropped.
+-- URL already updated. Safe and repeatable, but be precise about why: the
+-- four functions are "create or replace", and each of the four triggers is
+-- dropped and immediately recreated on the next line — the ordinary
+-- idempotent pattern. No table is touched and no row is deleted. The only
+-- window is the instant between a "drop trigger" and its "create trigger";
+-- if a seat were requested in that microsecond its notification would not
+-- be queued, which is why this is worth pasting in one go rather than
+-- statement by statement.
 --
 -- Verify afterwards:
 --   select proname from pg_proc where prosrc like '%eatple.vercel.app%';
