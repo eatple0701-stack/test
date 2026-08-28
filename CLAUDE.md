@@ -2,6 +2,7 @@
 
 **New here? Read `docs/HANDOVER.md` first** — full state of the product,
 the data pipeline, the business context, and the prioritised roadmap.
+Setting up a new machine: `docs/new-computer-setup.md` (Korean).
 Korean operational docs: `HANDOFF.md`, `docs/CHANGELOG-ko.md`.
 
 ## What this is

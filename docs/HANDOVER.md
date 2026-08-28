@@ -303,6 +303,10 @@ node --max-old-space-size=6144 scripts/build-seoul-places.mjs
 node --max-old-space-size=6144 scripts/build-seoul-menus.mjs
 ```
 
+**Starting on a new machine**: `docs/new-computer-setup.md` — clone,
+install, verify, and how pushing works. A fresh clone needs no secrets at
+all; that was tested rather than assumed.
+
 Korean-language docs that predate this file and remain authoritative for
 their subjects: `HANDOFF.md` (운영·계정·마감 체크리스트),
 `docs/CHANGELOG-ko.md` (8/17 발표용 변경 이력), `docs/DATA.md`,
