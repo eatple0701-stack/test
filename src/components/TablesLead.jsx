@@ -24,7 +24,7 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
-export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
+export default function TablesLead({ onOpenTables, onOpenTable, onCreateTable, profile }) {
   const say = useText();
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
@@ -97,11 +97,16 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
       </div>
 
       {open.length === 0 ? (
-        <button className="tables-lead__empty" onClick={onOpenTables}>
+        /* Was a single dashed button whose only affordance was the box
+           itself: a sentence, no verb to press, and the one thing a reader
+           can actually do here — open the first table — was not offered.
+           An empty week in a pilot is the strongest host-recruiting surface
+           the app has, so it now asks directly. */
+        <div className="tables-lead__empty">
           <span className="l-ko-only" translate="no">
             {anyUpcoming
               ? '이번 주에 더 청할 밥상은 없어요. 직접 상을 차리고 누가 오는지 보세요.'
-              : '삼겹살은 2인분부터예요. 상을 차리고 누가 오는지 보세요.'}
+              : '아직 아무도 상을 차리지 않았어요. 그러니 첫 번째는 당신입니다.'}
           </span>
           <span className="tables-lead__empty-en">
             {anyUpcoming
@@ -112,7 +117,15 @@ export default function TablesLead({ onOpenTables, onOpenTable, profile }) {
                 'El samgyeopsal empieza en dos raciones. Abre una mesa y mira quién viene.',
                 'Le samgyeopsal commence à deux parts. Ouvrez une table et voyez qui vient.', 'السامغيوبسال يبدأ من حصتين. افتح مائدة وانظر من يأتي.', '五花肉从两人份起。开一张饭桌，看看谁来。', 'サムギョプサルは二人前からです。食卓を開いて、誰が来るか見てみてください。')}
           </span>
-        </button>
+          <span className="tables-lead__empty-acts">
+            <button className="tables-lead__empty-cta" translate="no" onClick={onCreateTable ?? onOpenTables}>
+              {say('Open the first table', '첫 상 차리기', 'Abre la primera mesa', 'Ouvrir la première table', 'افتح أول مائدة', '开第一张饭桌', '最初の食卓を開く')}
+            </button>
+            <button className="tables-lead__empty-alt" translate="no" onClick={onOpenTables}>
+              {say('See all tables', '밥상 전체 보기', 'Ver todas las mesas', 'Voir toutes les tables', 'انظر كل الموائد', '看全部饭桌', 'すべての食卓を見る')}
+            </button>
+          </span>
+        </div>
       ) : (
         <div className="tables-lead__row">
           {open.map(t => {

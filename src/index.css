@@ -281,7 +281,16 @@ button {
 .main-group__emoji { font-size: 22px; line-height: 1; }
 .main-group__name { font-size: 14.5px; font-weight: 800; color: var(--ink-title); }
 .main-group__dishes { font-size: 12px; line-height: 1.5; color: var(--muted-strong); }
-.main-group__go { margin-top: 5px; font-size: 12.5px; font-weight: 700; color: var(--tint); }
+.main-group__go {
+  margin-top: 5px;
+  font-size: 12.5px;
+  font-weight: 700;
+  /* One colour on every card. A link that changes hue per card stops reading
+     as a link, and two of the six tints fail contrast at this size:
+     #F97316 is 2.80:1 and #0E9F6E is 3.39:1 on white, against a 4.5 floor.
+     The tint still marks the card — on the swatch and the left border. */
+  color: var(--accent-strong);
+}
 
 @media (min-width: 768px) {
   .main-groups { grid-template-columns: repeat(3, 1fr); gap: 12px; }
@@ -6414,6 +6423,39 @@ button {
   font-weight: 700;
   color: var(--green-ink);
 }
+/* The empty week's two actions. The first is the point of the surface —
+   in a pilot, nobody having opened a table is a recruiting moment, not a
+   failure — and the second is the way out for somebody who only wanted to
+   look. */
+.tables-lead__empty-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.tables-lead__empty-cta {
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent-strong);
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tables-lead__empty-alt {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--ink-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .tables-lead__empty {
   display: block;
   width: calc(100% - 40px);
@@ -10480,17 +10522,44 @@ svg.animal-avatar {
 
 /* ---------- Notice bar ---------- */
 
+/* Measured 2026-08-30: this bar was 98px of a 812px phone, permanent, with
+   no way to close it — part of 353px of chrome taking 43% of the screen
+   before any content. Now it is one tight row with a dismiss button, and
+   the two language halves sit side by side rather than stacked. */
 .notice-bar {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 10px;
   margin: 0;
-  padding: 10px 16px;
+  padding: 8px 10px 8px 16px;
   border-bottom: 1px solid var(--line);
   background: var(--surface);
 }
-.notice-bar__kr { font-size: 13px; font-weight: 700; color: var(--ink-title); }
-.notice-bar__en { font-size: 12.5px; line-height: 1.45; color: var(--ink-body); }
+.notice-bar__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.notice-bar__kr { font-size: 12.5px; font-weight: 700; color: var(--ink-title); }
+.notice-bar__en { font-size: 12px; line-height: 1.4; color: var(--ink-body); }
+.notice-bar__close {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  margin: -3px -2px 0 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+.notice-bar__close:hover { background: var(--fill, var(--surface-2)); }
 /* Conditions are about tonight; about is about the app. The first earns a
    warmer ground, the second stays as quiet as a footnote. */
 .notice-bar--conditions {
@@ -10758,7 +10827,9 @@ svg.animal-avatar {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-height: 44px;
+  /* Matched to the primary CTA, which measures 56 against this button's
+     original 44. Widths still differ — that is what makes one primary. */
+  min-height: 56px;
   margin-top: 6px;
   padding: 0 14px;
   border: none;
@@ -10957,7 +11028,9 @@ svg.animal-avatar {
 .main-dish__arrow {
   position: absolute;
   top: 12px;
-  inset-inline-start: 14px;
+  /* Top-right, where a "go" arrow is looked for. At the start edge the eye
+     read the arrow first and then had to travel back to the title. */
+  inset-inline-end: 14px;
   font-size: 17px;
   font-weight: 800;
   color: var(--muted-strong);
@@ -11176,6 +11249,8 @@ svg.animal-avatar {
 .main-footer__mastlink:hover { text-decoration: underline; }
 .main-footer__cols {
   display: grid;
+  /* Narrow screens wrap on their own; see the 768px rule below for why this
+     is not left to auto-fit at desktop width. */
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 18px;
 }
@@ -11220,7 +11295,13 @@ svg.animal-avatar {
 /* ---- Desktop: the full spread ---- */
 @media (min-width: 768px) {
   .main-hero { padding: 96px 24px 116px; }
-  .main-hero__title { font-size: 64px; }
+  /* Was a flat 64px from 1024px up. On a 1024×768 laptop — 703px of usable
+     height — that pushed "상 차리기" to y=777, below the fold, on exactly
+     the screen a reviewer opens. It reaches 64px again at 1455px. */
+  .main-hero__title { font-size: clamp(40px, 4.4vw, 64px); }
+  /* Three sections, three tracks. auto-fit made five at this width and the
+     two empty ones still took their gap. */
+  .main-footer__cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .main-hero__sub { font-size: 16px; }
 
   /* The collage lifts out of the flow and floats around the headline. All

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { menus } from '../domain/catalog/menus.js';
 import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
 import { isMember } from '../domain/policy/access.js';
@@ -98,6 +98,29 @@ export default function MainTab({
   // Whether the sticky join bar has been waved away. Component state, so it
   // lasts as long as this visit and no longer — see the bar's own comment.
   const [stickyClosed, setStickyClosed] = useState(false);
+  // Whether the hero — and with it the two CTAs the sticky bar was covering —
+  // is still on screen. The bar waits until the reader has scrolled past it.
+  const heroRef = useRef(null);
+  const [heroSeen, setHeroSeen] = useState(true);
+  useEffect(() => {
+    const el = heroRef.current;
+    // No observer, no hiding. Without this the bar would be suppressed
+    // forever on a browser that cannot watch the hero, which trades one
+    // covered CTA for a join prompt nobody ever sees — a worse bargain, and
+    // a silent one.
+    if (!el || typeof IntersectionObserver !== 'function') {
+      setHeroSeen(false);
+      return undefined;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => setHeroSeen(entry.isIntersecting),
+      // A sliver still counts as "the hero is here": the bar should not
+      // reappear while the last of the CTAs is on screen.
+      { threshold: 0, rootMargin: '-72px 0px 0px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   const member = isMember(auth);
 
   // The hero carousel, asked for on 2026-08-07 after the 인하대 정치외교학과
@@ -121,7 +144,8 @@ export default function MainTab({
   // The extra bottom padding exists only to clear the sticky bar, so it
   // leaves with it — otherwise dismissing the bar leaves 190px of nothing
   // under the footer.
-  const stickyShown = !member && !stickyClosed;
+  // Not while the hero is on screen — see the observer above.
+  const stickyShown = !member && !stickyClosed && !heroSeen;
 
   return (
     <section
@@ -136,7 +160,7 @@ export default function MainTab({
               the DOM so the phone's natural flow is already Meetup's order,
               and the desktop lifts the blobs out with position:absolute
               where DOM order stops mattering. ---- */}
-      <header className="main-hero">
+      <header className="main-hero" ref={heroRef}>
         <div className="main-hero__copy">
           {/* The brand, in halves. It was one string in a class ending -kr,
               which meant an English interface dropped the app's own name off
@@ -293,6 +317,7 @@ export default function MainTab({
         <TablesLead
           onOpenTables={() => onNavigate('match')}
           onOpenTable={onOpenTable}
+          onCreateTable={onCreateTable}
           profile={profile}
         />
       </div>
