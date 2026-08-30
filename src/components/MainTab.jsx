@@ -102,26 +102,45 @@ export default function MainTab({
   const [stickyClosed, setStickyClosed] = useState(false);
   // Whether the hero — and with it the two CTAs the sticky bar was covering —
   // is still on screen. The bar waits until the reader has scrolled past it.
+  //
+  // ── Why this reads scrollTop instead of observing ───────────────────────
+  //
+  // The first version used an IntersectionObserver, and a reviewer caught
+  // the hole: the fallback covered browsers with no IntersectionObserver,
+  // but the failure actually seen was an observer that exists and never
+  // calls back — not even the initial callback the spec promises on
+  // observe(). That also happens on bfcache restore and when a background
+  // tab is brought forward. With the bar starting hidden and the observer as
+  // its only route to being shown, every one of those cases silently deletes
+  // the join prompt.
+  //
+  // A scroll position is not an event that can fail to arrive. It is read
+  // once at mount and on every scroll, and the answer is the same every
+  // time, so there is no state to get stuck in.
   const heroRef = useRef(null);
   const [heroSeen, setHeroSeen] = useState(true);
   useEffect(() => {
-    const el = heroRef.current;
-    // No observer, no hiding. Without this the bar would be suppressed
-    // forever on a browser that cannot watch the hero, which trades one
-    // covered CTA for a join prompt nobody ever sees — a worse bargain, and
-    // a silent one.
-    if (!el || typeof IntersectionObserver !== 'function') {
-      setHeroSeen(false);
-      return undefined;
-    }
-    const io = new IntersectionObserver(
-      ([entry]) => setHeroSeen(entry.isIntersecting),
-      // A sliver still counts as "the hero is here": the bar should not
-      // reappear while the last of the CTAs is on screen.
-      { threshold: 0, rootMargin: '-72px 0px 0px 0px' },
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    const hero = heroRef.current;
+    if (!hero) return undefined;
+    // The app scrolls inside .content-region, not the document.
+    const scroller = hero.closest('.content-region') ?? document.scrollingElement;
+    if (!scroller) return undefined;
+
+    // 120px of the hero may have left before the bar is allowed back: the
+    // second CTA sits near its bottom edge, and a bar that returns the
+    // instant the hero's last pixel moves would clip it again on the way.
+    const PAST = 120;
+    const update = () => setHeroSeen(scroller.scrollTop < Math.max(0, hero.offsetHeight - PAST));
+
+    update();   // decided before the first scroll, and after any restore
+    scroller.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('pageshow', update);      // bfcache
+    window.addEventListener('resize', update);        // the hero's height changes
+    return () => {
+      scroller.removeEventListener('scroll', update);
+      window.removeEventListener('pageshow', update);
+      window.removeEventListener('resize', update);
+    };
   }, []);
   const member = isMember(auth);
 
