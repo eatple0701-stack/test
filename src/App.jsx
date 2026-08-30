@@ -795,7 +795,32 @@ export default function App() {
           Selecting a tab also leaves the theme screen, which otherwise
           guards every tab's content and makes the bar look dead. */}
       <header className="app-chrome">
-        <span className="app-chrome__mark" aria-hidden="true" translate="no">밥친구</span>
+        {/* The wordmark was 밥친구 in every language. A tester who reads no
+            Korean wrote: "I cannot read it, say it, or search for it" — and
+            the English name exists, it was just never on screen. Korean
+            readers keep the Korean; everyone else gets the name they can
+            type into a search box. */}
+        <span className="app-chrome__mark l-ko-only" aria-hidden="true" translate="no">밥친구</span>
+        <span className="app-chrome__mark l-en-only" aria-hidden="true" translate="no">Eatple</span>
+        {/* The language control lived three taps deep, in Passport →
+            Settings → Language, and nothing on the front page hinted at it.
+            This is the one-tap version: it cycles Korean → English → both,
+            which is the whole range most readers need, and the full picker
+            with seven languages stays in Settings. */}
+        <button
+          className="app-chrome__locale"
+          onClick={() => setLocaleState(setStoredLocale(
+            locale === LOCALE.KO ? LOCALE.EN : locale === LOCALE.EN ? LOCALE.BOTH : LOCALE.KO,
+          ))}
+          aria-label={say('Change language', '언어 바꾸기', 'Cambiar idioma', 'Changer de langue', 'تغيير اللغة', '切换语言', '言語を変える')}
+          title={say('Change language', '언어 바꾸기', 'Cambiar idioma', 'Changer de langue', 'تغيير اللغة', '切换语言', '言語を変える')}
+        >
+          {/* Language codes, not prose — the same two letters in every
+              locale, which is why they carry data-no-locale. */}
+          <span translate="no" data-no-locale>
+            {locale === LOCALE.KO ? 'KO' : locale === LOCALE.BOTH ? 'KO·EN' : 'EN'}
+          </span>
+        </button>
         <TabBar
           activeTab={activeTab}
           onSelect={(tab) => { setOpenThemeId(null); goToTab(tab); }}
@@ -906,6 +931,14 @@ export default function App() {
             auth={auth}
             profile={profile}
             onNavigate={goToTab}
+            /* The empty week's primary action. See TablesLead: asking a
+               visitor who landed yesterday to host is the hardest possible
+               request, and this screen already had a gentler one. */
+            onRequestTable={() => {
+              if (!requireMember('request-table')) return;
+              setActiveTab('match');
+              setTableView({ screen: 'request' });
+            }}
             onOpenAuth={(mode) => setAuthMode(mode)}
             /* The matching flow: a category card on the front page opens the
                tables screen already filtered to that category. */

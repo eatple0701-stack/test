@@ -78,9 +78,10 @@ test('the front page says every hero word in both languages', () => {
 
   // Section headings were a bare Korean text node with an English span under
   // it. A bare text node has no element, so nothing could hide it.
-  // Three now: the six-group matching band joined the dishes and the zigzag.
-  assert.equal(main.split('main-band__title-kr').length - 1, 3);
-  assert.equal(main.split('main-band__title-en').length - 1, 3);
+  // Four now: the six-group matching band and the safety section joined
+  // the dishes and the zigzag.
+  assert.equal(main.split('main-band__title-kr').length - 1, 4);
+  assert.equal(main.split('main-band__title-en').length - 1, 4);
 });
 
 test('every tab in the bar is labelled in every language the app offers', () => {

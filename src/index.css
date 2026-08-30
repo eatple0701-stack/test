@@ -253,6 +253,47 @@ button {
 }
 
 
+/* ---------- What keeps a table safe ----------
+   Four things the app already does, said before somebody has to decide
+   whether to join. Two columns on anything wider than a phone: four stacked
+   cards read as a wall of reassurance, which reassures nobody. */
+.main-safety {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.main-safety__item {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card, var(--surface));
+}
+.main-safety__head {
+  margin: 0 0 5px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.45;
+  color: var(--ink-title);
+}
+.main-safety__body {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+.main-safety__note {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--muted-strong);
+}
+@media (min-width: 768px) {
+  .main-safety { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
 /* ---------- The six groups on the front page ----------
    Matching starts by naming what you came to eat. Each card carries its
    group's tint on the left edge — the same colour its dots wear on the map
@@ -281,6 +322,20 @@ button {
 .main-group__emoji { font-size: 22px; line-height: 1; }
 .main-group__name { font-size: 14.5px; font-weight: 800; color: var(--ink-title); }
 .main-group__dishes { font-size: 12px; line-height: 1.5; color: var(--muted-strong); }
+/* The two lines that appear when the reader is not reading Korean. The
+   romanisation is what they can say out loud; the gloss is what turns
+   "KOREAN ADVENTURE" from a dare into a decision. */
+.main-group__rom {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-body);
+  font-weight: 600;
+}
+.main-group__gloss {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--muted-strong);
+}
 .main-group__go {
   margin-top: 5px;
   font-size: 12.5px;
@@ -10073,6 +10128,26 @@ body {
 /* The settings gear, to the left of 로그인. Icon-only because the corner is
    narrow at 375px and the label would push 가입하기 off; the accessible name
    and the tooltip carry both languages. */
+/* One tap to the language, in the corner every screen shares. The full
+   seven-language picker stays in Settings; this is the switch a first-time
+   visitor needs before they have found Settings at all. */
+.app-chrome__locale {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-body);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.app-chrome__locale:hover { background: var(--fill, var(--surface-2)); }
+
 .app-chrome__gear {
   display: grid;
   place-items: center;

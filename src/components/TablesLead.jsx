@@ -24,7 +24,7 @@ const dayLabel = (date) => {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
 
-export default function TablesLead({ onOpenTables, onOpenTable, onCreateTable, profile }) {
+export default function TablesLead({ onOpenTables, onOpenTable, onCreateTable, onRequestTable, profile }) {
   const say = useText();
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
@@ -117,12 +117,19 @@ export default function TablesLead({ onOpenTables, onOpenTable, onCreateTable, p
                 'El samgyeopsal empieza en dos raciones. Abre una mesa y mira quién viene.',
                 'Le samgyeopsal commence à deux parts. Ouvrez une table et voyez qui vient.', 'السامغيوبسال يبدأ من حصتين. افتح مائدة وانظر من يأتي.', '五花肉从两人份起。开一张饭桌，看看谁来。', 'サムギョプサルは二人前からです。食卓を開いて、誰が来るか見てみてください。')}
           </span>
+          {/* The order here is the whole point. A tester who had been in
+              Korea for one day wrote that "open a table yourself" asks the
+              person with the least information in the room to pick a dish, a
+              restaurant, a neighbourhood and a time and hope strangers come.
+              Saying what you want is the thing a newcomer can actually do,
+              and the request flow already existed — it was just never
+              offered here. Hosting stays, one step quieter. */}
           <span className="tables-lead__empty-acts">
-            <button className="tables-lead__empty-cta" translate="no" onClick={onCreateTable ?? onOpenTables}>
-              {say('Open the first table', '첫 상 차리기', 'Abre la primera mesa', 'Ouvrir la première table', 'افتح أول مائدة', '开第一张饭桌', '最初の食卓を開く')}
+            <button className="tables-lead__empty-cta" translate="no" onClick={onRequestTable ?? onOpenTables}>
+              {say('Tell us what you want to eat', '먹고 싶은 걸 말해주세요', 'Dinos qué te apetece comer', 'Dites-nous ce que vous voulez manger', 'قل لنا ماذا تريد أن تأكل', '告诉我们你想吃什么', '食べたいものを教えてください')}
             </button>
-            <button className="tables-lead__empty-alt" translate="no" onClick={onOpenTables}>
-              {say('See all tables', '밥상 전체 보기', 'Ver todas las mesas', 'Voir toutes les tables', 'انظر كل الموائد', '看全部饭桌', 'すべての食卓を見る')}
+            <button className="tables-lead__empty-alt" translate="no" onClick={onCreateTable ?? onOpenTables}>
+              {say('Or open a table yourself', '직접 상 차리기', 'O abre una mesa tú', 'Ou ouvrez une table vous-même', 'أو افتح مائدة بنفسك', '或者自己开一张', '自分で食卓を開く')}
             </button>
           </span>
         </div>

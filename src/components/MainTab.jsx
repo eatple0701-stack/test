@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { menus } from '../domain/catalog/menus.js';
-import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
+import { DISH_GROUPS, romanDishes, glossDishes } from '../domain/catalog/dishGroups.js';
 import { isMember } from '../domain/policy/access.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import { MAIN_PHOTOS } from '../content/mainPhotos.js';
+import { SAFETY_POINTS } from '../content/safetyPromise.js';
 import TablesLead from './TablesLead';
 import DishSheet from './DishSheet';
 import { ChevronRightIcon, XIcon, PauseIcon, PlayIcon } from './Icons';
@@ -92,6 +93,7 @@ const Squiggle = ({ className }) => (
 
 export default function MainTab({
   auth, profile, onNavigate, onOpenTable, onCreateTable, onOpenAuth, onPickGroup,
+  onRequestTable,
 }) {
   const say = useText();
   const [openDish, setOpenDish] = useState(null);
@@ -305,7 +307,14 @@ export default function MainTab({
             <button key={g.id} className="main-group" style={{ '--tint': g.tint }} onClick={() => onPickGroup?.(g.id)}>
               <span className="main-group__emoji" aria-hidden="true">{g.emoji}</span>
               <span className="main-group__name">{say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}</span>
+              {/* Korean always — it is what the sign says and what a
+                  traveller points at. The romanisation and the plain
+                  description appear for everyone not reading in Korean. */}
               <span className="main-group__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
+              <span className="main-group__rom l-en-only" translate="no">{romanDishes(g)}</span>
+              <span className="main-group__gloss l-en-only">
+                {say(glossDishes(g), null, glossDishes(g), glossDishes(g), glossDishes(g), glossDishes(g), glossDishes(g))}
+              </span>
               <span className="main-group__go">{say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →</span>
             </button>
           ))}
@@ -318,6 +327,7 @@ export default function MainTab({
           onOpenTables={() => onNavigate('match')}
           onOpenTable={onOpenTable}
           onCreateTable={onCreateTable}
+          onRequestTable={onRequestTable}
           profile={profile}
         />
       </div>
@@ -382,6 +392,53 @@ export default function MainTab({
         <p className="main-how__why">
           <strong className="main-how__why-kr" translate="no">{HOW_WHY.kr}</strong>
           <span className="main-how__why-en">{say(HOW_WHY.en, null, HOW_WHY.es, HOW_WHY.fr, HOW_WHY.ar, HOW_WHY.zh, HOW_WHY.ja)}</span>
+        </p>
+      </div>
+
+      {/* ---- What keeps a table safe ----
+              Everything named here already exists in the app: hostRecord on
+              the cards, RulesConsent before a first table, report.js and
+              blocking.js behind the table and profile views. None of it was
+              visible to somebody deciding whether to join, which is the one
+              moment it is for. A tester searched the whole site for
+              "verified / report / block / cancel" on 2026-08-30 and found
+              nothing, and said so in exactly those terms. ---- */}
+      <div className="main-band main-band--safety">
+        <h2 className="main-band__title">
+          <span className="main-band__title-kr" translate="no">모르는 사람과 먹는 일이니까</span>
+          <span className="main-band__title-en">
+            {say('Eating with strangers, safely', null,
+              'Comer con desconocidos, con seguridad',
+              'Manger avec des inconnus, en sécurité',
+              'أن تأكل مع غرباء، بأمان',
+              '和陌生人吃饭，也要安心',
+              '知らない人と食べるからこそ')}
+          </span>
+        </h2>
+        <ul className="main-safety">
+          {SAFETY_POINTS.map(pt => (
+            <li key={pt.id} className="main-safety__item">
+              <h3 className="main-safety__head">
+                {say(pt.en, pt.ko, pt.es, pt.fr, pt.ar, pt.zh, pt.ja)}
+              </h3>
+              <p className="main-safety__body">
+                {say(pt.bodyEn, pt.bodyKo, pt.bodyEs, pt.bodyFr, pt.bodyAr, pt.bodyZh, pt.bodyJa)}
+              </p>
+            </li>
+          ))}
+        </ul>
+        {/* The women-only filter was described by the same tester as "the
+            right instinct and the only safety-adjacent thing on the site",
+            sitting unexplained among the cuisine chips where it reads as a
+            preference. Named here, where it belongs. */}
+        <p className="main-safety__note">
+          {say('The tables list also has a filter for tables another woman has already joined.',
+            '밥상 목록에는 다른 여성이 이미 참여한 밥상만 보는 필터도 있습니다.',
+            'La lista de mesas también tiene un filtro para mesas a las que ya se ha apuntado otra mujer.',
+            "La liste des tables a aussi un filtre pour celles où une autre femme s'est déjà inscrite.",
+            'في قائمة الموائد أيضًا مصفٍّ يُظهر الموائد التي انضمّت إليها امرأة أخرى بالفعل.',
+            '饭桌列表里还有一个筛选，只看已经有其他女性参加的饭桌。',
+            '食卓の一覧には、ほかの女性がすでに参加している食卓だけを見る絞り込みもあります。')}
         </p>
       </div>
 

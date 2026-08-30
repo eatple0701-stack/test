@@ -115,6 +115,59 @@ export const DISH_KO = {
   tteokbokki: '떡볶이', jeon: '전', sundae: '순대', twigim: '튀김',
 };
 
+/**
+ * Each dish in Latin script, and what it actually is.
+ *
+ * The category cards used to print `ko_dishes` — a Korean string — in every
+ * language. A UI report on 2026-08-30 called it "the single most important
+ * content on the site, and the one thing that doesn't switch". These are the
+ * strings that replace it when the reader is not reading Korean.
+ *
+ * `rom` matches the romanisation style in menus.js. `en` is deliberately
+ * concrete rather than appetising: somebody choosing 산낙지 should learn it
+ * is live octopus here, on the card, and not after they have committed to a
+ * table.
+ */
+export const DISH_NAME = {
+  samgyeopsal: { rom: 'Samgyeopsal', en: 'grilled pork belly' },
+  galbi:       { rom: 'Galbi', en: 'grilled beef short rib' },
+  dakgalbi:    { rom: 'Dakgalbi', en: 'spicy stir-fried chicken' },
+  gopchang:    { rom: 'Gopchang', en: 'grilled beef intestine' },
+
+  budae:       { rom: 'Budae-jjigae', en: 'sausage and ramen stew' },
+  gamjatang:   { rom: 'Gamjatang', en: 'pork spine and potato stew' },
+  dakhanmari:  { rom: 'Dak-hanmari', en: 'whole chicken in broth' },
+  jeongol:     { rom: 'Jeongol', en: 'hotpot cooked at the table' },
+
+  bossam:      { rom: 'Bossam', en: 'boiled pork with wraps' },
+  jokbal:      { rom: 'Jokbal', en: 'braised pig trotter' },
+  jjimdak:     { rom: 'Jjimdak', en: 'braised soy chicken' },
+  haemuljjim:  { rom: 'Haemul-jjim', en: 'steamed spicy seafood' },
+
+  gejang:      { rom: 'Ganjang-gejang', en: 'raw crab cured in soy' },
+  sannakji:    { rom: 'San-nakji', en: 'live octopus, cut fresh' },
+  yukhoe:      { rom: 'Yukhoe', en: 'raw seasoned beef' },
+  dakbal:      { rom: 'Dakbal', en: 'spicy chicken feet' },
+
+  hanjeongsik: { rom: 'Hanjeongsik', en: 'full multi-dish set meal' },
+  baekban:     { rom: 'Baekban', en: 'rice with many side dishes' },
+  ssambap:     { rom: 'Ssambap', en: 'rice you wrap in leaves' },
+  bibimbap:    { rom: 'Bibimbap', en: 'rice mixed with vegetables' },
+
+  tteokbokki:  { rom: 'Tteokbokki', en: 'chewy rice cakes in chilli' },
+  jeon:        { rom: 'Jeon', en: 'savoury pan-fried pancake' },
+  sundae:      { rom: 'Sundae', en: 'blood sausage' },
+  twigim:      { rom: 'Twigim', en: 'assorted fritters' },
+};
+
+/** "Samgyeopsal · Galbi · Dakgalbi · Gopchang" for a group's card. */
+export const romanDishes = (group) =>
+  group.dishes.map(d => DISH_NAME[d]?.rom ?? DISH_KO[d] ?? d).join(' · ');
+
+/** The same four, said plainly: "grilled pork belly · grilled beef short rib…" */
+export const glossDishes = (group) =>
+  group.dishes.map(d => DISH_NAME[d]?.en).filter(Boolean).join(' · ');
+
 const GROUP_OF = new Map(DISH_GROUPS.flatMap(g => g.dishes.map(d => [d, g])));
 
 /** The group a dish belongs to, or null for an id nothing knows. */
