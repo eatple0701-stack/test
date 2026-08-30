@@ -1,8 +1,28 @@
 import React, { useState, useCallback } from 'react';
+import { primaryGroup } from '../domain/catalog/dishGroups.js';
 
 const getInitials = (name) => {
   const cleanName = name.split('(')[0].trim();
   return cleanName.substring(0, 1);
+};
+
+/**
+ * What goes on the tile when there is no photograph.
+ *
+ * For a curated place it is the first letter of its name, which reads as an
+ * initial — B for Balwoo Gongyang.
+ *
+ * For a register place it was the first Hangul syllable: 더, 산, 말. To a
+ * reader who cannot read Hangul that is not an initial, it is a shape, and
+ * eight thousand of them are eight thousand identical shapes. The register
+ * does know one true thing about every one of these places — the dish its
+ * own menu carries, which is the only reason it is on the map at all — and
+ * the chip below the tile has been saying so with an emoji since July. A 🔥
+ * says K-BBQ to anybody. 더 says nothing to the people this app is for.
+ */
+const tileMark = (place) => {
+  const group = primaryGroup(place?.registry?.dishes);
+  return group ? group.emoji : getInitials(place.name);
 };
 
 // Scalable image slot for a place. Renders real photography (photo/coverImage)
@@ -62,7 +82,7 @@ export default function PlaceImage({ place, variant = 'thumb', className = '', o
             onError={() => setLoaded(true)}
           />
           <span className="place-image__wash" aria-hidden="true" />
-          <span className="place-image__initial" aria-hidden="true">{getInitials(place.name)}</span>
+          <span className="place-image__initial" aria-hidden="true">{tileMark(place)}</span>
         </div>
       )}
     </div>

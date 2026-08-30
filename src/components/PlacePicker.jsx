@@ -3,6 +3,8 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { MAP_CENTER } from '../utils';
 import { pointOf, PICKER_PROMPT } from '../domain/policy/place.js';
+import { tilesFor } from '../domain/policy/mapTiles.js';
+import { useLocale } from './localeText.js';
 
 // Where the host will actually be standing, pointed at rather than described.
 //
@@ -33,16 +35,14 @@ function ClickToPlace({ onPick }) {
 
 export default function PlacePicker({ value, onChange }) {
   const point = pointOf(value ?? {});
+  const tiles = tilesFor(useLocale());
 
   return (
     <div className="place-picker">
       <span className="field__label">{PICKER_PROMPT.kr}</span>
       <div className="place-picker__map">
         <MapContainer center={point ? [point.lat, point.lng] : MAP_CENTER} zoom={point ? 15 : 12} style={{ height: '100%', width: '100%' }}>
-          <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
-            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          <TileLayer attribution={tiles.attribution} url={tiles.url} />
           <ClickToPlace onPick={onChange} />
           {point && <Marker position={[point.lat, point.lng]} icon={dropPin} />}
         </MapContainer>

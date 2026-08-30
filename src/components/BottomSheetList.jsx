@@ -3,7 +3,7 @@ import PlaceImage from './PlaceImage';
 import { HeartIcon, CompassIcon } from './Icons';
 import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf } from '../utils';
 import { dietaryBadges } from '../data/verification';
-import { isRegistryPlace } from '../data/seoulRegistry.js';
+import { isRegistryPlace, displayName } from '../data/seoulRegistry.js';
 import { groupsOf } from '../domain/catalog/dishGroups.js';
 import { useText, useLocale } from './localeText.js';
 
@@ -13,7 +13,10 @@ const SUSTAINABILITY_TRAITS = ['Zero-waste', 'Local Sourcing'];
 function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, lens, mapCenter }) {
   const say = useText();
   const locale = useLocale();
-  const name = place.name.split('(')[0].trim();
+  // A register place has its own English name from the dataset; a curated
+  // one is written "Balwoo Gongyang (발우공양)" and keeps the pre-bracket
+  // half. displayName takes both shapes and leaves the curated case alone.
+  const name = displayName(place, locale).split('(')[0].trim();
   // getOpenStatus translates its own words, but only when it is told which
   // language to use. It was not, so every reader saw `Open · closes 10:00 PM`
   // in English whatever the setting said — the failure mode the i18n audit

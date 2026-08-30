@@ -6,7 +6,8 @@ import { menuById } from '../domain/catalog/menus.js';
 import { seatsRemaining } from '../domain/policy/table.js';
 import { mappable, pointOf, unplacedNotice } from '../domain/policy/place.js';
 import { XIcon } from './Icons';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
+import { tilesFor } from '../domain/policy/mapTiles.js';
 
 // The tables, on the map. 김훈 부장님's 모임 장소 표시.
 //
@@ -54,6 +55,7 @@ export default function TablesMap({
   onOpen,
 }) {
   const say = useText();
+  const tiles = tilesFor(useLocale());
   const placed = useMemo(() => mappable(tables), [tables]);
   const notice = useMemo(() => unplacedNotice(tables), [tables]);
 
@@ -98,7 +100,7 @@ export default function TablesMap({
             keyboard={false}
             attributionControl={false}
           >
-            <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <TileLayer url={tiles.url} />
             {pins.map(({ t, menu, p, left }) => (
               <Marker key={t.id} position={[p.lat, p.lng]} icon={tablePin(menu, left)} interactive={false} />
             ))}
@@ -107,7 +109,7 @@ export default function TablesMap({
         {/* Attribution still has to be here — the tiles are OpenStreetMap's
             whether or not the control is drawn, and hiding the control does
             not make the licence go away. */}
-        <span className="tables-map-preview__credit">© OpenStreetMap</span>
+        <span className="tables-map-preview__credit">{tiles.credit}</span>
         <span className="tables-map-preview__cta" translate="no">
           {say('지도로 보기 · See these on a map', '지도로 보기', 'Verlas en el mapa', 'Les voir sur la carte', 'انظرها على الخريطة', '在地图上看', '地図で見る')}
         </span>
@@ -139,10 +141,7 @@ export default function TablesMap({
 
       <div className="map-overlay__map">
         <MapContainer center={center} zoom={12} style={{ height: '100%', width: '100%' }} zoomControl={false}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          <TileLayer attribution={tiles.attribution} url={tiles.url} />
           {placed.map(t => {
             const menu = menuById(t.menuId);
             const p = pointOf(t);

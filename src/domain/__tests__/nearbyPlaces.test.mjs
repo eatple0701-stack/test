@@ -75,7 +75,11 @@ test('nothing this app refuses to print came along for the ride', () => {
     assert.equal(keys.has(banned), false, `the layer carries a "${banned}" field`);
   }
   // 'p' is the register's own photo URL — appearance, not a score.
-  const allowed = ['a', 'c', 'd', 'f', 'h', 'i', 'n', 'p', 't', 'x', 'y'];
+  // 'e' joined 2026-08-30: the restaurant's name in English, from the same
+  // 서울관광재단 multilingual dataset the menus come from. A name, not a
+  // judgement — and it is the field that stopped an English reader seeing
+  // 말모아왕족발 and a distance.
+  const allowed = ['a', 'c', 'd', 'e', 'f', 'h', 'i', 'n', 'p', 't', 'x', 'y'];
   for (const k of keys) assert.ok(allowed.includes(k), `unexpected field "${k}" shipped`);
 });
 

@@ -354,7 +354,7 @@ export default function PlacesTab({
           {seasonalFoods.map(f => {
             const inSeason = f.months.includes(currentMonth);
             return (
-              <div key={f.id} className={`gather-card gather-card--static gather-card--kr${inSeason ? ' is-highlighted' : ''}`} data-kr={f.nameKo}>
+              <div key={f.id} className={`gather-card gather-card--static gather-card--watermark${inSeason ? ' is-highlighted' : ''}`} data-kr={f.nameKo}>
                 <span className="gather-card__tag">
                   {say(f.season, f.seasonKo, f.seasonEs, f.seasonFr, f.seasonAr, f.seasonZh, f.seasonJa)}
                   {inSeason ? say(' · In season now', ' · 지금이 제철', ' · ahora es temporada', " · c'est la saison", ' · الآن موسمه', ' · 现在正当季', ' · いまが旬') : ''}
@@ -379,7 +379,7 @@ export default function PlacesTab({
         <div className="home-section__header"><h2>{say('Festival Picks', '축제', 'Festivales', 'Festivals', 'المهرجانات', '节庆', '祭り')}</h2></div>
         <div className="home-scroll-row">
           {festivals.map(f => (
-            <div key={f.id} className="gather-card gather-card--static gather-card--kr" data-kr={f.nameKo}>
+            <div key={f.id} className="gather-card gather-card--static gather-card--watermark" data-kr={f.nameKo}>
               <span className="gather-card__tag">{say(f.when, f.whenKo, f.whenEs, f.whenFr, f.whenAr, f.whenZh, f.whenJa)}</span>
               <h3>{say(f.name, f.nameKo, f.nameEs, f.nameFr, f.nameAr, f.nameZh, f.nameJa)} <span className="gather-card__kr">{f.nameKo}</span></h3>
               <p className="gather-card__desc">{say(f.blurb, f.blurbKo, f.blurbEs, f.blurbFr, f.blurbAr, f.blurbZh, f.blurbJa)}</p>

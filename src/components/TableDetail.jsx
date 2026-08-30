@@ -936,8 +936,26 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                   about the dish — this is one person telling another. */}
               {(s.diets ?? []).length > 0 && (
                 <span className="who-row__diet">
+                  {/* One element per diet, never one joined string.
+                      `${kr} · ${en}` is the bilingual-pair form LocaleFilter
+                      reduces, and it splits on the first ' · ' and keeps one
+                      side. Joined with ', ', two diets became the single
+                      string "비건 · Vegan, 할랄 · Halal" — which reduces to
+                      "Halal" in English and to "비건 · Vegan, 할랄" in
+                      Korean. A guest who told the host they were vegan *and*
+                      halal was shown to that host as halal: the app losing
+                      half of somebody's dietary needs, silently, on the
+                      screen where the host picks the restaurant.
+                      Each pair now gets its own text node and is reduced on
+                      its own. The ', ' separators hold no middot, so the
+                      filter leaves them alone. */}
                   {s.diets.map(d => dietById(d)).filter(Boolean)
-                    .map(d => `${d.kr} · ${d.en}`).join(', ')}
+                    .map((d, i) => (
+                      <React.Fragment key={d.id ?? d.en}>
+                        {i > 0 ? ', ' : ''}
+                        <span>{`${d.kr} · ${d.en}`}</span>
+                      </React.Fragment>
+                    ))}
                 </span>
               )}
               {/* Free text, so unlike diets above it the app cannot cross-check

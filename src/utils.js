@@ -14,7 +14,23 @@ export const MAP_CENTER = [37.5540, 126.9880];
 // they simply cannot be drawn or measured. `formatDistance` already returns
 // '' for a non-finite number, so the card degrades to no distance rather
 // than to NaN.
-export const coordsOf = (place) => place?.coordinates?.value ?? { lat: undefined, lng: undefined };
+// Two shapes reach this, because two different things are being modelled.
+// A curated place stores coordinates as a fact() — a value with a source, a
+// method and a date somebody checked it on. A register row has no
+// per-field provenance (the whole import carries one `reported` note), so
+// nearbyPlaces.asPlace hands over a bare `{ lat, lng }`.
+//
+// This read `.value` only, and asPlace's own doc comment still says
+// "coordsOf reads .coordinates" — true when it was written, and quietly
+// false ever since. The result: every one of the 8,118 register places
+// produced map links reading `,undefined,undefined`. Nothing failed, no test
+// noticed, and the links opened a map app pointed at nowhere.
+//
+// domain/policy/venue.js:mapLinksFor has always accepted both. This now
+// matches it rather than inventing a third convention.
+export const coordsOf = (place) => (
+  place?.coordinates?.value ?? place?.coordinates ?? { lat: undefined, lng: undefined }
+);
 
 export function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -176,9 +192,22 @@ export function getOpenStatus(hoursFact, now = new Date(), locale = 'both') {
   // is either a place that never opens or a week that was only half filled
   // in — both cases where the old "closed for today" is the honest answer.
   const nextOpenDay = () => {
-    for (let ahead = 1; ahead <= 7; ahead += 1) {
-      const day = weekly[DAY_KEYS[(now.getDay() + ahead) % 7]];
-      if (!day || day.length === 0) continue;
+    // Six, not seven: the seventh step lands back on today, and a place that
+    // opens only today would be reported as opening again today.
+    for (let ahead = 1; ahead <= 6; ahead += 1) {
+      const key = DAY_KEYS[(now.getDay() + ahead) % 7];
+      // A day absent from `weekly` is a day nobody recorded, and this
+      // function has refused to speak for those since it was written — three
+      // lines up it returns null rather than call today shut. Skipping an
+      // absent day here would have said the opposite out loud: ggot-epida
+      // leaves Wednesday out on purpose ("the one Wednesday on file opened
+      // at 17:00. A weekly rule from a single observation would be a
+      // guess"), and on a Tuesday evening the first draft of this loop
+      // announced `opens Thu 11:30 AM` — asserting a closure the record had
+      // deliberately declined to assert. Stop at the edge of what is known.
+      if (!(key in weekly)) return null;
+      const day = weekly[key];
+      if (!day || day.length === 0) continue;   // recorded as shut — keep looking
       const first = day
         .map(s => toMinutes(s.from))
         .filter(m => m != null)
@@ -238,7 +267,18 @@ export function todaysHours(hoursFact, now = new Date(), locale = 'both') {
   if (!weekly) return hoursFact.value.raw ?? null;
   const today = weekly[DAY_KEYS[now.getDay()]];
   if (!today) return null;
-  if (today.length === 0) return 'Closed today';   // eslint-disable-line -- see getOpenStatus for the translated pair
+  // This returned a bare English 'Closed today' with a lint suppression
+  // pointing at the translated pair in getOpenStatus — which is where the
+  // words already lived, so the comment named the fix and declined it. The
+  // detail sheets print the result straight under a Korean heading.
+  //
+  // Null rather than the translated phrase, because of where it lands. Both
+  // callers wrap it in the word "today" — RestaurantDetail.jsx:483 renders
+  // `(today {this})` — so a closed day read `(today closed today)`, and the
+  // status line beside it already said `Closed · opens Mon 11:30 AM`. This
+  // line exists to print the day's ranges; on a day with none, the honest
+  // number of words is zero.
+  if (today.length === 0) return null;
   return today.map(s => `${fromMinutes(toMinutes(s.from), locale)} – ${fromMinutes(toMinutes(s.to), locale)}`).join(', ');
 }
 

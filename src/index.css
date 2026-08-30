@@ -3035,11 +3035,37 @@ button {
 }
 /* Same watermark idea as the market cards: the Korean name gives these
    text-only cards a visual anchor. */
-.gather-card--kr {
+/* ── This was called .gather-card--watermark, and the name was the bug ──────────
+   Three lines below, LocaleFilter's stylesheet hides `[class$="-kr"]` in
+   every non-Korean locale. That selector is a suffix match on the WHOLE
+   class attribute, not on one class token, so a card whose attribute ended
+   `… gather-card--watermark` — then `… gather-card--watermark` — matched it, and
+   the entire card went display:none for every English, Spanish, French,
+   Arabic, Chinese and Japanese reader.
+
+   The Festival Picks rail rendered four cards and showed none of them: a
+   heading over nothing, which is how it was reported. Seasonal Foods had
+   the same bug and looked fine, because it appends ` is-highlighted` for a
+   dish that is in season and that pushed `--kr` off the end of the string —
+   so exactly one of its four cards was visible, and only during that dish's
+   months. A bug that repairs itself seasonally is not one anybody finds.
+
+   The rename is the fix rather than a `:not()` patch, because this is a
+   decorative modifier that never held a word of Korean; it was caught by a
+   language rule purely because of how its name ended. CSS has no
+   "class token ends with" selector, so patching the exception would leave
+   the trap armed for the next `--kr` modifier anybody writes.
+
+   The 5%-opacity Hangul watermark below now paints in English too. Kept:
+   .market-card__hit::before has drawn the same watermark from outside the
+   -kr namespace since it shipped, in every language, and at that opacity it
+   is texture rather than text. The name a reader needs is in the heading in
+   front of it. */
+.gather-card--watermark {
   position: relative;
   overflow: hidden;
 }
-.gather-card--kr::before {
+.gather-card--watermark::before {
   content: attr(data-kr);
   position: absolute;
   inset-inline-end: -4px;
@@ -3052,15 +3078,15 @@ button {
   pointer-events: none;
   white-space: nowrap;
 }
-.gather-card--kr.is-highlighted {
+.gather-card--watermark.is-highlighted {
   border-color: #C6F1DA;
   background: var(--green-tint);
 }
-.gather-card--kr.is-highlighted::before {
+.gather-card--watermark.is-highlighted::before {
   color: var(--green-ink);
   opacity: 0.09;
 }
-.gather-card--kr > * {
+.gather-card--watermark > * {
   position: relative;
 }
 

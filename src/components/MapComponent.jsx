@@ -3,9 +3,10 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import L from 'leaflet';
 import { MAP_CENTER, coordsOf, naverMapUrl, kakaoMapUrl } from '../utils';
 import { loadAllPlaces, placesInView, asPlace } from '../data/nearbyPlaces.js';
-import { isRegistryPlace, placeFromRegistry } from '../data/seoulRegistry.js';
+import { isRegistryPlace, placeFromRegistry, displayName } from '../data/seoulRegistry.js';
 import { DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
+import { tilesFor } from '../domain/policy/mapTiles.js';
 
 // Reports the map center upward after each pan/zoom so the list can re-sort by distance
 function CenterReporter({ onCenterChange }) {
@@ -131,14 +132,18 @@ function NearbyLayer({ onSelect }) {
  */
 function NearbyCard({ place, onClose, onDetails }) {
   const say = useText();
+  const locale = useLocale();
   if (!place) return null;
+  // The register row carries its own English name; a Korean reader still
+  // gets the sign. Before this the card said 말모아왕족발 to everybody.
+  const name = displayName(place, locale);
   const groups = groupsOf(place.d);
   const dishes = (place.d ?? []).map(d => DISH_KO[d]).filter(Boolean).join(' · ');
 
   return (
-    <div className="nearby-card" role="dialog" aria-label={place.n}>
+    <div className="nearby-card" role="dialog" aria-label={name}>
       <button className="nearby-card__close" onClick={onClose} aria-label={say('Close', '닫기', 'Cerrar', 'Fermer', 'إغلاق', '关闭', '閉じる')}>×</button>
-      <strong className="nearby-card__name" translate="no" data-no-locale>{place.n}</strong>
+      <strong className="nearby-card__name" translate="no" data-no-locale>{name}</strong>
 
       {/* Why this place is on the map at all: the dishes its own menu carries.
           Said on the card rather than left to the colour of the dot. */}
@@ -183,6 +188,9 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
   // Which register dot is open, if any. Held here rather than in the layer
   // because the card is drawn outside the map, over it.
   const [nearbySelected, setNearbySelected] = useState(null);
+  // One place decides the base map for every map in the app; see
+  // domain/policy/mapTiles.js for why it is still one provider.
+  const tiles = tilesFor(useLocale());
   useEffect(() => { if (!showNearby) setNearbySelected(null); }, [showNearby]);
 
   return (
@@ -190,10 +198,7 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
       <MapContainer center={MAP_CENTER} zoom={12} style={{ height: '100%', width: '100%' }} zoomControl={false}>
         {onCenterChange && <CenterReporter onCenterChange={onCenterChange} />}
         <ResizeSync />
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <TileLayer attribution={tiles.attribution} url={tiles.url} />
         {showNearby && <NearbyLayer onSelect={setNearbySelected} />}
         {/* The teardrop layer is the twenty curated places and nothing else.
             Since the register joined the same pool, this list arrives holding

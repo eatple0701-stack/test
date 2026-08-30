@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { restaurants } from '../../data/restaurants.js';
+import { asPlace } from '../../data/nearbyPlaces.js';
 import { isQuarantined } from '../../data/verification.js';
 import { getOpenStatus, todaysHours, directionsUrl, naverMapUrl, kakaoMapUrl, coordsOf } from '../../utils.js';
 
@@ -113,6 +114,80 @@ test('the look-ahead reads the record and never invents a day', () => {
   assert.ok(checked > 0, 'no place exercised the look-ahead — this test is asserting nothing');
 });
 
+test('the look-ahead stops at the edge of what the record knows', () => {
+  // ggot-epida omits Wednesday from `weekly` on purpose — restaurants.js
+  // says so on the line where it is missing: "the one Wednesday on file
+  // opened at 17:00. A weekly rule from a single observation would be a
+  // guess." getOpenStatus has always honoured that by returning null when
+  // *today* is the unrecorded day. The first draft of the look-ahead read
+  // straight past it and announced "opens Thu 11:30 AM" on a Tuesday
+  // evening, which asserts a Wednesday closure the record refuses to
+  // assert — the app inventing a fact out of a documented gap.
+  const NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  let exercised = 0;
+  for (const place of active) {
+    const weekly = place.hours?.value?.weekly;
+    if (!weekly) continue;
+    for (let day = 0; day < 7; day += 1) {
+      for (const hour of [7, 13, 23]) {
+        const status = getOpenStatus(place.hours, new Date(2026, 7, 30 + day, hour, 0), 'en');
+        const named = status?.detail?.match(/^opens (Sun|Mon|Tue|Wed|Thu|Fri|Sat) /)?.[1];
+        if (!named) continue;
+        const from = new Date(2026, 7, 30 + day).getDay();
+        const to = NAMES.indexOf(named);
+        // Every day it skipped over to get there had to be a day the record
+        // actually calls closed, not one it simply does not mention.
+        for (let ahead = 1; (from + ahead) % 7 !== to; ahead += 1) {
+          const key = KEYS[(from + ahead) % 7];
+          assert.ok(
+            key in weekly,
+            `${place.id}: sent to ${named} across ${key}, which its record does not record`,
+          );
+        }
+        exercised += 1;
+      }
+    }
+  }
+  assert.ok(exercised > 0, 'nothing reached the look-ahead — this test asserts nothing');
+});
+
+test('a place that opens only today is not told to come back today', () => {
+  // Seven steps forward lands on today again. A single-day schedule is the
+  // only shape that reaches the seventh step, so nothing in the real data
+  // exercises it and a fixture has to.
+  const mondayOnly = {
+    value: { raw: 'Mon only', weekly: { sun: [], mon: [{ from: '11:00', to: '20:00' }], tue: [], wed: [], thu: [], fri: [], sat: [] } },
+    confidence: 'confirmed', source: 'test', method: 'fixture', lastCheckedAt: '2026-08-31',
+  };
+  // Monday 2026-08-31, after closing.
+  const status = getOpenStatus(mondayOnly, new Date(2026, 7, 31, 22, 0), 'en');
+  assert.ok(status);
+  assert.doesNotMatch(status.detail, /opens Mon/, `wrapped round to today: ${status.detail}`);
+});
+
+test('a register place carries real coordinates into every map link', () => {
+  // asPlace emits a bare `{ lat, lng }` and coordsOf read only
+  // `.coordinates.value`, so all 8,118 register places produced links
+  // reading `,undefined,undefined`. Nothing failed and no test noticed:
+  // the links opened a map app pointed at nowhere.
+  const flat = { name: '말모아왕족발', coordinates: { lat: 37.56, lng: 126.98 } };
+  const fact = { name: 'Balwoo', coordinates: { value: { lat: 37.57, lng: 126.98 } } };
+  for (const [what, place] of [['register row', flat], ['curated fact', fact]]) {
+    const { lat, lng } = coordsOf(place);
+    assert.ok(Number.isFinite(lat) && Number.isFinite(lng), `${what}: coordsOf gave ${lat},${lng}`);
+    for (const url of [directionsUrl(place), naverMapUrl(place), kakaoMapUrl(place)]) {
+      assert.doesNotMatch(url, /undefined/, `${what}: ${url}`);
+      assert.ok(url.includes(String(lat)), `${what}: ${url}`);
+    }
+  }
+  // And the real thing, through the real converter.
+  const row = JSON.parse(src('public/data/seoul/Jongno.json')).rows.find(r => r.y !== undefined);
+  const place = asPlace(row);
+  assert.doesNotMatch(kakaoMapUrl(place), /undefined/);
+  assert.doesNotMatch(directionsUrl(place), /undefined/);
+});
+
 test('a place with no week to read still degrades to the old wording', () => {
   // One of the eighteen has a free-text `raw` range and no `weekly` map, and
   // three have no hours at all. Neither can be looked ahead, and neither may
@@ -175,5 +250,38 @@ test('the weekday table lines up with the keys the records are written under', (
   // Seven languages each, like every other phrase table in this file.
   for (const row of dayWord.split('\n').filter(l => /^\s{2}\['/.test(l))) {
     assert.equal((row.match(/'/g) || []).length / 2, 7, `a weekday row is short of a language: ${row.trim()}`);
+  }
+});
+
+test('every screen that prints hours tells the clock which language to use', () => {
+  // getOpenStatus and todaysHours both default to English, and both are
+  // called from four screens. Threading the locale through the function is
+  // half the job; the half a reader actually meets is the call site, and
+  // nothing asserted it — dropping the third argument put English times back
+  // under Korean headings with the whole suite still green. That is how the
+  // map row shipped `Open · closes 10:00 PM` to every reader for six weeks.
+  for (const [file, fns] of [
+    ['src/components/BottomSheetList.jsx', ['getOpenStatus']],
+    ['src/components/RestaurantDetail.jsx', ['getOpenStatus', 'todaysHours']],
+    ['src/components/RegistryPlaceSheet.jsx', ['getOpenStatus', 'todaysHours']],
+    ['src/components/PlaceCard.jsx', ['getOpenStatus']],
+  ]) {
+    const lines = src(file).split('\n');
+    for (const fn of fns) {
+      // Call sites, not the import: a call has an open paren after the name.
+      const calls = lines.filter(l => (
+        l.includes(`${fn}(`)
+        && !l.trimStart().startsWith('import')
+        && !l.trimStart().startsWith('//')      // a comment naming the function
+        && !l.trimStart().startsWith('*')
+      ));
+      assert.ok(calls.length > 0, `${file} never calls ${fn}`);
+      for (const line of calls) {
+        assert.match(
+          line, new RegExp(`${fn}\\(.*,\\s*locale\\s*\\)`),
+          `${file}: no locale passed — ${line.trim()}`,
+        );
+      }
+    }
   }
 });

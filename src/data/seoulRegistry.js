@@ -85,6 +85,47 @@ export const REGISTRY_PREFIX = 'seoul-';
 export const isRegistryPlace = (place) => String(place?.id ?? '').startsWith(REGISTRY_PREFIX);
 
 /**
+ * The sign, in the language of whoever is reading.
+ *
+ * ── Why this is a lookup and not a romaniser ─────────────────────────────
+ *
+ * In English the map list read 더플레이스다이닝 / 산채집 / 말모아왕족발 —
+ * a Korean-only name, a distance and an emoji, on 8,118 of the 8,136 places.
+ * The obvious fix is to transliterate the Hangul, and it is the wrong one:
+ * it produces "Deopeulleiseudaining", which is not a word in any language
+ * and is not what the sign says.
+ *
+ * 서울관광재단's multilingual menu dataset already holds the name somebody
+ * wrote in English for almost every one of them — "THE PLACE Dining",
+ * "Myeongdongttungttungi Jokbal", and for 박사네갈비 a real translation,
+ * "Park's BBQ", which no transliterator would ever produce. That file was
+ * already being parsed for menus, and column 6 was being read and discarded
+ * on every build. scripts/add-english-names.mjs keeps it now; 8,070 of the
+ * 8,118 have one.
+ *
+ * The 48 without keep their Korean name in every language, because a name
+ * we do not have is not a name to invent. `e` is absent rather than empty
+ * for those, the way every other unknown field in this file is absent.
+ *
+ * The Korean branch is the one worth checking in a test: English is the
+ * say() fallback, so a romanisation leaking to a Korean reader would look
+ * like a working screen to everybody who could tell.
+ *
+ * Takes either shape: a raw register row (`n`, `e`) or the place object
+ * built from one (`name`, `nameEn`). The map draws from rows and the list
+ * draws from places, and a name helper that only knew one of them would be
+ * correct on one screen and silently wrong on the other.
+ */
+export const displayName = (place, locale = 'both') => {
+  const korean = place?.n ?? place?.name;
+  const english = place?.e ?? place?.nameEn;
+  // `both` keeps the sign. It is the default and the screen the team
+  // reviews, and a register row's identity is what is written on the door.
+  if (locale === 'ko' || locale === 'both') return korean;
+  return english || korean;
+};
+
+/**
  * One register row as a place.
  *
  * Everything the app reads unconditionally is present — `traits` and
@@ -96,6 +137,14 @@ export function placeFromRegistry(row, builtAt = null) {
   return {
     id: `${REGISTRY_PREFIX}${row.i}`,
     name: row.n,
+    /**
+     * The register's own English name where it has one, carried alongside
+     * the Korean rather than replacing it — a Korean reader must still see
+     * 명동뚱뚱이족발. `reported`, like every other register field: it comes
+     * from a public dataset joined on name and 구, and nobody here has
+     * stood in front of the shopfront to check it.
+     */
+    nameEn: row.e ?? null,
     zone: zoneOf(address),
     category: CATEGORY[row.c] ?? 'local-seasonal',
     // Null rather than a record holding undefined. 2,953 rows have no

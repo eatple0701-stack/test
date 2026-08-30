@@ -3,6 +3,7 @@ import { ChevronLeftIcon, ClockIcon, MapPinIcon, CompassIcon, BowlIcon, MenuIcon
 import { useText, useLocale } from './localeText.js';
 import { DISH_KO, groupsOf } from '../domain/catalog/dishGroups.js';
 import { menusFor, menuName, menuPrice, formatWon } from '../data/seoulMenus.js';
+import { displayName } from '../data/seoulRegistry.js';
 import { tableCtaFor, mapLinksFor } from '../domain/policy/venue.js';
 import { getOpenStatus, todaysHours, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
 
@@ -67,7 +68,7 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
         </button>
-        <h1 className="dish-sheet__title" translate="no" data-no-locale>{restaurant.name}</h1>
+        <h1 className="dish-sheet__title" translate="no" data-no-locale>{displayName(restaurant, locale)}</h1>
       </header>
 
       <div className="registry-sheet__body">
