@@ -231,7 +231,7 @@ function RestaurantDetailInner({
   const mapLinks = mapLinksFor(restaurant);
   const transit = transitLine(restaurant);
   const status = getOpenStatus(restaurant.hours, new Date(), locale);
-  const today = todaysHours(restaurant.hours);
+  const today = todaysHours(restaurant.hours, new Date(), locale);
   const culture = getCulture(restaurant);
   const coords = coordsOf(restaurant);
   const distance = mapCenter

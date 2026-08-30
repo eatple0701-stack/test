@@ -54,7 +54,7 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
   const cta = tableCtaFor(restaurant, locale);
   const mapLinks = mapLinksFor(restaurant);
   const status = getOpenStatus(restaurant.hours, new Date(), locale);
-  const today = todaysHours(restaurant.hours);
+  const today = todaysHours(restaurant.hours, new Date(), locale);
   const coords = coordsOf(restaurant);
   const dishes = restaurant.registry?.dishes ?? [];
   const groups = groupsOf(dishes);

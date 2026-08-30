@@ -48,11 +48,32 @@ function toMinutes(str) {
   return h24 ? parseInt(h24[1], 10) * 60 + parseInt(h24[2], 10) : null;
 }
 
-const fromMinutes = (mins) => {
+// A clock time, written the way the reader's language writes one.
+//
+// This used to return `11:30 AM` to everybody. The map row never passed a
+// locale to getOpenStatus, so the whole hours line came out in English and
+// the `AM` was invisible among the rest of it. The moment the row started
+// translating, the Korean read `월 11:30 AM 영업 시작` — Korean sentence,
+// English clock. Fixing the outer sentence is what exposed the inner one.
+//
+// Spanish, French and Arabic get a 24-hour clock, which is what those
+// languages use for opening times and which sidesteps translating a
+// meridiem. Korean, Chinese and Japanese put theirs in front, as they do.
+const MERIDIEM = {
+  ko: ['오전', '오후'],
+  zh: ['上午', '下午'],
+  ja: ['午前', '午後'],
+};
+const fromMinutes = (mins, locale = 'both') => {
   const h = Math.floor(mins / 60);
   const m = String(mins % 60).padStart(2, '0');
-  const suffix = h < 12 ? 'AM' : 'PM';
-  return `${((h + 11) % 12) + 1}:${m} ${suffix}`;
+  if (locale === 'es' || locale === 'fr' || locale === 'ar') {
+    return `${String(h).padStart(2, '0')}:${m}`;
+  }
+  const twelve = ((h + 11) % 12) + 1;
+  const words = MERIDIEM[locale];
+  if (words) return `${words[h < 12 ? 0 : 1]} ${twelve}:${m}`;
+  return `${twelve}:${m} ${h < 12 ? 'AM' : 'PM'}`;
 };
 
 // Fall back to reading a free-text range like "11:30 AM – 9:30 PM". Only used
@@ -81,9 +102,35 @@ const HOURS_WORD = {
   Open: ['Open', '영업 중', 'Abierto', 'Ouvert', 'مفتوح', '营业中', '営業中'],
   Closed: ['Closed', '영업 종료', 'Cerrado', 'Fermé', 'مغلق', '已打烊', '営業終了'],
 };
+// Weekday names, short, indexed the way Date#getDay() counts — Sunday first,
+// matching DAY_KEYS above so the two can never drift out of step.
+const DAY_WORD = [
+  ['Sun', '일', 'dom', 'dim', 'الأحد', '周日', '日'],
+  ['Mon', '월', 'lun', 'lun', 'الاثنين', '周一', '月'],
+  ['Tue', '화', 'mar', 'mar', 'الثلاثاء', '周二', '火'],
+  ['Wed', '수', 'mié', 'mer', 'الأربعاء', '周三', '水'],
+  ['Thu', '목', 'jue', 'jeu', 'الخميس', '周四', '木'],
+  ['Fri', '금', 'vie', 'ven', 'الجمعة', '周五', '金'],
+  ['Sat', '토', 'sáb', 'sam', 'السبت', '周六', '土'],
+];
+
 const hoursPhrase = {
   closedToday: ['closed today', '오늘 휴무', 'cerrado hoy', "fermé aujourd'hui", 'مغلق اليوم', '今天休息', '本日休み'],
   closedForToday: ['closed for today', '오늘 영업 종료', 'cerrado por hoy', "fermé pour aujourd'hui", 'انتهى دوام اليوم', '今天已打烊', '本日は終了'],
+  // The two above are what this function used to end on, and the reason it
+  // now rarely does. `Closed · closed for today` says closed twice and leaves
+  // a reader who opened the app at 11pm — which is exactly when somebody
+  // plans tomorrow's lunch — with nothing to act on. Where the record holds a
+  // week, the next actual opening is known, so say that instead.
+  opensOn: (day, t) => [
+    `opens ${day} ${t}`,
+    `${day} ${t} 영업 시작`,
+    `abre el ${day} a las ${t}`,
+    `ouvre ${day} à ${t}`,
+    `يفتح ${day} ${t}`,
+    `${day} ${t} 开门`,
+    `${day} ${t} 開店`,
+  ],
   until: (t) => [`until ${t}`, `${t}까지`, `hasta las ${t}`, `jusqu'à ${t}`, `حتى ${t}`, `到 ${t}`, `${t}まで`],
   untilLastOrder: (t, lo) => [
     `until ${t} · last order ${lo}`,
@@ -124,7 +171,35 @@ export function getOpenStatus(hoursFact, now = new Date(), locale = 'both') {
   const today = weekly[DAY_KEYS[now.getDay()]];
   if (!today) return null; // day not recorded — say nothing
 
-  if (today.length === 0) return { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.closedToday, locale) };
+  // The next time this place actually opens, looking forward from tomorrow.
+  // Returns null when the record holds no open slot in the coming week, which
+  // is either a place that never opens or a week that was only half filled
+  // in — both cases where the old "closed for today" is the honest answer.
+  const nextOpenDay = () => {
+    for (let ahead = 1; ahead <= 7; ahead += 1) {
+      const day = weekly[DAY_KEYS[(now.getDay() + ahead) % 7]];
+      if (!day || day.length === 0) continue;
+      const first = day
+        .map(s => toMinutes(s.from))
+        .filter(m => m != null)
+        .sort((a, b) => a - b)[0];
+      if (first == null) continue;
+      return { dayIndex: (now.getDay() + ahead) % 7, at: fromMinutes(first, locale) };
+    }
+    return null;
+  };
+  const closedUntilNextOpening = (fallback) => {
+    const next = nextOpenDay();
+    return {
+      open: false,
+      label: pickWord(HOURS_WORD.Closed, locale),
+      detail: next
+        ? pickWord(hoursPhrase.opensOn(pickWord(DAY_WORD[next.dayIndex], locale), next.at), locale)
+        : pickWord(fallback, locale),
+    };
+  };
+
+  if (today.length === 0) return closedUntilNextOpening(hoursPhrase.closedToday);
 
   for (const slot of today) {
     const from = toMinutes(slot.from);
@@ -135,14 +210,14 @@ export function getOpenStatus(hoursFact, now = new Date(), locale = 'both') {
       // Once last order has passed, "open until close" would mislead someone
       // deciding whether it's worth the trip.
       if (lo != null && cur >= lo) {
-        return { open: true, label: pickWord(HOURS_WORD.Open, locale), detail: pickWord(hoursPhrase.lastOrderPassed(fromMinutes(to)), locale) };
+        return { open: true, label: pickWord(HOURS_WORD.Open, locale), detail: pickWord(hoursPhrase.lastOrderPassed(fromMinutes(to, locale)), locale) };
       }
       return {
         open: true,
         label: pickWord(HOURS_WORD.Open, locale),
         detail: slot.lastOrder
-          ? pickWord(hoursPhrase.untilLastOrder(fromMinutes(to), fromMinutes(lo)), locale)
-          : pickWord(hoursPhrase.until(fromMinutes(to)), locale),
+          ? pickWord(hoursPhrase.untilLastOrder(fromMinutes(to, locale), fromMinutes(lo, locale)), locale)
+          : pickWord(hoursPhrase.until(fromMinutes(to, locale)), locale),
       };
     }
   }
@@ -152,19 +227,19 @@ export function getOpenStatus(hoursFact, now = new Date(), locale = 'both') {
     .filter(m => m != null && m > cur)
     .sort((a, b) => a - b)[0];
   return next != null
-    ? { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.opens(fromMinutes(next)), locale) }
-    : { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.closedForToday, locale) };
+    ? { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.opens(fromMinutes(next, locale)), locale) }
+    : closedUntilNextOpening(hoursPhrase.closedForToday);
 }
 
 /** Today's printed hours, e.g. "11:30 AM – 3:00 PM, 6:00 PM – 8:20 PM". */
-export function todaysHours(hoursFact, now = new Date()) {
+export function todaysHours(hoursFact, now = new Date(), locale = 'both') {
   if (!isKnown(hoursFact)) return null;
   const { weekly } = hoursFact.value;
   if (!weekly) return hoursFact.value.raw ?? null;
   const today = weekly[DAY_KEYS[now.getDay()]];
   if (!today) return null;
   if (today.length === 0) return 'Closed today';   // eslint-disable-line -- see getOpenStatus for the translated pair
-  return today.map(s => `${fromMinutes(toMinutes(s.from))} – ${fromMinutes(toMinutes(s.to))}`).join(', ');
+  return today.map(s => `${fromMinutes(toMinutes(s.from), locale)} – ${fromMinutes(toMinutes(s.to), locale)}`).join(', ');
 }
 
 // A directions deep link into Google Maps. With an origin (the current map
@@ -184,7 +259,19 @@ export function directionsUrl(place, origin = null) {
     });
     return `https://www.google.com/maps/dir/?${params}`;
   }
-  return `https://www.google.com/maps/search/?api=1&query=${destination}`;
+  // Without an origin this used to return a *search* URL. Opened on
+  // 2026-08-30 it produced a page titled 37°34'25.8"N 126°58'59.6"E with a
+  // plus code and nothing else — the right patch of ground, no restaurant,
+  // no route. The directions form with the same coordinate returns three
+  // live transit options instead, which is what a button labelled Directions
+  // was promising. Google fills the origin in from the device.
+  //
+  // The destination stays a coordinate in both branches, deliberately. The
+  // obvious alternative is to search Google for the restaurant's name, and
+  // that resolves beautifully for 발우공양 and lands somewhere else entirely
+  // for a name like 말모아왕족발. Our coordinates were checked against Naver
+  // and Kakao on a recorded date; a name search is checked against nothing.
+  return `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
 }
 
 export function naverMapUrl(place, origin = null) {
@@ -193,12 +280,31 @@ export function naverMapUrl(place, origin = null) {
   if (origin && Number.isFinite(origin[0]) && Number.isFinite(origin[1])) {
     return `https://map.naver.com/p/directions/${origin[1]},${origin[0]},Origin/${lng},${lat},${name}/-/transit?c=15,0,0,0,dh`;
   }
-  return `https://map.naver.com/p/search/${name}?c=15,0,0,0,dh`;
+  // Same destination, origin left for Naver to fill in. The previous
+  // fallback searched Naver for `place.name` — which is written
+  // "Balwoo Gongyang (발우공양)", brackets and all, so the query Naver
+  // actually received was `Balwoo%20Gongyang%20(발우공양)`. A search string
+  // decides which restaurant you get; a coordinate does not.
+  return `https://map.naver.com/p/directions/-/${lng},${lat},${name}/-/transit?c=15,0,0,0,dh`;
 }
 
 // `_origin` is accepted and ignored, unlike the two above, so all three can be
 // called the same way. Kakao's link/to/ format has no origin parameter — the
 // app works the starting point out itself — so there is nothing to pass on.
+//
+// ── Known not to work in a desktop browser ───────────────────────────────
+//
+// Opened on 2026-08-30 in a desktop browser, map.kakao.com/link/to/… landed
+// on Kakao's directions page with the destination field *empty*, for both a
+// Korean name and a plain ASCII one; link/map/… landed on a plain map
+// centred on the viewer's own location. The coordinate never arrives.
+//
+// This is the documented format and it is the mobile-app URL scheme, so the
+// likely reading is that it works on a phone — where this app's users are —
+// and degrades to nothing on a laptop. Likely is not verified, and it has
+// not been tested on a phone. Left exactly as it is rather than replaced
+// with a second unverified format: a guess that also fails is not progress,
+// and the Google button next to it does work. See docs/next-work-order.md.
 export function kakaoMapUrl(place, _origin = null) {
   const { lat, lng } = coordsOf(place);
   const name = encodeURIComponent(place.name);
