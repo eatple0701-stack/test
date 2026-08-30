@@ -157,11 +157,11 @@ git clone https://github.com/eatple0701-stack/test.git
 cd test
 npm install
 git config core.hooksPath .githooks   # 잘못된 레포로 푸시 방지
-npm test                              # 579개 통과하면 정상
+npm test                              # 596개 통과하면 정상
 npm run dev                           # 5177 포트
 ```
 비밀정보 없이 전부 돌아갑니다 — 데이터가 레포에 들어 있어서요. 검증 완료
-(2026-08-22, 새 클론에서 579개 통과·감사 0건·빌드 성공).
+(2026-08-22, 새 클론에서 전부 통과·감사 0건·빌드 성공).
 푸시할 때만 팀 GitHub 계정 로그인이 필요합니다 (`gh auth login`).
 
 **강민님 개인 계정 (지금 이 환경)**

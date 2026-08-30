@@ -26,6 +26,19 @@
 // have neither, and src/data/seoulRegistry.js is where that difference is
 // made structural rather than remembered.
 
+/**
+ * How many register places the map holds, across all 25 districts.
+ *
+ * Written here rather than counted at render time because the screen that
+ * needs it — the Places header, saying what the eighteen curated places are
+ * eighteen *of* — draws before any district has been fetched, and a heading
+ * that starts at 0 and jumps to 8,118 is worse than one that is simply
+ * right. It is the sum of `count` over public/data/seoul/index.json, and
+ * registryTotal.test.mjs fails if the two ever drift, so this is a cache of
+ * the data rather than a second claim about it.
+ */
+export const REGISTRY_TOTAL = 8118;
+
 /** The index: districts, their boxes, their counts. Tiny, fetched once. */
 let indexPromise = null;
 

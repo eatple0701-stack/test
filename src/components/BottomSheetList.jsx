@@ -5,15 +5,20 @@ import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf } f
 import { dietaryBadges } from '../data/verification';
 import { isRegistryPlace } from '../data/seoulRegistry.js';
 import { groupsOf } from '../domain/catalog/dishGroups.js';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
 
 // The traits that make up the sustainability axis (see TRAIT_GROUPS in App).
 const SUSTAINABILITY_TRAITS = ['Zero-waste', 'Local Sourcing'];
 
 function PlaceCard({ place, bookmarked, onOpen, onToggleBookmark, onReadStory, lens, mapCenter }) {
   const say = useText();
+  const locale = useLocale();
   const name = place.name.split('(')[0].trim();
-  const status = getOpenStatus(place.hours);
+  // getOpenStatus translates its own words, but only when it is told which
+  // language to use. It was not, so every reader saw `Open · closes 10:00 PM`
+  // in English whatever the setting said — the failure mode the i18n audit
+  // cannot see, because the Korean was never a string in a table to miss.
+  const status = getOpenStatus(place.hours, new Date(), locale);
   // Dietary badges say exactly what we know ("Vegan options" ≠ "Fully vegan");
   // traits are descriptive. Cards stay scannable, so cap the list.
   //

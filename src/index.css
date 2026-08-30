@@ -3117,10 +3117,45 @@ button {
 
 /* PlaceCard — shared card for Popular / Hidden Gems / Weekend Picks /
    Related Foods. Two sibling buttons (hit area + save), never nested,
-   so it stays valid, keyboard-reachable markup. */
+   so it stays valid, keyboard-reachable markup.
+
+   ── Why this needs its own modifier ──────────────────────────────────────
+
+   `.place-card` is declared twice in this file, ~2500 lines apart: once for
+   the map's list row (a two-column grid, media | body) and once here. This
+   block set position and flex but never `display`, so a browse card has
+   been quietly inheriting `display: grid; grid-template-columns: 112px 1fr`
+   from the map row's rule the whole time. It looked fine only because the
+   card had exactly one child in normal flow — the hit area — and the save
+   button is absolutely positioned out of it.
+
+   Adding a Directions link put a second child in flow, and it went into the
+   grid's second column: the link rendered *beside* the card, and the card
+   grew from 160px to 246px to hold it. Nothing about the JSX was wrong.
+
+   So the browse card now names its own layout instead of inheriting one by
+   accident. The modifier is on the root rather than a rewrite of the shared
+   class because every other rule in this file keyed to `.place-card__hit`,
+   `__save`, `__tag` and `__zone` is correct as it stands. */
 .place-card {
   position: relative;
   flex: 0 0 160px;
+}
+.place-card--browse {
+  display: flex;
+  flex-direction: column;
+  /* 160px wrapped "Balwoo Gongyang" onto two lines before this card carried
+     an opening time. Wide enough for the name, still narrow enough that the
+     second card is visibly cut off at 375px, which is what tells a reader
+     the row scrolls. */
+  flex: 0 0 184px;
+}
+/* Blurbs run to one or two lines, so without this the Directions button sits
+   at a different height on every card in the row and the eye has to hunt for
+   it. The row stretches the cards to equal height already; this makes the
+   body absorb the difference so the button lands on one line across them. */
+.place-card--browse .place-card__hit {
+  flex: 1;
 }
 .place-card__hit {
   display: flex;
@@ -3177,6 +3212,127 @@ button {
   font-size: 12px;
   color: var(--muted);
 }
+/* ── City, said out loud ──────────────────────────────────────────────────
+   'Songdo, Incheon' and 'Insadong, Seoul' are the same shape, the same grey
+   and the same size, so a reader who does not already know Korean geography
+   cannot see that one of them is an hour away. The chip is the city pulled
+   out of that line and given a colour of its own: Seoul in the app's green,
+   Incheon in a blue that is plainly a different thing rather than a warning.
+   The zone line under it keeps the full string — nothing is taken away, one
+   part of it is made findable. */
+.city-chip {
+  align-self: flex-start;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  background: var(--fill);
+  color: var(--muted);
+}
+/* Seoul is deliberately the quiet one. The chip exists to answer "is this
+   the city I am staying in, or the one an hour away", and eleven of the
+   eighteen places are in Seoul — so making Seoul loud spends the reader's
+   attention on the answer they were already assuming. It also stopped the
+   spotlight card rendering two green pills in a row, the chip and the zone
+   tag saying Seoul twice in the same colour. */
+.city-chip--seoul {
+  background: var(--fill);
+  color: var(--muted-strong, var(--muted));
+}
+.city-chip--incheon {
+  background: #E7F0FE;
+  color: #1B4E8F;
+}
+:root[data-theme="dark"] .city-chip--incheon {
+  background: rgba(59, 130, 246, 0.18);
+  color: #A9C9F5;
+}
+
+/* Today's card puts the chip and the neighbourhood on one line, because the
+   card is wide enough for both and stacking them would push the name down. */
+.spotlight-card__where {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Whether you can go now — the one fact that decides a browse. Same words
+   and same two colours as the map row, because it is the same function
+   producing them. */
+.place-card__open {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.place-card__open-detail {
+  color: var(--muted);
+}
+
+/* A sibling of the card's hit area, not a child: a button inside a button is
+   markup browsers disagree about, and this card has already been through
+   that once. Full width under the card so a sideways flick through the rail
+   does not land on it. */
+.place-card__go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-body);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.place-card__go:hover {
+  border-color: var(--line-hover);
+  color: var(--ink);
+}
+
+/* ── City filter ─────────────────────────────────────────────────────────
+   Above every rail, because a reader who cannot get to Incheon should be
+   able to say so before they have read four cards about it. */
+.city-filter {
+  display: flex;
+  gap: 8px;
+  padding: 2px 20px 8px;
+  margin-bottom: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.city-filter::-webkit-scrollbar { display: none; }
+.city-filter__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.city-filter__chip.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+.city-filter__count {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
 .place-card__blurb {
   font-size: 12px;
   color: var(--ink-body);
@@ -6719,6 +6875,17 @@ button {
   font-size: 13px;
   line-height: 1.5;
   color: var(--muted);
+}
+/* The second sentence of a two-number heading: what the eighteen curated
+   places are eighteen *of*. Quieter than the sub, because it is the caveat
+   and not the claim, but on the same screen — the whole point is that the
+   two numbers stop being one screen apart. */
+.screen-head__note {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  opacity: 0.85;
 }
 
 .screen-head--dark {
