@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { tilesFor, INTL, TILE_PROVIDERS } from '../policy/mapTiles.js';
+import { tilesFor, INTL, TILE_PROVIDERS, OPEN_FREE_MAP } from '../policy/mapTiles.js';
 import { LOCALES } from '../policy/locale.js';
 
 // The base map, and the one thing this file is really guarding.
@@ -100,5 +100,40 @@ test('the credit string the audit exempts is the one the app renders', () => {
       audit.includes(`'${p.credit}'`),
       `${p.credit} is not exempt in audit-i18n.mjs — the audit will flag it`,
     );
+  }
+});
+
+test('the OpenFreeMap entry is complete enough to switch on in one line', () => {
+  // It was verified and then deliberately not enabled: it needs MapLibre GL,
+  // which is +230KB gzipped on a 493KB bundle. Everything needed to flip it
+  // is here so that decision is a decision and not a research project.
+  assert.ok(OPEN_FREE_MAP.style.startsWith('https://tiles.openfreemap.org/'));
+  assert.ok(OPEN_FREE_MAP.attribution.includes('OpenFreeMap'), 'the required attribution string is gone');
+  assert.ok(OPEN_FREE_MAP.attribution.includes('OpenMapTiles'), 'the required attribution string is incomplete');
+  assert.equal(OPEN_FREE_MAP.vector, true, 'a vector provider must say so — it needs a different layer type');
+  assert.equal(OPEN_FREE_MAP.labelsInEnglish, true);
+
+  const src = read('src/domain/policy/mapTiles.js');
+  // The three findings that stop somebody re-deriving them, and the number
+  // that is the actual reason it is off.
+  assert.match(src, /name:latin/, 'the label expression finding is gone');
+  assert.match(src, /never key off it|never key off/, 'the name_en trap is not recorded');
+  assert.match(src, /493 KB gzipped/, 'the measured bundle cost is gone');
+  assert.match(src, /jawg/i, 'the fallback provider is not recorded');
+});
+
+test('switching provider stays a one-line change', () => {
+  // If INTL is ever filled in, everything downstream must already work: the
+  // whole point of this module is that four components do not each need
+  // editing. A vector provider is the one case that needs more than a URL,
+  // so it has to be impossible to set quietly.
+  if (INTL === null) return;
+  assert.ok(INTL.attribution && INTL.credit, 'a filled-in provider needs attribution and a short credit');
+  if (INTL.vector) {
+    const files = ['src/components/MapComponent.jsx', 'src/components/PlacePicker.jsx', 'src/components/TablesMap.jsx'];
+    for (const f of files) {
+      assert.match(read(f), /maplibre|MaplibreGL/i,
+        `${f} still renders a raster TileLayer, but INTL is a vector style — this map would go blank`);
+    }
   }
 });

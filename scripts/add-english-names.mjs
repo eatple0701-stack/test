@@ -119,6 +119,55 @@ for (const [k, csvIds] of csvIdsByKey) {
 
 // ── The English name, off the English file ───────────────────────────────
 
+// ── The loanword slips, corrected ────────────────────────────────────────
+//
+// 셰프 is the English word "chef" written in Hangul. Transliterated back
+// syllable by syllable it comes out "syepeu", so 한상훈 셰프 was shipping as
+// "Hansang Hunsyepeu". A reviewer found that one by eye within seconds of
+// opening the map.
+//
+// The instinct is that this must be everywhere — Korean restaurant names are
+// full of 카페, 키친, 치킨, 하우스 — and a fifty-word dictionary is the fix.
+// Measured, it is 18 names out of 8,070, 0.22%. The reason is that these
+// names were written by a person at 서울관광재단, not by a machine: they wrote
+// "Cafe" for 카페 20 times out of 20, "Kitchen" for 키친 23 out of 23,
+// "Sushi" 21 out of 21. Where the loanword survived it is that one person
+// slipping on a word, not a systematic transliteration bug — there is no
+// transliterator here to fix.
+//
+// So this is a correction list of what was actually observed, not a
+// dictionary written against an imagined problem. Applied only when the
+// Korean name contains the matching Hangul, so it cannot mangle a name that
+// happens to contain the letters.
+//
+// What it deliberately does not touch: 한상훈 is Han Sang-hoon and the
+// register split it "Hansang Hun". Word boundaries in a Korean personal name
+// are not recoverable by rule — 한상 is also a word — and guessing would
+// rename somebody. That half stays wrong and visible.
+// A fifth rule for 홀 → Hall was written and deleted before this shipped:
+// it rewrote 민들레홀씨 to "Mindeulle Hol-ssi", and 홀씨 is not the English
+// word "hall" at all — it is the Korean for a spore, 민들레 홀씨 being a
+// dandelion seed. "Mindeulleholssi" was correct romanisation and the rule
+// broke it. That is what a dictionary written against an imagined problem
+// does, and it is the argument for keeping this list to slips somebody has
+// actually seen on screen.
+const LOANWORD_FIXES = [
+  [/셰프/, /syepeu/gi, 'Chef'],
+  [/비스트로/, /biseuteuro/gi, 'Bistro'],
+];
+
+const fixLoanwords = (korean, english) => {
+  let out = english;
+  for (const [koRe, badRe, word] of LOANWORD_FIXES) {
+    if (!koRe.test(korean)) continue;
+    // Spaced, not spliced. Substituting in place turned 변두리비스트로 into
+    // "ByeonduriBistro" and 한상훈 셰프 into "Hansang HunChef" — a
+    // correction that needs its own correction.
+    out = out.replace(badRe, ` ${word} `);
+  }
+  return out.replace(/\s+/g, ' ').trim();
+};
+
 const LATIN = /[A-Za-z]/;
 const nameOfApi = new Map();
 await eachRow(FILES.en, (f) => {
@@ -132,12 +181,17 @@ await eachRow(FILES.en, (f) => {
   // otherwise would put the residue count at zero while changing nothing on
   // screen.
   if (!name || !LATIN.test(name)) return;
-  nameOfApi.set(apiId, branch && LATIN.test(branch) ? `${name} ${branch}` : name);
+  nameOfApi.set(apiId, { name, branch });
 });
+
+// The Korean name is needed to decide whether a loanword fix applies, and it
+// lives on the shipped row rather than in this file, so the correction runs
+// at write time below.
 
 // ── Write ────────────────────────────────────────────────────────────────
 
 let named = 0;
+let corrected = 0;
 let bytesBefore = 0;
 let bytesAfter = 0;
 for (const d of index.districts) {
@@ -146,8 +200,13 @@ for (const d of index.districts) {
   bytesBefore += Buffer.byteLength(before);
   const data = JSON.parse(before);
   for (const r of data.rows) {
-    const en = nameOfApi.get(r.i);
-    if (en) { r.e = en; named += 1; } else delete r.e;
+    const hit = nameOfApi.get(r.i);
+    if (!hit) { delete r.e; continue; }
+    const full = hit.branch && LATIN.test(hit.branch) ? `${hit.name} ${hit.branch}` : hit.name;
+    const fixed = fixLoanwords(r.n, full);
+    if (fixed !== full) corrected += 1;
+    r.e = fixed;
+    named += 1;
   }
   const after = JSON.stringify(data);
   bytesAfter += Buffer.byteLength(after);
@@ -159,15 +218,22 @@ console.log(`shipped places   ${shipped}`);
 console.log(`csv↔api resolved ${apiOfCsv.size}  (dropped as ambiguous: ${ambiguous})`);
 console.log(`english names    ${named}  ${pct(named)}`);
 console.log(`without one      ${shipped - named}  ${pct(shipped - named)}`);
+console.log(`loanwords fixed  ${corrected}`);
 console.log(`district bytes   ${(bytesBefore / 1024).toFixed(0)}KB → ${(bytesAfter / 1024).toFixed(0)}KB`);
 if (DRY) console.log('\n(--dry: nothing written)');
 
-const sample = [...nameOfApi].slice(0, 6);
-if (sample.length) {
-  const byId = new Map();
-  for (const d of index.districts) {
-    for (const r of JSON.parse(fs.readFileSync(path.join(DIR, `${d.slug}.json`), 'utf8')).rows) byId.set(r.i, r.n);
+// Read back off the files that were just written, so what is printed is what
+// shipped rather than what was in memory before the corrections ran.
+const written = [];
+const fixedRows = [];
+for (const d of index.districts) {
+  for (const r of JSON.parse(fs.readFileSync(path.join(DIR, `${d.slug}.json`), 'utf8')).rows) {
+    if (!r.e) continue;
+    if (written.length < 6) written.push(`${r.n} → ${r.e}`);
+    for (const [koRe] of LOANWORD_FIXES) {
+      if (koRe.test(r.n)) { fixedRows.push(`${r.n} → ${r.e}`); break; }
+    }
   }
-  console.log('\nsample:');
-  for (const [id, en] of sample) console.log(`  ${byId.get(id)} → ${en}`);
 }
+if (written.length) console.log(`\nsample:\n  ${written.join('\n  ')}`);
+if (fixedRows.length) console.log(`\nnames a loanword rule touched:\n  ${fixedRows.slice(0, 12).join('\n  ')}`);

@@ -58,6 +58,16 @@ export const CheckIcon = ({ size = 20 }) => (
   </svg>
 );
 
+// Two overlapping sheets. Used on the block a traveller holds up to a taxi
+// driver, where the copy button is the difference between reading Hangul
+// aloud and handing over a phone.
+export const CopyIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+    <rect x="9" y="9" width="11" height="11" rx="2" />
+    <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+  </svg>
+);
+
 export const XIcon = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
     <path d="m6 6 12 12M18 6 6 18" />

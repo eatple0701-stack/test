@@ -65,10 +65,73 @@ export const tilesFor = (locale) => (
   locale === LOCALE.KO || locale === LOCALE.BOTH ? OSM : (INTL ?? OSM)
 );
 
+// ── OpenFreeMap: found, verified, and not switched on ───────────────────
+//
+// A research pass on 2026-08-31 turned up the one provider the list above
+// missed, and it is genuinely free: no key, no account, no card, no request
+// cap, commercial use allowed. Checked here rather than taken on trust:
+//
+//   https://tiles.openfreemap.org/styles/liberty   HTTP 200, 43KB, 111 layers
+//
+// Its 23 label layers all carry the same expression, and it is exactly the
+// one wanted — no language parameter needed, because the style already
+// stacks Latin above the local script:
+//
+//   ["case", ["has", "name:nonlatin"],
+//     ["concat", ["get","name:latin"], "\n", ["get","name:nonlatin"]],
+//     ["coalesce", ["get","name_en"], …]]
+//
+// Two things follow from reading that expression rather than the docs.
+// `name_en` is only in the *else* branch, so branching on it silently gets
+// the Hangul back — never key off it. And when `name:latin` is missing the
+// concat still runs, so the label renders as an empty line above the
+// Hangul; roughly a fifth to a quarter of central Seoul POIs have
+// `name:latin`, which is an OpenStreetMap ceiling that no OSM-derived
+// provider escapes. That last part matters less here than it would
+// elsewhere, because this app draws restaurant labels from its own data —
+// see displayName in data/seoulRegistry.js, and the 8,070 English names
+// behind it.
+//
+// ── Why it is still null ─────────────────────────────────────────────────
+//
+// OpenFreeMap serves vector tiles, so it needs MapLibre GL and
+// maplibre-gl-leaflet. Measured on this build:
+//
+//   app bundle today          493 KB gzipped
+//   maplibre-gl adds        ~230 KB gzipped
+//   after                   ~723 KB gzipped   (+47%)
+//
+// That is a 47% increase on a mobile-first PWA, plus a WebGL requirement
+// where there is currently none, landing mid-pilot on testers' own phones,
+// in exchange for Latin labels on the minority of base-map features that
+// have them. It is a plausible trade and it is not one to make quietly, so
+// the number is written down and the switch is left off.
+//
+// To turn it on: npm i maplibre-gl maplibre-gl-leaflet, replace the four
+// TileLayers with the GL layer, and set INTL to the object below. Nothing
+// else in the app needs to change, which is the whole reason this file
+// exists.
+export const OPEN_FREE_MAP = {
+  id: 'openfreemap-liberty',
+  style: 'https://tiles.openfreemap.org/styles/liberty',
+  // Required. OpenFreeMap asks for this string specifically.
+  attribution: 'OpenFreeMap © OpenMapTiles Data from OpenStreetMap',
+  credit: '© OpenFreeMap',
+  labelsInEnglish: true,
+  vector: true,
+};
+
+// Jawg, if OpenFreeMap wobbles. It is donation-funded with no SLA, which is
+// the one argument against it that money cannot answer. Jawg is raster, so
+// it is a one-line URL swap with no new dependency — but it needs a key:
+//   https://tile.jawg.io/jawg-streets/{z}/{x}/{y}.png?access-token=…&lang=en
+// Unverified: nobody here has looked at a Jawg tile of Seoul.
+
 /**
- * The English-labelled provider, once there is one. Null is not a gap left
- * by accident — see the list above. `tilesFor` falls back to OSM, so the map
- * keeps working exactly as it does today until this is filled in.
+ * The English-labelled provider actually in use, or null. Null is not a gap
+ * left by accident — see OPEN_FREE_MAP above for the one that is ready and
+ * the number that is holding it. `tilesFor` falls back to OSM, so the map
+ * keeps working exactly as it does today.
  */
 export const INTL = null;
 

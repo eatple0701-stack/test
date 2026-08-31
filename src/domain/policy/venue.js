@@ -138,31 +138,48 @@ const usablePoint = (p) =>
 /**
  * Deep links for one venue, or [] when there is nothing to point at.
  *
- * Naver takes a name with the coordinates, so its pin lands on the venue
- * rather than on a bare point. Kakao's `map_type=MAP` link is the plain map
- * view — the one that opens the app if it is installed and the website if it
- * is not, which is what a traveller who has neither needs.
+ * Kakao's `link/map` is the plain map view — the one that opens the app if
+ * it is installed and the mobile website if it is not, which is what a
+ * traveller who has neither needs. Its route link, `link/to`, goes through a
+ * Korean-language app-install interstitial on mobile instead, which for that
+ * same traveller is where the journey ends.
+ *
+ * Google is transit-only by necessity: it has no driving, walking or cycling
+ * directions in South Korea, and without `travelmode` it opens on the
+ * driving tab and shows an empty result.
+ *
+ * ── Naver used to be first on this list and is now absent ────────────────
+ *
+ * Two reasons, both found on 2026-08-31. Its web directions URL redirects
+ * into an app-install promo, and `&app=N` — the parameter that exists to
+ * stop that — is overwritten server-side with `app=Y`. And the link built
+ * here was a *name search*: `p/search/{name}` with the coordinate only as a
+ * viewport hint, so the pin landed on whatever Naver decided 왕족발 meant.
+ * Naver is the best of the three for a Korean venue and it should come back,
+ * with an Android intent:// and an iOS universal link, once somebody has two
+ * phones to test on. Shipping the broken one meanwhile helps nobody.
+ *
+ * The name is stripped of commas because Kakao splits its tuple on them and
+ * a comma in a name takes the destination with it, silently.
  */
 export function mapLinksFor(restaurant) {
   const point = restaurant?.coordinates?.value ?? restaurant?.coordinates;
   if (!usablePoint(point)) return [];
-  const name = String(restaurant?.name ?? '').split('(')[0].trim() || '밥친구';
+  const name = String(restaurant?.name ?? '').split('(')[0].replace(/,/g, ' ').trim() || '밥친구';
   const { lat, lng } = point;
 
   return [
-    {
-      id: 'naver',
-      kr: '네이버 지도',
-      en: 'Naver Map',
-      // Reviews, photos and Korean opening hours — the richest of the three
-      // for a Korean venue, which is why it goes first.
-      url: `https://map.naver.com/p/search/${enc(name)}?c=${lng},${lat},17,0,0,0,dh`,
-    },
     {
       id: 'kakao',
       kr: '카카오맵',
       en: 'Kakao Map',
       url: `https://map.kakao.com/link/map/${enc(name)},${lat},${lng}`,
+    },
+    {
+      id: 'google',
+      kr: '구글 지도 · 대중교통',
+      en: 'Google Maps · transit',
+      url: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=transit`,
     },
   ];
 }

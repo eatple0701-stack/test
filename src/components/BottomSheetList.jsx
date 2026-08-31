@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import PlaceImage from './PlaceImage';
 import { HeartIcon, CompassIcon } from './Icons';
-import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf } from '../utils';
+import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf, groupDigits } from '../utils';
 import { dietaryBadges } from '../data/verification';
 import { isRegistryPlace, displayName } from '../data/seoulRegistry.js';
 import { groupsOf } from '../domain/catalog/dishGroups.js';
@@ -139,6 +139,7 @@ export default function BottomSheetList({
   sustainabilityLens, onResetFilters,
 }) {
   const say = useText();
+  const locale = useLocale();
   const sorted = useMemo(() =>
     restaurants
       .map(r => {
@@ -166,13 +167,19 @@ export default function BottomSheetList({
   const [shown, setShown] = useState(PAGE);
   const visible = sorted.slice(0, shown);
   const remaining = sorted.length - visible.length;
+  const n = (v) => groupDigits(v, locale);
 
   return (
     <div className="place-list">
       <div className="place-list__header">
-        <h3>{say(`${sorted.length} place${sorted.length === 1 ? '' : 's'}`, `${sorted.length}곳`,
-          `${sorted.length} sitio${sorted.length === 1 ? '' : 's'}`, `${sorted.length} lieu${sorted.length === 1 ? '' : 'x'}`,
-          `${sorted.length} أماكن`, `${sorted.length} 处`, `${sorted.length}件`)}</h3>
+        {/* Grouped. `8136 places` sat one tap from `8,118 more are on the
+            map` in the Places header — same order of magnitude, different
+            typography, and a reader comparing the two is left wondering
+            which of them is a typo. Every count in this app that runs to
+            four digits is grouped now. */}
+        <h3>{say(`${n(sorted.length)} place${sorted.length === 1 ? '' : 's'}`, `${n(sorted.length)}곳`,
+          `${n(sorted.length)} sitio${sorted.length === 1 ? '' : 's'}`, `${n(sorted.length)} lieu${sorted.length === 1 ? '' : 'x'}`,
+          `${n(sorted.length)} أماكن`, `${n(sorted.length)} 处`, `${n(sorted.length)}件`)}</h3>
         {sorted.length > 1 && <span className="place-list__hint">{say('Nearest first', '가까운 순', 'Más cercanos primero', 'Les plus proches en premier', 'الأقرب أولًا', '近的排前面', '近い順')}</span>}
       </div>
 

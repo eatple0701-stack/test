@@ -15,11 +15,12 @@ import CulturalRoute from './CulturalRoute';
 import { getCulture } from '../data/culture';
 import { isRegistryPlace } from '../data/seoulRegistry.js';
 import RegistryPlaceSheet from './RegistryPlaceSheet';
+import ShowTheDriver from './ShowTheDriver';
 import { tipsFor } from '../data/journey';
 import { restaurants } from '../data/restaurants';
 import { tableCtaFor, mapLinksFor, transitLine, MAP_LINKS_NOTE } from '../domain/policy/venue.js';
 import { featuredZones } from '../data/experiences';
-import { haversineKm, formatDistance, getOpenStatus, todaysHours, directionsUrl, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
+import { haversineKm, formatDistance, getOpenStatus, todaysHours, directionsUrl, kakaoMapUrl, coordsOf } from '../utils';
 import {
   dietaryBadges, isKnown, needsCheck, trustBadge, dietaryConfidence, CONFIDENCE, isQuarantined, TRUST_LABEL_KO, TRUST_LABEL_ES, TRUST_LABEL_FR, TRUST_LABEL_AR, TRUST_LABEL_ZH, TRUST_LABEL_JA } from '../data/verification';
 import { bookable } from '../domain/policy/cancellation.js';
@@ -790,13 +791,17 @@ function RestaurantDetailInner({
                   reader ends up looking for reviews behind a directions link.
                   Named for the job now; the reviews are their own block higher
                   up, next to the button that turns this place into a table. */}
+              <ShowTheDriver place={restaurant} />
               <p className="map-route__label">{say('길찾기 · Get there', '길찾기', 'Cómo llegar', 'Y aller', 'الوصول إليه', '怎么去', '行き方')}</p>
               <div className="map-route__row">
+                {/* Google is transit-only in Korea — it has no driving or
+                    walking directions here at all — so the button says so
+                    rather than letting somebody tap Google and get an empty
+                    driving tab. Naver was the third button; its web link
+                    redirects into a Korean app-install promo, so it is gone
+                    until somebody can test the platform-specific form. */}
                 <button className="btn-primary" onClick={() => window.open(directionsUrl(restaurant, mapCenter), '_blank')}>
-                  Google
-                </button>
-                <button className="btn-primary btn-map--naver" onClick={() => window.open(naverMapUrl(restaurant, mapCenter), '_blank')}>
-                  {say('네이버 · Naver', '네이버', 'Naver', 'Naver', 'نيفر', 'Naver', 'Naver')}
+                  {say('Google · transit', '구글 · 대중교통', 'Google · transporte', 'Google · transports', 'جوجل · النقل العام', '谷歌 · 公共交通', 'Google · 公共交通')}
                 </button>
                 <button className="btn-primary btn-map--kakao" onClick={() => window.open(kakaoMapUrl(restaurant, mapCenter), '_blank')}>
                   {say('카카오 · Kakao', '카카오', 'Kakao', 'Kakao', 'كاكاو', 'Kakao', 'Kakao')}

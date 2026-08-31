@@ -3322,6 +3322,67 @@ button {
   color: var(--ink);
 }
 
+/* ── The block you hold up to a taxi driver ──────────────────────────────
+   Bigger type than anything around it, because it is read at arm's length
+   by somebody else, through a windscreen's worth of glare. Selectable text,
+   with the copy button as a convenience on top rather than the only way to
+   get at it. */
+.driver-card {
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--fill);
+}
+.driver-card__head {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+  margin-bottom: 8px;
+}
+.driver-card__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.driver-card__name {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.driver-card__addr {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink-body);
+}
+.driver-card__transit {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.driver-card__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.driver-card__copy:hover { border-color: var(--line-hover); }
+
 /* ── City filter ─────────────────────────────────────────────────────────
    Above every rail, because a reader who cannot get to Incheon should be
    able to say so before they have read four cards about it. */

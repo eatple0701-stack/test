@@ -114,7 +114,12 @@ export default function PlaceCard({ place, onClick, isSaved, onToggleSave }) {
           aria-label={`Directions to ${name}`}
         >
           <CompassIcon size={13} />
-          {say('Directions', '길찾기', 'Cómo llegar', 'Itinéraire', 'الاتجاهات', '路线', '行き方')}
+          {/* Not "Directions". Google has no driving or walking routes in
+              Korea — transit is the only mode it can answer — and the last
+              few hundred metres come back as a dotted line. A button that
+              says Directions promises door-to-door and hands over something
+              else. */}
+          {say('Transit', '대중교통', 'Transporte', 'Transports', 'النقل العام', '公共交通', '公共交通')}
         </a>
       )}
     </div>

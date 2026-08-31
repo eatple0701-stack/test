@@ -43,6 +43,25 @@ export function haversineKm(lat1, lng1, lat2, lng2) {
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
+/**
+ * A count, grouped the way the reader's language groups digits.
+ *
+ * The map sheet said `8136 places` one tap from the Places header's `8,118
+ * more are on the map` — same order of magnitude, different typography, and
+ * a reader comparing them is left deciding which is the typo.
+ *
+ * A function rather than a `toLocaleString` at each call site, because the
+ * first attempt at guarding this asserted that the *string*
+ * `toLocaleString(` appeared in the component — which a mutation that
+ * stopped grouping walked straight past. A shared function can be run.
+ *
+ * `both` is the bilingual default and has no locale of its own; en-US groups
+ * by three with a comma, which is what that screen has always shown.
+ */
+export const groupDigits = (value, locale = 'both') => (
+  Number(value).toLocaleString(locale === 'both' || !locale ? 'en-US' : locale)
+);
+
 export function formatDistance(km) {
   if (!Number.isFinite(km)) return '';
   if (km < 1) return `${Math.max(Math.round(km * 20) * 50, 50)} m`;
@@ -100,9 +119,15 @@ function statusFromRaw(raw, cur, locale = 'both') {
   const opens = toMinutes(parts[0]);
   const closes = toMinutes(parts[1]);
   if (opens == null || closes == null) return null;
+  // Formatted rather than echoed. This used to hand `parts[0]` straight
+  // through — the raw substring as somebody typed it into the record — so a
+  // place whose free-text hours read "10:00 – 22:00" produced `opens 10:00`
+  // sitting in a list beside `opens Tue 11:30 AM`. Same screen, same
+  // language, two clocks. The day is still absent and has to be: this branch
+  // exists precisely because the record holds no week to look ahead in.
   return cur >= opens && cur < closes
-    ? { open: true, label: pickWord(HOURS_WORD.Open, locale), detail: pickWord(hoursPhrase.until(parts[1]), locale) }
-    : { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.opens(parts[0]), locale) };
+    ? { open: true, label: pickWord(HOURS_WORD.Open, locale), detail: pickWord(hoursPhrase.until(fromMinutes(closes, locale)), locale) }
+    : { open: false, label: pickWord(HOURS_WORD.Closed, locale), detail: pickWord(hoursPhrase.opens(fromMinutes(opens, locale)), locale) };
 }
 
 /**
@@ -288,6 +313,21 @@ export function todaysHours(hoursFact, now = new Date(), locale = 'both') {
 // falls back to the previous pin behaviour, so a missing origin never breaks
 // the link. No runtime routing call is made here — the map app does the
 // routing — so this stays inside the no-backend constraint (§2.1).
+// ── Why every one of these says travelmode=transit ──────────────────────
+//
+// Google has no driving, walking or cycling directions in South Korea — its
+// own coverage table lists all three as unavailable for KR, because the
+// mapping data cannot be exported. Transit is the one mode it can route.
+//
+// Omitting the parameter does not fall back to the mode that works. Google
+// opens on the driving tab, finds nothing, and shows a reader who has never
+// been to Korea an empty result under the word Directions. So the mode is
+// named, and the button that opens it says Transit directions rather than
+// Directions — the last three hundred metres come out as a dotted line, and
+// a label that promised door-to-door walking would be the app overstating
+// what it handed over.
+const GOOGLE_MODE = 'transit';
+
 export function directionsUrl(place, origin = null) {
   const { lat, lng } = coordsOf(place);
   const destination = `${lat},${lng}`;
@@ -296,6 +336,7 @@ export function directionsUrl(place, origin = null) {
       api: '1',
       origin: `${origin[0]},${origin[1]}`,
       destination,
+      travelmode: GOOGLE_MODE,
     });
     return `https://www.google.com/maps/dir/?${params}`;
   }
@@ -311,42 +352,59 @@ export function directionsUrl(place, origin = null) {
   // that resolves beautifully for 발우공양 and lands somewhere else entirely
   // for a name like 말모아왕족발. Our coordinates were checked against Naver
   // and Kakao on a recorded date; a name search is checked against nothing.
-  return `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=${GOOGLE_MODE}`;
 }
 
+// ── Naver is not linked to, on purpose ───────────────────────────────────
+//
+// It was, until 2026-08-31. A research pass found that Naver's web
+// directions URL 301/302s into m.map.naver.com/appLink.naver — an app-install
+// promo — and that `&app=N`, the parameter that is supposed to suppress
+// exactly that, is overwritten server-side with `app=Y`. The web map that
+// survives the redirect is Korean-only with no language parameter. Doing it
+// properly means branching on platform with an Android `intent://` and an
+// iOS universal link, and neither can be tested before the pilot ends.
+//
+// So the function stays, unused, returning the coordinate form rather than
+// the old name search — because an unused function is where a bad URL waits
+// quietly for somebody to wire it up. Nothing renders it. When somebody has
+// two phones and an afternoon, this is where the work starts.
 export function naverMapUrl(place, origin = null) {
   const { lat, lng } = coordsOf(place);
-  const name = encodeURIComponent(place.name);
+  const name = encodeURIComponent(String(place.name ?? '').replace(/,/g, ' '));
   if (origin && Number.isFinite(origin[0]) && Number.isFinite(origin[1])) {
     return `https://map.naver.com/p/directions/${origin[1]},${origin[0]},Origin/${lng},${lat},${name}/-/transit?c=15,0,0,0,dh`;
   }
-  // Same destination, origin left for Naver to fill in. The previous
-  // fallback searched Naver for `place.name` — which is written
-  // "Balwoo Gongyang (발우공양)", brackets and all, so the query Naver
-  // actually received was `Balwoo%20Gongyang%20(발우공양)`. A search string
-  // decides which restaurant you get; a coordinate does not.
   return `https://map.naver.com/p/directions/-/${lng},${lat},${name}/-/transit?c=15,0,0,0,dh`;
 }
 
-// `_origin` is accepted and ignored, unlike the two above, so all three can be
-// called the same way. Kakao's link/to/ format has no origin parameter — the
-// app works the starting point out itself — so there is nothing to pass on.
+// `_origin` is accepted and ignored, unlike the one above, so both can be
+// called the same way. Kakao's link format has no origin parameter — the app
+// works the starting point out itself — so there is nothing to pass on.
 //
-// ── Known not to work in a desktop browser ───────────────────────────────
+// ── Why this is link/map and not link/to ─────────────────────────────────
 //
-// Opened on 2026-08-30 in a desktop browser, map.kakao.com/link/to/… landed
-// on Kakao's directions page with the destination field *empty*, for both a
-// Korean name and a plain ASCII one; link/map/… landed on a plain map
-// centred on the viewer's own location. The coordinate never arrives.
+// It was link/to. Opened in a desktop browser on 2026-08-30 that landed on
+// Kakao's directions page with the destination field empty, for a Korean
+// name and a plain ASCII one alike, and the conclusion drawn at the time was
+// that the whole scheme was mobile-only. It was not: the scheme is fine and
+// the call was wrong, twice over.
 //
-// This is the documented format and it is the mobile-app URL scheme, so the
-// likely reading is that it works on a phone — where this app's users are —
-// and degrades to nothing on a laptop. Likely is not verified, and it has
-// not been tested on a phone. Left exactly as it is rather than replaced
-// with a second unverified format: a guess that also fails is not progress,
-// and the Google button next to it does work. See docs/next-work-order.md.
+// First, link/to is the *route* link, and on mobile every route link goes
+// through applink.map.kakao.com — a Korean-language app-install
+// interstitial. For a visitor who does not read Korean and does not have the
+// app, that is where the journey ends. link/map opens the mobile web map
+// with the pin on it, no install wall.
+//
+// Second, the tuple is NAME,LAT,LNG and it is split on commas, so a name
+// containing one silently takes the destination with it. `place.name` is
+// author-controlled here and register names come from a public dataset, so
+// the comma is stripped rather than trusted.
+//
+// Still unverified on a phone with and without the Kakao app installed.
+// That is the one check code cannot do for itself.
 export function kakaoMapUrl(place, _origin = null) {
   const { lat, lng } = coordsOf(place);
-  const name = encodeURIComponent(place.name);
-  return `https://map.kakao.com/link/to/${name},${lat},${lng}`;
+  const name = encodeURIComponent(String(place.name ?? '').replace(/,/g, ' '));
+  return `https://map.kakao.com/link/map/${name},${lat},${lng}`;
 }

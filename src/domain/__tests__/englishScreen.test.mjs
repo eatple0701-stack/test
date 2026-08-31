@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { localeText } from '../policy/locale.js';
+import { groupDigits } from '../../utils.js';
+import { restaurants } from '../../data/restaurants.js';
 import { displayName } from '../../data/seoulRegistry.js';
 
 // A9 — what an English reader actually ends up looking at.
@@ -249,4 +251,98 @@ test('the English name is treated as reported, never as checked', () => {
   const registry = read('src/data/seoulRegistry.js');
   assert.match(registry, /export const displayName/);
   assert.match(registry, /reported/);
+});
+
+// ── The block that works when every link fails ───────────────────────────
+
+test('the driver card prints only what the record holds', () => {
+  const driver = read('src/components/ShowTheDriver.jsx');
+  // The exit is the line it must never invent. 19 of the 20 curated places
+  // have `exit: null` — the routing API did not return it, and one listing
+  // that mentioned "exit 6" was recorded as unconfirmed rather than used.
+  assert.match(driver, /\{transit\.exit &&/, 'the exit is not gated on existing');
+  assert.doesNotMatch(driver, /exit \?\?|exit \|\|/, 'an absent exit is being defaulted to something');
+  // A romanised address does not belong under a heading that says show this
+  // to a driver — and the curated records hold nothing else.
+  assert.match(driver, /HANGUL\.test\(address\)/);
+  // Both the browser's own translator and LocaleFilter have to leave it alone.
+  assert.match(driver, /translate="no" data-no-locale/);
+});
+
+test('the curated records really have no Korean address, which is why the card checks', () => {
+  const hangul = /[가-힣]/;
+  const withKorean = restaurants.filter(r => hangul.test(r.address?.value ?? ''));
+  assert.equal(withKorean.length, 0,
+    'a curated place now has a Korean address — the driver card can show it, and this test should say so');
+  // And the register does, for every row, which is the half that carries it.
+  const rows = JSON.parse(read('public/data/seoul/Jongno.json')).rows;
+  assert.equal(rows.filter(r => hangul.test(r.a ?? '')).length, rows.length);
+});
+
+test('an exit number is never shown for a place that has none', () => {
+  const withExit = restaurants.filter(r => r.transit?.value?.exit);
+  const withTransit = restaurants.filter(r => r.transit?.value?.station);
+  assert.ok(withTransit.length > withExit.length,
+    'every place with transit now has an exit — good, but this guard no longer proves anything');
+});
+
+// ── The names, once more ─────────────────────────────────────────────────
+
+test('the loanword corrections only touch names whose Korean carries the loanword', () => {
+  const build = read('scripts/add-english-names.mjs');
+  // Each rule is gated on the Hangul, so it cannot fire on a name that
+  // merely contains the letters.
+  assert.match(build, /if \(!koRe\.test\(korean\)\) continue;/);
+  // Spaced, not spliced: substituting in place produced "ByeonduriBistro".
+  assert.match(build, /` \$\{word\} `/);
+  // The rule that was written and deleted, kept as a note. 홀씨 is a spore,
+  // not the English word "hall", and the rule renamed 민들레홀씨.
+  assert.match(build, /민들레홀씨/);
+  // A dictionary is exactly what this must not become.
+  const rules = build.slice(build.indexOf('const LOANWORD_FIXES'), build.indexOf('const fixLoanwords'));
+  const count = (rules.match(/\[\/.*\/,/g) ?? []).length;
+  assert.ok(count <= 6, `${count} loanword rules — measured, only 18 of 8,070 names need any`);
+});
+
+test('no shipped English name still carries a transliterated loanword', () => {
+  const idx = JSON.parse(read('public/data/seoul/index.json'));
+  const bad = [];
+  for (const d of idx.districts) {
+    for (const r of JSON.parse(read(`public/data/seoul/${d.slug}.json`)).rows) {
+      if (!r.e) continue;
+      if (/셰프/.test(r.n) && /syepeu/i.test(r.e)) bad.push(`${r.n} → ${r.e}`);
+      if (/비스트로/.test(r.n) && /biseuteuro/i.test(r.e)) bad.push(`${r.n} → ${r.e}`);
+    }
+  }
+  assert.deepEqual(bad, [], `still transliterated:\n  ${bad.join('\n  ')}`);
+});
+
+
+test('four-digit counts are grouped, on every screen that shows one', () => {
+  // `8136 places` sat one tap from `8,118 more are on the map` — same order
+  // of magnitude, different typography, and a reader comparing the two is
+  // left deciding which one is the typo.
+  //
+  // The first version of this test asserted that the text `toLocaleString(`
+  // appeared in the component. A mutation that stopped grouping walked
+  // straight past it: the call was still in the file, just no longer wired
+  // to anything. So the formatter is a real function now, and this runs it
+  // instead of reading about it.
+  assert.equal(groupDigits(8136, 'en'), '8,136');
+  assert.equal(groupDigits(8136, 'both'), '8,136');
+  assert.equal(groupDigits(8136, 'ko'), '8,136');
+  assert.equal(groupDigits(999), '999');
+  // Spanish and French group differently, and each reader gets their own.
+  // Spanish leaves four digits unseparated on purpose — 8136, but 12.345 —
+  // and this test asserted the opposite until Intl was actually run. That
+  // is the argument for a function over a source-text check twice over:
+  // the second version caught a bug in the first version's author.
+  assert.equal(groupDigits(8136, 'es'), '8136');
+  assert.match(groupDigits(12345, 'es'), /12.345/);
+  assert.notEqual(groupDigits(8136, 'fr'), '8136');   // narrow no-break space
+  // And every screen that prints a four-digit count goes through something.
+  for (const f of ['src/components/BottomSheetList.jsx', 'src/components/MapOverlay.jsx', 'src/components/PlacesTab.jsx']) {
+    assert.match(read(f), /groupDigits\(|toLocaleString\(/, `${f} prints a raw count`);
+  }
+  assert.match(read('src/components/BottomSheetList.jsx'), /groupDigits\(v, locale\)/);
 });

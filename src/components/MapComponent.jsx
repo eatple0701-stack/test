@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { MAP_CENTER, coordsOf, naverMapUrl, kakaoMapUrl } from '../utils';
+import { MAP_CENTER, coordsOf, kakaoMapUrl } from '../utils';
 import { loadAllPlaces, placesInView, asPlace } from '../data/nearbyPlaces.js';
 import { isRegistryPlace, placeFromRegistry, displayName } from '../data/seoulRegistry.js';
 import { DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
@@ -177,7 +177,9 @@ function NearbyCard({ place, onClose, onDetails }) {
             {say('Details', '자세히', 'Detalles', 'Détails', 'التفاصيل', '详情', '詳しく')}
           </button>
         )}
-        <a href={naverMapUrl(asPlace(place))} target="_blank" rel="noreferrer">{say('Naver', '네이버', 'Naver', 'Naver', 'نيفر', 'Naver', 'Naver')}</a>
+        {/* Naver was here and is not any more: its web link redirects into a
+            Korean app-install promo, and the parameter meant to prevent that
+            is overwritten server-side. See naverMapUrl in utils.js. */}
         <a href={kakaoMapUrl(asPlace(place))} target="_blank" rel="noreferrer">{say('Kakao', '카카오', 'Kakao', 'Kakao', 'كاكاو', 'Kakao', 'Kakao')}</a>
       </div>
     </div>

@@ -57,26 +57,85 @@ test('no map link lets a name string decide where the reader ends up', () => {
   }
 });
 
-test('the Google link asks for directions, because that is what the button says', () => {
-  // Opened on 2026-08-30, the old no-origin form —
-  // maps/search/?api=1&query=<lat>,<lng> — produced a page titled
-  // 37°34'25.8"N 126°58'59.6"E: a plus code, no restaurant, no route. The
-  // directions form with the same coordinate returned three live transit
-  // options. Same accuracy, an answer instead of a pin.
-  const url = directionsUrl(active[0]);
-  assert.match(url, /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=/);
-  assert.doesNotMatch(url, /maps\/search/);
+test('every Google link names transit, because it is the only mode Korea has', () => {
+  // Google publishes no driving, walking or cycling directions for KR — the
+  // mapping data cannot be exported. Without travelmode the app opens on the
+  // driving tab and shows an empty result under the word Directions, which
+  // reads as the restaurant being unreachable rather than as Google not
+  // covering the country.
+  for (const origin of [null, [37.5540, 126.9880]]) {
+    const url = directionsUrl(active[0], origin);
+    assert.match(url, /^https:\/\/www\.google\.com\/maps\/dir\/\?/, url);
+    assert.match(url, /travelmode=transit/, url);
+    assert.doesNotMatch(url, /maps\/search/, url);
+  }
+  // And the button says so. "Directions" promises door-to-door; the last few
+  // hundred metres come back as a dotted line.
+  const card = src('src/components/PlaceCard.jsx');
+  assert.doesNotMatch(card, /say\('Directions'/);
+  assert.match(card, /say\('Transit'/);
 });
 
-test('kakaoMapUrl carries the note about what it does in a browser', () => {
-  // It landed on Kakao's directions page with an empty destination for both
-  // a Korean name and an ASCII one, and link/map/ landed on a plain map at
-  // the viewer's own location. That is the documented mobile-app scheme, so
-  // it probably works on a phone — probably is not verified, and the comment
-  // has to say so or the next person will read the code and assume it does.
-  assert.match(utils, /Known not to work in a desktop browser/);
-  // Comment text wraps, so the claim is matched across the line break.
-  assert.match(utils.replace(/\n\/\/ ?/g, ' '), /has not been tested on a phone/);
+test('kakaoMapUrl opens a map, not a route, and survives a comma', () => {
+  // Two separate faults, found on 2026-08-31. link/to is the *route* link and
+  // on mobile every route link goes through a Korean-language app-install
+  // interstitial — a dead end for the visitor this app is for. And the tuple
+  // is NAME,LAT,LNG split on commas, so a name containing one silently takes
+  // the destination with it.
+  assert.match(utils, /map\.kakao\.com\/link\/map\//);
+  assert.doesNotMatch(utils, /map\.kakao\.com\/link\/to\//);
+  const comma = { name: 'Bar, Grill (바그릴)', coordinates: { value: { lat: 37.5, lng: 127.0 } } };
+  const url = kakaoMapUrl(comma);
+  const tuple = url.slice(url.indexOf('/link/map/') + 10);
+  assert.equal(tuple.split(',').length, 3, `tuple has the wrong arity: ${tuple}`);
+  assert.ok(tuple.endsWith('37.5,127'), tuple);
+  // The arity check above is not enough on its own, and finding that out is
+  // the reason this line exists: encodeURIComponent already escapes a comma
+  // to %2C, so the tuple has two commas either way and the assertion passed
+  // with the strip removed. Whether that is safe depends on whether Kakao
+  // decodes before it splits, which cannot be established from here — so the
+  // comma is removed rather than escaped, and this asserts that it is gone
+  // rather than merely encoded.
+  assert.doesNotMatch(url, /%2C/i, `a comma reached the tuple, escaped: ${url}`);
+  // Still unverified on a phone, and the comment has to keep saying so.
+  assert.match(utils.replace(/\n\/\/ ?/g, ' '), /Still unverified on a phone/);
+});
+
+test('nothing renders a Naver link', () => {
+  // Its web directions URL redirects into an app-install promo and `app=N`,
+  // the parameter meant to stop that, is overwritten server-side. Doing it
+  // properly needs an Android intent:// and an iOS universal link, neither
+  // testable before the pilot ends. The builder stays — an unused function
+  // is where a bad URL waits — but nothing may call it.
+  const files = fs.readdirSync(path.join(process.cwd(), 'src/components'))
+    .filter(f => /\.jsx$/.test(f));
+  for (const f of files) {
+    const text = src(`src/components/${f}`);
+    assert.doesNotMatch(text, /naverMapUrl\(/, `${f} still renders a Naver link`);
+  }
+  assert.doesNotMatch(src('src/domain/policy/venue.js'), /map\.naver\.com/, 'mapLinksFor still offers Naver');
+});
+
+test('the hours clock is the same clock everywhere on a screen', () => {
+  // The free-text branch echoed the raw substring — `opens 10:00` — while
+  // the structured branch two rows above it said `opens Tue 11:30 AM`. Same
+  // list, same language, two clocks.
+  const raw = {
+    value: { raw: '10:00 – 22:00', weekly: null },
+    confidence: 'confirmed', source: 'test', method: 'fixture', lastCheckedAt: '2026-08-31',
+  };
+  assert.equal(getOpenStatus(raw, AT(8, 31), 'en').detail, 'opens 10:00 AM');
+  assert.equal(getOpenStatus(raw, AT(12, 31), 'en').detail, 'until 10:00 PM');
+  assert.match(getOpenStatus(raw, AT(8, 31), 'ko').detail, /오전 10:00/);
+  assert.match(getOpenStatus(raw, AT(8, 31), 'fr').detail, /10:00/);
+  // Every place on the real data agrees on one format per locale.
+  for (const locale of ['en', 'ko']) {
+    const details = active
+      .map(p => getOpenStatus(p.hours, AT(23), locale))
+      .filter(Boolean).filter(s => !s.open).map(s => s.detail);
+    const bare24 = details.filter(d => /\b\d{1,2}:\d{2}\b/.test(d) && !/(AM|PM|오전|오후)/.test(d));
+    assert.deepEqual(bare24, [], `${locale} still has a 24-hour clock among 12-hour ones: ${bare24}`);
+  }
 });
 
 // ── Hours say something a reader can act on ──────────────────────────────

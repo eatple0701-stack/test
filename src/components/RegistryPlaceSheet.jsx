@@ -4,8 +4,9 @@ import { useText, useLocale } from './localeText.js';
 import { DISH_KO, groupsOf } from '../domain/catalog/dishGroups.js';
 import { menusFor, menuName, menuPrice, formatWon } from '../data/seoulMenus.js';
 import { displayName } from '../data/seoulRegistry.js';
+import ShowTheDriver from './ShowTheDriver';
 import { tableCtaFor, mapLinksFor } from '../domain/policy/venue.js';
-import { getOpenStatus, todaysHours, naverMapUrl, kakaoMapUrl, coordsOf } from '../utils';
+import { getOpenStatus, todaysHours, directionsUrl, kakaoMapUrl, coordsOf } from '../utils';
 
 // A place from the 서울관광재단 register, shown as exactly what it is.
 //
@@ -186,15 +187,21 @@ export default function RegistryPlaceSheet({ restaurant, onClose, onOpenTable })
             <span className="section-head__icon" aria-hidden="true"><MapPinIcon size={17} /></span>
             <h3>{say('Getting there', '가는 길', 'Cómo llegar', 'Y aller', 'الوصول إليه', '怎么去', '行き方')}</h3>
           </div>
+          {/* Before the links, not after. Every map link out of this app is
+              compromised in Korea — Google is transit-only, Naver redirects
+              into an app-install promo, Kakao is untested on a phone — and
+              this block is the one that works when all of them fail. */}
+          <ShowTheDriver place={restaurant} />
+
           {/* The same handover the curated pages make: the reviews, the
               photographs and the walking directions are in the map apps,
               kept current by somebody else. */}
           <div className="registry-sheet__links">
-            <a className="registry-sheet__link" href={naverMapUrl(restaurant)} target="_blank" rel="noreferrer">
-              {say('Naver Map', '네이버 지도', 'Naver Map', 'Naver Map', 'خرائط نيفر', 'Naver 地图', 'Naver 地図')}
-            </a>
             <a className="registry-sheet__link" href={kakaoMapUrl(restaurant)} target="_blank" rel="noreferrer">
               {say('Kakao Map', '카카오맵', 'Kakao Map', 'Kakao Map', 'خرائط كاكاو', 'Kakao 地图', 'Kakao マップ')}
+            </a>
+            <a className="registry-sheet__link" href={directionsUrl(restaurant)} target="_blank" rel="noreferrer">
+              {say('Google · transit', '구글 · 대중교통', 'Google · transporte', 'Google · transports', 'جوجل · النقل العام', '谷歌 · 公共交通', 'Google · 公共交通')}
             </a>
           </div>
           {mapLinks.length === 0 && !Number.isFinite(coords.lat) && (
