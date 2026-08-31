@@ -12,6 +12,28 @@
       ],
       "destination": "/api/table-og?id=:id"
     },
+    {
+      "source": "/places/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|kakaotalk|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
+        }
+      ],
+      "destination": "/api/place-og?id=:id"
+    },
+    {
+      "source": "/places",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|kakaotalk|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
+        }
+      ],
+      "destination": "/api/place-og"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

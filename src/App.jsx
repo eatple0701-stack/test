@@ -485,10 +485,14 @@ export default function App() {
       setOpenThemeId(next.openThemeId);
       setActiveTab(next.activeTab);
       setTableView(next.tableView);
-      if (!next.restaurantId) setSelectedRestaurant(null);
+      if (!next.restaurantId) { setSelectedRestaurant(null); setPendingPlaceId(null); }
       else {
-        const found = activeRestaurants.find(r => r.id === next.restaurantId);
-        setSelectedRestaurant(found ?? null);
+        // Same two-kinds problem as the initial load: back-navigating to a
+        // register place has to wait for the register too, so an id that is
+        // not in the pool yet is held rather than resolved to null.
+        const found = poolRef.current.find(r => r.id === next.restaurantId);
+        if (found) { setSelectedRestaurant(isQuarantined(found) ? null : found); setPendingPlaceId(null); }
+        else { setSelectedRestaurant(null); setPendingPlaceId(next.restaurantId); }
       }
     };
     window.addEventListener('popstate', onPop);
@@ -740,6 +744,42 @@ export default function App() {
     () => (registryPlaces.length ? [...activeRestaurants, ...registryPlaces] : activeRestaurants),
     [registryPlaces],
   );
+
+  // ── A shared /places/seoul-1115 link, finishing the job ─────────────────
+  //
+  // The address for a register place was already being written — pathFor puts
+  // any open place in the bar — but it could not be read back. Both lookups
+  // searched `activeRestaurants`, the twenty curated records, while the 8,118
+  // register places arrive asynchronously into `registryPlaces` a moment
+  // later. So opening a link somebody sent landed on the Places tab with no
+  // sheet, no error and nothing to explain it: a link that goes to the right
+  // app and the wrong place is worse than a link that fails.
+  //
+  // The id is held rather than the record, because at first render the record
+  // does not exist yet. When the register lands, this resolves it once and
+  // lets go. `pool` covers both kinds, so a curated link still opens on the
+  // first render through the initialiser above and never reaches here.
+  // The popstate handler is registered once, with an empty dependency list,
+  // so it closes over the pool as it was on the first render — which is the
+  // twenty, before the register lands. A ref is how it reads the current one
+  // without re-subscribing on every fetch.
+  const poolRef = useRef(pool);
+  useEffect(() => { poolRef.current = pool; }, [pool]);
+
+  const [pendingPlaceId, setPendingPlaceId] = useState(
+    () => (opening.restaurantId && !activeRestaurants.some(r => r.id === opening.restaurantId)
+      ? opening.restaurantId : null),
+  );
+  useEffect(() => {
+    if (!pendingPlaceId) return;
+    const found = pool.find(r => r.id === pendingPlaceId);
+    if (!found) return;                 // the register has not arrived yet
+    setPendingPlaceId(null);
+    // Quarantine still applies to a link. openDetail is the choke point for
+    // every other way in and it refuses these; a URL must not be the way
+    // round it.
+    if (!isQuarantined(found)) setSelectedRestaurant(found);
+  }, [pendingPlaceId, pool]);
 
   const filteredRestaurants = useMemo(() => {
     return pool.filter(r => {

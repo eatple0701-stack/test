@@ -19,64 +19,19 @@
 import { menuById } from '../src/domain/catalog/menus.js';
 import { seatsRemaining } from '../src/domain/policy/table.js';
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL ?? 'https://zqpxyhygvenlcjaoxcns.supabase.co';
-// The publishable key ships in every client bundle; it is not a secret.
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY ?? 'sb_publishable_MUduy1sLbWEnvXTQD-AAlA_1UBGvM_E';
-const SITE = 'https://eatple.vercel.app';
-
-const esc = (s) => String(s ?? '')
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;');
-
-/** The generic card, for a table that cannot be read (deleted, bad id). */
-const fallback = {
-  title: '밥친구 · Eatple',
-  description: "Don't just visit Korea. Share a Korean table — dishes you cannot order alone, with people to eat them with.",
-};
-
-function page({ title, description }, url) {
-  // The meta refresh is for the rare human who slips past the user-agent
-  // filter: they land in the app, one hop late, none the wiser.
-  return `<!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<title>${esc(title)}</title>
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="밥친구 · Eatple">
-<meta property="og:title" content="${esc(title)}">
-<meta property="og:description" content="${esc(description)}">
-<meta property="og:url" content="${esc(url)}">
-<!-- The app mark, absolute because a crawler resolves this from its own
-     host, not ours. Added 2026-08-04 alongside index.html's: this function
-     already told KakaoTalk the dish, the time and the seats left, and then
-     handed it a card with a blank square where a picture goes. It is the
-     icon rather than a photo of the dish on purpose — the project has no
-     photograph of anybody's 보쌈, and a stock one would be the card
-     promising a meal that is not the one being shared. -->
-<meta property="og:image" content="https://eatple.vercel.app/icon-192.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="192">
-<meta property="og:image:height" content="192">
-<meta property="og:image:alt" content="밥친구 Eatple">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="${esc(title)}">
-<meta name="twitter:description" content="${esc(description)}">
-<meta name="twitter:image" content="https://eatple.vercel.app/icon-192.png">
-<meta http-equiv="refresh" content="0;url=${esc(url)}">
-</head>
-<body>${esc(title)}</body>
-</html>`;
-}
+// The constants, the escaper, the fallback card and the page template all
+// moved to ./_og.js when a second preview function arrived. They were
+// inline here, which is how one route ends up pointing at the old icon
+// while the other points at the new card.
+import { SUPABASE_URL, SUPABASE_KEY, site, page, beginHtml, FALLBACK } from './_og.js';
 
 export default async function handler(req, res) {
   const id = req.query?.id;
-  const url = `${SITE}/tables/${encodeURIComponent(id ?? '')}`;
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  const url = `${site()}/tables/${encodeURIComponent(id ?? '')}`;
   // Previews may be cached briefly, but a seat count ages fast.
-  res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
+  beginHtml(res, 300);
 
-  let card = fallback;
+  let card = FALLBACK;
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/table_preview`, {
       method: 'POST',

@@ -19,10 +19,26 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (636 tests) and `node scripts/audit-i18n.mjs` (must print 0)
+- `npm test` (656 tests) and `node scripts/audit-i18n.mjs` (must print 0)
   before every push. When the suite grows, update the counts in README.md
   and HANDOFF.md — a test pins the documented number to the real one.
-- Break a newly written test on purpose once to prove it can fail.
+- Break a newly written test on purpose once to prove it can fail — with
+  the real command, `node --test "src/**/*.test.mjs"`. The directory form
+  `node --test src/domain/__tests__/` fails unconditionally on Windows, so
+  a harness using it reports RED for every mutation whether or not anything
+  was caught. That produced 34 false REDs across three batches on 8/30;
+  re-run properly, five of thirteen came back GREEN and four of those were
+  real coverage holes. Confirm the *unmutated* tree is green under the exact
+  command first — a red baseline cannot tell a caught bug from a broken
+  command, and a stale test count in the docs is enough to cause one.
+- **Assert what the code does, not what the source looks like.** Four bugs
+  in two days got past tests that matched a file for a token: a guard for
+  `toLocaleString(` passed while grouping was switched off, a comma check
+  passed because `encodeURIComponent` had already escaped it, and two
+  checks matched the comment explaining a rule instead of the rule. Every
+  one was fixed the same way — pull the behaviour into a function and call
+  it. Where a source-text assertion is genuinely the only option, strip
+  comments first.
 
 ## Rules the tests enforce (each added after a real incident)
 1. No unsourced facts — curated place fields carry source/confidence/date.

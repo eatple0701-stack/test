@@ -291,7 +291,10 @@ function RestaurantDetailInner({
 
   const handleShare = async () => {
     const shareText = `${restaurant.name} — ${restaurant.vibe}`;
-    const shareUrl = window.location.href;
+    // Built from the id, not read from the bar. window.location.href carries
+    // whatever query string is on it — a campaign tag, or an identity
+    // provider's `?code=` — and a shared link should carry neither.
+    const shareUrl = placeUrlFor(restaurant.id);
     if (navigator.share) {
       try {
         await navigator.share({ title: restaurant.name, text: shareText, url: shareUrl });

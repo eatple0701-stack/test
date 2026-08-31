@@ -80,7 +80,12 @@ export function stateFromPath(pathname) {
     // absorbed it instead of silently falling through to Explore.
     case 'passport':
     case 'profile': return { ...base, activeTab: 'journal' };
+    // The dissemination plan (docs/HANDOVER.md) names /stories/:slug and the
+    // app has always written /culture/:id. Parsed as an alias rather than
+    // renamed in pathFor: swapping the word there would kill every culture
+    // link already shared, and an alias costs one line.
     case 'culture':
+    case 'stories':
       return tail ? { ...base, openThemeId: tail } : base;
     default:
       return base;
@@ -90,6 +95,18 @@ export function stateFromPath(pathname) {
 /** The full link to a table, for a person sending it to somebody else. */
 export const shareUrlFor = (tableId) =>
   typeof window === 'undefined' ? '' : `${window.location.origin}/tables/${tableId}`;
+
+/**
+ * The full link to a place.
+ *
+ * RestaurantDetail's share button sent `window.location.href`, which happens
+ * to be right only for as long as pathFor writes `/places/<id>` and nothing
+ * else is in the bar. It also carries whatever query string a campaign or an
+ * identity provider left behind — a shared link with somebody's `?code=` on
+ * it is not a thing to hand out. Built from the id instead.
+ */
+export const placeUrlFor = (placeId) =>
+  typeof window === 'undefined' ? '' : `${window.location.origin}/places/${placeId}`;
 
 /**
  * Is the address currently carrying something an identity provider put there?
