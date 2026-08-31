@@ -19,7 +19,8 @@ import { REGISTRY_TOTAL } from '../../data/nearbyPlaces.js';
 // that made them look wrong. So these assertions are about what reaches the
 // reader, not about what the data holds.
 
-const src = (f) => fs.readFileSync(path.join(process.cwd(), f), 'utf8');
+// Line endings normalised — see englishScreen.test.mjs for why.
+const src = (f) => fs.readFileSync(path.join(process.cwd(), f), 'utf8').replace(/\r\n/g, '\n');
 const placesTab = src('src/components/PlacesTab.jsx');
 const placeCard = src('src/components/PlaceCard.jsx');
 const css = src('src/index.css');

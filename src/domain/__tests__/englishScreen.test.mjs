@@ -47,7 +47,10 @@ import { displayName } from '../../data/seoulRegistry.js';
 // hole this file exists to cover, not a second copy of the audit.
 
 const root = process.cwd();
-const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
+// Line endings normalised: git's autocrlf makes the same file LF in one
+// working copy and CRLF in the next, and every multi-line match below would
+// depend on which one it was read from.
+const read = (f) => fs.readFileSync(path.join(root, f), 'utf8').replace(/\r\n/g, '\n');
 const css = read('src/index.css');
 
 const HANGUL = /[가-힣]/;

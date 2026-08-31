@@ -17,7 +17,13 @@ import { getOpenStatus, todaysHours, directionsUrl, naverMapUrl, kakaoMapUrl, co
 // only a person looking at the result would notice — a link that lands on a
 // coordinate instead of a restaurant, a line that says "closed" twice.
 
-const src = (f) => fs.readFileSync(path.join(process.cwd(), f), 'utf8');
+// Line endings normalised on the way in. This repo is worked on from
+// Windows with git's autocrlf on, so the same file is LF in one working
+// copy and CRLF in the next, and a test that matches across a line break
+// passes on the branch it was written on and fails after a checkout. That
+// happened: the kakao-caveat assertion below went red on `master` for no
+// reason but `\r`.
+const src = (f) => fs.readFileSync(path.join(process.cwd(), f), 'utf8').replace(/\r\n/g, '\n');
 const active = restaurants.filter(r => !isQuarantined(r));
 const utils = src('src/utils.js');
 

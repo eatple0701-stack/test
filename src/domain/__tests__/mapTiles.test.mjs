@@ -16,7 +16,8 @@ import { LOCALES } from '../policy/locale.js';
 // provider choice, which is a registration and a quota rather than code.
 
 const root = process.cwd();
-const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
+// Line endings normalised — see englishScreen.test.mjs for why.
+const read = (f) => fs.readFileSync(path.join(root, f), 'utf8').replace(/\r\n/g, '\n');
 
 const MAP_FILES = [
   'src/components/MapComponent.jsx',
