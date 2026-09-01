@@ -65,8 +65,26 @@ alter table public.signups add column if not exists cancelled_at timestamptz;
 
 -- Reconciliation. Without this the outbox and the requests share no key, so
 -- "which signups produced no email" is a question no query can answer.
--- Nullable and unenforced by a foreign key on purpose: a notification must
--- outlive the row it was about, which is the whole reason this file exists.
+--
+-- NO FOREIGN KEY, deliberately. A reference with `on delete cascade` would
+-- delete the notification when its signup went, destroying the record this
+-- whole file exists to keep; `on delete set null` would erase the join and
+-- leave the row. Either is worse than an unenforced uuid, and the app is
+-- the only writer.
+--
+-- THE EIGHT ROWS ALREADY THERE STAY NULL, FOR EVER. There is nothing to
+-- backfill from: three of the seat_requested emails belong to signups that
+-- were hard-deleted before this existed, so no key survives on either side,
+-- and matching the guest's name out of the body text would be a guess
+-- dressed as a record. So any reconciliation query has to say which era it
+-- is asking about:
+--
+--     select count(*) from public.signups s
+--      where s.created_at > '<the moment this was applied>'
+--        and not exists (select 1 from public.notifications n
+--                         where n.signup_id = s.id and n.kind = 'seat_requested');
+--
+-- Without that clause the answer counts the pre-migration rows as failures.
 alter table public.notifications add column if not exists signup_id uuid;
 
 -- One live seat per person per table — the same guarantee as before, over
