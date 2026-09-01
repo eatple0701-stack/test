@@ -42,6 +42,62 @@ on once**:
 git config core.hooksPath .githooks
 ```
 
+## An Instant Rollback pins production, and later pushes stop going live
+
+**2026-09-02, and it cost half an hour of looking in the wrong place.**
+
+On the evening of 9/1 a broken client was rolled back with Vercel's **Instant
+Rollback**, which put `6fd2380` back on production within seconds. That is
+what it is for and it worked.
+
+What nobody knew is what it does afterwards: **the production URL stays pinned
+to the rolled-back deployment.** Pushes still build. They still appear in
+Deployments as `Ready`. They are simply not production, and nothing says so
+unless you look at which row carries the production marker.
+
+That is exactly what happened to `79272ad`:
+
+```
+79272ad   Ready 12s   Production (clock icon)     21 min ago   ← built, waiting
+6fd2380   Ready 12s   Production (↺ rollback)     just now     ← actually serving
+01d4fbd   Ready 12s   Production (✕)              18 min ago   ← the rolled-back one
+```
+
+Seventeen minutes of polling said "not deployed". Every guess about why was
+wrong — the build had not failed, the Git integration was fine, GitHub's
+`main` was at the pushed commit (`git ls-remote` confirmed it), and Vercel had
+built it in twelve seconds.
+
+### How to tell, and how to undo it
+
+- In **Deployments**, the row carrying the **↺ rollback icon** is what the
+  domain is serving. Not the newest row, and not the top one.
+- To go back to normal, open the new deployment's **⋯ → Promote to
+  Production**. Confirmation is that its Environment reads
+  `Production [Current]` and `eatple.vercel.app` appears under its Domains.
+- Until somebody does that, every subsequent push accumulates as a built but
+  unserved deployment. The pin does not expire.
+
+### Judge a deployment by the bundle's content, never by its hash
+
+The check that got this right was reading the JavaScript that is actually
+being served and looking for something only the new code contains:
+
+```sh
+A=$(curl -s https://eatple.vercel.app/ | grep -o 'index-[A-Za-z0-9._-]*\.js' | head -1)
+curl -s "https://eatple.vercel.app/assets/$A" | grep -o 'from(`signups`)\.update({cancelled_at:'
+```
+
+**Do not compare the asset hash with a local build.** Vite hashes the built
+output, and every `VITE_`-prefixed variable is inlined into it, so the same
+source built with a different environment produces a different hash. A hash
+mismatch is not evidence of a stale deploy and a match is luck. Pick a string
+the change introduces and grep the served bundle for it.
+
+The same reading also settles the opposite question — whether the OLD code is
+gone. `from(\`signups\`).delete()` returning zero matches is what proved the
+hard delete was no longer reachable.
+
 ## What happened
 
 Both folders had `origin` pointing at `rkdals0121/kfoodmap`. 밥친구 was merged

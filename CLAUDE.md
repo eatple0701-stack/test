@@ -147,7 +147,14 @@ and is not done yet.
   that is what the audit is for.
 
 ## Git
-Default branch is `main`; pushing it auto-deploys on Vercel. On a fresh
+Default branch is `main`; pushing it auto-deploys on Vercel — **unless
+somebody has used Instant Rollback**, which pins production to the
+rolled-back deployment and leaves every later push built but unserved, with
+nothing to say so. Promote the new deployment by hand. Judge what is live by
+grepping the served bundle for a string the change introduces, never by
+comparing its hash with a local build — `VITE_` variables are inlined, so the
+hash moves with the environment. Details, with the actual Deployments listing
+that caused half an hour of wrong guesses, in `docs/where-this-deploys.md`. On a fresh
 clone just work on `main` and `git push`. (강민's original machine has a
 historical quirk — local branch `master`, remote named `test`, pushed via
 `git push test master:main` — do not copy that setup.)
