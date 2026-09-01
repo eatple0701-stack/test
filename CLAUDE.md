@@ -19,7 +19,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (745 tests) and `node scripts/audit-i18n.mjs` (must print 0)
+- `npm test` (747 tests) and `node scripts/audit-i18n.mjs` (must print 0)
   before every push. When the suite grows, update the counts in README.md
   and HANDOFF.md — a test pins the documented number to the real one.
 - Break a newly written test on purpose once to prove it can fail — with
@@ -50,6 +50,35 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
    a filter.
 5. Quiz/story content requires a source somebody read
    (`src/content/sources.js`); unsourced entries are filtered at runtime.
+
+## Database — what is applied, and what it costs to change
+Everything live in Supabase is in `supabase/schema.sql`, and each change also
+has a dated file in `supabase/migrations/`. Two applied 2026-09-01; the
+numbers, the expected drift and the caveats are in
+`docs/rls-baseline-2026-09-01.md`.
+- `…-01b-scope-profile-reads-retry.sql` — an anonymous session reads 4 rows
+  of `profiles`, not 237, and no `signups` rows at all. Seat counts come from
+  `seat_holds()` instead: a table id and a status, nothing that names anybody.
+- `…-01c-seat-holds-lapse.sql` — `assert_seat_available()` counted every
+  signup row whatever its status, so a *declined* request held a seat for
+  ever and three refusals closed a four-seat table for good.
+- **Never build an index on `lapse_at()`.** PostgreSQL marks the timezone
+  conversion it uses IMMUTABLE, so the declaration is honest — but a tzdata
+  update can still move the answer, and an index would go quietly stale.
+- `lapse_window()`/`lapse_at()` are granted to `authenticated` only. Today
+  they are only ever reached from inside `security definer` functions; a
+  direct RPC call from the client needs an anon grant first.
+- A migration ends in `rollback;`, is run once to read its own numbers, and is
+  only then re-run with `commit;`. Its undo is written *before* it is applied
+  — see the 42P17 post-mortem in `…-01-scope-profile-reads.sql`, where there
+  was none and production spent the writing of it returning errors.
+- The verification inside a migration must not write rows. The first draft of
+  `…-01c` built fixtures and discarded them with its `rollback;`, which would
+  have committed invented tables — and fired a real seat-request email to a
+  real host — on the second run.
+- `rlsPolicies.test.mjs` and `seatLapse.test.mjs` execute those files against
+  a real Postgres (PGlite, a devDependency, never bundled). Each keeps the
+  version that failed as a control and requires it to still fail.
 
 ## Security
 - Never type, store, or request passwords/secrets; guide the human instead.

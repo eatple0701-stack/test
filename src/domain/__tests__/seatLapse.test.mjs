@@ -339,3 +339,43 @@ test('the rollback leaves nothing of the migration behind', async () => {
   await db.exec(functions(read(MIGRATION)));
   assert.equal(await tryToJoin(await tableWith(24, ['declined', 'declined', 'declined'])), null);
 });
+
+// ── The volatility question, settled by measurement ─────────────────────
+//
+// Raised in review on 2026-09-01: lapse_at() is declared IMMUTABLE while its
+// body uses `at time zone 'Asia/Seoul'`, which the review measured as STABLE
+// with
+//
+//     select provolatile from pg_proc where proname = 'timezone'
+//
+// That query has no signature in it, and `timezone` has seven overloads of
+// which two are stable. It returned one of those two. The one this
+// expression actually resolves to is not.
+//
+// The general point behind the objection stands and is worth keeping: a
+// volatility declaration is believed, not checked. So both halves are pinned
+// here — what Postgres says about the function we use, and the fact that it
+// would happily accept a lie.
+
+test('lapse_at is as immutable as what it calls', async () => {
+  const { rows } = await db.query(`
+    select provolatile from pg_proc
+     where proname = 'timezone'
+       and pg_get_function_identity_arguments(oid) = 'text, timestamp without time zone'`);
+  assert.equal(rows.length, 1, 'the overload this expression resolves to is missing');
+  assert.equal(rows[0].provolatile, 'i',
+    'timezone(text, timestamp) is no longer immutable — lapse_at must be redeclared stable');
+});
+
+test('Postgres would take the declaration on trust', async () => {
+  // Which is why the line above is a test and not a comment. Nothing stops
+  // somebody declaring a clock-reading function immutable, and the failure
+  // that follows is an index that is quietly out of date rather than an
+  // error anybody sees.
+  await db.exec(`create or replace function pg_temp.liar() returns timestamptz
+    language sql immutable as $fn$ select now() $fn$;`);
+  const { rows } = await db.query(
+    `select provolatile from pg_proc where proname = 'liar'`);
+  assert.equal(rows[0].provolatile, 'i',
+    'Postgres has started verifying volatility, and this warning can go');
+});

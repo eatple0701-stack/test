@@ -107,3 +107,80 @@ POST /rest/v1/rpc/tables_with_woman 200 []
 
 `tables`는 여전히 `using (true)`이고, 거기에 `host_nationality`·`chat_url`·
 `meeting_note`가 실려 있습니다. 트랙 2 — `docs/public-table-columns.md`.
+
+---
+
+# 2026-09-01c — 좌석 만료 (적용 완료)
+
+`supabase/migrations/2026-09-01c-seat-holds-lapse.sql`
+
+## 적용 후 확인된 값
+
+```
+helpers               2      (lapse_window, lapse_at 생성됨)
+seat_holds_has_clock  1
+guard_has_clock       1
+guard_trigger         1      (트리거는 건드리지 않았고 그대로 살아 있음)
+anon_can_read_seats   true   (익명 세션의 좌석 수가 안 끊김)
+lapse_seconds         43200
+```
+
+## 무엇이 바뀌었나
+
+- **새로 생김**: `lapse_window()`(12시간), `lapse_at(날짜, 시각)`(답변 마감 시각)
+- **교체됨**: `seat_holds()`, `assert_seat_available()` — 둘 다 이제
+  "승인된 자리 + 답변 기한이 남은 대기"만 좌석으로 셈
+
+**진짜로 고쳐진 것은 `assert_seat_available()`입니다.** 그전에는 상태를 보지
+않고 `count(*)`를 세서 **거절된 요청이 영구히 좌석을 차지**했습니다 — 호스트가
+4석 밥상에서 3명을 거절하면 그 밥상은 다시는 아무도 못 들어갔습니다.
+화면은 "2자리 남음"인데 신청은 `table_full`로 거부되는 상태였습니다.
+
+카드의 좌석 수는 그전에도 맞았습니다 — 클라이언트가 `stillHolding()`으로
+만료 규칙을 다시 적용하기 때문입니다.
+
+## 되돌리기
+
+`supabase/migrations/2026-09-01c-seat-holds-lapse-ROLLBACK.sql`.
+적용 **전에** 작성했고 PGlite에서 실제로 돌려 확인했습니다
+(`seatLapse.test.mjs` 마지막 두 테스트). 되돌리면 위 두 버그가 같이
+돌아옵니다 — 안전하지만 공짜는 아닙니다.
+
+## 남은 주의사항 두 가지
+
+### 1. `lapse_at()`의 `immutable` 선언 — 확인했고, 바꿀 필요 없습니다
+
+검토에서 "`at time zone 'Asia/Seoul'`은 stable이니 `immutable` 선언이
+거짓"이라는 지적이 있었습니다. **일반론은 맞고 이 경우엔 아닙니다.**
+
+`timezone`은 **오버로드가 7개**이고 그중 2개만 stable입니다. 서명 없이
+`select provolatile from pg_proc where proname='timezone'`을 돌리면 7개 중
+아무거나 하나가 나옵니다 — 그래서 `s`가 잡힌 것입니다. 우리 표현식이 고르는
+것은 이쪽입니다:
+
+```
+timezone(text, timestamp without time zone) → IMMUTABLE
+```
+
+PostgreSQL 자신이 그렇게 표시해 둔 것이라, `lapse_at()`의 `immutable`은
+본문과 일치합니다.
+
+**다만 지적의 핵심은 유효합니다** — Postgres는 volatility 선언을 검증하지
+않습니다(확인: `select now()` 본문을 `immutable`로 선언해도 함수가 그냥
+만들어집니다). 그리고 tzdata가 갱신되면 시간대 변환 결과가 달라질 수
+있는데도 PostgreSQL이 immutable로 표시해 둔 것은 알려진 타협입니다.
+
+**그래서 실질적인 규칙은 이것입니다: `lapse_at()`으로 인덱스를 만들지
+마세요.** tzdata가 갱신되면 인덱스가 조용히 낡습니다. 지금은 아무 데서도
+인덱스로 쓰지 않습니다.
+
+### 2. `lapse_window()` / `lapse_at()`에 anon 실행 권한이 없습니다
+
+`authenticated`에만 grant돼 있습니다. 지금은 `security definer` 함수
+(`seat_holds`, `assert_seat_available`) 안에서만 불리고, definer 함수 안에서는
+호출자 권한이 아니라 소유자 권한으로 돌기 때문에 문제가 없습니다.
+
+**클라이언트가 이 둘을 RPC로 직접 부르면 깨집니다.** 부를 일이 생기면
+`grant execute ... to anon`을 먼저 추가하세요. `seat_holds()`는 별개로
+anon 실행 권한이 있습니다(`anon=X/postgres`) — 익명 방문자의 좌석 수가
+그것에 달려 있습니다.
