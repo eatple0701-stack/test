@@ -882,7 +882,29 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               )
             )}
           </li>
-          {signups.map(s => (
+          {signups.map(s => (s.anonymous ? (
+            /* A seat somebody is in, whose name is not this reader's to see.
+               signups_read gives you a table's rows only if you are at it, so
+               a stranger gets a count from seat_holds() instead — and the
+               count has to appear as people rather than as nothing, or the
+               page says the table is empty when it is not. Saying whose seat
+               it is would undo the policy; saying nothing was the bug. */
+            <li key={s.id} className="who-row who-row--taken">
+              <span className="who-row__dot" aria-hidden="true" />
+              <span className="who-row__name who-row__name--taken">
+                {say('Seat taken', '자리 있음', 'Sitio ocupado', 'Place prise', 'مقعد محجوز', '已有人', '席あり')}
+              </span>
+              <span className="who-row__role">
+                {say('names are visible to people at this table',
+                  '이름은 이 밥상에 앉은 사람에게만 보여요',
+                  'los nombres solo los ven quienes están en esta mesa',
+                  'les noms ne sont visibles que par les personnes à cette table',
+                  'الأسماء تظهر لمن هم على هذه المائدة فقط',
+                  '名字只有这桌的人看得到',
+                  '名前はこの食卓に着く人にだけ見えます')}
+              </span>
+            </li>
+          ) : (
             <li key={s.id} className="who-row who-row--stacked">
               <span className="who-row__dot" aria-hidden="true" />
               <span className="who-row__line">
@@ -1015,7 +1037,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 </span>
               )}
             </li>
-          ))}
+          )))}
         </ul>
         {table.note && <p className="detail-note">“{table.note}”</p>}
 

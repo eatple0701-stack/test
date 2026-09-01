@@ -217,25 +217,86 @@ export async function handle(): Promise<Response> {
     return Response.json({ sent: 0, waiting: rows?.length ?? 0, note: 'no sender configured' });
   }
 
+  const result = await deliver(rows ?? [], {
+    send: (row) => (resendKey ? sendViaResend(row, resendKey) : sendViaGmail(row, gmailUser!, gmailPass!)),
+    stamp: (row) => supabase.from('notifications')
+      .update({ sent_at: new Date().toISOString() })
+      .eq('id', row.id),
+  });
+
+  // The detail goes to the function's own log, where only somebody with
+  // dashboard access reads it. The response goes to whoever called the
+  // function, and JWT verification is off — see below.
+  for (const f of result.failures) console.error(`send-notifications ${f.id}: ${f.message}`);
+
+  return Response.json(responseBody(result));
+}
+
+/**
+ * Send each row, then mark it sent, and say what happened without saying to
+ * whom.
+ *
+ * Split out from handle() so it can be run with the network and the database
+ * stubbed. The two things it fixes were both in the version it replaces:
+ *
+ *   A stamp that failed was not noticed. The mail had gone, the row stayed
+ *   unsent, and the next nudge sent it again — for ever, if the update kept
+ *   failing. `sent` went up anyway, so the response said the queue was
+ *   draining while it was looping. Now a failed stamp is its own count and
+ *   does not add to `sent`, because a row that is still unsent has not been
+ *   dealt with, however well the mail went.
+ *
+ *   Nothing separated the message from the report. See responseBody().
+ */
+export async function deliver(
+  rows: Row[],
+  io: { send: (row: Row) => Promise<unknown>; stamp: (row: Row) => Promise<{ error?: { message: string } | null }> },
+) {
   let sent = 0;
-  const failures: string[] = [];
-  for (const row of (rows ?? []) as Row[]) {
+  let stampFailed = 0;
+  const failures: { id: string; message: string }[] = [];
+
+  for (const row of rows) {
     try {
-      if (resendKey) await sendViaResend(row, resendKey);
-      else await sendViaGmail(row, gmailUser!, gmailPass!);
-      await supabase.from('notifications')
-        .update({ sent_at: new Date().toISOString() })
-        .eq('id', row.id);
-      sent += 1;
+      await io.send(row);
     } catch (e) {
       // Leave the row unsent; the next nudge retries it. One bad address
       // must not dam the queue behind it, so the loop continues.
-      failures.push(`${row.id}: ${(e as Error).message}`);
+      failures.push({ id: row.id, message: `send: ${(e as Error).message}` });
+      continue;
     }
+    const stamped = await io.stamp(row).catch((e) => ({ error: { message: (e as Error).message } }));
+    if (stamped?.error) {
+      stampFailed += 1;
+      failures.push({ id: row.id, message: `stamp: ${stamped.error.message}` });
+      continue;
+    }
+    sent += 1;
   }
-  // `to` is the count, never the addresses — this response is readable by
-  // anyone who can call the function, and JWT verification is off.
-  return Response.json({ sent, failed: failures.length, failures: failures.slice(0, 3) });
+  return { sent, stampFailed, failures };
+}
+
+/**
+ * What the caller is told.
+ *
+ * Counts and notification ids, and nothing else. The old version returned
+ * the failure strings, and those are built from the provider's own error
+ * body — `resend 422: {"message":"Invalid `to` field: someone@example.com"}`
+ * — so a rejected address travelled straight into the response. SMTP
+ * rejections name the address too. JWT verification is off on this function,
+ * by design, so that response is readable by anyone who learns the URL.
+ *
+ * A notification id is safe to return and is the thing somebody debugging
+ * actually needs: it is the row to look at in the dashboard, where the
+ * address is already visible to the people entitled to see it.
+ */
+export function responseBody(result: { sent: number; stampFailed: number; failures: { id: string }[] }) {
+  return {
+    sent: result.sent,
+    failed: result.failures.length,
+    stamp_failed: result.stampFailed,
+    failed_ids: result.failures.slice(0, 3).map(f => f.id),
+  };
 }
 
 // Guarded so the encoders above can be imported and run by a test. Node

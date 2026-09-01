@@ -372,6 +372,18 @@ export async function deleteTable(tableId) {
 // never to "no signups", because seat counts and approval flow both read this.
 const SIGNUP_COLUMNS = '*, profiles (avatar_url)';
 
+/**
+ * The signups at one table, with the same anonymous placeholders the list
+ * screen gets.
+ *
+ * The merge was on listAllSignups() alone for a few hours on 2026-09-01, and
+ * the table page — the screen somebody actually decides on — was left reading
+ * the raw rows. Once signups_read closed, a stranger read none of them, so
+ * the page said "아직 아무도 자리를 잡지 않아서, 앉으시면 둘이 됩니다" about
+ * a table with two people already on it, and printed 3 seats free beside a
+ * card printing 2. A wrong number is bad; a sentence telling somebody they
+ * would be the first when they would be the third is worse, and it was live.
+ */
 export async function listSignups(tableId) {
   const sb = await client();
   await currentUser();
@@ -382,7 +394,11 @@ export async function listSignups(tableId) {
       .from('signups').select('*').eq('table_id', tableId).order('created_at'));
   }
   if (error) throw new Error(friendlyError(error));
-  return (data ?? []).map(signupFromRow);
+  const mine = (data ?? []).map(signupFromRow);
+
+  const { data: holds, error: holdError } = await sb.rpc('seat_holds');
+  if (holdError || !Array.isArray(holds)) return mine;
+  return mergeSeatHolds(mine, holds.filter(h => h?.table_id === tableId));
 }
 
 /**

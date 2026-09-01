@@ -12166,3 +12166,9 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
   white-space: nowrap;
   border: 0;
 }
+
+/* A seat whose occupant this reader may not see. Same weight as a named row
+   — it is a person either way — but in muted ink, because the name is the
+   part that is missing rather than the person. */
+.who-row--taken { display: flex; align-items: baseline; gap: 8px; }
+.who-row__name--taken { color: var(--muted-strong); font-weight: 600; }
