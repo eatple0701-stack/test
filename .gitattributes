@@ -1,0 +1,36 @@
+# One line ending, everywhere.
+#
+# This repo is worked on from Windows with git's autocrlf on, so the same
+# file was LF in one working copy and CRLF in the next. That is not cosmetic
+# here — it broke work four times in three days, each time in a way that
+# looked like something else:
+#
+#   A test matched a sentence across a line break, passed on the branch it
+#   was written on, and failed the moment `master` was checked out. Nothing
+#   about the code had changed; git had rewritten the file.
+#
+#   Three separate "break the test on purpose" mutations silently matched
+#   nothing and reported NO-OP — which on a results line reads exactly like
+#   a test that did its job.
+#
+# `text=auto eol=lf` normalises to LF in the index and checks out LF, so a
+# working copy and a blob agree. Binary files are excluded below so they are
+# never touched.
+#
+# After adding this, renormalise once:
+#
+#   git add --renormalize .
+#   git commit -m "Normalise line endings"
+
+* text=auto eol=lf
+
+# Binaries — never touched.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.pdf  binary
+*.docx binary
+*.xlsx binary

@@ -337,8 +337,28 @@ alter table public.signups  enable row level security;
 alter table public.blocks   enable row level security;
 
 drop policy if exists profiles_read on public.profiles;
+-- Scoped 2026-09-01. `using (true)` let any anonymous session read all 237
+-- rows — every participant's display name, nationality, languages and
+-- gender. `authenticated` is not "a member" in this app: everybody is signed
+-- in anonymously on arrival so that browsing works before signup, so it
+-- means "anybody who has ever loaded the page".
+--
+-- Kept in step with supabase/migrations/2026-09-01-scope-profile-reads.sql,
+-- which is the file that actually has to be run in the SQL editor — editing
+-- this one changes nothing that is already live.
 create policy profiles_read on public.profiles
-  for select to authenticated using (true);
+  for select to authenticated using (
+    id = auth.uid()
+    or exists (select 1 from public.tables t
+               where t.host_id = public.profiles.id and t.cancelled_at is null)
+    or exists (select 1 from public.tables t join public.signups s on s.table_id = t.id
+               where t.host_id = public.profiles.id and s.user_id = auth.uid())
+    or exists (select 1 from public.signups s join public.tables t on t.id = s.table_id
+               where s.user_id = public.profiles.id and t.host_id = auth.uid())
+    or exists (select 1 from public.signups mine
+               join public.signups theirs on theirs.table_id = mine.table_id
+               where mine.user_id = auth.uid() and theirs.user_id = public.profiles.id)
+  );
 
 drop policy if exists profiles_write_own on public.profiles;
 create policy profiles_write_own on public.profiles
@@ -407,8 +427,18 @@ revoke update on public.tables from authenticated;
 grant update (cancelled_at) on public.tables to authenticated;
 
 drop policy if exists signups_read on public.signups;
+-- Scoped 2026-09-01 alongside profiles, and for the same reason. This one
+-- returned zero rows at the moment it was checked only because no pilot
+-- signup existed yet; it holds a name, a nationality and a free-text note,
+-- and becomes the same exposure the first time somebody takes a seat.
 create policy signups_read on public.signups
-  for select to authenticated using (true);
+  for select to authenticated using (
+    user_id = auth.uid()
+    or exists (select 1 from public.tables t
+               where t.id = public.signups.table_id and t.host_id = auth.uid())
+    or exists (select 1 from public.signups mine
+               where mine.table_id = public.signups.table_id and mine.user_id = auth.uid())
+  );
 
 -- A blocked person cannot take a seat at a table the blocker hosts. This is
 -- the half of blocking that has to live here rather than in the client: the
