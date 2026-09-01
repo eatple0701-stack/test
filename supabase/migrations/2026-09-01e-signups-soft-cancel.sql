@@ -115,6 +115,69 @@ create policy signups_cancel_own_or_host on public.signups
 
 grant update (status, attendance, cancelled_at) on public.signups to authenticated;
 
+-- ── the hole this policy opens, and the door on it ──────────────────────
+--
+-- Found in review before this was applied, and it is the serious one.
+--
+-- `authenticated` has ALREADY held `update (status, attendance)` since the
+-- host decision was built. What kept a guest from using it was that the only
+-- UPDATE policy on signups is signups_decide_by_host, which no guest passes.
+-- Permissive policies for the same command are OR'd together, so the moment
+-- signups_cancel_own_or_host adds `user_id = auth.uid()`, a guest passes RLS
+-- — and the column privilege they were already holding comes alive.
+--
+--     before:  privilege yes, policy no   -> cannot
+--     after:   privilege yes, policy yes  -> can set their own status
+--
+-- A guest could accept their own seat. notify_seat_decided would then post
+-- them a "자리 확정!" email, and safetyPromise.js's promise that the host
+-- decides who sits down would be false.
+--
+-- Column grants cannot express this. They are per role, and "a guest may
+-- write cancelled_at but not status" is per row — the same reason column
+-- privileges could not scope `profiles` back in 2026-09-01b.
+--
+-- So the rule moves to a BEFORE UPDATE trigger, which sees the old row and
+-- the new one and can compare them. Chosen over revoking update(status) and
+-- routing the host decision through a security definer RPC because that
+-- needs a matching client change, and a change that must land in two places
+-- in the right order is the exact shape of what took production down earlier
+-- today. This one needs no client change at all.
+--
+-- `auth.uid() is null` exempts the dashboard and the service role: they
+-- bypass RLS but not triggers, and the team has to be able to fix a row by
+-- hand. An anonymous request cannot reach here — no UPDATE policy admits it.
+
+create or replace function public.assert_seat_decision_is_hosts()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if auth.uid() is null then
+    return new;
+  end if;
+
+  if new.status is distinct from old.status
+     or new.attendance is distinct from old.attendance then
+    if not exists (
+      select 1 from public.tables t
+      where t.id = new.table_id and t.host_id = auth.uid()
+    ) then
+      raise exception 'not_your_decision';
+    end if;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists signups_decision_guard on public.signups;
+create trigger signups_decision_guard
+  before update on public.signups
+  for each row execute function public.assert_seat_decision_is_hosts();
+
 -- ── everything that counts a seat ───────────────────────────────────────
 
 create or replace function public.seat_holds()

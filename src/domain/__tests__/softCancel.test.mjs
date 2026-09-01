@@ -266,3 +266,158 @@ test('the rollback restores the old arithmetic and destroys nothing', async () =
 });
 
 test.after(async () => { await db.close(); });
+
+// ── Who may decide, once a guest can pass an UPDATE policy ──────────────
+//
+// Found in review before this was applied. `authenticated` has held
+// `update (status, attendance)` since the host decision was built; what kept
+// a guest from using it was that the only UPDATE policy was host-only.
+// Permissive policies OR together, so signups_cancel_own_or_host — which
+// exists so a guest can write their own cancelled_at — would have handed
+// them the column privilege they were already holding.
+//
+// A guest could then accept their own seat, and notify_seat_decided would
+// email them "자리 확정!". The app's promise that the host decides who sits
+// down would be false.
+//
+// Everything below performs a real UPDATE, as a real role, through RLS.
+
+const GUARDED = await (async () => {
+  // RLS off until now — these tests are the only ones that need it, and the
+  // rest of the file is about arithmetic.
+  await db.exec(`
+    alter table public.signups enable row level security;
+    -- Both policies read the tables table in their EXISTS, and a policy is
+    -- evaluated as the caller — so without select on it the whole thing fails
+    -- with "permission denied for table tables" and every assertion below
+    -- would be measuring a missing grant rather than the rule. Production
+    -- grants this; the fixture has to as well.
+    grant select on public.tables to authenticated;
+    alter table public.tables enable row level security;
+    drop policy if exists tables_read on public.tables;
+    create policy tables_read on public.tables for select to authenticated using (true);
+
+    grant select on public.signups to authenticated;
+    revoke update on public.signups from authenticated;
+    grant update (status, attendance, cancelled_at) on public.signups to authenticated;
+
+    drop policy if exists signups_read on public.signups;
+    create policy signups_read on public.signups for select to authenticated using (true);
+
+    -- The host decision policy exactly as schema.sql has it.
+    drop policy if exists signups_decide_by_host on public.signups;
+    create policy signups_decide_by_host on public.signups
+      for update to authenticated
+      using (
+        status <> 'declined'
+        and exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
+      )
+      with check (
+        status in ('accepted', 'declined')
+        and (attendance is null or status = 'accepted')
+        and exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
+      );`);
+  return true;
+})();
+
+/** Run one statement as a signed-in person, and say whether it was allowed. */
+async function asRole(uid, sql) {
+  try {
+    const out = await db.exec(
+      `begin;
+       select set_config('request.jwt.claims', '{"sub":"${uid}","role":"authenticated"}', true);
+       set local role authenticated;
+       ${sql}
+       reset role;
+       commit;`);
+    // An UPDATE that RLS filtered out affects zero rows and raises nothing —
+    // silently doing nothing is a refusal too, and the loudest bug here would
+    // be reading that as success.
+    const upd = [...out].reverse().find(r => typeof r.affectedRows === 'number');
+    return { ok: (upd?.affectedRows ?? 0) > 0, rows: upd?.affectedRows ?? 0, error: null };
+  } catch (e) {
+    await db.exec('rollback;').catch(() => {});
+    return { ok: false, rows: 0, error: e.message };
+  }
+}
+
+test('a guest cannot accept their own seat', async () => {
+  assert.ok(GUARDED);
+  const t = await newTable(4);
+  const id = await ask(t, GUEST, 'pending');
+  const r = await asRole(GUEST, `update public.signups set status = 'accepted' where id = '${id}';`);
+  assert.equal(r.ok, false, 'a guest accepted their own seat');
+  assert.match(String(r.error), /not_your_decision/,
+    'the refusal did not come from the guard — check it is still on the table');
+
+  const { rows } = await db.query(`select status from public.signups where id = $1`, [id]);
+  assert.equal(rows[0].status, 'pending', 'the status changed anyway');
+});
+
+test('a guest cannot rewrite whether they turned up', async () => {
+  // Decided: attendance is the host's record of the evening, so a guest
+  // editing it could erase their own no-show. Guests write cancelled_at and
+  // nothing else.
+  const t = await newTable(4);
+  const id = await ask(t, GUEST, 'accepted');
+  const r = await asRole(GUEST, `update public.signups set attendance = 'came' where id = '${id}';`);
+  assert.equal(r.ok, false, 'a guest rewrote their own attendance');
+  assert.match(String(r.error), /not_your_decision/);
+});
+
+test('a guest can give up their own seat', async () => {
+  const t = await newTable(4);
+  const id = await ask(t, GUEST, 'pending');
+  const r = await asRole(GUEST, `update public.signups set cancelled_at = now() where id = '${id}';`);
+  assert.equal(r.ok, true, `a guest could not cancel their own request: ${r.error}`);
+  assert.equal(await holds(t), 0, 'the seat did not come back');
+});
+
+test('a host can still decide, which is the feature that must not break', async () => {
+  const t = await newTable(4);
+  const id = await ask(t, GUEST, 'pending');
+  const r = await asRole(HOST, `update public.signups set status = 'accepted' where id = '${id}';`);
+  assert.equal(r.ok, true, `the host could no longer answer a request: ${r.error}`);
+  const { rows } = await db.query(`select status from public.signups where id = $1`, [id]);
+  assert.equal(rows[0].status, 'accepted');
+});
+
+test('a host can remove somebody from their own table', async () => {
+  const t = await newTable(4);
+  const id = await ask(t, GUEST, 'accepted');
+  const r = await asRole(HOST, `update public.signups set cancelled_at = now() where id = '${id}';`);
+  assert.equal(r.ok, true, `the host could not remove a guest: ${r.error}`);
+  assert.equal(await holds(t), 0);
+});
+
+test('a third party cannot touch somebody else’s seat', async () => {
+  const t = await newTable(4);
+  const id = await ask(t, GUEST, 'pending');
+  const cancelled = await asRole(OTHER, `update public.signups set cancelled_at = now() where id = '${id}';`);
+  assert.equal(cancelled.ok, false, 'a stranger cancelled somebody else’s request');
+  const decided = await asRole(OTHER, `update public.signups set status = 'accepted' where id = '${id}';`);
+  assert.equal(decided.ok, false, 'a stranger answered somebody else’s request');
+
+  const { rows } = await db.query(
+    `select status, cancelled_at from public.signups where id = $1`, [id]);
+  assert.equal(rows[0].status, 'pending');
+  assert.equal(rows[0].cancelled_at, null);
+});
+
+test('none of that recursed', async () => {
+  // The new policy and the guard both read `tables`, and tables_read is
+  // `using (true)` — it does not come back to signups, so there is no cycle.
+  // Asserted rather than reasoned about, because 42P17 has already cost this
+  // project one production incident.
+  const t = await newTable(4);
+  const id = await ask(t, GUEST, 'pending');
+  for (const [who, sql] of [
+    [GUEST, `update public.signups set cancelled_at = now() where id = '${id}';`],
+    [HOST, `update public.signups set status = 'declined' where id = '${id}';`],
+    [OTHER, `update public.signups set status = 'accepted' where id = '${id}';`],
+  ]) {
+    const r = await asRole(who, sql);
+    assert.doesNotMatch(String(r.error ?? ''), /infinite recursion|42P17/,
+      'a policy recursed while updating a signup');
+  }
+});

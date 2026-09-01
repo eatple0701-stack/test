@@ -74,7 +74,7 @@ took them, all keyed to the six groups.
 ### Numbers
 | | |
 |---|---|
-| Automated tests | **789, all passing** (`npm test`) |
+| Automated tests | **796, all passing** (`npm test`) |
 | i18n audit | 0 untranslated strings |
 | Register places shipped | 8,118 of 167,659 |
 | Menu lines shipped | 199,574 (ko/en/ja/zh), 94,515 with register prices |
@@ -301,7 +301,7 @@ the file alone changes nothing that is already running.
 ## 8. Commands
 
 ```bash
-npm test                      # 789 tests — must stay green
+npm test                      # 796 tests — must stay green
 node scripts/audit-i18n.mjs   # must print 0
 npm run dev                   # port 5177 (see .claude/launch.json)
 npm run build                 # artefacts in dist/, data included
