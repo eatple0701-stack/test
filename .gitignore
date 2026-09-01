@@ -36,3 +36,23 @@ dist-ssr
 # from them. Committing them would put the key in the history and half a
 # gigabyte in every clone.
 서울관광재단*/
+
+# Dumps, backups and debug output.
+#
+# Added 2026-09-01, before the repository went onto a second machine. A clone
+# takes the whole history with it, and this repo handles real pilot
+# participants' names and nationalities — so the check is not "is anything
+# secret in the tree" but "could anything secret ever land in it by accident".
+# `*.log` and `.env*` were already covered; a pg_dump or a pasted debug
+# capture was not.
+#
+# NOT `*.sql`: the migrations and schema.sql are meant to be tracked, and
+# they are how the database is reviewed before it changes.
+*dump*.sql
+*backup*.sql
+*.dump
+*.sql.gz
+*debug*.txt
+*debug*.json
+*output*.txt
+*backup*.json

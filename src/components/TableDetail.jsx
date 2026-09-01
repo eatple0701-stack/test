@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
-import { seatsRemaining, joinBlocker, isPast, BLOCKER_TEXT, JOIN_BLOCK } from '../domain/policy/table.js';
+import { seatsRemaining, joinBlocker, isPast, BLOCKER_TEXT, JOIN_BLOCK, headcountIfYouJoin } from '../domain/policy/table.js';
 import {
   SEAT_STATUS, isPending, isAccepted, isDeclined, hasLapsed, pendingSignups,
   acceptedSignups, affectedByCancellation,
@@ -731,13 +731,13 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                 'لم يجلس أحد بعد، فإن جلست تكونان اثنين.',
                 '还没有别人占位子，你坐下就是两个人。',
                 'まだ誰も席についていないので、あなたが座れば二人です。')
-              : say(`Take a seat and there would be ${confirmed.length + 2} of you.`,
-                `앉으시면 ${confirmed.length + 2}명이 됩니다.`,
-                `Si te sientas seríais ${confirmed.length + 2}.`,
-                `Si vous vous asseyez, vous serez ${confirmed.length + 2}.`,
-                `إن جلست تصيرون ${confirmed.length + 2}.`,
-                `你坐下就是 ${confirmed.length + 2} 个人。`,
-                `座れば${confirmed.length + 2}人になります。`)}
+              : say(`Take a seat and there would be ${headcountIfYouJoin(signups)} of you.`,
+                `앉으시면 ${headcountIfYouJoin(signups)}명이 됩니다.`,
+                `Si te sientas seríais ${headcountIfYouJoin(signups)}.`,
+                `Si vous vous asseyez, vous serez ${headcountIfYouJoin(signups)}.`,
+                `إن جلست تصيرون ${headcountIfYouJoin(signups)}.`,
+                `你坐下就是 ${headcountIfYouJoin(signups)} 个人。`,
+                `座れば${headcountIfYouJoin(signups)}人になります。`)}
           </p>
         )}
       </div>
@@ -891,9 +891,27 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
                it is would undo the policy; saying nothing was the bug. */
             <li key={s.id} className="who-row who-row--taken">
               <span className="who-row__dot" aria-hidden="true" />
+              {/* "자리 있음" was the first wording and it meant the opposite of
+                  what it said: in Korean it reads as a seat that is FREE, on a
+                  screen that also prints "1자리 남음" a few lines up. It names
+                  a person now, so the two are not the same kind of thing and
+                  cannot be read as each other. Same mistake as "A full table"
+                  for the dish category, found the same day. */}
               <span className="who-row__name who-row__name--taken">
-                {say('Seat taken', '자리 있음', 'Sitio ocupado', 'Place prise', 'مقعد محجوز', '已有人', '席あり')}
+                {say('Someone, name not shown', '익명 참가자', 'Alguien, sin nombre visible',
+                  'Quelqu’un, nom masqué', 'شخص، الاسم غير ظاهر', '一位参加者（不显示名字）', '参加者（名前は非表示）')}
               </span>
+              {/* The same badge a named row gets. Without it a pending request
+                  and a given seat looked identical, so a reader counted three
+                  people and then read "앉으시면 3명이 됩니다" underneath — the
+                  sentence counts only confirmed seats, correctly, and the list
+                  gave no way to see which row was not one of them. */}
+              {isPending(s) && (
+                <span className="who-row__pending">
+                  {say('asked to join', '참석 요청함', 'ha pedido sitio', 'a demandé une place',
+                    'طلب مقعدًا', '申请加入', '参加を希望')}
+                </span>
+              )}
               <span className="who-row__role">
                 {say('names are visible to people at this table',
                   '이름은 이 밥상에 앉은 사람에게만 보여요',

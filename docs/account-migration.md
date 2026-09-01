@@ -157,7 +157,7 @@ git clone https://github.com/eatple0701-stack/test.git
 cd test
 npm install
 git config core.hooksPath .githooks   # 잘못된 레포로 푸시 방지
-npm test                              # 747개 통과하면 정상
+npm test                              # 758개 통과하면 정상
 npm run dev                           # 5177 포트
 ```
 비밀정보 없이 전부 돌아갑니다 — 데이터가 레포에 들어 있어서요. 검증 완료

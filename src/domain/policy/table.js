@@ -166,3 +166,28 @@ export function validateNewTable({ menuId, date, time, place, seats }, menu) {
   }
   return problems;
 }
+
+/**
+ * How many people the "누가 가나" list will show, the host included.
+ *
+ * Exists so the list and the sentence under it stop counting separately.
+ * They did, and it showed: on 2026-09-01 a logged-out reader saw three rows
+ * and "앉으시면 3명이 됩니다" beneath them. Both numbers were right by their
+ * own rule and the pair was nonsense.
+ */
+export const listedAtTable = (signups = []) => 1 + (signups ?? []).length;
+
+/**
+ * What the headcount sentence says: the host, everybody with a given seat,
+ * and you.
+ *
+ * Pending requests are left out on purpose — see the note on attendance().
+ * The question this answers is whether you would be sitting down to a proper
+ * table, and only a seat the host has actually given answers it.
+ *
+ * So this is deliberately NOT listedAtTable() + 1. The difference is exactly
+ * the number of rows that are not confirmed, and the list has to show which
+ * those are: a row the reader cannot tell is pending makes the arithmetic
+ * look broken even though it is right.
+ */
+export const headcountIfYouJoin = (signups = []) => 2 + acceptedSignups(signups).length;
