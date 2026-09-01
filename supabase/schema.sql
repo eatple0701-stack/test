@@ -445,6 +445,24 @@ alter table public.blocks   enable row level security;
 -- Postgres, and executes the version that failed first to prove it can still
 -- detect the failure.
 
+-- Called off, and when. Null on every table that is still happening.
+--
+-- THIS STATEMENT HAS TO STAY ABOVE is_open_host. It used to sit eighty lines
+-- below, next to the tables_cancel_own policy it was written beside, and on a
+-- fresh project the file did not run at all: is_open_host is `language sql`,
+-- Postgres parse-analyses such a body at CREATE time, and a body reading a
+-- column that does not exist yet raises 42703 and takes the rest of the
+-- script with it. In the Supabase SQL editor the whole thing is one
+-- transaction, so a new project came up with nothing — not the wrong
+-- policies, none of them.
+--
+-- Nothing caught it because nothing ran this file. profileExposure.test.mjs
+-- reads it as text and compares bodies, which cannot see statement order, and
+-- rlsPolicies.test.mjs executes the migrations against a fixture that
+-- declares the column itself. schemaSqlRuns.test.mjs exists now and executes
+-- this file top to bottom on an empty database.
+alter table public.tables add column if not exists cancelled_at timestamptz;
+
 create or replace function public.is_open_host(p_user uuid)
 returns boolean
 language sql stable security definer set search_path = public as $fn$
@@ -530,9 +548,6 @@ create policy tables_insert_own on public.tables
 drop policy if exists tables_delete_own on public.tables;
 create policy tables_delete_own on public.tables
   for delete to authenticated using (host_id = auth.uid());
-
--- Called off, and when. Null on every table that is still happening.
-alter table public.tables add column if not exists cancelled_at timestamptz;
 
 -- The host, and only the host, may call their own table off.
 --

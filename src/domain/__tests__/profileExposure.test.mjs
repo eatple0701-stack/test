@@ -149,7 +149,11 @@ const APPLIED = [
 const lastApplied = (name) => {
   let found = null;
   for (const file of APPLIED) {
-    const body = fn(sqlOnly(file), name);
+    // anyFn, not fn: the old extractor looks only for $fn$ and, on a
+    // plpgsql function quoted the other way, silently returns a slice
+    // running to some later function - truthy, wrong, and it reported
+    // assert_seat_decision_is_hosts as drifted while it was byte-identical.
+    const body = anyFn(sqlOnly(file), name);
     if (body) found = { body, file };
   }
   return found;
@@ -159,8 +163,84 @@ test('the helpers do not drift from the last migration that defined them', () =>
   for (const name of HELPERS) {
     const latest = lastApplied(name);
     assert.ok(latest, `${name} is defined by no applied migration — check APPLIED`);
-    assert.equal(tight(fn(schema, name)), tight(latest.body),
+    assert.equal(tight(anyFn(schema, name)), tight(latest.body),
       `${name} in schema.sql is not what ${latest.file} left in production`);
+  }
+});
+
+// ── Everything an applied migration left behind, not just the five ──────
+//
+// HELPERS is a hand-written list, and on 2026-09-01 it was the reason a day's
+// worth of drift went unseen: seat_holds was on it and assert_seat_available
+// was not, so schema.sql kept the pre-01c guard — the one that counts every
+// signup row whatever its status — while every test stayed green. The bug
+// that closes a four-seat table after three refusals was live in the file a
+// fresh project is built from, and the audit that found it was a person
+// reading two files side by side.
+//
+// So the list stops being hand-written. Whatever an applied migration
+// defines, schema.sql has to declare too.
+
+/**
+ * The body of any `create or replace function public.<name>(…)`.
+ *
+ * This file uses two dollar quotings — $fn$ for the sql-language helpers and a
+ * bare doubled dollar for the plpgsql ones — so the delimiter has to be
+ * whichever opens FIRST after the header. Choosing by preference instead
+ * matched a $fn$ belonging to a function further down the file and reported
+ * assert_seat_available as drifted when it was byte-identical.
+ */
+const anyFn = (sql, name) => {
+  const at = sql.indexOf(`create or replace function public.${name}(`);
+  if (at < 0) return null;
+  const candidates = ['$fn$', '$$']
+    .map(q => ({ q, open: sql.indexOf(q, at) }))
+    .filter(c => c.open >= 0)
+    .sort((a, b) => a.open - b.open);
+  if (!candidates.length) return null;
+  const { q, open } = candidates[0];
+  const close = sql.indexOf(q, open + q.length);
+  return close < 0 ? null : sql.slice(at, close + q.length);
+};
+
+const declaredBy = (file) => {
+  const sql = sqlOnly(file);
+  return {
+    functions: [...sql.matchAll(/create or replace function public\.(\w+)\s*\(/g)].map(m => m[1]),
+    policies: [...sql.matchAll(/create policy (\w+) on public\.(\w+)/g)]
+      .map(m => ({ name: m[1], table: m[2] })),
+    columns: [...sql.matchAll(/alter table public\.(\w+)\s+add column if not exists (\w+)/g)]
+      .map(m => ({ table: m[1], column: m[2] })),
+  };
+};
+
+test('every function an applied migration defines is in schema.sql, with the same body', () => {
+  const seen = new Set();
+  for (const file of APPLIED) for (const name of declaredBy(file).functions) seen.add(name);
+  assert.ok(seen.size >= 6, `only ${seen.size} functions found across the applied migrations`);
+
+  for (const name of seen) {
+    const latest = lastApplied(name);
+    const mine = anyFn(schema, name);
+    assert.ok(mine, `public.${name}() is defined by an applied migration and absent from schema.sql`);
+    assert.ok(latest, `public.${name}() could not be extracted from any applied migration`);
+    assert.equal(tight(mine), tight(latest.body),
+      `public.${name}() in schema.sql is not the version that was applied`);
+  }
+});
+
+test('every policy and column an applied migration adds is in schema.sql', () => {
+  for (const file of APPLIED) {
+    const { policies, columns } = declaredBy(file);
+    for (const p of policies) {
+      assert.ok(schema.includes(`create policy ${p.name} on public.${p.table}`),
+        `${p.name} on ${p.table} was applied by ${file} and schema.sql does not create it`);
+    }
+    for (const c of columns) {
+      assert.ok(
+        new RegExp(`alter table public\\.${c.table}\\s+add column if not exists ${c.column}\\b`).test(schema),
+        `${c.table}.${c.column} was applied by ${file} and schema.sql does not add it`);
+    }
   }
 });
 
