@@ -82,12 +82,24 @@ select ('00000000-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid,
        'person ' || i, 'Somewhere', case when i % 2 = 0 then 'Woman' else 'Man' end
 from generate_series(1, 237) i;
 
--- The two real tables, fifteen days apart, as on production.
+-- The two real tables, fifteen days apart, as on production — but written
+-- relative to today rather than as the literal August dates they have there.
+-- is_open_host() has a thirty-day window in it now, so fixed dates would make
+-- this file quietly stop testing anything a month from now: every table would
+-- fall out of the window and the assertions would keep passing for the wrong
+-- reason.
 insert into public.tables (id, host_id, host_name, date, seats, created_at) values
   ('11111111-0000-4000-8000-000000000001',
-   '00000000-0000-4000-8000-000000000001', 'host one', '2026-08-06', 4, '2026-08-04'),
+   '00000000-0000-4000-8000-000000000001', 'host one', current_date - 26, 4, now() - interval '28 days'),
   ('11111111-0000-4000-8000-000000000002',
-   '00000000-0000-4000-8000-000000000002', 'host two', '2026-08-22', 4, '2026-08-19');
+   '00000000-0000-4000-8000-000000000002', 'host two', current_date + 5,  4, now() - interval '13 days');
+
+-- A meal from months ago. Its host is the whole point of the date window: they
+-- once held an open invitation and no longer do, so a stranger has no business
+-- reading their row. Their guest still does, through shares_a_table.
+insert into public.tables (id, host_id, host_name, date, seats, created_at) values
+  ('11111111-0000-4000-8000-000000000004',
+   '00000000-0000-4000-8000-000000000004', 'host four', current_date - 200, 4, now() - interval '205 days');
 
 -- A table that was called off, with somebody who had asked for a seat at it.
 -- Its host is deliberately NOT covered by is_open_host, so this pair is the
@@ -95,13 +107,21 @@ insert into public.tables (id, host_id, host_name, date, seats, created_at) valu
 -- it, breaking that branch on purpose still passed every assertion here.
 insert into public.tables (id, host_id, host_name, date, seats, created_at, cancelled_at) values
   ('11111111-0000-4000-8000-000000000003',
-   '00000000-0000-4000-8000-000000000003', 'host three', '2026-08-30', 4, '2026-08-25', '2026-08-28');
+   '00000000-0000-4000-8000-000000000003', 'host three', current_date + 2, 4, now() - interval '7 days', now() - interval '4 days');
 
 insert into public.signups (table_id, user_id, name) values
   ('11111111-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000010', 'guest a'),
   ('11111111-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000011', 'guest b'),
   ('11111111-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000012', 'guest c'),
-  ('11111111-0000-4000-8000-000000000003', '00000000-0000-4000-8000-000000000013', 'guest d');
+  ('11111111-0000-4000-8000-000000000003', '00000000-0000-4000-8000-000000000013', 'guest d'),
+  ('11111111-0000-4000-8000-000000000004', '00000000-0000-4000-8000-000000000014', 'guest e');
+
+-- One request still waiting on the host, and one already turned down. They
+-- hold different numbers of seats and neither may be attributed to anybody by
+-- a stranger, which is what seat_holds() has to get right.
+insert into public.signups (table_id, user_id, name, status, gender) values
+  ('11111111-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000015', 'guest f', 'pending', 'Woman'),
+  ('11111111-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000016', 'guest g', 'declined', 'Woman');
 `;
 
 const OPEN_POLICIES = `
@@ -122,6 +142,9 @@ const UNSEATED  = '00000000-0000-4000-8000-0000000000ff'; // no profile row at a
 const CALLED_OFF_HOST = '00000000-0000-4000-8000-000000000003';
 const JILTED    = '00000000-0000-4000-8000-000000000013'; // asked for a seat at it
 const PLAIN     = '00000000-0000-4000-8000-000000000050'; // a profile, nothing else
+const LONG_AGO_HOST = '00000000-0000-4000-8000-000000000004'; // hosted 200 days ago
+const LONG_AGO_GUEST = '00000000-0000-4000-8000-000000000014';
+const TABLE_TWO = '11111111-0000-4000-8000-000000000002';
 const TABLE_ONE = '11111111-0000-4000-8000-000000000001';
 
 /**
@@ -166,7 +189,12 @@ async function as(uid, sql) {
     await db.exec('rollback;').catch(() => {});
     throw e;
   }
-  return [...out].reverse().find(r => r.rows?.length)?.rows ?? [];
+  // The statement that was asked for is the one before `rollback;` — taken by
+  // position, not by looking for the last result that happens to have rows in
+  // it. That earlier version silently answered with the `set_config` row
+  // whenever the real query returned nothing, so every "sees no rows" test
+  // read 1 instead of 0 and two of them were vacuous until this line changed.
+  return out[out.length - 2]?.rows ?? [];
 }
 
 const visibleTo = async (uid) =>
@@ -301,61 +329,104 @@ test('the avatar stack at your own table still has faces', async () => {
   assert.equal(rows.length, 2, 'faces disappear from a table you are sitting at');
 });
 
-test('seat counts still work for a stranger, because signups is untouched', async () => {
-  // Deliberate, and the reason signups is not in this migration: this read and
-  // "how many seats are taken" are the same read. Closing it needs a
-  // security-definer aggregate and the client moved onto it — tracked as 1b in
-  // docs/public-table-columns.md. Until then this must keep returning 2.
+
+test('a host who last cooked months ago is no longer public', async () => {
+  // The date window. Without it `cancelled_at is null` alone means anybody who
+  // has ever hosted stays readable for good, so the exposure only ever grows.
   await ensureCommitted();
-  const rows = await as(UNSEATED,
-    `select count(*)::int as n from public.signups where table_id = '${TABLE_ONE}';`);
-  assert.equal(rows[0].n, 2, 'the seat counter on every card would read zero');
+  assert.ok(!(await visibleTo(PLAIN)).includes(LONG_AGO_HOST),
+    'a host from 200 days ago is still readable by a stranger');
+  // And nothing is actually lost: their guest keeps them, with no time limit.
+  assert.ok((await visibleTo(LONG_AGO_GUEST)).includes(LONG_AGO_HOST),
+    'the guest of a long-past table can no longer see who cooked for them');
 });
 
-test('the helpers are the shape that makes 1b safe', async () => {
-  // Today `signups_read` is still `using (true)`, so nothing would recurse
-  // even without these — the recursion only becomes possible once 1b scopes
-  // signups. That is exactly why this is checked structurally now rather than
-  // discovered then: `security definer` is what lets the policy ask about
-  // signups without re-entering signups' own policy, and the pinned
-  // search_path is what stops a caller redirecting `public` at a schema of
-  // their own and changing what the function sees.
+// ── signups: closed, with the seat counts kept ──────────────────────────
+
+test('a stranger reads no signup rows at all', async () => {
+  await ensureCommitted();
+  const rows = await as(UNSEATED, 'select id from public.signups;');
+  assert.equal(rows.length, 0, 'names, nationalities and free-text notes are still readable');
+});
+
+test('a host reads every request at their own table, and only there', async () => {
+  await ensureCommitted();
+  const rows = await as(HOST_TWO, 'select table_id from public.signups;');
+  assert.ok(rows.length > 0, 'a host cannot see who asked for a seat — the approval queue is empty');
+  assert.ok(rows.every(r => r.table_id === TABLE_TWO), 'a host reads signups at tables they do not host');
+});
+
+test('a guest reads the table they are sitting at, and no other', async () => {
+  await ensureCommitted();
+  const rows = await as(GUEST, 'select table_id from public.signups;');
+  assert.equal(rows.length, 2, 'a guest cannot see who else is coming to their own meal');
+  assert.ok(rows.every(r => r.table_id === TABLE_ONE));
+});
+
+test('seat_holds gives a stranger the count without the people', async () => {
+  // The whole reason signups could be closed today. Two accepted at table one,
+  // one accepted plus one pending at table two, one at the cancelled table and
+  // one at the long-past one. The cancelled table's seats do not count, and
+  // neither does the declined request.
+  await ensureCommitted();
+  const rows = await as(UNSEATED, 'select table_id, status from public.seat_holds();');
+  const perTable = {};
+  for (const r of rows) perTable[r.table_id] = (perTable[r.table_id] ?? 0) + 1;
+  assert.equal(perTable[TABLE_ONE], 2, 'the seat counter on table one would be wrong');
+  assert.equal(perTable[TABLE_TWO], 2, 'a pending request must still hold its seat');
+  assert.equal(perTable['11111111-0000-4000-8000-000000000003'], undefined,
+    'a cancelled table still reports seats taken');
+  assert.ok(rows.every(r => r.status !== 'declined'),
+    'a stranger can count how many people a host turned away');
+});
+
+test('seat_holds cannot be made to name anybody', async () => {
+  // A count is only anonymous if the shape carries nothing else. This asserts
+  // the columns rather than the values, because a future column added "just
+  // for the avatar" would pass every count assertion above while undoing the
+  // reason the function exists.
+  await ensureCommitted();
+  const { rows } = await db.query(
+    `select p.proname, pg_get_function_result(p.oid) as result
+       from pg_proc p where p.proname = 'seat_holds'`);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].result, 'TABLE(table_id uuid, status text)',
+    'seat_holds returns something other than a table id and a status');
+
+  await assert.rejects(
+    () => as(UNSEATED, 'select user_id from public.seat_holds();'),
+    /user_id/, 'seat_holds exposes a user id');
+});
+
+test('the women filter is answered without publishing anybody’s gender', async () => {
+  // Table two has a pending request from a woman; table one has neither a
+  // woman host nor a woman guest. The stranger learns which tables match and
+  // nothing else — no gender column and no per-table boolean is readable.
+  await ensureCommitted();
+  const ids = (await as(UNSEATED, 'select * from public.tables_with_woman();'))
+    .map(r => r.tables_with_woman ?? r.id ?? Object.values(r)[0]);
+  assert.ok(ids.includes(TABLE_TWO), 'a table with a woman at it is not being matched');
+  assert.ok(!ids.includes(TABLE_ONE), 'a table with no woman at it is being matched');
+
+  // And the raw genders stay unreadable, which is the point of asking at all.
+  const leaked = await as(UNSEATED, 'select gender from public.signups;');
+  assert.equal(leaked.length, 0, 'the gender column is readable after all');
+});
+
+test('the helpers are all security definer with a pinned search_path', async () => {
+  // `security definer` is what lets a policy ask about signups without
+  // re-entering signups' own policy — the failure that took production down.
+  // The pinned search_path is what stops a caller redirecting `public` at a
+  // schema of their own and changing what the function sees.
   await ensureCommitted();
   const { rows } = await db.query(
     `select proname, prosecdef, proconfig from pg_proc
-      where proname in ('is_open_host', 'shares_a_table') order by proname`);
-  assert.equal(rows.length, 2, 'the helper functions are missing');
+      where proname in ('is_open_host', 'shares_a_table', 'at_same_table',
+                        'seat_holds', 'tables_with_woman') order by proname`);
+  assert.equal(rows.length, 5, 'a helper this migration declares is missing');
   for (const fn of rows) {
-    assert.equal(fn.prosecdef, true, `${fn.proname} is not security definer — 1b will recurse`);
+    assert.equal(fn.prosecdef, true, `${fn.proname} is not security definer — it will recurse`);
     assert.ok((fn.proconfig ?? []).some(c => c.startsWith('search_path=')),
       `${fn.proname} does not pin search_path`);
   }
-});
-
-test('a scoped signups policy on top of this one does not recurse', async () => {
-  // The rehearsal for 1b, run now while it is cheap. This is the same shape
-  // that took production down: a signups policy that asks about signups. Once
-  // the lookup goes through a security-definer helper it is answerable.
-  await ensureCommitted();
-  await db.exec(`
-    create or replace function public.at_same_table(p_viewer uuid, p_row_table uuid)
-    returns boolean language sql stable security definer set search_path = public as $fn$
-      select exists (select 1 from signups s
-                      where s.table_id = p_row_table and s.user_id = p_viewer)
-    $fn$;
-    drop policy if exists signups_read on public.signups;
-    create policy signups_read on public.signups for select to authenticated using (
-      user_id = auth.uid()
-      or exists (select 1 from public.tables t
-                  where t.id = signups.table_id and t.host_id = auth.uid())
-      or public.at_same_table(auth.uid(), table_id)
-    );`);
-
-  const mine = await as(GUEST, 'select count(*)::int as n from public.signups;');
-  assert.equal(mine[0].n, 2, 'a guest should see the two seats at their own table');
-
-  const stranger = await as(UNSEATED, 'select count(*)::int as n from public.signups;');
-  assert.equal(stranger[0].n, 0, 'a visitor with no seat should see no signup rows');
-
-  await db.exec(OPEN_POLICIES);
 });

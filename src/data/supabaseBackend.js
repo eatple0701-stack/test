@@ -11,6 +11,7 @@ import {
 } from './tableMapping.js';
 import { cleanGender } from '../domain/catalog/genders.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
+import { mergeSeatHolds } from '../domain/policy/seatHolds.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
 import { isCancelled } from '../domain/policy/cancellation.js';
 import { isPast } from '../domain/policy/table.js';
@@ -384,6 +385,16 @@ export async function listSignups(tableId) {
   return (data ?? []).map(signupFromRow);
 }
 
+/**
+ * Every signup this person is entitled to read, plus an anonymous placeholder
+ * for each seat held at a table they are not part of.
+ *
+ * signups_read gives you all of a table's rows or none of them — your own
+ * seat, a table you host, a table you are sitting at — so "we saw nothing
+ * here" and "there is nothing here" are the only two cases, and the second is
+ * the one the placeholders fill. Merging per table rather than globally is
+ * what keeps a host's own view exact while a stranger still sees 2/4.
+ */
 export async function listAllSignups() {
   const sb = await client();
   await currentUser();
@@ -392,7 +403,31 @@ export async function listAllSignups() {
     ({ data, error } = await sb.from('signups').select('*'));
   }
   if (error) throw new Error(friendlyError(error));
-  return (data ?? []).map(signupFromRow);
+  const mine = (data ?? []).map(signupFromRow);
+
+  // A project a migration behind has no seat_holds() yet. Degrade to what the
+  // rows themselves say rather than to an error: before the policy lands they
+  // are the whole truth anyway.
+  const { data: holds, error: holdError } = await sb.rpc('seat_holds');
+  if (holdError || !Array.isArray(holds)) return mine;
+  return mergeSeatHolds(mine, holds);
+}
+
+/**
+ * The tables with a woman at them, asked as a question rather than published
+ * as a column.
+ *
+ * A `has_woman` boolean on every row would identify the third guest at a
+ * four-seat table showing two, and flipping it the moment somebody joins
+ * would point at that person exactly. This returns ids only, and only when
+ * somebody has actually turned the filter on.
+ */
+export async function tablesWithWoman() {
+  const sb = await client();
+  await currentUser();
+  const { data, error } = await sb.rpc('tables_with_woman');
+  if (error) throw new Error(friendlyError(error));
+  return (data ?? []).map(row => (typeof row === 'string' ? row : row?.id)).filter(Boolean);
 }
 
 export async function createSignup(input) {

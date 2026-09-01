@@ -4,7 +4,7 @@
 그 뒤로는 `git pull` → 작업 → `git push`가 전부입니다.
 
 검증됨: 2026-08-22, 팀 저장소를 새로 클론해 **비밀정보 없이** 테스트 전부
-통과 · i18n 감사 0건 · 빌드 성공. (그날은 579개였고 지금은 685개입니다 —
+통과 · i18n 감사 0건 · 빌드 성공. (그날은 579개였고 지금은 701개입니다 —
 숫자는 늘어납니다. 중요한 건 `fail 0`입니다.)
 
 ---
@@ -35,7 +35,7 @@ git config core.hooksPath .githooks
 ## 2. 잘 됐는지 확인
 
 ```sh
-npm test                      # 685개 전부 통과해야 정상
+npm test                      # 701개 전부 통과해야 정상
 node scripts/audit-i18n.mjs   # 0 이 나와야 정상
 npm run dev                   # http://localhost:5177
 ```
@@ -106,7 +106,7 @@ GitHub CLI가 없으면 https://cli.github.com 에서 설치하거나, 그냥 `g
 막히면 후크의 `ALLOWED` 목록을 보세요 — 2026-08-02에 다른 앱의 라이브
 사이트를 덮어쓴 사고 때문에 있는 장치입니다 (`docs/where-this-deploys.md`).
 
-**`npm test` 가 685개가 아님**
+**`npm test` 가 701개가 아님**
 `git pull` 로 최신을 받았는지 확인하세요. 테스트가 늘어난 경우라면
 README.md / HANDOFF.md 의 숫자도 같이 고쳐야 합니다 (그걸 검사하는 테스트가
 있습니다).

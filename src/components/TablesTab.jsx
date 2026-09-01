@@ -3,11 +3,10 @@ import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import { DISH_GROUPS, groupOfMenu } from '../domain/catalog/dishGroups.js';
 import { seatsRemaining, isPast, attendance } from '../domain/policy/table.js';
 import {
-  listTables, listAllSignups, listBlocks, seedSampleTables, isLocalOnly,
+  listTables, listAllSignups, listBlocks, seedSampleTables, isLocalOnly, tablesWithWoman,
 } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
-import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { languageLine } from '../domain/catalog/languages.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { emptyReason, emptyText, hasOtherDays, EMPTY } from '../domain/policy/emptiness.js';
@@ -68,6 +67,10 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // nothing else. See HANDOFF.md §4: praised by a reviewer for existing
   // before it did.
   const [womenFilter, setWomenFilter] = useState(false);
+  // Which tables have a woman at them — a Set of ids, or null for "not asked
+  // yet". Fetched only while the filter is on, so the question is never sent
+  // and never answered unless somebody asks it.
+  const [womenTables, setWomenTables] = useState(null);
   // A date from the week strip, or null for the whole week.
   const [dayFilter, setDayFilter] = useState(null);
   const [mapOpen, setMapOpen] = useState(false);
@@ -94,6 +97,23 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     return () => { alive = false; };
   }, []);
 
+  // Asked when the filter goes on, and re-asked if it is switched off and on
+  // again — a seat taken in between changes the answer. Nothing is fetched
+  // while it is off: that is the point of moving this to the server.
+  useEffect(() => {
+    if (!womenFilter) { setWomenTables(null); return undefined; }
+    let alive = true;
+    (async () => {
+      // A project a migration behind has no tables_with_woman() yet. An empty
+      // list would read as "no tables anywhere have a woman", which is a claim
+      // this app must not make from a missing function — so the filter simply
+      // does not narrow until the answer arrives.
+      const ids = await tablesWithWoman().catch(() => null);
+      if (alive && ids) setWomenTables(new Set(ids));
+    })();
+    return () => { alive = false; };
+  }, [womenFilter]);
+
   const signupsFor = useMemo(() => {
     const map = {};
     for (const s of signups) (map[s.tableId] ??= []).push(s);
@@ -119,14 +139,21 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
   const shown = useMemo(() => {
     let list = menuFilter ? inGroup.filter(t => t.menuId === menuFilter) : inGroup;
-    if (womenFilter) {
-      list = list.filter(t => tableIncludesGender(t, signupsFor[t.id] ?? [], 'Woman'));
+    // Asked of the server, not worked out here. The genders of other guests
+    // are not in `signupsFor` any more and must not be: a per-table boolean
+    // would identify the third person at a four-seat table showing two, and
+    // flipping the moment somebody joined would point at them exactly. While
+    // the answer is still in flight the list is left alone rather than
+    // emptied — a filter that blanks the screen for a beat reads as "no
+    // tables", which is a different and wrong answer.
+    if (womenFilter && womenTables) {
+      list = list.filter(t => womenTables.has(t.id));
     }
     // dayFilter is a date now, not a named window — the strip made the
     // named windows redundant and this comparison exact.
     if (dayFilter) list = list.filter(t => t.date === dayFilter);
     return list;
-  }, [inGroup, menuFilter, womenFilter, dayFilter, signupsFor]);
+  }, [inGroup, menuFilter, womenFilter, womenTables, dayFilter]);
 
   // Counted from every open table rather than from what the filters left, so
   // the strip keeps telling the truth about the week while a filter is on.

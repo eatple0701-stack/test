@@ -18,6 +18,7 @@ import { cleanDiets } from './profile.js';
 import { cleanMeetingNote, cleanChatUrl } from '../domain/policy/meeting.js';
 import { pointOf } from '../domain/policy/place.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
+import { tableIncludesGender } from '../domain/catalog/genders.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
 import { isCancelled } from '../domain/policy/cancellation.js';
 import { isPast } from '../domain/policy/table.js';
@@ -149,6 +150,24 @@ async function local_listSignups(tableId) {
 /** Signups for every table at once, so a list screen makes one call. */
 async function local_listAllSignups() {
   return read(SIGNUPS_KEY);
+}
+
+/**
+ * The tables with a woman at them.
+ *
+ * On localStorage every row is already in hand, so this is the same question
+ * tableIncludesGender answers — the parity that matters is the shape of the
+ * answer, not how it is reached. On Supabase the rows are not in hand on
+ * purpose: signups_read withholds other people's, and publishing a per-table
+ * boolean instead would identify the third guest at a four-seat table showing
+ * two. So the remote half asks the database and gets back ids only.
+ */
+async function local_tablesWithWoman() {
+  const signups = read(SIGNUPS_KEY);
+  return read(TABLES_KEY)
+    .filter(t => !t.cancelledAt)
+    .filter(t => tableIncludesGender(t, signups.filter(s => s.tableId === t.id), 'Woman'))
+    .map(t => t.id);
 }
 
 /**
@@ -407,6 +426,7 @@ export const createTable = useRemote ? remote.createTable : local_createTable;
 export const deleteTable = useRemote ? remote.deleteTable : local_deleteTable;
 export const listSignups = useRemote ? remote.listSignups : local_listSignups;
 export const listAllSignups = useRemote ? remote.listAllSignups : local_listAllSignups;
+export const tablesWithWoman = useRemote ? remote.tablesWithWoman : local_tablesWithWoman;
 export const createSignup = useRemote ? remote.createSignup : local_createSignup;
 export const cancelSignup = useRemote ? remote.cancelSignup : local_cancelSignup;
 export const decideSignup = useRemote ? remote.decideSignup : local_decideSignup;
