@@ -12172,3 +12172,10 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
    part that is missing rather than the person. */
 .who-row--taken { display: flex; align-items: baseline; gap: 8px; }
 .who-row__name--taken { color: var(--muted-strong); font-weight: 600; }
+
+/* A guest list that could not be read, said as a line in the list rather than
+   as an empty list. "Nobody has taken a seat" is a claim, and a failed read
+   is not evidence for it — the same mistake the table page made about the
+   whole table on 2026-09-01. */
+.who-row--unread .who-row__role { color: var(--muted-strong); font-style: italic; }
+.tables-empty__body { color: var(--muted-strong); font-size: 14px; margin: 4px 0 14px; }

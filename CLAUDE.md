@@ -19,8 +19,13 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (776 tests) and `node scripts/audit-i18n.mjs` (must print 0)
-  before every push. When the suite grows, update the counts in README.md
+- `npm test` (789 tests), `node scripts/audit-i18n.mjs` (must print 0) and
+  `npm run lint` (must print no `error`) before every push. Lint is on that
+  list because `vite build` does NOT fail on an undefined identifier: a
+  missing import built cleanly and would have thrown at runtime, and a
+  second one — `placeUrlFor` in RestaurantDetail — had been shipping a
+  broken share button on every place page until oxlint was run on
+  2026-09-01. When the suite grows, update the counts in README.md
   and HANDOFF.md — a test pins the documented number to the real one.
 - Break a newly written test on purpose once to prove it can fail — with
   the real command, `node --test "src/**/*.test.mjs"`. The directory form

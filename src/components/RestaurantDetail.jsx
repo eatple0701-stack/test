@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { placeUrlFor } from '../routes.js';
 import PlaceImage from './PlaceImage';
 import PlaceCard from './PlaceCard';
 import ErrorBoundary from './ErrorBoundary';

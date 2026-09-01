@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
+import { TABLE_VIEW, tableViewState, tableViewText, whoListText } from '../domain/policy/loadState.js';
 import { seatsRemaining, joinBlocker, isPast, BLOCKER_TEXT, JOIN_BLOCK, headcountIfYouJoin } from '../domain/policy/table.js';
 import {
   SEAT_STATUS, isPending, isAccepted, isDeclined, hasLapsed, pendingSignups,
@@ -69,6 +70,12 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   const say = useText();
   const locale = useLocale();
   const [table, setTable] = useState(null);
+  // Three states, not two. `table === null` used to mean "not loaded",
+  // "could not load" and "does not exist" all at once, and the page
+  // asserted the third — telling a stranger a table two people were sitting
+  // at had been called off. See src/domain/policy/loadState.js.
+  const [loadError, setLoadError] = useState(null);
+  const [signupsUnread, setSignupsUnread] = useState(false);
   const [signups, setSignups] = useState([]);
   const [reviews, setReviews] = useState([]);
   // The one line I am writing (or rewriting) about this meal.
@@ -125,16 +132,32 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
   // does — but the dependency is now the thing the effect actually uses, so
   // it cannot go stale if this function later closes over something else.
   const refresh = useCallback(async () => {
-    const [t, s, r] = await Promise.all([
-      getTable(tableId),
-      listSignups(tableId),
-      // Reviews must never take the page down with them — a missing reviews
-      // table reads as "no lines yet", which is also what it means.
-      listReviews(tableId).catch(() => []),
-    ]);
+    // Sequential and separately caught, because Promise.all rejects as one
+    // unit: on 2026-09-01 a failing listSignups() threw away a table that had
+    // loaded perfectly well, and the page then claimed it was gone.
+    let t;
+    try {
+      t = await getTable(tableId);
+    } catch (e) {
+      // Asked, and could not be told. Do not touch `table` — whatever is on
+      // screen is better than replacing it with a claim we cannot support.
+      setLoadError(e ?? new Error("load failed"));
+      return;
+    }
+    setLoadError(null);
     setTable(t);
-    setSignups(s);
-    setReviews(r);
+
+    try {
+      setSignups(await listSignups(tableId));
+      setSignupsUnread(false);
+    } catch {
+      // An empty list would be the same lie one place down: "nobody has taken
+      // a seat" is a claim, and a failed read is not evidence for it.
+      setSignupsUnread(true);
+    }
+    // Reviews must never take the page down with them — a missing reviews
+    // table reads as "no lines yet", which is also what it means.
+    setReviews(await listReviews(tableId).catch(() => []));
   }, [tableId]);
 
   useEffect(() => { refresh(); }, [refresh]);
@@ -202,7 +225,13 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myReview]);
 
-  if (!table || !menu) {
+  const viewState = tableViewState({ error: loadError, table, menu });
+  if (viewState !== TABLE_VIEW.READY) {
+    // Three sentences where there used to be one. "Gone" is a claim about
+    // the world and is only made when the database answered and the answer
+    // was nothing; a failed lookup says so and offers a retry, because the
+    // reader's real question is whether their dinner is still happening.
+    const said = tableViewText(viewState, { locale });
     return (
       <section className="sheet-page">
         <header className="sheet-page__head">
@@ -211,9 +240,13 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           </button>
           <h1>{say('Table', '밥상', 'Mesa', 'Table', 'مائدة', '饭桌', '食卓')}</h1>
         </header>
-        <p className="tables-empty">
-          {say('This table is no longer here.', '이 밥상은 사라졌어요.', 'Esta mesa ya no está aquí.', "Cette table n'est plus là.", 'لم تعد هذه المائدة هنا.', '这张饭桌已经不在了。', 'この食卓はもうありません。')}
-        </p>
+        <p className="tables-empty">{said.title}</p>
+        {said.body && <p className="tables-empty__body">{said.body}</p>}
+        {said.retry && (
+          <button className="sheet-cta" onClick={() => refresh()}>
+            {say('Try again', '다시 시도', 'Reintentar', 'Réessayer', 'أعد المحاولة', '重试', 'もう一度')}
+          </button>
+        )}
       </section>
     );
   }
@@ -882,6 +915,12 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               )
             )}
           </li>
+          {signupsUnread && (
+            <li className="who-row who-row--unread">
+              <span className="who-row__dot" aria-hidden="true" />
+              <span className="who-row__role">{whoListText({ locale })}</span>
+            </li>
+          )}
           {signups.map(s => (s.anonymous ? (
             /* A seat somebody is in, whose name is not this reader's to see.
                signups_read gives you a table's rows only if you are at it, so
