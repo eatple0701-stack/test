@@ -169,3 +169,50 @@ commit;
 -- see (표시명, 국적, 사용 언어, 밥상 수). Narrowing it needs the
 -- security-definer shape described at the top, and a client change to go
 -- with it. Worth doing after 시범운영, not during it.
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- APPLIED AND ROLLED BACK, 2026-09-01. DO NOT RUN THIS FILE.
+-- ═══════════════════════════════════════════════════════════════════════
+--
+-- It ran clean in the SQL editor — "Success. No rows returned" — and then
+-- every read of both tables returned:
+--
+--     42P17: infinite recursion detected in policy for relation "signups"
+--
+-- `signups_read` queries `public.signups` inside its own USING clause (the
+-- "sitting at the same table as you" test). Evaluating the policy requires
+-- evaluating the policy. `profiles_read` queries `signups` too, so it died
+-- with it — including a person reading their own row. Rolled back within
+-- minutes; the app was up but could not read a single profile.
+--
+-- The mistake before the mistake: five tests were written for this policy
+-- and all five checked the *text* of the SQL — no `using (true)`, mentions
+-- `auth.uid()`, the two files agree. Not one of them asked whether it runs,
+-- because nothing here can run Postgres. That inability was the signal, and
+-- it was read as an obstacle instead.
+--
+-- The next attempt lives in a separate file and must:
+--
+--   1. break the recursion with `security definer` helpers — inside such a
+--      function RLS does not apply, so policy re-entry is structurally
+--      impossible rather than merely unlikely. `table_preview` in
+--      schema.sql is the same pattern, already in this repo;
+--   2. settle what `tables` publishes first (docs/public-table-columns.md),
+--      because locking `profiles` while host_name, host_nationality and
+--      host_gender sit on a world-readable `tables` row locks a door beside
+--      an open window;
+--   3. be verified INSIDE a transaction before it is committed —
+--
+--        begin;
+--          <policy changes>
+--          set local role authenticated;
+--          set local request.jwt.claims = '{"sub":"…","role":"authenticated"}';
+--          select count(*) as profiles_visible from public.profiles;
+--          select count(*) as signups_visible  from public.signups;
+--          reset role;
+--        rollback;
+--
+--      Run it with `rollback` first and read the counts. Recursion aborts
+--      the transaction and nothing reaches production. Pass only on a
+--      positive result — `profiles_visible` is a single digit — never on
+--      the absence of an error.
