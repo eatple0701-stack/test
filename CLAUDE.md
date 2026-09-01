@@ -19,7 +19,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (656 tests) and `node scripts/audit-i18n.mjs` (must print 0)
+- `npm test` (662 tests) and `node scripts/audit-i18n.mjs` (must print 0)
   before every push. When the suite grows, update the counts in README.md
   and HANDOFF.md — a test pins the documented number to the real one.
 - Break a newly written test on purpose once to prove it can fail — with

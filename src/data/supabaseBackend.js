@@ -45,14 +45,46 @@ async function client() {
  *
  * Enable it once in the dashboard: Authentication → Providers → Anonymous.
  */
+// ── One sign-in per visitor, not one per caller ──────────────────────────
+//
+// Measured on production on 2026-09-01, the first day of 2차 운영: one first
+// visit produced two POSTs to /auth/v1/signup, two anonymous user ids, and
+// two rows in `profiles`. Only one token is written to storage; the other
+// identity is orphaned in auth.users and counted in every total the pilot
+// reports.
+//
+// The cause is that several screens ask for the user as the app boots, and
+// each one runs this function. On a first visit they all reach getSession
+// before any of them has finished signing in, all see no session, and all
+// call signInAnonymously — which does exactly what it is asked to, twice.
+//
+// It is also where the 409 in the console came from. The two racing
+// identities produce two concurrent inserts into `profiles`, and
+// `ON CONFLICT DO NOTHING` does not protect against a duplicate key that is
+// still uncommitted in another transaction. Worse, currentUser() below
+// treats any error that is not 23503 as fatal and throws, so on an unlucky
+// interleaving a first visit could fail outright.
+//
+// The fix is the pattern this file already uses for `clientPromise` one
+// screen up: hold the in-flight promise so concurrent callers await the same
+// sign-in instead of starting their own. Cleared when it settles — by then
+// getSession has the session, and a failed attempt must be retryable.
+let signInPromise = null;
+
 async function signedInUser() {
   const sb = await client();
   const { data: { session } } = await sb.auth.getSession();
   if (session?.user) return session.user;
 
-  const { data, error } = await sb.auth.signInAnonymously();
-  if (error) throw new Error(friendlyError(error));
-  return data.user;
+  if (!signInPromise) {
+    signInPromise = sb.auth.signInAnonymously()
+      .then(({ data, error }) => {
+        if (error) throw new Error(friendlyError(error));
+        return data.user;
+      })
+      .finally(() => { signInPromise = null; });
+  }
+  return signInPromise;
 }
 
 /**
@@ -95,10 +127,23 @@ let profileEnsuredFor = null;
  */
 const isDeadSession = (error) => error?.code === '23503';
 
+// The same race one level up. `profileEnsuredFor` is set *after* the write
+// returns, so concurrent callers all pass the check above it and all write.
+// With the sign-in deduped they now write the same row rather than two
+// different ones, which Postgres serialises correctly — but it is still a
+// redundant round trip on every boot, and the guard reads as though it
+// prevents one.
+let ensurePromise = null;
+
 async function currentUser() {
   const user = await signedInUser();
   if (profileEnsuredFor === user.id) return user;
+  if (ensurePromise) return ensurePromise;
+  ensurePromise = ensureProfileRow(user).finally(() => { ensurePromise = null; });
+  return ensurePromise;
+}
 
+async function ensureProfileRow(user) {
   const sb = await client();
   let { error } = await sb
     .from('profiles')

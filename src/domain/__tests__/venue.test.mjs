@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   venueKind, tableCtaFor, mapLinksFor, transitLine, stationForTable, cityOfTables, MAP_LINKS_NOTE,
   VENUE_KIND, MEAL_CATEGORIES, OUTING_CATEGORIES,
@@ -98,10 +100,33 @@ test('the way here is one line, in both languages', () => {
   const balwoo = restaurants.find(r => r.id === 'balwoo');
   const line = transitLine(balwoo);
   assert.equal(line.station, 'Anguk');
-  assert.equal(line.walkingMinutes, 7);
   assert.match(line.kr, /지하철 3호선/);
-  assert.match(line.kr, /도보 7분/);
-  assert.match(line.en, /7 min walk from Anguk Station/);
+  assert.match(line.en, /Anguk Station/);
+});
+
+test('no walking distance is stored, because none of it was ours', () => {
+  // These records carried walkingMinutes and distanceM taken from a Kakao Map
+  // routing call — "427 m / 392 s" — and stored them. The station and the
+  // line were what a person typed into that call; the numbers were what
+  // somebody else's service handed back. Removed on 2026-09-01 rather than
+  // read anybody's terms of service: the value of "7 min walk" is small
+  // beside the Korean name and road address already on the driver card, and
+  // deleting it ends the question permanently.
+  //
+  // transitLine already had the wording for a station with no walk on it, so
+  // the line degrades to "Near Anguk Station, Line 3" rather than vanishing —
+  // which is what keeps the tables list from going back to printing sixty-two
+  // characters of postal address.
+  for (const r of restaurants) {
+    const t = r.transit?.value;
+    if (!t) continue;
+    assert.equal(t.walkingMinutes, undefined, `${r.id} still stores a walking time`);
+    assert.equal(t.distanceM, undefined, `${r.id} still stores a walking distance`);
+    assert.notEqual(r.transit.method, 'Map service routing API', `${r.id} still claims a routing API`);
+  }
+  const src = fs.readFileSync(path.join(process.cwd(), 'src/data/restaurants.js'), 'utf8');
+  assert.doesNotMatch(src, /walkingMinutes|distanceM|METHOD\.ROUTING_API/,
+    'a routing-API measurement came back into the data');
 });
 
 test('an exit is never invented', () => {

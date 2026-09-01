@@ -50,7 +50,7 @@ export const restaurants = [
 
     phone: fact("02-733-2081", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
     officialUrl: fact("http://balwoo.or.kr/", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this as the venue's site" }),
-    transit: fact({ station: "Anguk", line: "Line 3", exit: null, walkingMinutes: 7, distanceM: 427 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 안국역 3호선: 427 m / 392 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Anguk", line: "Line 3", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       // Still inferred: Naver Place categorises the venue as 사찰음식 (temple
@@ -114,7 +114,7 @@ export const restaurants = [
 
     phone: fact("0507-1393-0312", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing; a 0507 number forwards to the venue's real line" }),
     officialUrl: fact("http://www.sanchon.com/", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this as the venue's site" }),
-    transit: fact({ station: "Anguk", line: "Line 3", exit: null, walkingMinutes: 9, distanceM: 606 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 안국역 3호선: 606 m / 540 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Anguk", line: "Line 3", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       vegan: fact(VEGAN.FULL, { confidence: CONFIDENCE.INFERRED, source: SOURCE.MAP_SERVICE, lastCheckedAt: "2026-07-17", evidence: "Naver Place category 한식>사찰음식 (temple cuisine); temple cuisine excludes animal products by doctrine" }),
@@ -175,7 +175,7 @@ export const restaurants = [
 
     phone: fact("02-735-7171", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
     officialUrl: fact("http://www.go5.co.kr/", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this as the venue's site" }),
-    transit: fact({ station: "Anguk", line: "Line 3", exit: null, walkingMinutes: 6, distanceM: 373 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 안국역 3호선: 373 m / 334 s. A listing summary mentions exit 6, unconfirmed, so no exit is recorded" }),
+    transit: fact({ station: "Anguk", line: "Line 3", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       vegan: fact(VEGAN.FULL, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "Research states \"100% vegan meals\"; Naver Place titles it 채식요리전문점 and DiningCode categorises it 비건식당" }),
@@ -238,7 +238,7 @@ export const restaurants = [
     phone: fact("02-749-1981", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The venue's own site" }),
     officialUrl: fact("https://plantcafeseoul.com/", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this as the venue's site; the site itself confirms the Itaewon branch" }),
     instagram: fact("https://www.instagram.com/plantcafeseoul", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "Linked from the venue's own site" }),
-    transit: fact({ station: "Itaewon", line: "Line 6", exit: null, walkingMinutes: 4, distanceM: 243 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 이태원역 6호선: 243 m / 224 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Itaewon", line: "Line 6", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       // The first CONFIRMED dietary fact in the dataset: the kitchen says so itself.
@@ -306,7 +306,7 @@ export const restaurants = [
     phone: fact("02-790-1108", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The venue's own site; DiningCode lists the same number" }),
     officialUrl: fact("https://monksbutcher.com", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this as the venue's site" }),
     instagram: fact("https://www.instagram.com/monksbutcher_itaewon", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "Linked from the venue's own site as the Itaewon branch account" }),
-    transit: fact({ station: "Hangangjin", line: "Line 6", exit: null, walkingMinutes: 11, distanceM: 678 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 한강진역 6호선: 678 m / 650 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Hangangjin", line: "Line 6", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       // Held at SUPPORTED, not raised: every current source calls it a
@@ -377,7 +377,7 @@ export const restaurants = [
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft. DiningCode lists KungpaoChicken at 21,000 and 차우면 (Chow Mein) at 9,000 — the dishes exist, the draft's prices do not match" }),
 
     instagram: fact("https://www.instagram.com/camouflage_iteawon", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this account as the venue's own" }),
-    transit: fact({ station: "Itaewon", line: "Line 6", exit: null, walkingMinutes: 4, distanceM: 237 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 이태원역 6호선: 237 m / 240 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Itaewon", line: "Line 6", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       vegan: fact(VEGAN.FULL, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "Research states the menu is \"completely free of animal products\"; DiningCode tags it 비건 and independent write-ups call it a \"100% 비건 아메리칸 차이니즈 레스토랑\"" }),
@@ -441,7 +441,7 @@ export const restaurants = [
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, evidence: "Menu names and prices from the draft; most prices are approximate. Seoul's tourism site lists 비빔밥/소불고기/소고기김치볶음밥 in the 1만원대 range, which is consistent but not itemised" }),
 
     phone: fact("0507-1404-8219", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.GOVERNMENT, lastCheckedAt: "2026-07-17", evidence: "Seoul tourism site listing; a 0507 number forwards to the venue's real line" }),
-    transit: fact({ station: "Itaewon", line: "Line 6", exit: null, walkingMinutes: 8, distanceM: 395 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 이태원역 6호선: 395 m / 475 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Itaewon", line: "Line 6", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       vegan: unknownFact("No vegan information in the source"),
@@ -598,7 +598,7 @@ export const restaurants = [
       sun: [{ from: "11:00", to: "16:00" }, { from: "17:00", to: "22:00", lastOrder: "21:10" }],
     } }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Three independent sources (a visitor write-up, a DiningCode listing, and a live reservation-platform listing, all checked 2026-07-17) agree exactly: daily 11:00-22:00, break 16:00-17:00, last order 21:10. One older, undated blog gives a 23:00 close instead; given the three-source agreement including a specific last-order time and a live booking platform, that outlier is treated as imprecise or dated rather than a live conflict" }),
     phone: fact("0507-1380-9249", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
-    transit: fact({ station: "Myeongdong", line: "Line 4", exit: null, walkingMinutes: 5, distanceM: 318 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 명동역 4호선: 318 m / 314 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Myeongdong", line: "Line 4", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
     menus: fact([
       { name: "Nasi Lemak", nameKo: "나시 르막", nameEs: "Nasi lemak", nameFr: "Nasi lemak", nameAr: "ناسي ليماك", nameZh: "椰浆饭", nameJa: "ナシレマ", price: "9,000–14,000 KRW" },
       { name: "Nasi Goreng Kampungku", nameKo: "나시 고렝 캄풍쿠", nameEs: "Nasi goreng Kampungku", nameFr: "Nasi goreng Kampungku", nameAr: "ناسي غورينغ كامبونغكو", nameZh: "Kampungku 炒饭", nameJa: "カンプンクのナシゴレン", price: "11,000 KRW" },
@@ -677,7 +677,7 @@ export const restaurants = [
     } }, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, method: METHOD.DIRECTORY_LISTING, lastCheckedAt: "2026-07-17", evidence: "A DiningCode listing for the current Hoehyeon-station location, checked 2026-07-17: weekdays and Sunday 09:30-21:00, Saturday 10:30-21:00. Single-source — no second listing found yet for the new address, so held at SUPPORTED rather than corroborated" }),
     phone: fact("0507-1465-1072", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing for the current location" }),
     instagram: fact("https://www.instagram.com/nonoshop_cafe", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this account as the venue's own" }),
-    transit: fact({ station: "Hoehyeon", line: "Line 4", exit: null, walkingMinutes: 4, distanceM: 211 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 회현역 4호선: 211 m / 205 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Hoehyeon", line: "Line 4", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
     menus: fact([
       { name: "Americano", nameKo: "아메리카노", nameEs: "Americano", nameFr: "Americano", nameAr: "أمريكانو", nameZh: "美式咖啡", nameJa: "アメリカーノ", price: "5,000 KRW" },
       { name: "Praline Latte", nameKo: "프랄린 라떼", nameEs: "Latte de praliné", nameFr: "Latte praliné", nameAr: "لاتيه البرالين", nameZh: "果仁糖拿铁", nameJa: "プラリネラテ", price: "8,000 KRW" },
@@ -751,7 +751,7 @@ export const restaurants = [
     phone: fact("02-766-6272", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing" }),
     officialUrl: fact("https://goodbabstory.imweb.me/", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this as the venue's site" }),
     instagram: fact("https://www.instagram.com/flowerrice_bukchon/", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "Account @flowerrice_bukchon self-describes as 꽃밥에피다 2호점, 북촌 친환경 그로서란트" }),
-    transit: fact({ station: "Anguk", line: "Line 3", exit: null, walkingMinutes: 9, distanceM: 520 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 안국역 3호선: 520 m / 525 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Anguk", line: "Line 3", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       // v3 refused to infer vegan here. Checking paid off in the opposite
@@ -805,7 +805,7 @@ export const restaurants = [
 
     phone: fact("02-536-5228", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "Menupan listing. DiningCode instead lists 0507-1418-5228, a forwarding number — not contradictory, but unconfirmed" }),
     officialUrl: fact("http://templefood.com/", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this as the venue's site" }),
-    transit: fact({ station: "Gyeongbokgung", line: "Line 3", exit: null, walkingMinutes: 7, distanceM: 432 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 경복궁역 3호선: 432 m / 410 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Gyeongbokgung", line: "Line 3", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       vegan: fact(VEGAN.FULL, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.RESEARCH, lastCheckedAt: "2026-07-17", evidence: "Research states \"a fully plant-based menu\"; Naver Place category 한식>사찰음식 is consistent" }),
@@ -860,7 +860,7 @@ export const restaurants = [
 
     phone: fact("032-833-1554", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "chaeyuk.com's branch list. Visitor write-ups give 0507-1450-1554, a forwarding number; the operator's own landline is recorded instead" }),
     officialUrl: fact("https://chaeyuk.com", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.OPERATOR, method: METHOD.OPERATOR_SITE, lastCheckedAt: "2026-07-17", evidence: "The chain's own site, operated by 푸드닥터에프앤비 (사업자등록번호 157-81-02579); it lists the Songdo branch. Chain-level, not branch-specific" }),
-    transit: fact({ station: "Incheon National University", line: "Incheon Line 1", exit: null, walkingMinutes: 11, distanceM: 716 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 인천대입구역 인천1호선: 716 m / 643 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Incheon National University", line: "Incheon Line 1", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       // Corrected 2026-07-17, from VEGAN.FULL. This is the bombay-brau defect
@@ -922,7 +922,7 @@ export const restaurants = [
 
     phone: fact("0507-1393-3312", { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.DIRECTORY, lastCheckedAt: "2026-07-17", evidence: "DiningCode listing; a 0507 number forwards to the venue's real line" }),
     instagram: fact("https://www.instagram.com/our.daily.meal", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this account as the venue's own. It is the only channel the venue publishes — there is no website" }),
-    transit: fact({ station: "Arts Center", line: "Incheon Line 1", exit: null, walkingMinutes: 13, distanceM: 869 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 예술회관역 인천1호선: 869 m / 794 s. Nearer than 인천터미널역 (1,062 m / 1,032 s), which was checked as the alternative. Exit not given by the routing API" }),
+    transit: fact({ station: "Arts Center", line: "Incheon Line 1", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       // Level unchanged from the draft, but the reasoning it rested on is
@@ -1064,7 +1064,7 @@ export const restaurants = [
     },
     traits: [],
     instagram: fact("https://www.instagram.com/meet_morning_", { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.MAP_LOOKUP, lastCheckedAt: "2026-07-17", evidence: "Naver Place links this account as the venue's own" }),
-    transit: fact({ station: "Arts Center", line: "Incheon Line 1", exit: null, walkingMinutes: 10, distanceM: 596 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 예술회관역 인천1호선: 596 m / 590 s. Exit not given by the routing API" }),
+    transit: fact({ station: "Arts Center", line: "Incheon Line 1", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     // Editorial copy from the project draft; claims inside are not confirmed.
     // Rewritten 2026-07-17: the draft leaned on the "ironic name" to assert a
@@ -1185,7 +1185,7 @@ export const restaurants = [
       { name: "Tandoori Chicken (whole / half)", nameKo: "탄두리 치킨 (한 마리 / 반 마리)", nameEs: "Pollo tandoori (entero / medio)", nameFr: "Poulet tandoori (entier / demi)", nameAr: "دجاج تندوري (كامل / نصف)", nameZh: "坦都里烤鸡（整只 / 半只）", nameJa: "タンドリーチキン（一羽 / 半羽）", price: "23,000 / 13,000 KRW" },
       { name: "Vegetable Samosas", nameKo: "채소 사모사", nameEs: "Samosas de verdura", nameFr: "Samossas de légumes", nameAr: "سمبوسك الخضار", nameZh: "蔬菜咖喱角", nameJa: "野菜のサモサ", price: null },
     ], { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.COMMUNITY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Tandoori Chicken and its portion pricing come from a first-hand 2026-07-11 Songdo visit. Samosas are corroborated as this chain's vegan-safe order by two independent, methodical vegan-food blogs cataloguing exact orderable items across branches — no Songdo-specific price found, left unstated rather than carried over from the draft. The draft's \"Vegan Dal Makhani\" is dropped: Makhani-style sauce is butter-and-cream-based (한 상세 후기: \"콩, 버터, 크림\"), and the same vegan-mapping blogs never list it as a vegan-safe order at any branch — one casual post called it vegan on the sole reasoning that it contains no meat, which the ingredient-level accounts contradict. \"Halal Tandoori Chicken\" as a menu label is also dropped: no source names the dish that way — halal-friendliness is a restaurant-level fact (see dietary.halal), not a per-dish label" }),
-    transit: fact({ station: "Incheon National University", line: "Incheon Line 1", exit: null, walkingMinutes: 15, distanceM: 921 }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.ROUTING_API, lastCheckedAt: "2026-07-17", evidence: "Kakao Map walking route from 인천대입구역 인천1호선: 921 m / 880 s. Checked against two farther alternatives (센트럴파크역 1,321 m; 테크노파크역 1,834 m). Exit not given by the routing API" }),
+    transit: fact({ station: "Incheon National University", line: "Incheon Line 1", exit: null }, { confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Nearest station and line, read off Naver Place and Kakao Map. The walking distance and time this record used to carry were a Kakao routing API response; removed 2026-09-01 rather than leave somebody else's measurement stored — see the note in restaurants.js." }),
 
     dietary: {
       vegan: fact(VEGAN.OPTIONS, { confidence: CONFIDENCE.SUPPORTED, source: SOURCE.COMMUNITY, method: METHOD.CORROBORATED, lastCheckedAt: "2026-07-17", evidence: "Level unchanged, evidence replaced: two independent, methodical vegan-food blogs name specific vegan-orderable items (samosas, roti, chana-style curry) across this chain's branches, and a first-hand 2022 Songdo visit has staff proactively flag which dishes are vegetarian when ordering. The kitchen is meat-forward (tandoori, kebabs, lamb, prawn), so OPTIONS, not FULL" }),
@@ -1281,7 +1281,7 @@ export const restaurants = [
       evidence: "Incheon city listing; write-ups also give 0507-1363-0571, a forwarding number",
       evidenceRefs: [evidenceRef("ev-gonghwachun-itour", 1)],
     }),
-    transit: fact({ station: "Incheon", line: "Line 1 / Suin-Bundang", exit: 1, walkingMinutes: 6, distanceM: 323 }, {
+    transit: fact({ station: "Incheon", line: "Line 1 / Suin-Bundang", exit: 1 }, {
       confidence: CONFIDENCE.CONFIRMED, source: SOURCE.MAP_SERVICE, lastCheckedAt: "2026-07-17",
       evidence: "Kakao route from 인천역 1호선: 323 m / 383 s; exit 1 named consistently by write-ups",
       evidenceRefs: [evidenceRef("ev-gonghwachun-kakao-map", 1, "route distance and duration")],
