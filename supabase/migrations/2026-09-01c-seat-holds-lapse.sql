@@ -169,61 +169,44 @@ grant execute on function public.seat_holds() to authenticated;
 
 -- == Verification, in the same transaction ================================
 --
--- Two tables either side of the deadline, each with one accepted and one
--- pending request. Written relative to now() so the check means the same
--- thing whenever it is run.
+-- READ ONLY. Nothing here inserts, updates or deletes.
 --
--- It passes when BOTH of these are exactly true:
+-- The first draft of this block built two fixture tables with four signups
+-- to prove the rule either side of the deadline, and threw them away with
+-- the closing `rollback;`. That is fine exactly once — and this file is
+-- meant to be run a second time with `commit;` in place of it, which would
+-- have committed two invented tables and four invented signups into the
+-- pilot's data. Worse: an insert into `signups` fires notify_seat_requested,
+-- so a real host with an email on file would have been sent a seat request
+-- from somebody who does not exist.
 --
---     in_time_holds    is 2      (accepted + pending, answer still possible)
---     lapsed_holds     is 1      (accepted only, the pending seat came back)
+-- So the rule is checked by arithmetic instead of by fixtures. Everything
+-- below is deterministic: it needs no rows, leaves none, and gives the same
+-- answers whenever it is run.
 --
--- Anything else — including an error — is a fail. "not zero" would pass for
--- a function that had stopped working.
+-- It passes when ALL FIVE are exactly this:
+--
+--     lapse_seconds        43200                        (twelve hours)
+--     gejang_deadline      2026-09-03 07:00:00+09       (the live table)
+--     tomorrow_still_open  t
+--     this_morning_closed  t
+--     lapsed_pending_now   0
+--
+-- Anything else, including an error, is a fail. The last line counts
+-- requests that are already past their deadline and still being counted as
+-- holding a seat — the bug this file exists to end — so a number other than
+-- zero means it has not taken effect.
 
-create temp table lapse_check (step text primary key, number bigint) on commit drop;
-
-do $check$
-declare
-  host uuid;
-  t_soon uuid;
-  t_late uuid;
-  g1 uuid;
-  g2 uuid;
-begin
-  -- Borrow real ids so the foreign keys hold; nothing is kept.
-  select id into host from public.profiles limit 1;
-  select id into g1 from public.profiles where id <> host limit 1;
-  select id into g2 from public.profiles where id not in (host, g1) limit 1;
-
-  -- Thirteen hours out: an hour of answering time left.
-  insert into public.tables (host_id, host_name, menu_id, date, time, place, seats)
-  values (host, 'lapse check', 'samgyeopsal',
-          (now() at time zone 'Asia/Seoul' + interval '13 hours')::date,
-          (now() at time zone 'Asia/Seoul' + interval '13 hours')::time, 'check', 4)
-  returning id into t_soon;
-
-  -- Eleven hours out: the deadline went an hour ago.
-  insert into public.tables (host_id, host_name, menu_id, date, time, place, seats)
-  values (host, 'lapse check', 'samgyeopsal',
-          (now() at time zone 'Asia/Seoul' + interval '11 hours')::date,
-          (now() at time zone 'Asia/Seoul' + interval '11 hours')::time, 'check', 4)
-  returning id into t_late;
-
-  insert into public.signups (table_id, user_id, name, status) values
-    (t_soon, g1, 'check', 'accepted'),
-    (t_soon, g2, 'check', 'pending'),
-    (t_late, g1, 'check', 'accepted'),
-    (t_late, g2, 'check', 'pending');
-
-  insert into lapse_check
-    select 'in_time_holds', count(*) from public.seat_holds() where table_id = t_soon;
-  insert into lapse_check
-    select 'lapsed_holds', count(*) from public.seat_holds() where table_id = t_late;
-end
-$check$;
-
-select step, number from lapse_check
-order by array_position(array['in_time_holds', 'lapsed_holds'], step);
+select
+  extract(epoch from public.lapse_window())::int                     as lapse_seconds,
+  public.lapse_at(date '2026-09-03', time '19:00')                   as gejang_deadline,
+  public.lapse_at(current_date + 1, time '12:00') > now()            as tomorrow_still_open,
+  public.lapse_at(current_date, time '00:01') < now()                as this_morning_closed,
+  (select count(*)
+     from public.signups s
+     join public.tables t on t.id = s.table_id
+    where t.cancelled_at is null
+      and coalesce(s.status, 'accepted') = 'pending'
+      and now() >= public.lapse_at(t.date, t.time))                  as lapsed_pending_now;
 
 rollback;
