@@ -123,11 +123,57 @@ test('a fresh project comes up with the policies that were applied', () => {
   }
 });
 
-test('the helpers do not drift between the two files either', () => {
-  for (const name of HELPERS) {
-    assert.equal(tight(fn(schema, name)), tight(fn(migration, name)),
-      `${name} differs between schema.sql and the migration`);
+// Every migration that has actually been applied to production, oldest first.
+//
+// DELIBERATELY NOT the whole directory. 2026-09-01-scope-profile-reads.sql
+// caused 42P17 and was rolled back; 2026-09-01d has not been applied and is
+// waiting for approval. Comparing schema.sql against either would demand it
+// declare something production does not have.
+const APPLIED = [
+  'supabase/migrations/2026-08-22-new-app-url.sql',
+  RETRY,
+  'supabase/migrations/2026-09-01c-seat-holds-lapse.sql',
+  'supabase/migrations/2026-09-01e-signups-soft-cancel.sql',
+];
+
+/**
+ * The last version of one function any applied migration left behind.
+ *
+ * This test used to compare every helper against 2026-09-01b, which was right
+ * on the day it was written and became wrong twice over: 01c gave seat_holds
+ * a clock and 01e taught it about withdrawn requests. Pinned to one file, the
+ * test was asserting that schema.sql still held a definition production had
+ * replaced — encoding the drift as the correct answer, in the file whose
+ * entire job is to catch drift.
+ */
+const lastApplied = (name) => {
+  let found = null;
+  for (const file of APPLIED) {
+    const body = fn(sqlOnly(file), name);
+    if (body) found = { body, file };
   }
+  return found;
+};
+
+test('the helpers do not drift from the last migration that defined them', () => {
+  for (const name of HELPERS) {
+    const latest = lastApplied(name);
+    assert.ok(latest, `${name} is defined by no applied migration — check APPLIED`);
+    assert.equal(tight(fn(schema, name)), tight(latest.body),
+      `${name} in schema.sql is not what ${latest.file} left in production`);
+  }
+});
+
+test('the helper comparison is reading more than one migration', () => {
+  // Without this the test above could pass by comparing everything against a
+  // single file, which is the state it was just fixed out of. seat_holds has
+  // been redefined since 01b and tables_with_woman has not, so the two must
+  // come from different places.
+  assert.equal(lastApplied('seat_holds').file,
+    'supabase/migrations/2026-09-01e-signups-soft-cancel.sql');
+  assert.equal(lastApplied('tables_with_woman').file,
+    'supabase/migrations/2026-09-01e-signups-soft-cancel.sql');
+  assert.equal(lastApplied('shares_a_table').file, RETRY);
 });
 
 test('seat_holds is the only thing a stranger gets, and it names nobody', () => {
@@ -141,7 +187,16 @@ test('seat_holds is the only thing a stranger gets, and it names nobody', () => 
     'seat_holds returns something other than a table id and a status');
   assert.doesNotMatch(body, /\bs\.user_id\b|\bs\.name\b|\bs\.nationality\b|\bs\.note\b|\bs\.gender\b/,
     'seat_holds selects a column that identifies somebody');
-  assert.match(body, /'pending', 'accepted'/, 'declined requests are no longer excluded');
+
+  // Declined requests being excluded used to be asserted here as
+  // /'pending', 'accepted'/ against the source text. It is not asserted here
+  // any more, and the reason is worth keeping: 2026-09-01c rewrote the same
+  // rule as an explicit two-branch condition with a clock in it, which
+  // excludes declined requests exactly as before and does not contain that
+  // string. A source-text check would have failed a correct change and — the
+  // dangerous half — would have passed a broken one that happened to keep the
+  // words. seatLapse.test.mjs executes the question against a real Postgres
+  // instead: "a declined request never held one", with rows.
 });
 
 // ── The record of how it went wrong ─────────────────────────────────────

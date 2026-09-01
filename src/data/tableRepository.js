@@ -20,7 +20,7 @@ import { pointOf } from '../domain/policy/place.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
 import { tableShowsWoman } from '../domain/catalog/genders.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
-import { isCancelled } from '../domain/policy/cancellation.js';
+import { isCancelled, liveSignups } from '../domain/policy/cancellation.js';
 import { isPast } from '../domain/policy/table.js';
 
 const TABLES_KEY = 'bapchingu-tables';
@@ -142,14 +142,14 @@ async function local_deleteTable(tableId) {
 }
 
 async function local_listSignups(tableId) {
-  return read(SIGNUPS_KEY)
+  return liveSignups(read(SIGNUPS_KEY))
     .filter(s => s.tableId === tableId)
     .sort((a, b) => a.createdAt - b.createdAt);
 }
 
 /** Signups for every table at once, so a list screen makes one call. */
 async function local_listAllSignups() {
-  return read(SIGNUPS_KEY);
+  return liveSignups(read(SIGNUPS_KEY));
 }
 
 /**
@@ -198,8 +198,23 @@ async function local_createSignup(input) {
   return row;
 }
 
+/**
+ * Giving up a seat, on the device-only backend.
+ *
+ * This dropped the row from the array, which is the same act the Supabase
+ * half performed with `.delete()` and stopped doing in 2026-09-01e. The row
+ * stays and carries a timestamp instead; every read filters it out through
+ * liveSignups(), so the screens are unchanged and the record is not.
+ *
+ * The parity that matters here is not decorative. A pilot device running on
+ * localStorage produces the same numbers the report counts, and a backend
+ * that still forgets a withdrawn request would under-count exactly the figure
+ * the other half was fixed to keep.
+ */
 async function local_cancelSignup(signupId) {
-  write(SIGNUPS_KEY, read(SIGNUPS_KEY).filter(s => s.id !== signupId));
+  const at = new Date().toISOString();
+  write(SIGNUPS_KEY, read(SIGNUPS_KEY).map(
+    s => (s.id === signupId ? { ...s, cancelledAt: at } : s)));
 }
 
 /**

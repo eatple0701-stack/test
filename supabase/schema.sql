@@ -228,6 +228,36 @@ end $$;
 -- is carried exactly like diets and never rendered as a checked fact.
 alter table public.signups add column if not exists allergy_note text default '';
 
+-- When somebody gave up a seat they had asked for. Applied to production as
+-- 2026-09-01e.
+--
+-- Cancelling used to delete the row, which read as tidy and was not: the
+-- numbers the 9/20 report carries are tables opened, SEATS REQUESTED and
+-- meals held, and the second was being subtracted every time a traveller
+-- changed their mind. By the evening of 2026-09-01 production held eight
+-- notifications against two signups — three of them seat_requested — so a
+-- request had happened and been erased, and the only trace was an email
+-- nothing could be joined back to.
+--
+-- Nullable with no default, so adding it rewrites no rows. Every screen
+-- filters it out through src/domain/policy/cancellation.js; only the
+-- database remembers.
+alter table public.signups add column if not exists cancelled_at timestamptz;
+
+-- One live seat per person per table — the same guarantee `unique (table_id,
+-- user_id)` gave above, over the rows that are still live.
+--
+-- The plain constraint is the trap soft cancel walks into. Under a delete,
+-- cancelling freed the pair and the same person could ask again; under a soft
+-- one the row stays and the constraint would refuse them for ever, so
+-- somebody who cancelled by mistake could never come back to that table.
+--
+-- The drop is kept rather than removing the constraint from the create above,
+-- because a project built from an earlier copy of this file already has it.
+alter table public.signups drop constraint if exists signups_table_id_user_id_key;
+create unique index if not exists signups_one_live_seat
+  on public.signups (table_id, user_id) where cancelled_at is null;
+
 -- ---------------------------------------------------------------------------
 -- Blocks — one person deciding not to sit with another again.
 -- ---------------------------------------------------------------------------
@@ -292,6 +322,48 @@ create index if not exists blocks_blocker_idx on public.blocks (blocker_id);
 -- search_path is pinned because a security definer function that resolves
 -- names through the caller's path is a privilege escalation waiting to be
 -- found.
+-- ── When a request stops holding its seat ──────────────────────────────
+--
+-- Applied to production as 2026-09-01c. LAPSE_HOURS_BEFORE_MEAL is 12 and
+-- lives in src/domain/policy/seatRequest.js, which stays the one place the
+-- number is decided; this side reads it through lapse_window() so the SQL
+-- says "the lapse window" rather than "12".
+--
+-- The guest is promised on the table page: "If they do not answer, this
+-- lapses and the seat goes back." Before this it did not go back — a request
+-- nobody answered held a seat for ever.
+--
+-- `t.date + t.time` is a naive timestamp and Postgres reads it as UTC on
+-- Supabase, so a Seoul dinner at 19:00 would lapse nine hours off. The meals
+-- are in Korea, so the meal time is Asia/Seoul and this says so.
+--
+-- NEVER BUILD AN INDEX ON lapse_at(). Postgres marks the timezone conversion
+-- IMMUTABLE and the declaration is honest, but a tzdata update can still move
+-- the answer and an index would go quietly stale.
+--
+-- Defined here, above both callers, because seat_holds() below is
+-- `language sql` and Postgres validates that body at creation time — a
+-- reference to a function that does not exist yet fails the whole file.
+create or replace function public.lapse_window()
+returns interval
+language sql immutable set search_path = public as $fn$
+  select interval '12 hours'
+$fn$;
+
+create or replace function public.lapse_at(p_date date, p_time time)
+returns timestamptz
+language sql immutable set search_path = public as $fn$
+  select ((p_date + p_time) at time zone 'Asia/Seoul') - public.lapse_window()
+$fn$;
+
+-- Granted to authenticated only. Today these are reached only from inside
+-- security definer functions; a direct RPC call from the client would need an
+-- anon grant first.
+revoke all on function public.lapse_window() from public;
+revoke all on function public.lapse_at(date, time) from public;
+grant execute on function public.lapse_window() to authenticated;
+grant execute on function public.lapse_at(date, time) to authenticated;
+
 create or replace function public.assert_seat_available()
 returns trigger
 language plpgsql
@@ -301,14 +373,32 @@ as $$
 declare
   capacity integer;
   taken    integer;
+  meal_at  date;
+  meal_on  time;
 begin
-  select seats into capacity from public.tables where id = new.table_id for update;
+  select seats, date, time into capacity, meal_at, meal_on
+    from public.tables where id = new.table_id for update;
 
   if capacity is null then
     raise exception 'table_not_found';
   end if;
 
-  select count(*) into taken from public.signups where table_id = new.table_id;
+  -- This counted every row whatever its status until 2026-09-01c, so a
+  -- DECLINED request held a seat for ever: a host who turned three people
+  -- away from a four-seat table had silently closed it, and nobody could ever
+  -- join again. A lapsed request did the same. Withdrawn ones were added in
+  -- 2026-09-01e, when cancelling stopped deleting the row.
+  select count(*) into taken
+    from public.signups s
+   where s.table_id = new.table_id
+     and s.cancelled_at is null
+     and (
+       coalesce(s.status, 'accepted') = 'accepted'
+       or (
+         coalesce(s.status, 'accepted') = 'pending'
+         and now() < public.lapse_at(meal_at, meal_on)
+       )
+     );
 
   if (taken + 1) >= capacity then
     raise exception 'table_full';
@@ -493,6 +583,9 @@ create policy signups_read on public.signups
 -- while only an accepted one counts as company, and those are two different
 -- numbers on the same card. Keeping the judgement in
 -- src/domain/policy/seatRequest.js means there is no second copy to drift.
+-- An accepted seat is held whatever the clock says: the guest is coming. A
+-- pending one is held only while there is still time to answer it, and a
+-- withdrawn one is not held at all.
 create or replace function public.seat_holds()
 returns table (table_id uuid, status text)
 language sql stable security definer set search_path = public as $fn$
@@ -500,7 +593,14 @@ language sql stable security definer set search_path = public as $fn$
   from signups s
   join tables t on t.id = s.table_id
   where t.cancelled_at is null
-    and coalesce(s.status, 'accepted') in ('pending', 'accepted')
+    and s.cancelled_at is null
+    and (
+      coalesce(s.status, 'accepted') = 'accepted'
+      or (
+        coalesce(s.status, 'accepted') = 'pending'
+        and now() < public.lapse_at(t.date, t.time)
+      )
+    )
 $fn$;
 
 -- The women-only filter, answered rather than enabled — the client sends the
@@ -596,7 +696,78 @@ create policy signups_decide_by_host on public.signups
 -- everywhere else. Without this a host could quietly edit what a guest told
 -- the table they cannot eat.
 revoke update on public.signups from authenticated;
-grant update (status, attendance) on public.signups to authenticated;
+grant update (status, attendance, cancelled_at) on public.signups to authenticated;
+
+-- Writing cancelled_at is giving up your own seat, or a host removing
+-- somebody from their own table — the same two people the delete policy below
+-- already allows. Applied as 2026-09-01e; the app cancels this way now and
+-- the delete stays only as a floor.
+drop policy if exists signups_cancel_own_or_host on public.signups;
+create policy signups_cancel_own_or_host on public.signups
+  for update to authenticated
+  using (
+    user_id = auth.uid()
+    or exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
+  )
+  with check (
+    user_id = auth.uid()
+    or exists (select 1 from public.tables t where t.id = table_id and t.host_id = auth.uid())
+  );
+
+-- The hole that policy opens, and the door on it. Found in review before
+-- 2026-09-01e was applied, and it is the serious one.
+--
+-- `authenticated` has held update (status, attendance) since the host
+-- decision was built. What kept a guest from using it was that the only
+-- UPDATE policy was signups_decide_by_host, which no guest passes. Permissive
+-- policies for one command are OR'd, so the moment signups_cancel_own_or_host
+-- adds `user_id = auth.uid()` a guest passes RLS and the column privilege
+-- they were already holding comes alive:
+--
+--     before:  privilege yes, policy no   -> cannot
+--     after:   privilege yes, policy yes  -> can set their own status
+--
+-- A guest could accept their own seat, notify_seat_decided would post them a
+-- "자리 확정!" email, and safetyPromise.js's promise that the host decides who
+-- sits down would be false.
+--
+-- Column grants cannot express this: they are per role, and "a guest may
+-- write cancelled_at but not status" is per row — the same reason column
+-- privileges could not scope `profiles` in 2026-09-01b. So the rule moves to
+-- a trigger, which sees the old row and the new one and can compare them.
+--
+-- `auth.uid() is null` exempts the dashboard and the service role: they
+-- bypass RLS but not triggers, and the team has to be able to fix a row by
+-- hand. An anonymous request cannot reach here — no UPDATE policy admits it.
+create or replace function public.assert_seat_decision_is_hosts()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if auth.uid() is null then
+    return new;
+  end if;
+
+  if new.status is distinct from old.status
+     or new.attendance is distinct from old.attendance then
+    if not exists (
+      select 1 from public.tables t
+      where t.id = new.table_id and t.host_id = auth.uid()
+    ) then
+      raise exception 'not_your_decision';
+    end if;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists signups_decision_guard on public.signups;
+create trigger signups_decision_guard
+  before update on public.signups
+  for each row execute function public.assert_seat_decision_is_hosts();
 
 -- Giving up your seat is yours to do; so is removing somebody from a table
 -- you are hosting, because a host who cannot manage their own table has to
@@ -916,6 +1087,21 @@ create table if not exists public.notifications (
   sent_at     timestamptz
 );
 
+-- Which seat request an email was about, so the outbox can be reconciled row
+-- by row. Without it the two tables share no key and "which requests produced
+-- no email" is a question no query can answer.
+--
+-- NO FOREIGN KEY, deliberately. `on delete cascade` would destroy the
+-- notification along with its signup — the record 2026-09-01e exists to keep
+-- — and `on delete set null` would erase the join and leave the row. An
+-- unenforced uuid is better than either, and the app is the only writer.
+--
+-- The eight rows written before this existed stay null for ever: three of the
+-- seat_requested emails belong to signups that were hard-deleted, so no key
+-- survives on either side. Any reconciliation query has to say which era it
+-- is asking about or it counts those as failures.
+alter table public.notifications add column if not exists signup_id uuid;
+
 alter table public.notifications enable row level security;
 
 -- Where 신고 alerts go. One row, entered by the team in the dashboard
@@ -944,7 +1130,7 @@ begin
   select email into host_email from member_details
     where id = t.host_id and email <> '';
   if host_email is null then return null; end if;
-  insert into notifications (kind, recipient, subject, body, table_id) values (
+  insert into notifications (kind, recipient, subject, body, table_id, signup_id) values (
     'seat_requested', host_email,
     '[밥친구] 자리 요청이 왔어요 · Somebody asked for a seat',
     coalesce(nullif(new.name, ''), 'A traveller') || ' asked to sit at your table — '
@@ -953,7 +1139,7 @@ begin
       || E'\n' || 'Please answer — unanswered requests lapse 12 hours before the meal and the seat opens up again.'
       || E'\n\n' || 'https://eatple.vercel.app/tables/' || t.id
       || E'\n\n' || '— 밥친구 · Eatple',
-    t.id);
+    t.id, new.id);
   return null;
 exception when others then return null;
 end $$;
@@ -973,13 +1159,15 @@ begin
   if coalesce(old.status, '') <> 'pending' or new.status not in ('accepted', 'declined') then
     return null;
   end if;
+  -- A request somebody has withdrawn is not one to answer.
+  if new.cancelled_at is not null then return null; end if;
   select * into t from tables where id = new.table_id;
   if t.id is null then return null; end if;
   select email into guest_email from member_details
     where id = new.user_id and email <> '';
   if guest_email is null then return null; end if;
   if new.status = 'accepted' then
-    insert into notifications (kind, recipient, subject, body, table_id) values (
+    insert into notifications (kind, recipient, subject, body, table_id, signup_id) values (
       'seat_decided', guest_email,
       '[밥친구] 자리 확정! · Your seat is confirmed',
       'The host said yes. Your table: ' || t.date || ' ' || to_char(t.time, 'HH24:MI')
@@ -988,9 +1176,9 @@ begin
         || E'\n' || 'How to spot the host is on the table page — visible to confirmed guests only.'
         || E'\n\n' || 'https://eatple.vercel.app/tables/' || t.id
         || E'\n\n' || '— 밥친구 · Eatple',
-      t.id);
+      t.id, new.id);
   else
-    insert into notifications (kind, recipient, subject, body, table_id) values (
+    insert into notifications (kind, recipient, subject, body, table_id, signup_id) values (
       'seat_decided', guest_email,
       '[밥친구] 이번 밥상은 아쉽게 됐어요 · About your seat request',
       'The host could not fit you in this time — usually the table filled up.'
@@ -998,7 +1186,7 @@ begin
         || E'\n' || 'Other tables are open — or open the same dish yourself and the seats are yours to give.'
         || E'\n\n' || 'https://eatple.vercel.app/'
         || E'\n\n' || '— 밥친구 · Eatple',
-      t.id);
+      t.id, new.id);
   end if;
   return null;
 exception when others then return null;
@@ -1021,6 +1209,7 @@ begin
     select md.email from public.signups s
     join public.member_details md on md.id = s.user_id and md.email <> ''
     where s.table_id = new.id
+      and s.cancelled_at is null
       and coalesce(s.status, 'accepted') in ('accepted', 'pending')
   loop
     insert into notifications (kind, recipient, subject, body, table_id) values (

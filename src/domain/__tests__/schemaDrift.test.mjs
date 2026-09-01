@@ -195,13 +195,24 @@ test('it looks one way: a column nobody reads is not a problem', () => {
 });
 
 test('the outage reproduces exactly', () => {
-  // The state that shipped: schema.sql without cancelled_at, a client
-  // filtering on it. This is what twenty minutes of 400s looked like as a
-  // pair of sets.
-  const schema = schemaColumns();
-  const asShipped = { signups: new Set([...(clientColumns().signups ?? []), 'cancelled_at']) };
-  assert.deepEqual(missingFrom(schema, asShipped), ['signups.cancelled_at'],
-    'the check no longer notices the column that took production down');
+  // What twenty minutes of 400s looked like as a pair of sets: schema.sql
+  // without cancelled_at, a client naming it.
+  //
+  // Written from fixed sets rather than from the real files, and that is the
+  // point rather than convenience. Built from the live pair, this stopped
+  // reproducing anything the moment 2026-09-01e was folded in — the scenario
+  // it exists to pin would have quietly become "the current state, plus a
+  // column already there", which is not an outage and asserts nothing. A
+  // historical case has to stay the case it was.
+  const schema = { signups: new Set(['id', 'table_id', 'user_id', 'status']) };
+  const client = { signups: new Set(['id', 'table_id', 'user_id', 'status', 'cancelled_at']) };
+  assert.deepEqual(missingFrom(schema, client), ['signups.cancelled_at'],
+    'the check no longer notices the shape that took production down');
+
+  // And the same pair with the column present is silent, so the assertion
+  // above is about the column and not about the function always finding one.
+  const applied = { signups: new Set([...schema.signups, 'cancelled_at']) };
+  assert.deepEqual(missingFrom(applied, client), []);
 });
 
 test('both extractors still find something', () => {
@@ -224,15 +235,18 @@ test('both extractors still find something', () => {
   assert.ok(shared.length >= 3, 'the two extractors agree on almost nothing — one of them is wrong');
 });
 
-test('the column that caused the outage is the one this would have caught', () => {
-  // Not a hypothetical. `signups.cancelled_at` is what shipped, and it is
-  // still not in schema.sql because 2026-09-01e has not been applied. When
-  // it is applied and folded in, this assertion is what has to change — and
-  // changing it means somebody looked.
+test('the column that caused the outage is now declared, on both tables', () => {
+  // This test used to assert the opposite — that schema.sql did NOT have
+  // signups.cancelled_at — with a message saying to change it once
+  // 2026-09-01e was applied and folded in. It was applied on 2026-09-01 and
+  // verified live outside its transaction, so this is that change.
+  //
+  // Kept rather than deleted because it says something the general check
+  // cannot: the general check only notices a column the CLIENT names, so a
+  // release that dropped every reference to cancelled_at would pass it while
+  // silently going back to hard deletes.
   const schema = schemaColumns();
-  assert.equal(schema.signups.has('cancelled_at'), false,
-    '2026-09-01e is applied and folded into schema.sql — good. Delete this test '
-    + 'and let the first one guard it from here.');
+  assert.equal(schema.signups.has('cancelled_at'), true);
   assert.equal(schema.tables.has('cancelled_at'), true,
-    'tables.cancelled_at is the shape signups is copying, and it is missing');
+    'tables.cancelled_at is the shape signups copied, and it is missing');
 });

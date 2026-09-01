@@ -47,6 +47,41 @@ export const bookable = (tables = []) => tables.filter(t => !isCancelled(t));
  */
 export const isActionable = (table) => Boolean(table) && !isCancelled(table);
 
+// ── A guest giving up a seat is the same idea, one level down ───────────
+//
+// Cancelling a request used to delete the row, and the numbers in the 9/20
+// report are tables opened, SEATS REQUESTED, meals held. The second one was
+// being erased every time somebody changed their mind, and by the evening of
+// 2026-09-01 production held eight notifications against two signups — three
+// of them seat_requested, so at least one request had happened and had been
+// wiped. 2026-09-01e gave signups the same `cancelled_at` column tables have.
+//
+// The screens are supposed to look exactly as they did: a withdrawn request
+// disappears from every list, the seat comes back, the host stops seeing it.
+// Only the database remembers. So the filtering happens here, once, and both
+// backends call it.
+
+/** When somebody gave this seat up. Null while they still hold it. */
+export const withdrawnAt = (signup) => cancelledAt(signup);
+
+export const isWithdrawn = (signup) => withdrawnAt(signup) !== null;
+
+/**
+ * The requests that still count — for a seat, for a badge, for a headcount.
+ *
+ * Filtered in JavaScript rather than with `.is('cancelled_at', null)` in the
+ * query, and that is the entire point of writing it here. On 2026-09-01 a
+ * client that named a column its database did not have yet turned every read
+ * of `signups` into a 400 for twenty minutes, during 시범운영, and the table
+ * page told two people sitting at a table that it had been called off.
+ *
+ * A row with no `cancelledAt` field at all — an old bundle, a project a
+ * migration behind, a backend that never had the column — reads as live and
+ * behaves exactly as it did before this existed. There is no version of the
+ * schema where this function throws or filters everything away.
+ */
+export const liveSignups = (signups = []) => signups.filter(s => !isWithdrawn(s));
+
 /**
  * What a guest is told, on a table they had a seat at.
  *

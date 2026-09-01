@@ -133,6 +133,12 @@ export function signupFromRow(row) {
     // but is the ordinary case: nobody recorded anything, which attendance.js
     // reads as "they came".
     attendance: row.attendance ?? null,
+    // When they gave the seat up, and undefined on a project without the
+    // column — the same treatment as status, for the same reason and with
+    // more at stake. cancellation.js reads undefined as "still holding", so a
+    // bundle that reaches a database a migration behind behaves exactly as it
+    // did before soft cancel existed rather than filtering every row away.
+    cancelledAt: row.cancelled_at ?? undefined,
     // Present only when the query embedded the profiles row (the avatar
     // stack on cards reads it); empty otherwise. Never written back —
     // signupToRow does not know the field exists.

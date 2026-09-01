@@ -13,7 +13,7 @@ import { cleanGender } from '../domain/catalog/genders.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
 import { mergeSeatHolds } from '../domain/policy/seatHolds.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
-import { isCancelled } from '../domain/policy/cancellation.js';
+import { isCancelled, liveSignups } from '../domain/policy/cancellation.js';
 import { isPast } from '../domain/policy/table.js';
 
 const URL = import.meta.env?.VITE_SUPABASE_URL;
@@ -394,7 +394,7 @@ export async function listSignups(tableId) {
       .from('signups').select('*').eq('table_id', tableId).order('created_at'));
   }
   if (error) throw new Error(friendlyError(error));
-  const mine = (data ?? []).map(signupFromRow);
+  const mine = liveSignups((data ?? []).map(signupFromRow));
 
   const { data: holds, error: holdError } = await sb.rpc('seat_holds');
   if (holdError || !Array.isArray(holds)) return mine;
@@ -419,7 +419,7 @@ export async function listAllSignups() {
     ({ data, error } = await sb.from('signups').select('*'));
   }
   if (error) throw new Error(friendlyError(error));
-  const mine = (data ?? []).map(signupFromRow);
+  const mine = liveSignups((data ?? []).map(signupFromRow));
 
   // A project a migration behind has no seat_holds() yet. Degrade to what the
   // rows themselves say rather than to an error: before the policy lands they
@@ -457,10 +457,31 @@ export async function createSignup(input) {
   return signupFromRow(data);
 }
 
+/**
+ * Somebody giving up a seat they asked for.
+ *
+ * This deleted the row until 2026-09-01e, and the row is the only record that
+ * the request was ever made. The report due 9/20 counts seats requested, so
+ * every change of mind was quietly subtracting from a number nobody could
+ * reconstruct afterwards.
+ *
+ * `signups_cancel_own_or_host` allows this to the guest and to the table's
+ * host; `signups_decision_guard` is what stops the same UPDATE being used to
+ * accept your own seat. Neither is checked here — the database refuses, and a
+ * check on this side would only decide what error to show.
+ *
+ * Written unconditionally rather than `.is('cancelled_at', null)`-guarded: a
+ * second cancel writes a later timestamp over an earlier one, which is a
+ * no-op in every screen that reads it, and the alternative is a round trip to
+ * refuse something harmless.
+ */
 export async function cancelSignup(signupId) {
   const sb = await client();
   await currentUser();
-  const { error } = await sb.from('signups').delete().eq('id', signupId);
+  const { error } = await sb
+    .from('signups')
+    .update({ cancelled_at: new Date().toISOString() })
+    .eq('id', signupId);
   if (error) throw new Error(friendlyError(error));
 }
 
@@ -688,7 +709,8 @@ export async function hostRecord(hostId) {
   if (held.length > 0) {
     const { data: signupRows } = await sb
       .from('signups').select('*').in('table_id', held.map(t => t.id));
-    guestsMet = acceptedSignups((signupRows ?? []).map(signupFromRow)).filter(countsAsMet).length;
+    // A withdrawn request is not somebody this host met.
+    guestsMet = acceptedSignups(liveSignups((signupRows ?? []).map(signupFromRow))).filter(countsAsMet).length;
   }
 
   return {

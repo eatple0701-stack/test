@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   cancelledAt, isCancelled, bookable, isActionable, cancellationNotice,
+  withdrawnAt, isWithdrawn, liveSignups,
 } from '../policy/cancellation.js';
 
 const table = (over = {}) => ({ id: 't1', hostId: 'h1', seats: 4, ...over });
@@ -57,4 +58,57 @@ test('a guest is told not to go, and a host is told to reach people themselves',
 test('a table that is still happening has no notice to give', () => {
   assert.equal(cancellationNotice(table(), { isHost: false }), null);
   assert.equal(cancellationNotice(table(), { isHost: true }), null);
+});
+
+// ── Giving up a seat, one level down ────────────────────────────────────
+
+const seat = (over = {}) => ({ id: 's1', tableId: 't1', userId: 'u1', status: 'pending', ...over });
+
+test('a withdrawn request stops counting, and the row it came from is not the test', () => {
+  assert.equal(isWithdrawn(seat()), false);
+  assert.equal(isWithdrawn(seat({ cancelledAt: CANCELLED })), true);
+  assert.equal(withdrawnAt(seat({ cancelledAt: CANCELLED })), Date.parse(CANCELLED));
+  assert.equal(withdrawnAt(seat()), null);
+});
+
+test('every list drops the requests somebody took back', () => {
+  const rows = [
+    seat({ id: 'a' }),
+    seat({ id: 'b', cancelledAt: CANCELLED }),
+    seat({ id: 'c', status: 'accepted' }),
+  ];
+  assert.deepEqual(liveSignups(rows).map(s => s.id), ['a', 'c']);
+  assert.deepEqual(liveSignups([]), []);
+  assert.deepEqual(liveSignups(), []);
+});
+
+test('a row from a database without the column is still somebody holding a seat', () => {
+  // The reason this filter is in JavaScript and not in the query. On
+  // 2026-09-01 a bundle that named a column its database did not have turned
+  // every read of signups into a 400 for twenty minutes, mid-pilot, and the
+  // table page told two people their dinner had been called off.
+  //
+  // A row that has never heard of cancelled_at has to read as live. Anything
+  // else and an old bundle against a new database — or the reverse — empties
+  // a table that is full.
+  const old = { id: 'x', tableId: 't1', userId: 'u1', status: 'accepted' };
+  assert.equal('cancelledAt' in old, false, 'the fixture stopped being the case it is about');
+  assert.equal(isWithdrawn(old), false);
+  assert.deepEqual(liveSignups([old]).map(s => s.id), ['x']);
+
+  // And explicitly undefined, which is what signupFromRow writes.
+  assert.equal(isWithdrawn(seat({ cancelledAt: undefined })), false);
+  assert.equal(isWithdrawn(seat({ cancelledAt: null })), false);
+});
+
+test('an unreadable timestamp leaves the seat taken', () => {
+  // The safe direction is the opposite of the one for tables. A table wrongly
+  // shown as cancelled sends somebody home; a seat wrongly shown as given up
+  // gets handed to a second person, and two travellers turn up for one chair.
+  assert.equal(isWithdrawn(seat({ cancelledAt: 'banana' })), false);
+  assert.deepEqual(liveSignups([seat({ cancelledAt: 'banana' })]).length, 1);
+});
+
+test('a number works as well as a string, because one backend writes each', () => {
+  assert.equal(isWithdrawn(seat({ cancelledAt: 1754215200000 })), true);
 });
