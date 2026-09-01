@@ -92,18 +92,29 @@ drop policy if exists signups_cancel_own_or_host on public.signups;
 revoke update on public.signups from authenticated;
 grant update (status, attendance) on public.signups to authenticated;
 
+-- The guard goes with the policy that made it necessary, and only with it.
+-- Without signups_cancel_own_or_host no guest passes an UPDATE policy at
+-- all, so the privilege it was closing is unreachable again — but leaving a
+-- trigger behind that nothing in schema.sql declares is how the next person
+-- ends up debugging a raise nobody can find the source of.
+drop trigger if exists signups_decision_guard on public.signups;
+drop function if exists public.assert_seat_decision_is_hosts();
+
 -- The triggers keep writing signup_id — the column is still there and the
 -- value is still true. Only the seat arithmetic is reverted.
 
--- Passes when ALL THREE are exactly this:
+-- Passes when ALL FOUR are exactly this:
 --     live_index_gone        0
 --     old_constraint_back    1
 --     columns_kept           2     (nothing was destroyed)
+--     guard_gone             0
 select
   (select count(*) from pg_indexes where indexname = 'signups_one_live_seat')  as live_index_gone,
   (select count(*) from pg_constraint where conname = 'signups_table_id_user_id_key') as old_constraint_back,
   (select count(*) from information_schema.columns
     where (table_name = 'signups' and column_name = 'cancelled_at')
-       or (table_name = 'notifications' and column_name = 'signup_id'))        as columns_kept;
+       or (table_name = 'notifications' and column_name = 'signup_id'))        as columns_kept,
+  (select count(*) from pg_trigger
+    where tgname = 'signups_decision_guard' and not tgisinternal)          as guard_gone;
 
 commit;

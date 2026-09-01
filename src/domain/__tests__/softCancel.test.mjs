@@ -31,8 +31,15 @@ const MIGRATION = 'supabase/migrations/2026-09-01e-signups-soft-cancel.sql';
 const ROLLBACK = 'supabase/migrations/2026-09-01e-signups-soft-cancel-ROLLBACK.sql';
 const LAPSE = 'supabase/migrations/2026-09-01c-seat-holds-lapse.sql';
 
-const applyPart = (sql, end) =>
-  sql.slice(sql.indexOf('\nbegin;') + '\nbegin;'.length, sql.indexOf(end));
+// Everything between begin; and the verification block. The marker has to be
+// found: slice(x, -1) on a missing one silently runs almost the whole file,
+// commit and all — which is what this did for one run after the rollback's
+// pass criteria went from three numbers to four, still printing green.
+const applyPart = (sql, end) => {
+  const at = sql.indexOf(end);
+  if (at < 0) throw new Error(`the file no longer contains ${JSON.stringify(end)}`);
+  return sql.slice(sql.indexOf('\nbegin;') + '\nbegin;'.length, at);
+};
 
 // The shape production has before this migration: the unique constraint in
 // place, no cancelled_at, no signup_id.
@@ -250,7 +257,7 @@ test('the rollback restores the old arithmetic and destroys nothing', async () =
   await db.query(`delete from public.notifications
     where signup_id in (select id from public.signups where cancelled_at is not null)`);
   await db.query(`delete from public.signups where cancelled_at is not null`);
-  await db.exec(applyPart(read(ROLLBACK), '-- Passes when ALL THREE'));
+  await db.exec(applyPart(read(ROLLBACK), '-- Passes when'));
 
   const { rows } = await db.query(`
     select
@@ -258,8 +265,15 @@ test('the rollback restores the old arithmetic and destroys nothing', async () =
       (select count(*)::int from pg_constraint where conname = 'signups_table_id_user_id_key') as old_constraint_back,
       (select count(*)::int from information_schema.columns
         where (table_name = 'signups' and column_name = 'cancelled_at')
-           or (table_name = 'notifications' and column_name = 'signup_id')) as columns_kept`);
-  assert.deepEqual(rows[0], { live_index_gone: 0, old_constraint_back: 1, columns_kept: 2 });
+           or (table_name = 'notifications' and column_name = 'signup_id')) as columns_kept,
+      -- The guard goes with the policy that made it necessary. Without that
+      -- policy no guest passes an UPDATE policy at all, so the privilege it
+      -- closes is out of reach again — but a trigger left behind that no
+      -- schema declares is how somebody ends up hunting a raise with no source.
+      (select count(*)::int from pg_trigger
+        where tgname = 'signups_decision_guard' and not tgisinternal) as guard_gone`);
+  assert.deepEqual(rows[0],
+    { live_index_gone: 0, old_constraint_back: 1, columns_kept: 2, guard_gone: 0 });
 
   // Forward again, so the file leaves the database in the state it applies.
   await db.exec(applyPart(read(MIGRATION), '-- == Verification'));

@@ -43,13 +43,14 @@
 -- Paste as is. It ends in `rollback;` and changes nothing: it applies
 -- everything, reads the result, prints five numbers, and throws it away.
 --
--- It passes when ALL FIVE are exactly this:
+-- It passes when ALL SIX are exactly this:
 --
 --     signups_total_now      unchanged from before you ran it
 --     cancelled_column       1
 --     signup_id_column       1
 --     live_unique_index      1
 --     old_unique_constraint  0
+--     decision_guard         1
 --
 -- Then change the last line to `commit;` and run it again.
 -- Undo: 2026-09-01e-signups-soft-cancel-ROLLBACK.sql, written first.
@@ -365,6 +366,11 @@ select
   (select count(*) from pg_indexes
     where indexname = 'signups_one_live_seat')                         as live_unique_index,
   (select count(*) from pg_constraint
-    where conname = 'signups_table_id_user_id_key')                    as old_unique_constraint;
+    where conname = 'signups_table_id_user_id_key')                    as old_unique_constraint,
+  -- The one that stops a guest accepting their own seat. Counted because
+  -- this migration is the reason it has to exist: without it, the cancel
+  -- policy above hands a guest the status privilege they already held.
+  (select count(*) from pg_trigger
+    where tgname = 'signups_decision_guard' and not tgisinternal)      as decision_guard;
 
 rollback;
