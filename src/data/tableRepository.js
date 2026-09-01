@@ -18,7 +18,7 @@ import { cleanDiets } from './profile.js';
 import { cleanMeetingNote, cleanChatUrl } from '../domain/policy/meeting.js';
 import { pointOf } from '../domain/policy/place.js';
 import { acceptedSignups } from '../domain/policy/seatRequest.js';
-import { tableIncludesGender } from '../domain/catalog/genders.js';
+import { tableShowsWoman } from '../domain/catalog/genders.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
 import { isCancelled } from '../domain/policy/cancellation.js';
 import { isPast } from '../domain/policy/table.js';
@@ -153,20 +153,22 @@ async function local_listAllSignups() {
 }
 
 /**
- * The tables with a woman at them.
+ * The tables with a woman hosting.
  *
- * On localStorage every row is already in hand, so this is the same question
- * tableIncludesGender answers — the parity that matters is the shape of the
- * answer, not how it is reached. On Supabase the rows are not in hand on
- * purpose: signups_read withholds other people's, and publishing a per-table
- * boolean instead would identify the third guest at a four-seat table showing
- * two. So the remote half asks the database and gets back ids only.
+ * The host and not the guests, deliberately, and the same rule as
+ * public.tables_with_woman() in the migration — the two backends have to agree
+ * or a filter means different things depending on whether a project is wired
+ * up. The reasoning is written out in full there; in short, the number of
+ * people at a table is public, so a table with one guest appearing in this
+ * list would say that guest is a woman.
+ *
+ * The narrowing lives in tableShowsWoman() so that it has one name, one place
+ * to read the reasoning, and a test that calls it.
  */
 async function local_tablesWithWoman() {
-  const signups = read(SIGNUPS_KEY);
   return read(TABLES_KEY)
     .filter(t => !t.cancelledAt)
-    .filter(t => tableIncludesGender(t, signups.filter(s => s.tableId === t.id), 'Woman'))
+    .filter(tableShowsWoman)
     .map(t => t.id);
 }
 

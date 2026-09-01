@@ -416,7 +416,14 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           aria-pressed={womenFilter}
           onClick={() => setWomenFilter(w => !w)}
         >
-          {say('여성 동석 · Tables with another woman going', '여성 동석', 'Mesas con otra mujer apuntada', 'Tables où une autre femme est inscrite', 'موائد مسجّلة فيها امرأة أخرى', '有另一位女性参加的饭桌', 'ほかに女性が参加している食卓')}
+          {/* Named for what it does now, not what it used to. The filter asks
+              the server, and the server matches on the HOST — a guest is not
+              counted, because the number of people at each table is public and
+              matching on a guest would identify her. So "another woman going"
+              would promise more than is delivered: every match is true, and
+              some true tables are missed. See tables_with_woman() in
+              supabase/migrations/2026-09-01b-scope-profile-reads-retry.sql. */}
+          {say('여성 호스트 · Hosted by a woman', '여성 호스트', 'Con una anfitriona', 'Recevant : une femme', 'تستضيفها امرأة', '女性主人的饭桌', 'ホストが女性の食卓')}
         </button>
       </div>
 

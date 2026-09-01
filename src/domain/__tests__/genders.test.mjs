@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GENDERS, isGender, cleanGender, tableIncludesGender } from '../catalog/genders.js';
+import { GENDERS, isGender, cleanGender, tableIncludesGender , tableShowsWoman } from '../catalog/genders.js';
 
 test('the vocabulary is fixed and self-declared, not a scale', () => {
   assert.deepEqual(GENDERS, ['Woman', 'Man', 'Non-binary']);
@@ -44,4 +44,29 @@ test('no preference means every table qualifies', () => {
 
 test('unset gender on the host or a guest never matches a stated preference', () => {
   assert.equal(tableIncludesGender({ hostGender: null }, [{ gender: null }], 'Woman'), false);
+});
+
+test('the women filter matches a woman hosting, and not a woman going', () => {
+  // Narrower than tableIncludesGender on purpose, and the narrowing is a
+  // privacy decision. The number of people at each table is public
+  // (public.seat_holds()), so if this matched on a guest, a one-guest table in
+  // the results would say that guest is a woman — the inference the has_woman
+  // column was rejected for, returning through the side door.
+  assert.equal(tableShowsWoman({ hostGender: 'Woman' }), true);
+  assert.equal(tableShowsWoman({ hostGender: 'Man' }), false);
+  assert.equal(tableShowsWoman({ hostGender: null }), false);
+  assert.equal(tableShowsWoman({}), false);
+  assert.equal(tableShowsWoman(null), false);
+});
+
+test('the women filter misses matches rather than inventing them', () => {
+  // The cost of the decision above, pinned so it is a choice somebody makes
+  // again rather than a regression: a table hosted by a man where a woman is
+  // already going does not match. The general question still has an answer —
+  // tableIncludesGender — it is simply not the one the filter asks.
+  const table = { hostGender: 'Man' };
+  const womanGoing = [{ gender: 'Woman' }];
+  assert.equal(tableIncludesGender(table, womanGoing, 'Woman'), true, 'the general rule changed');
+  assert.equal(tableShowsWoman(table), false,
+    'the filter matched on a guest — crossing it with seat counts would name her');
 });

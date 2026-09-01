@@ -18,21 +18,52 @@ test('an empty app is not blamed on a filter nobody set', () => {
     'the empty-app copy still points at a dish nobody chose');
 });
 
-test('a filter the reader set explains it better than the app being bare', () => {
-  // All three filters, each against a genuinely empty app: the reader can undo
-  // a filter, so that is the more useful answer even when both are true.
-  assert.equal(emptyReason({ open: [], shown: [], womenFilter: true }), EMPTY.GENDER);
-  assert.equal(emptyReason({ open: [], shown: [], dayFilter: '2026-08-06' }), EMPTY.DAY);
-  assert.equal(emptyReason({ open: [], shown: [], menuFilter: 'bossam' }), EMPTY.DISH);
+test('a bare week is not blamed on a filter', () => {
+  // This test used to assert the opposite, and the opposite was wrong. The
+  // old rule led with the filters because a filter is what the reader can
+  // undo — true, but only when undoing it would show them something. With no
+  // upcoming tables at all there is nothing behind the chip, and "nobody has
+  // said their gender yet" is a false explanation for an empty week.
+  //
+  // It went live: on 2026-09-01 the pilot week had no tables, and turning on
+  // 여성 동석 swapped a true sentence for a false one. A test had pinned the
+  // false one, which is the part worth remembering — a test can preserve a
+  // wrong answer as easily as a right one, and being pinned is not evidence.
+  for (const filter of [
+    { womenFilter: true },
+    { dayFilter: '2026-08-06' },
+    { menuFilter: 'bossam' },
+    { groupFilter: 'kbbq' },
+  ]) {
+    assert.equal(emptyReason({ open: [], shown: [], ...filter }), EMPTY.NONE,
+      `${JSON.stringify(filter)} was blamed for a week that had nothing in it`);
+  }
+});
+
+test('a filter that really is hiding something is named', () => {
+  // The other half, and the reason the filters are still checked at all: when
+  // the week has tables and the reader cannot see them, the chip they set is
+  // the true and actionable answer.
+  const week = [{ id: 't1', date: '2026-08-06' }];
+  assert.equal(emptyReason({ open: week, shown: [], womenFilter: true }), EMPTY.GENDER);
+  assert.equal(emptyReason({ open: week, shown: [], dayFilter: '2026-08-07' }), EMPTY.DAY);
+  assert.equal(emptyReason({ open: week, shown: [], menuFilter: 'bossam' }), EMPTY.DISH);
+  assert.equal(emptyReason({ open: week, shown: [], groupFilter: 'kbbq' }), EMPTY.GROUP);
 });
 
 test('a group explains an empty list, and a dish explains it better', () => {
   // The front page's category cards set groupFilter; the dish chips inside a
   // group set menuFilter on top. When both are on, the dish is the narrower
   // choice and the one the reset button undoes first.
-  assert.equal(emptyReason({ open: [], shown: [], groupFilter: 'kbbq' }), EMPTY.GROUP);
+  //
+  // `open` has a table in it now. It used to be empty here, which stopped
+  // being a fair test of precedence the moment a bare week began outranking
+  // every filter — the question is which of two true explanations is better,
+  // and neither is true when there is nothing to explain.
+  const week = [{ id: 't1', date: '2026-08-06' }];
+  assert.equal(emptyReason({ open: week, shown: [], groupFilter: 'kbbq' }), EMPTY.GROUP);
   assert.equal(
-    emptyReason({ open: [], shown: [], groupFilter: 'kbbq', menuFilter: 'samgyeopsal' }),
+    emptyReason({ open: week, shown: [], groupFilter: 'kbbq', menuFilter: 'samgyeopsal' }),
     EMPTY.DISH,
   );
   assert.match(emptyText(EMPTY.GROUP).title, /category/);

@@ -237,18 +237,36 @@ $fn$;
 -- So the client sends the question and gets back only the tables that answer
 -- it. No gender and no derived boolean is ever in a response, and nothing is
 -- returned at all unless somebody turns the filter on.
+--
+-- THE HOST ONLY, AND NOT THE GUESTS. A first version counted both, and that
+-- brought the leak back through the side door: seat_holds() gives the number
+-- of people at each table, so a table with one guest appearing in this list
+-- says that guest is a woman. Crossing two safe answers produced the unsafe
+-- one the has_woman column was rejected for.
+--
+-- Requiring two or more guests would blunt that but not remove it, and it
+-- leaves the worse half intact: the answer would still CHANGE the moment
+-- somebody joined, and a stranger watching the list would learn exactly who
+-- had just arrived. Counting only the host makes the answer fixed when the
+-- table is created and never move again.
+--
+-- It is also the only line that matches consent. A host published an
+-- invitation with their name on it; a guest asked privately for a seat. The
+-- inference this still allows — that a matching table has a woman hosting —
+-- is about the one person who chose to be the public face of it.
+--
+-- The cost is real and is written down rather than hidden: a table hosted by
+-- a man where a woman is already going no longer matches, so the filter shows
+-- fewer tables than it could. It errs towards missing a match, never towards
+-- claiming company that is not there, which is the safe direction for a
+-- safety feature. Recorded in docs/public-table-columns.md and said plainly
+-- on the filter itself.
 create or replace function public.tables_with_woman()
 returns setof uuid
 language sql stable security definer set search_path = public as $fn$
   select t.id from tables t
   where t.cancelled_at is null
-    and (t.host_gender = 'Woman'
-      or exists (
-        select 1 from signups s
-        where s.table_id = t.id
-          and s.gender = 'Woman'
-          and coalesce(s.status, 'accepted') in ('pending', 'accepted')
-      ))
+    and t.host_gender = 'Woman'
 $fn$;
 
 revoke all on function public.seat_holds() from public;

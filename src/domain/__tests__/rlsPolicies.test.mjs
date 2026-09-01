@@ -88,11 +88,11 @@ from generate_series(1, 237) i;
 -- this file quietly stop testing anything a month from now: every table would
 -- fall out of the window and the assertions would keep passing for the wrong
 -- reason.
-insert into public.tables (id, host_id, host_name, date, seats, created_at) values
+insert into public.tables (id, host_id, host_name, host_gender, date, seats, created_at) values
   ('11111111-0000-4000-8000-000000000001',
-   '00000000-0000-4000-8000-000000000001', 'host one', current_date - 26, 4, now() - interval '28 days'),
+   '00000000-0000-4000-8000-000000000001', 'host one', 'Man',   current_date - 26, 4, now() - interval '28 days'),
   ('11111111-0000-4000-8000-000000000002',
-   '00000000-0000-4000-8000-000000000002', 'host two', current_date + 5,  4, now() - interval '13 days');
+   '00000000-0000-4000-8000-000000000002', 'host two', 'Woman', current_date + 5,  4, now() - interval '13 days');
 
 -- A meal from months ago. Its host is the whole point of the date window: they
 -- once held an open invitation and no longer do, so a stranger has no business
@@ -109,12 +109,12 @@ insert into public.tables (id, host_id, host_name, date, seats, created_at, canc
   ('11111111-0000-4000-8000-000000000003',
    '00000000-0000-4000-8000-000000000003', 'host three', current_date + 2, 4, now() - interval '7 days', now() - interval '4 days');
 
-insert into public.signups (table_id, user_id, name) values
-  ('11111111-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000010', 'guest a'),
-  ('11111111-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000011', 'guest b'),
-  ('11111111-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000012', 'guest c'),
-  ('11111111-0000-4000-8000-000000000003', '00000000-0000-4000-8000-000000000013', 'guest d'),
-  ('11111111-0000-4000-8000-000000000004', '00000000-0000-4000-8000-000000000014', 'guest e');
+insert into public.signups (table_id, user_id, name, gender) values
+  ('11111111-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000010', 'guest a', null),
+  ('11111111-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000011', 'guest b', 'Woman'),
+  ('11111111-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000012', 'guest c', null),
+  ('11111111-0000-4000-8000-000000000003', '00000000-0000-4000-8000-000000000013', 'guest d', null),
+  ('11111111-0000-4000-8000-000000000004', '00000000-0000-4000-8000-000000000014', 'guest e', null);
 
 -- One request still waiting on the host, and one already turned down. They
 -- hold different numbers of seats and neither may be attributed to anybody by
@@ -398,19 +398,40 @@ test('seat_holds cannot be made to name anybody', async () => {
     /user_id/, 'seat_holds exposes a user id');
 });
 
-test('the women filter is answered without publishing anybody’s gender', async () => {
-  // Table two has a pending request from a woman; table one has neither a
-  // woman host nor a woman guest. The stranger learns which tables match and
-  // nothing else — no gender column and no per-table boolean is readable.
+test('the women filter names tables, never people', async () => {
+  // Table two has a woman hosting; table one has a man hosting and a woman
+  // guest already going. Only the first matches, and that is the decision
+  // rather than an oversight — see the note above tables_with_woman().
   await ensureCommitted();
   const ids = (await as(UNSEATED, 'select * from public.tables_with_woman();'))
     .map(r => r.tables_with_woman ?? r.id ?? Object.values(r)[0]);
-  assert.ok(ids.includes(TABLE_TWO), 'a table with a woman at it is not being matched');
-  assert.ok(!ids.includes(TABLE_ONE), 'a table with no woman at it is being matched');
+  assert.ok(ids.includes(TABLE_TWO), 'a table with a woman hosting is not being matched');
+  assert.ok(!ids.includes(TABLE_ONE),
+    'a table matched on a guest — crossing this with seat_holds would name her');
 
   // And the raw genders stay unreadable, which is the point of asking at all.
-  const leaked = await as(UNSEATED, 'select gender from public.signups;');
-  assert.equal(leaked.length, 0, 'the gender column is readable after all');
+  assert.equal((await as(UNSEATED, 'select gender from public.signups;')).length, 0,
+    'the gender column is readable after all');
+});
+
+test('crossing the filter with the seat counts cannot name a guest', async () => {
+  // The inference that killed the has_woman column: seat_holds() publishes how
+  // many people are at each table, so if this list ever matched on a guest, a
+  // one-guest table appearing in both would identify her. The property that
+  // rules it out is that every id returned has a woman HOST — checked against
+  // the database directly, past RLS, so it is about the function and not about
+  // what one reader happens to see.
+  await ensureCommitted();
+  const ids = (await as(UNSEATED, 'select * from public.tables_with_woman();'))
+    .map(r => r.tables_with_woman ?? r.id ?? Object.values(r)[0]);
+  assert.ok(ids.length > 0, 'nothing matched, so this proves nothing');
+  const { rows } = await db.query(
+    `select id, host_gender from public.tables where id = any($1::uuid[])`, [ids]);
+  assert.equal(rows.length, ids.length);
+  for (const t of rows) {
+    assert.equal(t.host_gender, 'Woman',
+      `${t.id} matched without a woman hosting — a guest is inferable from it`);
+  }
 });
 
 test('the helpers are all security definer with a pinned search_path', async () => {

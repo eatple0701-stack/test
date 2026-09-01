@@ -37,20 +37,30 @@ export const EMPTY = {
  *
  * `open` is every upcoming table this reader could see before the filters —
  * the difference between "your filter hid everything" and "there is nothing".
- * Ordered most specific first: a filter the reader set is a better
- * explanation than the state of the whole app, because it is the one they can
- * undo.
+ *
+ * A bare week is checked FIRST, and that is a correction. This used to lead
+ * with the filters, on the reasoning that a filter is the thing the reader can
+ * undo and so the more useful answer. The reasoning does not survive the case
+ * where there is nothing to undo it onto: with no upcoming tables at all, no
+ * filter is hiding anything, and saying "nobody has said yet" blames a chip
+ * for an empty week. Found live on 2026-09-01 — the pilot week had no tables,
+ * turning on 여성 동석 replaced the true sentence with a false one, and there
+ * was a test pinning the false one in place.
+ *
+ * Ordered most specific first after that, among explanations that are all
+ * actually true.
  */
 export function emptyReason({ open = [], shown = [], menuFilter = null, groupFilter = null, womenFilter = false, dayFilter = null } = {}) {
   if (shown.length > 0) return null;
+  // Nothing the reader chose is hiding anything: the week is genuinely bare.
+  if (open.length === 0) return EMPTY.NONE;
   if (womenFilter) return EMPTY.GENDER;
   if (dayFilter) return EMPTY.DAY;
   // A dish is narrower than its group, so it is the better explanation when
   // both are set — it is also the one undone first.
   if (menuFilter) return EMPTY.DISH;
   if (groupFilter) return EMPTY.GROUP;
-  // Nothing the reader chose is hiding anything: the week is genuinely bare.
-  return open.length === 0 ? EMPTY.NONE : EMPTY.DISH;
+  return EMPTY.DISH;
 }
 
 /** Are there tables on days other than the one being looked at? */
@@ -82,15 +92,15 @@ export function emptyText(reason, { otherDays = false, locale = 'both' } = {}) {
   switch (reason) {
     case EMPTY.GENDER:
       return {
-        title: pick('Nobody has said yet.', '아직 아무도 밝히지 않았어요.', 'Todavía no lo ha indicado nadie.', "Personne ne l'a encore indiqué.", 'لم يذكره أحد بعد.', '还没有人说过。', 'まだ誰も書いていません。'),
+        title: pick('No woman is hosting this week.', '이번 주엔 여성 호스트가 없어요.', 'Esta semana no recibe ninguna mujer.', "Aucune femme ne reçoit cette semaine.", 'لا تستضيف أي امرأة هذا الأسبوع.', '这周没有女性主人。', '今週は女性のホストがいません。'),
         body: pick(
-          'Gender is new here — no host or guest has declared one yet. That is not the same as no table like this existing.',
-          '성별 표시는 이제 막 생긴 기능이라, 호스트도 참석자도 아직 아무도 적지 않았습니다. 그런 밥상이 없다는 뜻은 아니에요.',
-          'El género es nuevo aquí: ningún anfitrión ni invitado lo ha declarado todavía. Eso no significa que no exista una mesa así.',
-          "Le genre est nouveau ici : aucun hôte ni invité ne l'a encore déclaré. Cela ne veut pas dire qu'une telle table n'existe pas.",
-          'الجنس جديد هنا: لم يذكره بعد أي مضيف ولا ضيف. وهذا لا يعني أن مائدة كهذه غير موجودة.',
-          '性别在这里是新加的，还没有哪位主人或客人填过。这不等于没有这样的饭桌。',
-          '性別はここでは新しい項目で、ホストも参加者もまだ誰も書いていません。そういう食卓がないという意味ではありません。',
+          'This filter looks at who is hosting, not at who has joined — so a woman may already be going to one of the other tables. Gender is also new here, and a host who has not filled it in will not show up.',
+          '이 필터는 호스트만 봅니다. 참석자는 보지 않으니, 다른 밥상에 이미 여성이 가고 있을 수 있어요. 성별 표시도 이제 막 생긴 기능이라, 아직 적지 않은 호스트는 여기 안 나옵니다.',
+          'Este filtro mira quién recibe, no quién se ha apuntado: puede que ya vaya una mujer a otra mesa. El género también es nuevo aquí, y una anfitriona que no lo haya indicado no aparecerá.',
+          "Ce filtre regarde qui reçoit, pas qui s'est inscrit : une femme va peut-être déjà à une autre table. Le genre est aussi nouveau ici, et une hôtesse qui ne l'a pas renseigné n'apparaîtra pas.",
+          'يَنظر هذا المرشِّح إلى من يستضيف لا إلى من سجّل، فقد تكون امرأة ذاهبة بالفعل إلى مائدة أخرى. والجنس جديد هنا أيضًا، ومن لم تذكره من المضيفات لن تظهر.',
+          '这个筛选只看谁是主人，不看谁报了名 — 别的饭桌上可能已经有女生要去了。性别在这里也是新加的，没填的主人不会出现。',
+          'この絞り込みが見るのはホストだけで、参加者は見ません。ほかの食卓にはすでに女性が行っているかもしれません。性別もここでは新しい項目なので、書いていないホストは出てきません。',
         ),
       };
     case EMPTY.DAY:
