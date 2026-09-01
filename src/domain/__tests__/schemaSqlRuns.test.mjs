@@ -228,3 +228,42 @@ test('this test can fail — the defect it was written for is caught', async () 
     'schema.sql survived a column being declared after the function that reads it');
   await db.close();
 });
+
+// ── The tool that answers "is a restore the same as production" ─────────
+//
+// scripts/schema-catalog.mjs builds a project from schema.sql and diffs its
+// catalogue against one exported from the live database. Its whole job is to
+// report differences, so its worst failure is silence: a compare() that
+// always returns nothing says "your backup restores perfectly" about a file
+// that restores nothing at all. That is the one answer nobody would question.
+
+test('the catalogue comparison reports differences in both directions', async () => {
+  const { compare } = await import('../../../scripts/schema-catalog.mjs');
+
+  const same = compare(['a\t1', 'b\t2'], ['a\t1', 'b\t2']);
+  assert.deepEqual(same, { onlyInSchema: [], onlyInProduction: [], inBoth: 2 });
+
+  const differs = compare(['a\t1', 'only-here\t9'], ['a\t1', 'only-there\t8']);
+  assert.deepEqual(differs.onlyInSchema, ['only-here\t9']);
+  assert.deepEqual(differs.onlyInProduction, ['only-there\t8']);
+  assert.equal(differs.inBoth, 1);
+
+  // The shape a restore that produced nothing would have. If this ever comes
+  // back looking like agreement, the tool is lying in the direction that
+  // matters.
+  const empty = compare([], ['a\t1', 'b\t2']);
+  assert.equal(empty.onlyInProduction.length, 2);
+  assert.equal(empty.inBoth, 0);
+});
+
+test('the catalogue built from schema.sql is not empty', async () => {
+  // The other way the tool could say "no differences": build nothing, compare
+  // nothing, report agreement. A floor here means a diff of zero is a claim
+  // about two real catalogues.
+  const { catalogueFromSchema } = await import('../../../scripts/schema-catalog.mjs');
+  const lines = await catalogueFromSchema(SCHEMA);
+  assert.ok(lines.length >= 100, `only ${lines.length} catalogue entries were produced`);
+  for (const kind of ['column', 'function', 'policy', 'trigger', 'index', 'rls']) {
+    assert.ok(lines.some(l => l.startsWith(`${kind}\t`)), `no ${kind} entries at all`);
+  }
+});

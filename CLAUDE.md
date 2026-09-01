@@ -19,7 +19,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (815 tests), `node scripts/audit-i18n.mjs` (must print 0) and
+- `npm test` (817 tests), `node scripts/audit-i18n.mjs` (must print 0) and
   `npm run lint` (must print no `error`) before every push. Lint is on that
   list because `vite build` does NOT fail on an undefined identifier: a
   missing import built cleanly and would have thrown at runtime, and a
@@ -58,9 +58,24 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 
 ## Database — what is applied, and what it costs to change
 Everything live in Supabase is in `supabase/schema.sql`, and each change also
-has a dated file in `supabase/migrations/`. Two applied 2026-09-01; the
+has a dated file in `supabase/migrations/`. Three applied 2026-09-01; the
 numbers, the expected drift and the caveats are in
 `docs/rls-baseline-2026-09-01.md`.
+- **`schema.sql` had never been run by anything, and did not work.** A
+  `language sql` body is parse-analysed when the function is created, so
+  `is_open_host()` reading a column declared eighty lines below it raised
+  42703 — and the SQL editor runs a paste as one transaction, so a new
+  project came up empty rather than half-built. Production was fine only
+  because it was built one applied migration at a time and the order
+  happened to work out. `schemaSqlRuns.test.mjs` executes the file on an
+  empty database now; keep every `create function` below the columns it
+  reads. §3 of the baseline doc is the post-mortem.
+- Order of a schema change, and it is not negotiable: SQL reviewed → applied
+  and read live **outside** its own transaction → only then the client. The
+  reverse took production down for twenty minutes on 2026-09-01, mid-pilot.
+- Never filter on a new column in a PostgREST query. Read the rows and drop
+  them in JavaScript, so a bundle that meets a database a migration behind
+  behaves as it did before instead of 400-ing every read.
 - `…-01b-scope-profile-reads-retry.sql` — an anonymous session reads 4 rows
   of `profiles`, not 237, and no `signups` rows at all. Seat counts come from
   `seat_holds()` instead: a table id and a status, nothing that names anybody.
@@ -81,9 +96,30 @@ numbers, the expected drift and the caveats are in
   `…-01c` built fixtures and discarded them with its `rollback;`, which would
   have committed invented tables — and fired a real seat-request email to a
   real host — on the second run.
+- `…-01e-signups-soft-cancel.sql` — cancelling a seat deleted the row, and the
+  row is the only record the request happened; the 9/20 report counts seats
+  requested. `cancelled_at` now, `unique (table_id, user_id)` replaced by a
+  partial index over live rows so somebody who cancels can come back, and
+  `signups_decision_guard` because the cancel policy OR's with the host one
+  and would otherwise have let a guest accept their own seat.
 - `rlsPolicies.test.mjs` and `seatLapse.test.mjs` execute those files against
   a real Postgres (PGlite, a devDependency, never bundled). Each keeps the
   version that failed as a control and requires it to still fail.
+- `scripts/schema-catalog.mjs --diff live.tsv` answers "would a restore give
+  back production?" — schema.sql is built in PGlite and its catalogue diffed
+  against one exported from the live database. The query to export is in the
+  baseline doc.
+
+## The dev server writes to production
+**`.env.local` points at the live project.** `npm run dev` and opening the
+app signs in anonymously against production and adds a row to `profiles` —
+one per browser, again after clearing storage. Those rows are
+indistinguishable from a real visitor who browsed and left, so they inflate
+the participant count going into the KF report and cannot be told apart
+afterwards. Record the account id in the exclusion table in
+`docs/pilot-participant-count.md` every time you open the dev server, before
+you forget which one it was. Splitting off a dev-only project is the real fix
+and is not done yet.
 
 ## Security
 - **Repository is private, and there is no obligation to open it.** The KF

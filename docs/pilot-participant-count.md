@@ -147,3 +147,105 @@
 지울 이유가 없습니다.
 
 지우기로 결정하신다면 그때 별도로 SQL을 검토해서 드리겠습니다.
+
+---
+
+## 7. 개발 접속 제외 목록 — 앞으로 여기에 계속 추가합니다
+
+**추가 2026-09-01 밤.**
+
+§5에서 "정확한 수는 모른다"고 적은 것의 원인은 일회성 실수가 아니라
+**구조**입니다. `.env.local`이 프로덕션 프로젝트를 가리키고 있어서,
+`npm run dev`로 개발 서버를 켜고 앱을 열면 그 순간 익명 로그인이 일어나고
+운영 DB에 `profiles` 행이 하나 생깁니다. 저장소를 비우거나 다른 브라우저를
+쓰면 또 하나 생깁니다.
+
+슬기님이 두 번째 컴퓨터에서 작업을 시작하면 그쪽에서도 같은 일이
+벌어집니다. KF에 제출할 숫자라서, 발생할 때마다 여기에 적습니다.
+
+### 제외 대상 uuid
+
+| uuid | 언제 | 무엇을 하다가 |
+|---|---|---|
+| `4b63bd6c-75d6-467c-883c-bb198b2be807` | 2026-09-01 | RLS 정책·좌석 수·여성 필터 확인 |
+| `cb6b50ab-3877-4aa1-85fe-b5a415e6d6da` | 2026-09-01 | 같은 날 UI 검증. 밤에 2026-09-01e 배포 확인에 **재사용**됨 — 새 행이 아닙니다 |
+
+새로 dev를 붙일 때마다 이 표에 한 줄 추가하세요. uuid는 브라우저
+콘솔에서 이렇게 확인합니다:
+
+```bash
+JSON.parse(Object.entries(localStorage).find(([k]) => k.includes('auth-token'))[1]).user.id
+```
+
+### 제외 목록을 뺀 실제 참가자 수
+
+`profiles`를 세지 마세요 — §5에서 쓴 이유 그대로입니다. 사람이 직접
+행동해야만 생기는 두 테이블을 셉니다. 아래 쿼리는 위 표의 uuid를 뺀
+숫자를 냅니다. **표에 줄을 추가하면 `excluded`에도 추가해야 합니다.**
+
+```sql
+with excluded (id) as (values
+  ('4b63bd6c-75d6-467c-883c-bb198b2be807'::uuid),
+  ('cb6b50ab-3877-4aa1-85fe-b5a415e6d6da'::uuid)
+)
+select
+  (select count(*) from public.profiles)                                as profiles_all,
+  (select count(*) from public.profiles
+    where id not in (select id from excluded))                          as profiles_minus_known_dev,
+  -- 실제로 쓸 숫자는 아래 둘입니다.
+  (select count(distinct user_id) from public.signups
+    where user_id not in (select id from excluded))                     as people_who_asked_for_a_seat,
+  (select count(*) from public.member_details
+    where id not in (select id from excluded) and email <> '')          as members_with_an_email,
+  -- 취소한 요청도 사람이 한 행동이므로 위 숫자에 포함됩니다.
+  -- 취소를 빼고 싶으면 이쪽을 쓰세요 (2026-09-01e 이후에만 의미가 있습니다).
+  (select count(distinct user_id) from public.signups
+    where cancelled_at is null
+      and user_id not in (select id from excluded))                     as people_holding_a_live_seat
+from (select 1) _;
+```
+
+`profiles_minus_known_dev`는 **참가자 수가 아닙니다.** 표에 적힌 것만
+빼기 때문에, 적어두지 않은 개발 접속은 그대로 남아 있습니다. 아래를
+읽어주세요.
+
+### 지금까지 쌓인 dev 세션을 사후에 골라낼 수 있나 — 없습니다
+
+찾아본 결과를 그대로 적습니다. **`profiles`만으로는 구분할 방법이
+없습니다.** 개발 접속이 남기는 행과, 그냥 둘러보고 나간 진짜 방문자가
+남기는 행이 **모든 칸에서 똑같습니다**:
+
+| 칸 | 개발 접속 | 둘러보고 나간 방문자 |
+|---|---|---|
+| `name` | 비어 있음 | 비어 있음 |
+| `nationality` | 비어 있음 | 비어 있음 |
+| `languages` | `{}` | `{}` |
+| `gender` | null | null |
+| `rules_version` / `rules_agreed_at` | null | null |
+| `signups` 행 | 없음 | 없음 |
+| `member_details` 행 | 없음 | 없음 |
+
+`created_at`도 갈라주지 못합니다. 8/30~9/1은 개발이 몰린 날이면서 동시에
+2차 시범운영이 시작된 구간이라, 시간대로 자르면 진짜 참가자를 지웁니다.
+§3에서 쓴 밀리초 간격 기법은 "한 번의 방문이 만든 여러 행"을 묶는
+것이지, 그 방문이 누구였는지는 말해주지 않습니다.
+
+한 가지 남은 가능성은 Supabase의 인증 감사 로그(`auth.audit_log_entries`)에
+요청 IP가 남는지 여부입니다. 남는다면 팀 IP로 걸러낼 수 있습니다. 다만
+**저는 이것을 확인하지 않았고, 확인을 권하지도 않습니다** — 그 테이블을
+읽는다는 것은 참가자 전원의 IP를 함께 읽는다는 뜻이고, 보고서의 숫자
+하나를 위해 치를 값이 아닙니다. 보존 기간도 짧아서 8월 초 세션은 이미
+없을 가능성이 큽니다.
+
+**그래서 답은: 지금까지 것은 모릅니다.** 추정치를 만들지 않았습니다.
+§5의 표현("개발·테스트 접속 다수 포함, 정확한 수 미상")을 그대로 쓰시고,
+앞으로 것은 위 표에 적어서 정확히 셉니다.
+
+### 근본 해결은 별건입니다
+
+dev 전용 Supabase 프로젝트를 따로 만들고 `.env.local`을 그쪽으로 돌리면
+이 문제가 사라집니다. **규모: 한 시간 남짓** — 프로젝트 생성, `schema.sql`
+붙여넣기(오늘 이 파일이 실제로 실행되도록 고쳐졌습니다 —
+`docs/rls-baseline-2026-09-01.md` §3), `.env.local` 키 교체, 데모 밥상 몇 개
+seed. Vercel 환경변수는 건드리지 않으므로 배포에는 영향이 없습니다.
+무료 플랜은 프로젝트 2개까지 됩니다. **오늘은 하지 않습니다.**

@@ -184,3 +184,154 @@ PostgreSQL 자신이 그렇게 표시해 둔 것이라, `lapse_at()`의 `immutab
 `grant execute ... to anon`을 먼저 추가하세요. `seat_holds()`는 별개로
 anon 실행 권한이 있습니다(`anon=X/postgres`) — 익명 방문자의 좌석 수가
 그것에 달려 있습니다.
+
+---
+
+## 3. `schema.sql`이 새 프로젝트에서 실행되지 않고 있었습니다 — 재해 복구 관점
+
+**추가 2026-09-01 밤.** 2026-09-01e를 적용한 뒤 감사하다 나왔습니다.
+
+### 무엇이 깨져 있었나
+
+`supabase/schema.sql` 3행은 이 파일에 대해 이렇게 적고 있습니다:
+"Run this once in the Supabase SQL editor after creating the project."
+그게 이 파일의 존재 이유 전부입니다. 그런데 **빈 프로젝트에서 실행하면
+중간에 죽습니다.**
+
+```
+ERROR: 42703: column t.cancelled_at does not exist
+```
+
+`is_open_host()`가 `tables.cancelled_at`을 읽는데, 그 컬럼을 만드는
+
+```sql
+alter table public.tables add column if not exists cancelled_at timestamptz;
+```
+
+이 **80줄 아래**에 있었습니다. `is_open_host()`는 `language sql`이고,
+PostgreSQL은 그런 함수의 본문을 **생성 시점에 파싱·분석**합니다
+(`check_function_bodies`가 기본 on). 없는 컬럼을 읽는 본문은 그 자리에서
+42703을 냅니다.
+
+**SQL 편집기는 붙여넣은 전체를 한 트랜잭션으로 돌립니다.** 그래서 결과는
+"일부만 만들어짐"이 아니라 **전부 롤백**입니다. 새 프로젝트는 정책이
+잘못된 상태가 아니라 **아무것도 없는 상태**로 올라옵니다.
+
+### 이것이 실제로 뜻하는 것
+
+프로덕션 DB에는 실제 파일럿 참가자 데이터가 들어 있습니다. 그것을 잃었을 때
+**다시 세울 방법이 없었습니다.** 백업이 있다고 믿고 있었는데 백업이 열리지
+않는 상태였던 셈입니다.
+
+### 왜 프로덕션은 멀쩡했나
+
+프로덕션은 이 파일로 한 번에 세운 적이 **한 번도 없습니다.** 기능이 생길
+때마다 조각을 붙여넣었고, 각 함수를 쓸 때는 그 함수가 읽는 컬럼이 이미
+있었습니다. **순서가 우연히 맞았던 것**이지, 파일이 옳았던 게 아닙니다.
+그래서 프로덕션이 잘 도는 것은 이 파일이 옳다는 증거가 전혀 아니었습니다.
+
+### 테스트 두 개가 그 드리프트를 정답으로 고정하고 있었습니다
+
+이게 이 사고에서 가장 불편한 부분입니다.
+
+1. **`profileExposure.test.mjs`의 헬퍼 비교가 `2026-09-01b` 한 파일만
+   읽고 있었습니다.** 작성 당시에는 맞았지만 그 뒤 01c가 `seat_holds`에
+   시계를 넣고 01e가 취소를 가르쳤습니다. 한 파일에 고정된 테스트는
+   **프로덕션이 두 번 갈아치운 정의를 schema.sql이 유지하라고 요구**하고
+   있었습니다 — 드리프트를 잡는 게 일인 파일 안에서, 드리프트를 정답으로
+   박아둔 것입니다.
+
+   그리고 그 비교 대상 목록(`HELPERS`)이 손으로 쓴 것이라
+   `seat_holds`는 들어 있고 `assert_seat_available`은 빠져 있었습니다.
+   그래서 schema.sql은 **01c 이전의 좌석 가드**를 그대로 들고
+   있었습니다 — 상태를 보지 않고 전 행을 세는 버전, 즉 거절 3번이면
+   4인 밥상이 영구히 닫히는 그 버그입니다.
+
+2. **같은 파일의 다른 검사가 소스 문자열을 보고 있었습니다.**
+   `/'pending', 'accepted'/`가 있으면 "거절은 제외된다"고 판정했는데,
+   01c가 같은 규칙을 시계가 든 2분기 조건으로 다시 쓰면서 그 문자열이
+   사라졌습니다. 올바른 변경을 실패시키고, 문자열만 남은 잘못된 변경은
+   통과시켰을 검사입니다. `CLAUDE.md`가 이미 금지하고 있는 형태인데
+   남아 있었습니다.
+
+셋째로, **schema.sql을 실행해 본 테스트가 하나도 없었습니다.**
+`rlsPolicies`/`seatLapse`는 진짜 Postgres를 쓰지만 **마이그레이션**을
+돌립니다. `profileExposure`는 schema.sql을 **텍스트로만** 읽어서 문장
+순서를 구조적으로 볼 수 없습니다. `schemaDrift`는 컬럼 **이름**만 봅니다.
+
+### 앞으로 막는 것
+
+- **`src/domain/__tests__/schemaSqlRuns.test.mjs`** — 빈 DB(플랫폼이 주는
+  것만 있는 상태)에 schema.sql을 **한 트랜잭션으로 실제 실행**합니다.
+  앱이 없으면 안 되는 함수·정책을 이름으로 확인하고, RLS만 켜지고 정책이
+  없는 테이블이 없는지 보고(`notifications`/`pilot_team`은 의도적으로
+  전원 거부라 이름을 적어 예외 처리하고, 그 둘이 정말 잠겨 있는지는
+  따로 단언합니다), 두 번 돌려도 같은지 확인합니다. 마지막 테스트는
+  문제의 ALTER를 원래 자리로 되돌려 **스크립트가 실패하는 것**을
+  요구합니다.
+- **파생된 드리프트 검사** — 손으로 쓴 목록을 없앴습니다. 적용된
+  마이그레이션이 정의한 **모든** 함수·정책·컬럼이 schema.sql에 같은
+  본문으로 있어야 합니다.
+- **`scripts/schema-catalog.mjs`** — 아래 대조에 씁니다.
+
+### 지금 이 파일로 빈 프로젝트를 세우면 프로덕션과 같은가
+
+**아직 모릅니다. 대조하는 방법을 만들어 뒀고, 프로덕션 쪽 한 번의 실행이
+남았습니다.** "아마 같다"고 적지 않겠습니다.
+
+schema.sql 쪽 숫자는 실측했습니다:
+
+```
+node scripts/schema-catalog.mjs
+```
+
+| | 개수 |
+|---|---|
+| 컬럼 | 80 |
+| 함수 | 15 |
+| 정책 | 21 |
+| 트리거 | 7 |
+| 인덱스 | 16 |
+| RLS 상태(테이블) | 9 |
+| **합계 항목** | **148** |
+
+프로덕션 쪽은 여기서 읽을 수 없습니다. SQL 편집기에서 아래를 돌리고
+결과를 TSV로 내려받아 주세요 (Export → CSV도 됩니다):
+
+```sql
+-- 프로덕션 카탈로그. 읽기 전용, 아무것도 바꾸지 않습니다.
+-- scripts/schema-catalog.mjs 가 내는 것과 정확히 같은 모양·같은 순서입니다.
+select 'column'   as kind, table_name || '.' || column_name || ':' || data_type as v
+  from information_schema.columns where table_schema = 'public'
+union all
+select 'function', p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')'
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
+union all
+select 'policy', tablename || '.' || policyname || ':' || cmd
+  from pg_policies where schemaname = 'public'
+union all
+select 'trigger', c.relname || '.' || t.tgname
+  from pg_trigger t join pg_class c on c.oid = t.tgrelid
+  join pg_namespace n on n.oid = c.relnamespace
+ where n.nspname = 'public' and not t.tgisinternal
+union all
+select 'index', tablename || '.' || indexname
+  from pg_indexes where schemaname = 'public'
+union all
+select 'rls', c.relname || ':' || c.relrowsecurity
+  from pg_class c join pg_namespace n on n.oid = c.relnamespace
+ where n.nspname = 'public' and c.relkind = 'r'
+order by 1, 2;
+```
+
+그다음:
+
+```sh
+node scripts/schema-catalog.mjs --diff live.tsv
+```
+
+차이가 0이면 종료 코드 0으로 끝나고, 아니면 **어느 쪽에만 있는지 한 줄씩**
+찍습니다. 차이가 나올 것으로 예상되는 항목이 최소 하나 있습니다:
+프로덕션에는 2026-09-01에 롤백한 시도의 흔적이나 대시보드에서 손으로 만든
+것이 남아 있을 수 있고, 반대로 schema.sql에는 `2026-09-01d`(메일 언어)가
+아직 없습니다 — **d는 적용하지 않았으므로 양쪽 다 없어야 정상입니다.**
