@@ -857,6 +857,13 @@ export function eatenAtLabels(menuId) {
 export const CATEGORY_LABEL = {
   [MENU_CATEGORY.GRILL]: { en: 'Grilled at the table', ko: '구이', kr: '구이', es: 'A la parrilla en la mesa', fr: 'Grillé à table', ar: 'يُشوى على المائدة', zh: '桌上现烤', ja: '卓上で焼く' },
   [MENU_CATEGORY.STEW]: { en: 'One pot', ko: '찌개·전골', kr: '찌개·전골', es: 'Una olla', fr: 'Un seul pot', ar: 'قِدر واحدة', zh: '一锅', ja: 'ひと鍋' },
-  [MENU_CATEGORY.SET]: { en: 'A full table', ko: '한 상', kr: '한 상', es: 'Una mesa entera', fr: 'Une table entière', ar: 'مائدة كاملة', zh: '一整桌', ja: 'ひと膳' },
+  // Every other label here names how the food arrives — a grill, a pot, a
+  // platter. This one named the furniture, and in this app 'table' is the
+  // word for the gathering itself: on a card it sat directly above
+  // '1자리 남음' and read as 'this table is full'. Found by a tester on
+  // 2026-09-01 doing exactly that. Korean, Chinese and Japanese never had
+  // the ambiguity — 한 상 is a spread of dishes and nothing else — so only
+  // the languages that reused the furniture word changed.
+  [MENU_CATEGORY.SET]: { en: 'A whole spread', ko: '한 상', kr: '한 상', es: 'Una comida completa', fr: 'Un repas complet', ar: 'وجبة كاملة', zh: '一整桌', ja: 'ひと膳' },
   [MENU_CATEGORY.PLATTER]: { en: 'One platter', ko: '접시', kr: '접시', es: 'Una fuente', fr: 'Un grand plat', ar: 'صحن واحد', zh: '一大盘', ja: '大皿ひとつ' },
 };
