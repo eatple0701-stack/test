@@ -65,6 +65,13 @@ const db = new PGlite();
 await db.exec(BOOTSTRAP);
 await db.exec(functions(read(MIGRATION)));
 
+// Production already has this trigger; the migration deliberately does not
+// recreate it. Creating it once here is what makes the file under test the
+// same file production runs — and it is what lets the control below show
+// that replacing the function body alone changes the rule.
+await db.exec(`create trigger signups_seat_guard before insert on public.signups
+  for each row execute function public.assert_seat_available();`);
+
 /** A meal `hours` from now, in the shape both sides read it. */
 function tableAt(hours) {
   const at = new Date(Date.now() + hours * 3600_000);
@@ -290,4 +297,45 @@ test('the guard and the screen agree about how many may still join', async () =>
     assert.equal(screenSaysFree, dbLetMeIn,
       `screen says ${screenSaysFree ? 'free' : 'full'} and the database says ${dbLetMeIn ? 'free' : 'full'} for ${rows.join('+')} at ${hours}h`);
   }
+});
+
+// ── The way back ────────────────────────────────────────────────────────
+//
+// Written and run before the forward migration is applied. On 2026-09-01 a
+// policy went in with no undo prepared, and the minutes spent writing one
+// were minutes production spent answering 42P17 to everybody.
+
+const ROLLBACK = 'supabase/migrations/2026-09-01c-seat-holds-lapse-ROLLBACK.sql';
+const rollbackBody = (sql) =>
+  sql.slice(sql.indexOf('\nbegin;') + '\nbegin;'.length, sql.indexOf('-- ── Check'));
+
+test('the rollback runs, and puts the old behaviour back', async () => {
+  await db.exec(rollbackBody(read(ROLLBACK)));
+
+  // The three-refusals lock is back — which is the point: rolling back is
+  // safe and is not free, and a test saying so stops it being reached for
+  // as a reflex.
+  const locked = await tableWith(24, ['declined', 'declined', 'declined']);
+  assert.match(String(await tryToJoin(locked)), /table_full/,
+    'the rollback did not restore the guard that was live before');
+
+  // And seat_holds() has no clock again.
+  const stale = await heldBySql(tableAt(LAPSE_HOURS_BEFORE_MEAL - 1),
+    [{ status: 'pending' }, { status: 'accepted' }]);
+  assert.equal(stale.length, 2, 'seat_holds still applies the lapse rule after a rollback');
+});
+
+test('the rollback leaves nothing of the migration behind', async () => {
+  // Its own check, run here so the numbers in the file are ones somebody has
+  // actually seen rather than ones somebody expected.
+  const { rows } = await db.query(`
+    select
+      (select count(*)::int from pg_proc where proname in ('lapse_window', 'lapse_at')) as helpers_left,
+      (select count(*)::int from pg_proc where proname = 'seat_holds' and prosrc like '%lapse_at%') as seat_holds_has_clock`);
+  assert.equal(rows[0].helpers_left, 0, 'a helper function survived the rollback');
+  assert.equal(rows[0].seat_holds_has_clock, 0, 'seat_holds still calls lapse_at after the rollback');
+
+  // Forward again, so this file leaves the database in the state it applies.
+  await db.exec(functions(read(MIGRATION)));
+  assert.equal(await tryToJoin(await tableWith(24, ['declined', 'declined', 'declined'])), null);
 });

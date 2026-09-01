@@ -55,7 +55,7 @@ begin;
 -- The one number, in one place on this side of the seam.
 create or replace function public.lapse_window()
 returns interval
-language sql immutable as $fn$
+language sql immutable set search_path = public as $fn$
   select interval '12 hours'
 $fn$;
 
@@ -150,10 +150,15 @@ begin
 end;
 $$;
 
-drop trigger if exists signups_seat_guard on public.signups;
-create trigger signups_seat_guard
-  before insert on public.signups
-  for each row execute function public.assert_seat_available();
+-- The trigger is deliberately NOT dropped and recreated. It references the
+-- function by identity, and `create or replace function` swaps the body
+-- underneath it — checked in PGlite rather than assumed: replace the body
+-- alone and the next insert runs the new rule.
+--
+-- Recreating it would take an ACCESS EXCLUSIVE lock on `signups`, which
+-- blocks every insert for as long as the transaction is open, and would
+-- leave a window with no guard at all if this ever ran outside one. Neither
+-- is worth paying for a statement that changes nothing.
 
 revoke all on function public.lapse_window() from public;
 revoke all on function public.lapse_at(date, time) from public;
