@@ -19,7 +19,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (768 tests) and `node scripts/audit-i18n.mjs` (must print 0)
+- `npm test` (776 tests) and `node scripts/audit-i18n.mjs` (must print 0)
   before every push. When the suite grows, update the counts in README.md
   and HANDOFF.md — a test pins the documented number to the real one.
 - Break a newly written test on purpose once to prove it can fail — with
@@ -81,6 +81,15 @@ numbers, the expected drift and the caveats are in
   version that failed as a control and requires it to still fail.
 
 ## Security
+- **Repository is private, and there is no obligation to open it.** The KF
+  agreement asks for results to be shared and the report satisfies that. So
+  the two names the history scan found — 조강민 in `docs/purge-demo-tables.sql`
+  and one anonymous account uuid in `docs/pilot-participant-count.md` — need
+  no action: do not remove them, and do not rewrite the history.
+  **No participant PII in the repository, verified 2026-09-01** across every
+  revision — nine email addresses in file contents, every one a placeholder,
+  the team account, an old project's contact or Resend's default; no phone
+  numbers; no production identifiers beyond a public share URL.
 - Never type, store, or request passwords/secrets; guide the human instead.
 - `sb_secret_…` keys must never appear client-side. `SEOUL_FOOD_API_KEY`
   lives in `.env.local` (deliberately not `VITE_`-prefixed). The

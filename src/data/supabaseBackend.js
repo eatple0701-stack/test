@@ -388,10 +388,10 @@ export async function listSignups(tableId) {
   const sb = await client();
   await currentUser();
   let { data, error } = await sb
-    .from('signups').select(SIGNUP_COLUMNS).eq('table_id', tableId).order('created_at');
+    .from('signups').select(SIGNUP_COLUMNS).eq('table_id', tableId).is('cancelled_at', null).order('created_at');
   if (error) {
     ({ data, error } = await sb
-      .from('signups').select('*').eq('table_id', tableId).order('created_at'));
+      .from('signups').select('*').eq('table_id', tableId).is('cancelled_at', null).order('created_at'));
   }
   if (error) throw new Error(friendlyError(error));
   const mine = (data ?? []).map(signupFromRow);
@@ -414,7 +414,7 @@ export async function listSignups(tableId) {
 export async function listAllSignups() {
   const sb = await client();
   await currentUser();
-  let { data, error } = await sb.from('signups').select(SIGNUP_COLUMNS);
+  let { data, error } = await sb.from('signups').select(SIGNUP_COLUMNS).is('cancelled_at', null);
   if (error) {
     ({ data, error } = await sb.from('signups').select('*'));
   }
@@ -457,10 +457,25 @@ export async function createSignup(input) {
   return signupFromRow(data);
 }
 
+/**
+ * Giving up a seat. The row stays; the seat comes back.
+ *
+ * This was a delete until 2026-09-01, and it was quietly costing the pilot
+ * its own numbers: production read 3 tables, 2 signups and 8 notifications,
+ * which only adds up if at least one request had been made and erased. The
+ * final report counts seats requested, and a delete removes exactly that.
+ *
+ * `cancelled_at` is the same shape `tables` already uses for the same
+ * decision. Everything that counts a seat skips it — seat_holds() and
+ * assert_seat_available() in the database, listSignups/listAllSignups here —
+ * so the seat frees immediately and the record survives.
+ */
 export async function cancelSignup(signupId) {
   const sb = await client();
   await currentUser();
-  const { error } = await sb.from('signups').delete().eq('id', signupId);
+  const { error } = await sb.from('signups')
+    .update({ cancelled_at: new Date().toISOString() })
+    .eq('id', signupId);
   if (error) throw new Error(friendlyError(error));
 }
 
