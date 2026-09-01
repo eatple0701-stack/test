@@ -336,14 +336,74 @@ alter table public.tables   enable row level security;
 alter table public.signups  enable row level security;
 alter table public.blocks   enable row level security;
 
+-- Who may read somebody's row. APPLIED 2026-09-01, on the second attempt.
+--
+-- It was `using (true)` until that afternoon, which on this app means every
+-- visitor: browsing signs everybody in anonymously before signup, so the
+-- `authenticated` role is "anything that has loaded the page". Measured at
+-- 237 rows of display name, nationality, languages and gender; four to an
+-- anonymous session after this landed.
+--
+-- The first attempt recursed (42P17) and was rolled back within minutes. The
+-- fix is that every lookup goes through a `security definer` helper, inside
+-- which RLS does not apply — so a policy cannot re-enter a policy by
+-- construction rather than by care. Full reasoning, and the transaction-scoped
+-- verification it was proved with, in
+-- supabase/migrations/2026-09-01b-scope-profile-reads-retry.sql.
+--
+-- src/domain/__tests__/rlsPolicies.test.mjs executes that file against a real
+-- Postgres, and executes the version that failed first to prove it can still
+-- detect the failure.
+
+create or replace function public.is_open_host(p_user uuid)
+returns boolean
+language sql stable security definer set search_path = public as $fn$
+  select exists (
+    select 1 from tables t
+    where t.host_id = p_user
+      and t.cancelled_at is null
+      and t.date >= current_date - interval '30 days'
+  )
+$fn$;
+
+create or replace function public.shares_a_table(p_viewer uuid, p_other uuid)
+returns boolean
+language sql stable security definer set search_path = public as $fn$
+  select exists (
+    select 1 from tables t
+    join signups s on s.table_id = t.id
+    where (t.host_id = p_other  and s.user_id = p_viewer)
+       or (t.host_id = p_viewer and s.user_id = p_other)
+    union all
+    select 1 from signups mine
+    join signups theirs on theirs.table_id = mine.table_id
+    where mine.user_id = p_viewer and theirs.user_id = p_other
+  )
+$fn$;
+
+create or replace function public.at_same_table(p_viewer uuid, p_table uuid)
+returns boolean
+language sql stable security definer set search_path = public as $fn$
+  select exists (
+    select 1 from signups s
+    where s.table_id = p_table and s.user_id = p_viewer
+  )
+$fn$;
+
+revoke all on function public.is_open_host(uuid) from public;
+revoke all on function public.shares_a_table(uuid, uuid) from public;
+revoke all on function public.at_same_table(uuid, uuid) from public;
+grant execute on function public.is_open_host(uuid) to authenticated;
+grant execute on function public.shares_a_table(uuid, uuid) to authenticated;
+grant execute on function public.at_same_table(uuid, uuid) to authenticated;
+
 drop policy if exists profiles_read on public.profiles;
--- ROLLED BACK 2026-09-01. This is what is live, and it is too open: any
--- anonymous session reads all 237 rows. The scoped replacement recursed
--- (42P17) and was reverted within minutes — see the post-mortem at the
--- bottom of supabase/migrations/2026-09-01-scope-profile-reads.sql, and
--- docs/public-table-columns.md for the decision that has to come first.
 create policy profiles_read on public.profiles
-  for select to authenticated using (true);
+  for select to authenticated using (
+    id = auth.uid()
+    or public.is_open_host(id)
+    or public.shares_a_table(auth.uid(), id)
+  );
 
 drop policy if exists tables_read on public.tables;
 create policy tables_read on public.tables
@@ -403,18 +463,68 @@ create policy tables_cancel_own on public.tables
 revoke update on public.tables from authenticated;
 grant update (cancelled_at) on public.tables to authenticated;
 
-drop policy if exists signups_read on public.signups;
--- ROLLED BACK 2026-09-01, alongside profiles_read and for the same reason.
--- This is what is live. It returned zero rows when it was checked only
--- because no pilot signup existed yet; the table holds a name, a
--- nationality and a free-text note, so it opens the first time anybody
--- takes a seat.
+-- Same rule, same reason, applied at the same time. `note` here is free text:
+-- it is where somebody writes the thing they need the host to know, and there
+-- is no telling what that is until they have written it.
 --
--- The scoped version recursed: its third clause queried `signups` from
--- inside `signups`'s own policy, which is 42P17 by construction. See the
--- post-mortem in supabase/migrations/2026-09-01-scope-profile-reads.sql.
+-- Closed with about ninety minutes to spare. The plan was written while this
+-- table still had zero rows, on the reasoning that closing it then cost
+-- nothing; the first real signup arrived at 06:24 on the day it was applied,
+-- before the SQL was run.
+
+drop policy if exists signups_read on public.signups;
 create policy signups_read on public.signups
-  for select to authenticated using (true);
+  for select to authenticated using (
+    user_id = auth.uid()
+    or exists (
+      select 1 from public.tables t
+      where t.id = signups.table_id and t.host_id = auth.uid()
+    )
+    or public.at_same_table(auth.uid(), table_id)
+  );
+
+-- What a stranger gets instead of the rows: one entry per held seat carrying
+-- the table and how far the request got, and nothing that identifies anybody.
+-- Declined requests are excluded — being turned away is the most private
+-- state here, and a count including them would tell a stranger how many
+-- people a host refused.
+--
+-- The status rather than a total, because a pending request holds a seat
+-- while only an accepted one counts as company, and those are two different
+-- numbers on the same card. Keeping the judgement in
+-- src/domain/policy/seatRequest.js means there is no second copy to drift.
+create or replace function public.seat_holds()
+returns table (table_id uuid, status text)
+language sql stable security definer set search_path = public as $fn$
+  select s.table_id, coalesce(s.status, 'accepted')
+  from signups s
+  join tables t on t.id = s.table_id
+  where t.cancelled_at is null
+    and coalesce(s.status, 'accepted') in ('pending', 'accepted')
+$fn$;
+
+-- The women-only filter, answered rather than enabled — the client sends the
+-- question and gets back ids, so no gender and no derived boolean is ever in
+-- a response, and nothing is returned unless somebody turns the filter on.
+--
+-- The HOST only. Counting guests would bring back the leak this replaced:
+-- seat_holds() publishes how many people are at each table, so a one-guest
+-- table appearing here would name her. The cost is that a table hosted by a
+-- man where a woman is already going does not match — the filter misses
+-- matches rather than inventing them, which is the safe direction. Said out
+-- loud on the chip itself and in docs/public-table-columns.md.
+create or replace function public.tables_with_woman()
+returns setof uuid
+language sql stable security definer set search_path = public as $fn$
+  select t.id from tables t
+  where t.cancelled_at is null
+    and t.host_gender = 'Woman'
+$fn$;
+
+revoke all on function public.seat_holds() from public;
+revoke all on function public.tables_with_woman() from public;
+grant execute on function public.seat_holds() to authenticated;
+grant execute on function public.tables_with_woman() to authenticated;
 
 -- A blocked person cannot take a seat at a table the blocker hosts. This is
 -- the half of blocking that has to live here rather than in the client: the

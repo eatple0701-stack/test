@@ -3,56 +3,48 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
-// Who can read a participant's row. **Open, and known to be open.**
+// Who can read a participant's row. **Closed, on 2026-09-01.**
 //
-// ── The state this file records ────────────────────────────────────────
+// ── What happened ───────────────────────────────────────────────────────
 //
-// An anonymous session — the one this app hands everybody on their first
-// load, before they have signed up for anything — can read every row of
-// `profiles`. Measured on production on 2026-09-01, day one of 2차 운영:
+// Until that afternoon, `profiles` and `signups` were both
+// `for select to authenticated using (true)`. On this app that is not "a
+// member": every visitor is signed in anonymously on arrival so that
+// browsing works before signup, so the role means anything that has loaded
+// the page. Behind it sat 237 rows of display name, nationality, languages
+// and gender.
 //
-//     GET /rest/v1/profiles?select=id  →  content-range: 0-236/237
-//     role: authenticated, is_anonymous: true
+//     before   GET /rest/v1/profiles?select=id  →  0-236/237
+//     after    GET /rest/v1/profiles?select=id  →  0-3/4
+//     after    GET /rest/v1/signups?select=id   →  */0
 //
-// Only the count was read. Nobody's row was opened.
+// Both measured on production from an anonymous session. The first scoped
+// policy, written the same day, recursed (42P17) and was rolled back within
+// minutes; the second went in with `security definer` helpers and was proved
+// against a real Postgres first.
 //
-// A scoped replacement was written, applied, and rolled back the same hour:
-// it recursed (42P17), and while it was live nothing could read a profile at
-// all, including its owner. The post-mortem is at the bottom of
-// supabase/migrations/2026-09-01-scope-profile-reads.sql.
+// ── What this file is for, now that it is closed ────────────────────────
 //
-// ── Why the five checks below are `todo` and not deleted ───────────────
+// rlsPolicies.test.mjs runs the migration and proves the policy behaves.
+// That says nothing about schema.sql — the file a fresh project runs — and
+// if the two drift, a new environment comes up wide open while every test
+// stays green. So this file asks one question the other cannot: does the
+// schema define the same thing that was applied?
 //
-// They assert the state we want and do not have. Deleting them would lose
-// the specification; making them pass would mean asserting that the current
-// policy is fine, which is the one thing it is not. `todo` is the honest
-// third option: the suite stays green, the runner prints them every time,
-// and the day the fix lands they are un-todo'd rather than reinvented.
-//
-// The two tests that are NOT todo are true today: the failure is written
-// down where the next person will find it, and the decision that has to be
-// made first exists as a document.
-//
-// ── The order this has to happen in ───────────────────────────────────
-//
-// 1. Decide what `tables` publishes — docs/public-table-columns.md. Locking
-//    `profiles` while host_name, host_nationality and host_gender sit on a
-//    world-readable `tables` row locks a door beside an open window.
-// 2. Break the recursion with `security definer` helpers. Inside such a
-//    function RLS does not apply, so policy re-entry is impossible by
-//    construction rather than by care.
-// 3. Verify inside a transaction and commit only on a positive result —
-//    `profiles_visible` is a single digit — never on the absence of an
-//    error. Recursion aborts the transaction and production keeps the old
-//    policy.
+// It compares structure rather than searching for tokens. A check for
+// "mentions auth.uid()" is the kind that passed for five different policies
+// on the day this broke, one of which took production down.
 
 const root = process.cwd();
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8').replace(/\r\n/g, '\n');
+
+const RETRY = 'supabase/migrations/2026-09-01b-scope-profile-reads-retry.sql';
 
 // The claims here are about SQL, not about the prose explaining it — and the
 // prose quotes `using (true)` repeatedly.
 const sqlOnly = (f) => read(f).split('\n').filter(l => !/^\s*--/.test(l)).join('\n');
 const schema = sqlOnly('supabase/schema.sql');
+const migration = sqlOnly(RETRY);
 
 /** The body of one `create policy <name> …;` statement. */
 const policy = (sql, name) => {
@@ -60,127 +52,136 @@ const policy = (sql, name) => {
   return at < 0 ? null : sql.slice(at, sql.indexOf(';', at) + 1);
 };
 
+/** The body of one `create or replace function public.<name>(…) … $fn$…$fn$;` */
+const fn = (sql, name) => {
+  const at = sql.indexOf(`create or replace function public.${name}(`);
+  if (at < 0) return null;
+  const open = sql.indexOf('$fn$', at);
+  const close = sql.indexOf('$fn$', open + 4);
+  return close < 0 ? null : sql.slice(at, close + 4);
+};
+
+const tight = (s) => s?.replace(/\s+/g, '');
 const OPEN = /using\s*\(\s*true\s*\)/;
 
-// ── True today ──────────────────────────────────────────────────────────
+const HELPERS = ['is_open_host', 'shares_a_table', 'at_same_table', 'seat_holds', 'tables_with_woman'];
 
-test('schema.sql says what is actually live, including the part that is wrong', () => {
-  // A repo that describes a database it does not have is worse than one that
-  // admits the gap. These two policies are open right now and the file has
-  // to say so, with the reason next to it.
+// ── The exposure is closed ──────────────────────────────────────────────
+
+test('the tables holding participant data are not readable by everybody', () => {
   for (const name of ['profiles_read', 'signups_read']) {
     const p = policy(schema, name);
     assert.ok(p, `${name} is missing from schema.sql`);
-    assert.match(p, OPEN, `${name} is no longer open — un-todo the checks below`);
-  }
-  const src = read('supabase/schema.sql');
-  assert.match(src, /ROLLED BACK 2026-09-01/);
-  assert.match(src, /42P17/, 'the reason it was rolled back is not recorded');
-});
-
-test('the failed attempt is written down where the next person will find it', () => {
-  const mig = read('supabase/migrations/2026-09-01-scope-profile-reads.sql');
-  assert.match(mig, /DO NOT RUN THIS FILE/);
-  assert.match(mig, /infinite recursion detected in policy for relation "signups"/);
-  // The mistake before the mistake, which is the part worth keeping.
-  assert.match(mig, /checked the \*text\* of the SQL/);
-  assert.match(mig, /security definer/);
-  // And the verification shape the next attempt must use.
-  assert.match(mig, /rollback;/);
-  assert.match(mig, /profiles_visible/);
-});
-
-test('the decision that has to come first exists as a document', () => {
-  const doc = read('docs/public-table-columns.md');
-  // The columns that leak past any profiles policy.
-  for (const col of ['chat_url', 'meeting_note', 'host_nationality', 'host_gender']) {
-    assert.ok(doc.includes(col), `${col} is not covered by the proposal`);
-  }
-  // And the two places the sketch conflicted with what the app promises.
-  assert.match(doc, /safetyPromise|안전 섹션/);
-  assert.match(doc, /has_woman/);
-});
-
-test('the replacement exists, and something in this repo actually runs it', () => {
-  // The distinction this whole file turns on. rlsPolicies.test.mjs executes
-  // the retry against a real Postgres and proves it is correct; that says
-  // nothing about whether anybody has pasted it into production. This file is
-  // the record of the second thing, which is still no.
-  const retry = read('supabase/migrations/2026-09-01b-scope-profile-reads-retry.sql');
-  assert.match(retry, /security definer/);
-  assert.match(retry, /member_sees_own_row/, 'the pass criteria do not check a plain member');
-  assert.match(retry, /\nrollback;\s*$/, 'the file a human is told to paste does not end in rollback');
-
-  const runner = read('src/domain/__tests__/rlsPolicies.test.mjs');
-  assert.match(runner, /2026-09-01b-scope-profile-reads-retry\.sql/,
-    'nothing executes the migration this repo is about to ship');
-  assert.match(runner, /PGlite/);
-});
-
-// ── The state we want, and do not yet have ─────────────────────────────
-
-const WHY = 'the retry is written and passes against a real Postgres '
-  + '(rlsPolicies.test.mjs) but has not been applied to production. Un-todo '
-  + 'once 2026-09-01b has been run with commit and schema.sql updated.';
-
-test('the tables holding participant data are not readable by everybody', { todo: WHY }, () => {
-  for (const name of ['profiles_read', 'signups_read']) {
-    const p = policy(schema, name);
     assert.doesNotMatch(p, OPEN, `${name} is open to every session, anonymous ones included`);
     assert.match(p, /auth\.uid\(\)/, `${name} does not mention who is asking`);
   }
 });
 
-test('a person can still read their own row', { todo: WHY }, () => {
-  // The failure mode of over-tightening — and, as it turned out, of the
-  // recursion too: while the scoped policy was live, a person could not read
-  // the profile the app was showing them.
+test('a person can still read their own row', () => {
+  // The failure mode of over-tightening, and the one the first attempt
+  // actually shipped: while it was live nobody could read the profile the
+  // app was showing them.
   assert.match(policy(schema, 'profiles_read'), /id = auth\.uid\(\)/);
   assert.match(policy(schema, 'signups_read'), /user_id = auth\.uid\(\)/);
 });
 
-test('no policy queries the table it is defined on', { todo: WHY }, () => {
-  // This is the one that would have caught it. `signups_read` queried
+test('no policy queries the table it is defined on', () => {
+  // This is the one that would have caught 42P17. `signups_read` queried
   // `public.signups` inside its own USING clause: evaluating the policy
-  // requires evaluating the policy. A helper marked `security definer` is
-  // exempt from RLS, so the same lookup through one of those is fine — the
-  // check is for a bare self-reference.
+  // required evaluating the policy. A `security definer` helper is exempt
+  // from RLS, so the same lookup through one of those is fine — what is
+  // checked is a bare self-reference.
   for (const [name, table] of [['profiles_read', 'profiles'], ['signups_read', 'signups']]) {
-    const p = policy(schema, name);
-    const body = p.slice(p.indexOf('using'));
+    const body = policy(schema, name).slice(policy(schema, name).indexOf('using'));
     const selfSelects = [...body.matchAll(new RegExp(`from public\\.${table}\\b`, 'g'))].length;
     assert.equal(selfSelects, 0, `${name} selects from public.${table} inside its own policy — 42P17`);
   }
 });
 
-test('the reads the app actually performs are still permitted', { todo: WHY }, () => {
-  // Three cross-user reads exist and all three are legitimate: the host card
-  // before anybody has asked to join, guest avatars at a table you host, and
-  // guests at a table you are also sitting at. If the policy stops covering
-  // one, the app breaks quietly — a null avatar, a host card with no host.
-  const p = policy(schema, 'profiles_read');
-  assert.match(p, /cancelled_at is null/);
-  assert.match(p, /host_id = auth\.uid\(\)/);
-});
-
-test('the migration and schema.sql do not drift', { todo: WHY }, () => {
-  // Whitespace removed rather than collapsed: two files written by people
-  // will never agree on line breaks, and there are no string literals in
-  // either policy.
-  const mig = sqlOnly('supabase/migrations/2026-09-01-scope-profile-reads.sql');
-  const same = (s) => s?.replace(/\s+/g, '');
-  for (const name of ['profiles_read', 'signups_read']) {
-    assert.equal(same(policy(schema, name)), same(policy(mig, name)), `${name} differs`);
+test('every helper a policy leans on is security definer with a pinned path', () => {
+  // Structural, because both properties are what make the recursion
+  // impossible rather than unlikely: RLS does not apply inside a definer
+  // function, and a pinned search_path stops a caller pointing `public` at a
+  // schema of their own.
+  for (const name of HELPERS) {
+    const body = fn(schema, name);
+    assert.ok(body, `${name} is missing from schema.sql`);
+    assert.match(body, /security definer/, `${name} is not security definer`);
+    assert.match(body, /set search_path = public/, `${name} does not pin search_path`);
   }
 });
 
-// ── Unaffected, and worth keeping green ────────────────────────────────
+// ── schema.sql and the migration define the same database ───────────────
+
+test('a fresh project comes up with the policies that were applied', () => {
+  // The gap rlsPolicies.test.mjs cannot see. It runs the migration; nothing
+  // runs schema.sql, so the two can drift and a new environment would come
+  // up open while every other test stayed green.
+  for (const name of ['profiles_read', 'signups_read']) {
+    assert.equal(tight(policy(schema, name)), tight(policy(migration, name)),
+      `${name} differs between schema.sql and the migration that was applied`);
+  }
+});
+
+test('the helpers do not drift between the two files either', () => {
+  for (const name of HELPERS) {
+    assert.equal(tight(fn(schema, name)), tight(fn(migration, name)),
+      `${name} differs between schema.sql and the migration`);
+  }
+});
+
+test('seat_holds is the only thing a stranger gets, and it names nobody', () => {
+  // Verified on production the day it landed: an anonymous session that
+  // reads zero signup rows still got [{table_id, status}] back, and the card
+  // rendered "2 going · 2자리 남음". The shape is what makes that safe, so
+  // the shape is what is asserted — a column added later "just for the
+  // avatar" would pass every count check in rlsPolicies.test.mjs.
+  const body = fn(schema, 'seat_holds');
+  assert.match(body, /returns table \(table_id uuid, status text\)/,
+    'seat_holds returns something other than a table id and a status');
+  assert.doesNotMatch(body, /\bs\.user_id\b|\bs\.name\b|\bs\.nationality\b|\bs\.note\b|\bs\.gender\b/,
+    'seat_holds selects a column that identifies somebody');
+  assert.match(body, /'pending', 'accepted'/, 'declined requests are no longer excluded');
+});
+
+// ── The record of how it went wrong ─────────────────────────────────────
+
+test('the failed attempt is still written down where the next person will find it', () => {
+  const mig = read('supabase/migrations/2026-09-01-scope-profile-reads.sql');
+  assert.match(mig, /DO NOT RUN THIS FILE/);
+  assert.match(mig, /infinite recursion detected in policy for relation "signups"/);
+  // The mistake before the mistake, which is the part worth keeping.
+  assert.match(mig, /checked the \*text\* of the SQL/);
+});
+
+test('the replacement carries the verification it was proved with', () => {
+  const retry = read(RETRY);
+  assert.match(retry, /\nrollback;\s*$/,
+    'the file a human is told to paste no longer ends in rollback');
+  assert.match(retry, /member_sees_own_row/, 'the pass criteria do not check a plain member');
+  const runner = read('src/domain/__tests__/rlsPolicies.test.mjs');
+  assert.match(runner, /2026-09-01b-scope-profile-reads-retry\.sql/,
+    'nothing executes the migration this repo ships');
+});
+
+test('the decisions behind the shape are recorded, not just the shape', () => {
+  const doc = read('docs/public-table-columns.md');
+  for (const term of ['chat_url', 'meeting_note', 'host_nationality', 'is_sample', 'seat_holds']) {
+    assert.ok(doc.includes(term), `${term} is not covered by the decision document`);
+  }
+  // The two that are easiest to lose and hardest to re-derive.
+  assert.match(doc, /30일|thirty/, 'the date window on is_open_host is not explained');
+  assert.match(doc, /호스트만/, 'the host-only choice for the women filter is not explained');
+});
+
+// ── Unaffected, and worth keeping green ─────────────────────────────────
 
 test('the tables that are public are public on purpose', () => {
   // Listed so a third one appearing is a decision somebody makes rather than
-  // a line that slips in. `tables` is on this list today and should not stay
-  // — see docs/public-table-columns.md.
+  // a line that slips in. `tables` is on this list and should not stay —
+  // host_nationality, chat_url and meeting_note still ride on it. That is
+  // track 2 in docs/public-table-columns.md.
   const open = [...schema.matchAll(/create policy (\w+) on public\.(\w+)\s+for select to authenticated using \(\s*true\s*\)/g)]
     .map(m => m[1]).sort();
-  assert.deepEqual(open, ['profiles_read', 'reviews_read', 'signups_read', 'tables_read']);
+  assert.deepEqual(open, ['reviews_read', 'tables_read']);
 });
