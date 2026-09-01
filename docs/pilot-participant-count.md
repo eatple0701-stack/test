@@ -169,6 +169,7 @@
 |---|---|---|
 | `4b63bd6c-75d6-467c-883c-bb198b2be807` | 2026-09-01 | RLS 정책·좌석 수·여성 필터 확인 |
 | `cb6b50ab-3877-4aa1-85fe-b5a415e6d6da` | 2026-09-01 | 같은 날 UI 검증. 밤에 2026-09-01e 배포 확인에 **재사용**됨 — 새 행이 아닙니다 |
+| `19f6ab00-1a17-4567-a40d-851c61025884` | 2026-09-02 | 2026-09-01e 클라이언트 배포 확인. 시크릿 세션이라 **새 행**입니다 |
 
 새로 dev를 붙일 때마다 이 표에 한 줄 추가하세요. uuid는 브라우저
 콘솔에서 이렇게 확인합니다:
@@ -186,7 +187,8 @@ JSON.parse(Object.entries(localStorage).find(([k]) => k.includes('auth-token'))[
 ```sql
 with excluded (id) as (values
   ('4b63bd6c-75d6-467c-883c-bb198b2be807'::uuid),
-  ('cb6b50ab-3877-4aa1-85fe-b5a415e6d6da'::uuid)
+  ('cb6b50ab-3877-4aa1-85fe-b5a415e6d6da'::uuid),
+  ('19f6ab00-1a17-4567-a40d-851c61025884'::uuid)
 )
 select
   (select count(*) from public.profiles)                                as profiles_all,
