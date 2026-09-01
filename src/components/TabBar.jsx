@@ -82,7 +82,12 @@ const tabs = [
   // 375px bar down to 10.5px type. Its route, /settings, is unchanged.
 ];
 
-export default function TabBar({ activeTab, onSelect, isCollapsed }) {
+// `waiting` is how many people are waiting on this person to answer a seat
+// request. It shows as a dot rather than a number: the count is on the
+// Tables screen itself, and a bar this narrow has room for a signal, not a
+// figure. Zero renders nothing at all — a badge that is always there stops
+// being read.
+export default function TabBar({ activeTab, onSelect, isCollapsed, waiting = 0 }) {
   const say = useText();
   return (
     <nav className="tab-bar" aria-label="Primary">
@@ -94,11 +99,23 @@ export default function TabBar({ activeTab, onSelect, isCollapsed }) {
           onClick={() => onSelect(t.id)}
           title={isCollapsed ? say(t.label, t.kr, t.es, t.fr, t.ar, t.zh, t.ja) : undefined}
         >
-          {icons[t.id]}
+          <span className="tab-icon">
+            {icons[t.id]}
+            {t.id === 'match' && waiting > 0 && (
+              <span className="tab-dot" aria-hidden="true" />
+            )}
+          </span>
           {/* One element, not one per language. The two-span version came
               from the CSS pass and could only ever hold two; a third would
               have meant a third span and a third rule. */}
           <span className="tab-label">{say(t.label, t.kr, t.es, t.fr, t.ar, t.zh, t.ja)}</span>
+          {t.id === 'match' && waiting > 0 && (
+            <span className="visually-hidden">
+              {say(`— ${waiting} waiting for your answer`, `— ${waiting}명이 답을 기다림`,
+                `— ${waiting} esperan tu respuesta`, `— ${waiting} attendent votre réponse`,
+                `— ${waiting} في انتظار ردّك`, `— ${waiting} 位在等你回覆`, `— ${waiting}人が返事待ち`)}
+            </span>
+          )}
         </button>
       ))}
     </nav>

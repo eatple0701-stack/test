@@ -12077,3 +12077,92 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
   text-decoration: none;
 }
 .registry-sheet__source { margin-top: 16px; font-size: 12px; color: var(--muted-strong); }
+
+/* ---------- Requests waiting on you ----------
+   Added 2026-09-01, after playing the real flow through: a guest asked for a
+   seat and the host had no way to find out. The app has no notifications, so
+   this strip and the dot on the Tables tab are the whole mechanism behind
+   the sentence the guest is already shown — "the host has until 12 hours
+   before the meal to answer".
+
+   Ahead of everything else on the screen, and the only element here with a
+   deadline in it, so it takes the warm accent rather than the green used for
+   things that are merely available. */
+.waiting-strip {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  background: var(--orange-tint, #FFF4EC);
+  border: 1px solid var(--orange-line, #F6D2B6);
+  border-radius: 14px;
+}
+.waiting-strip__head {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.waiting-strip__list { margin: 0; padding: 0; list-style: none; }
+.waiting-strip__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--orange-line, #F6D2B6);
+  cursor: pointer;
+  text-align: start;
+  color: var(--ink);
+  font: inherit;
+}
+.waiting-strip__list li:first-child .waiting-strip__item { border-top: none; }
+.waiting-strip__dish { font-weight: 600; }
+.waiting-strip__count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--orange, #F97316);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* Pushed to the right so the two things a host scans for — which table, and
+   how long is left — sit at the two ends rather than running together. */
+.waiting-strip__when {
+  margin-inline-start: auto;
+  font-size: 12px;
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
+.waiting-strip__item svg { width: 16px; height: 16px; flex: none; }
+
+/* The dot on the Tables tab. A dot rather than a number: the count is on the
+   screen it leads to, and this bar is 375px wide with five labels on it. */
+.tab-icon { position: relative; display: inline-flex; }
+.tab-dot {
+  position: absolute;
+  top: -1px;
+  inset-inline-end: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--orange, #F97316);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* Text for a screen reader and nobody else. The dot carries no meaning to
+   somebody who cannot see it, and "Tables" alone would not say that anything
+   is waiting. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

@@ -6,6 +6,8 @@ import { loadRegistryPlaces, servesGroup } from './data/seoulRegistry.js';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
+import { waitingCount } from './domain/policy/waiting.js';
+import { listTables as loadTables, listAllSignups as loadSignups } from './data/tableRepository.js';
 import MainTab from './components/MainTab';
 import { GearIcon } from './components/Icons';
 import JournalPanel from './components/JournalPanel';
@@ -246,6 +248,30 @@ export default function App() {
   // visitor in anonymously, which is how a venue's shared wifi walks into
   // Supabase's 30-per-hour anonymous sign-in limit; getAuthState only reads.
   const [auth, setAuth] = useState({ kind: 'none' });
+  // How many people are waiting for this person to answer a seat request.
+  // Lives here rather than in TablesTab because the dot has to be visible
+  // from every screen — a host on the Passport or Places tab is exactly the
+  // host who does not know somebody is waiting. Read once per tab change:
+  // there is no realtime channel, and the alternative to a cheap re-read is
+  // a promise the app cannot keep. See src/domain/policy/waiting.js.
+  const [waiting, setWaiting] = useState(0);
+
+  // Recomputed whenever the tab changes or the signed-in person does. Both
+  // reads are ones the Tables screen makes anyway, so a host who is already
+  // there pays nothing new; from another tab this is the only thing that can
+  // tell them somebody is waiting.
+  useEffect(() => {
+    let alive = true;
+    if (!profile?.userId) { setWaiting(0); return undefined; }
+    (async () => {
+      // Silent on failure: a missing table or a schema a migration behind
+      // must not take the navigation down with it, and the honest degraded
+      // state is no dot rather than a wrong one.
+      const [t, sg] = await Promise.all([loadTables().catch(() => []), loadSignups().catch(() => [])]);
+      if (alive) setWaiting(waitingCount(t, sg, profile.userId));
+    })();
+    return () => { alive = false; };
+  }, [activeTab, profile?.userId]);
   // Which gate opened the sheet (its words come from AccessPolicy), or which
   // mode to open straight into — 'details' catches a Google member who has
   // not left a phone number yet.
@@ -864,6 +890,7 @@ export default function App() {
         <TabBar
           activeTab={activeTab}
           onSelect={(tab) => { setOpenThemeId(null); goToTab(tab); }}
+          waiting={waiting}
         />
         {/* Settings left the tab bar and lives here, to the left of 로그인.
             It is a device preference, not a destination, and as a fifth tab

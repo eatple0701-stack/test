@@ -14,6 +14,7 @@ import { stationForTable, cityOfTables } from '../domain/policy/venue.js';
 import { timeText, clockWarning } from '../domain/policy/clock.js';
 import { restaurants } from '../data/restaurants';
 import { acceptedSignups, askDeadline } from '../domain/policy/seatRequest.js';
+import { waitingForYou } from '../domain/policy/waiting.js';
 import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
@@ -114,6 +115,16 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     return () => { alive = false; };
   }, [womenFilter]);
 
+  // Requests nobody has answered. The guest is promised an answer twelve
+  // hours before the meal, and until 2026-09-01 the only way a host could
+  // learn a request existed was to open that table's page by chance — the
+  // app had no notifications of any kind. Nothing new is fetched for this:
+  // the tables and the signups are already here.
+  const waiting = useMemo(
+    () => waitingForYou(tables ?? [], signups, profile?.userId),
+    [tables, signups, profile?.userId],
+  );
+
   const signupsFor = useMemo(() => {
     const map = {};
     for (const s of signups) (map[s.tableId] ??= []).push(s);
@@ -204,6 +215,54 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
   return (
     <section className="tables-tab" aria-label={say('Eatple tables', '밥친구 밥상', 'Mesas de Eatple', 'Les tables Eatple', 'موائد Eatple', 'Eatple 的饭桌', 'Eatple の食卓')}>
+      {/* Before anything else on the screen, because it is the only thing
+          here with a clock on it. A host who misses this has not lost a
+          feature — somebody who asked to eat with them is sitting unanswered
+          until the request lapses. */}
+      {waiting.length > 0 && (
+        <section className="waiting-strip" aria-live="polite">
+          <h2 className="waiting-strip__head">
+            {say(
+              `${waiting.reduce((n, r) => n + r.waiting.length, 0)} ${waiting.reduce((n, r) => n + r.waiting.length, 0) === 1 ? 'person is' : 'people are'} waiting for your answer`,
+              `${waiting.reduce((n, r) => n + r.waiting.length, 0)}명이 답을 기다리고 있어요`,
+              `${waiting.reduce((n, r) => n + r.waiting.length, 0)} ${waiting.reduce((n, r) => n + r.waiting.length, 0) === 1 ? 'persona espera' : 'personas esperan'} tu respuesta`,
+              `${waiting.reduce((n, r) => n + r.waiting.length, 0)} ${waiting.reduce((n, r) => n + r.waiting.length, 0) === 1 ? 'personne attend' : 'personnes attendent'} votre réponse`,
+              `${waiting.reduce((n, r) => n + r.waiting.length, 0)} في انتظار ردّك`,
+              `${waiting.reduce((n, r) => n + r.waiting.length, 0)} 位在等你回覆`,
+              `${waiting.reduce((n, r) => n + r.waiting.length, 0)}人が返事を待っています`)}
+          </h2>
+          <ul className="waiting-strip__list">
+            {waiting.map(({ table: t, waiting: rows, deadline }) => (
+              <li key={t.id}>
+                <button className="waiting-strip__item" onClick={() => onOpenTable(t.id)}>
+                  <span className="waiting-strip__dish">{menuById(t.menuId)?.name ?? t.menuId}</span>
+                  <span className="waiting-strip__count">
+                    {say(`${rows.length} waiting`, `${rows.length}명 대기`, `${rows.length} esperando`,
+                      `${rows.length} en attente`, `${rows.length} في الانتظار`, `${rows.length} 位等待`, `${rows.length}人待ち`)}
+                  </span>
+                  {deadline && (() => {
+                    // The whole sentence per language rather than a label and
+                    // a date beside it. A Korean postposition attaches to the
+                    // end of the noun, so a label first rendered "까지 답하기
+                    // 9월 4일" — the particle in front of the thing it is
+                    // attached to. Seen on screen, not reasoned about.
+                    const when = deadline.toLocaleString(dateLocale(locale),
+                      { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    return (
+                      <span className="waiting-strip__when">
+                        {say(`answer by ${when}`, `${when}까지 답하기`, `responde antes del ${when}`,
+                          `répondre avant le ${when}`, `أجب قبل ${when}`, `${when} 前回覆`, `${when}までに返事`)}
+                      </span>
+                    );
+                  })()}
+                  <ChevronRightIcon />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* The wordmark and the sign-in pair used to sit here, at the top of
           this one tab. They are app chrome, not landing-page content — see
           .app-chrome in App.jsx, where they now live on every screen. */}
