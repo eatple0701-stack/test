@@ -41,7 +41,7 @@
 --
 -- =========================================================================
 -- Paste as is. It ends in `rollback;` and changes nothing: it applies
--- everything, reads the result, prints five numbers, and throws it away.
+-- everything, reads the result, prints six numbers, and throws it away.
 --
 -- It passes when ALL SIX are exactly this:
 --
