@@ -101,10 +101,27 @@ test('the decision that has to come first exists as a document', () => {
   assert.match(doc, /has_woman/);
 });
 
+test('the replacement exists, and something in this repo actually runs it', () => {
+  // The distinction this whole file turns on. rlsPolicies.test.mjs executes
+  // the retry against a real Postgres and proves it is correct; that says
+  // nothing about whether anybody has pasted it into production. This file is
+  // the record of the second thing, which is still no.
+  const retry = read('supabase/migrations/2026-09-01b-scope-profile-reads-retry.sql');
+  assert.match(retry, /security definer/);
+  assert.match(retry, /member_sees_own_row/, 'the pass criteria do not check a plain member');
+  assert.match(retry, /\nrollback;\s*$/, 'the file a human is told to paste does not end in rollback');
+
+  const runner = read('src/domain/__tests__/rlsPolicies.test.mjs');
+  assert.match(runner, /2026-09-01b-scope-profile-reads-retry\.sql/,
+    'nothing executes the migration this repo is about to ship');
+  assert.match(runner, /PGlite/);
+});
+
 // ── The state we want, and do not yet have ─────────────────────────────
 
-const WHY = 'profiles/signups are open: the scoped policy recursed (42P17) and was '
-  + 'rolled back 2026-09-01. Un-todo when the security-definer version lands.';
+const WHY = 'the retry is written and passes against a real Postgres '
+  + '(rlsPolicies.test.mjs) but has not been applied to production. Un-todo '
+  + 'once 2026-09-01b has been run with commit and schema.sql updated.';
 
 test('the tables holding participant data are not readable by everybody', { todo: WHY }, () => {
   for (const name of ['profiles_read', 'signups_read']) {
