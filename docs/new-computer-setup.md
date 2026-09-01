@@ -4,7 +4,7 @@
 그 뒤로는 `git pull` → 작업 → `git push`가 전부입니다.
 
 검증됨: **2026-09-01 다시 확인.** 팀 저장소를 빈 폴더에 새로 클론해
-`.env.local` 없이 `npm install` → 테스트 758개 전부 통과 · i18n 감사 0건 ·
+`.env.local` 없이 `npm install` → 테스트 768개 전부 통과 · i18n 감사 0건 ·
 빌드 성공. 클론은 `main` 브랜치로 나옵니다.
 (8-22에는 579개였습니다 — 숫자는 늘어납니다. 중요한 건 `fail 0`입니다.)
 
@@ -14,11 +14,22 @@
 
 | | 확인 명령 | 없으면 |
 |---|---|---|
-| **Node.js** 20 이상 | `node -v` | https://nodejs.org (LTS) |
+| **Node.js** 22.18 이상 | `node -v` | https://nodejs.org (LTS) |
 | **Git** | `git --version` | https://git-scm.com |
 | **Claude Code** | `claude --version` | https://claude.com/claude-code |
 
 Windows에서 Node를 처음 깐다면 설치 후 터미널을 새로 열어야 인식됩니다.
+
+> **20이 아니라 22.18입니다.** 2026-09-01에 세 버전에서 직접 돌려 확인했습니다.
+> - **24.18.0** — 768개 전부 통과
+> - **22.18.0** — 768개 전부 통과 (24와 정확히 같은 수)
+> - **20.18.0** — `npm test` 자체가 안 됩니다. 두 가지가 걸립니다:
+>   `--test` 가 글롭(`src/**/*.test.mjs`)을 못 받고,
+>   메일 테스트가 엣지 함수 `.ts` 를 직접 import 하는데 20에는 타입 스트리핑이
+>   없어 `ERR_UNKNOWN_FILE_EXTENSION` 이 납니다.
+>
+> `package.json` 의 `engines` 도 `>=22.18.0` 이고, 이 값은 **실제로 통과를
+> 확인한 최저 버전**입니다. 짐작이 아닙니다.
 
 ## 1. 저장소 받기
 
@@ -37,7 +48,7 @@ git config core.hooksPath .githooks
 ## 2. 잘 됐는지 확인
 
 ```sh
-npm test                      # 758개 전부 통과해야 정상
+npm test                      # 768개 전부 통과해야 정상
 node scripts/audit-i18n.mjs   # 0 이 나와야 정상
 npm run dev                   # http://localhost:5177
 ```
@@ -108,7 +119,7 @@ GitHub CLI가 없으면 https://cli.github.com 에서 설치하거나, 그냥 `g
 막히면 후크의 `ALLOWED` 목록을 보세요 — 2026-08-02에 다른 앱의 라이브
 사이트를 덮어쓴 사고 때문에 있는 장치입니다 (`docs/where-this-deploys.md`).
 
-**`npm test` 가 758개가 아님**
+**`npm test` 가 768개가 아님**
 `git pull` 로 최신을 받았는지 확인하세요. 테스트가 늘어난 경우라면
 README.md / HANDOFF.md 의 숫자도 같이 고쳐야 합니다 (그걸 검사하는 테스트가
 있습니다).
