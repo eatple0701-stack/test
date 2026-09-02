@@ -44,9 +44,17 @@ function callAt(src, at) {
 // strip 밥친구/잇플, and if no Hangul remains, the sentence is English and
 // the name in it is the odd word out.
 const HANGUL = /[가-힣]/;
+// Comments first, or an apostrophe in prose ("교수님's") flips the quote
+// parity for the rest of the file and every literal after it is misread —
+// the first run of this returned five JSX comments and missed the one line
+// it was written for. Line numbers are kept by blanking, not deleting.
+const blank = (s) => s.replace(/[^\n]/g, ' ');
+const stripComments = (src) => src
+  .replace(/\/\*[\s\S]*?\*\//g, blank)
+  .replace(/^[ \t]*\/\/[^\n]*/gm, '');
 const rows = [];
 for (const file of walk('src')) {
-  const src = fs.readFileSync(file, 'utf8');
+  const src = stripComments(fs.readFileSync(file, 'utf8'));
   const re = /(['"`])((?:\\.|(?!\1)[^\\])*)\1/g;
   let m;
   while ((m = re.exec(src))) {
