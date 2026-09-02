@@ -128,14 +128,27 @@ security definer
 set search_path = ''
 as $$
 begin
+  -- Nothing to record without both halves of an agreement.
   if new.rules_version is null or new.rules_agreed_at is null then
     return new;
   end if;
-  if tg_op = 'UPDATE'
-     and new.rules_version is not distinct from old.rules_version
-     and new.rules_agreed_at is not distinct from old.rules_agreed_at then
-    return new;
+
+  -- OLD is only ever read inside the UPDATE branch. A single expression
+  -- `tg_op = 'UPDATE' and old.x = …` would rely on the executor not
+  -- evaluating the right-hand side on INSERT, and SQL does not promise that.
+  -- On INSERT there is no old row, so the agreement is new by definition.
+  if tg_op = 'UPDATE' then
+    if new.rules_version is not distinct from old.rules_version
+       and new.rules_agreed_at is not distinct from old.rules_agreed_at then
+      return new;   -- the client re-sent the same agreement: nothing happened
+    end if;
   end if;
+
+  -- The one statement that writes. `on conflict do nothing` is what makes
+  -- this trigger unable to fail a profile save: a stale device re-sending an
+  -- agreement the log already holds (say the v1 row the backfill wrote) hits
+  -- the unique constraint and is absorbed, not raised. A trigger on the row
+  -- every app launch upserts must never throw.
   insert into public.rules_consents (profile_id, version, agreed_at)
   values (new.id, new.rules_version, new.rules_agreed_at)
   on conflict (profile_id, version, agreed_at) do nothing;

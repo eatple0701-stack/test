@@ -255,3 +255,31 @@ dev 전용 Supabase 프로젝트를 따로 만들고 `.env.local`을 그쪽으�
 `docs/rls-baseline-2026-09-01.md` §3), `.env.local` 키 교체, 데모 밥상 몇 개
 seed. Vercel 환경변수는 건드리지 않으므로 배포에는 영향이 없습니다.
 무료 플랜은 프로젝트 2개까지 됩니다. **오늘은 하지 않습니다.**
+
+### 재동의 대상 — 두 숫자, 섞지 마세요
+
+**추가 2026-09-02.** 동의 문구 개정(`PURPOSE.version` 1→2) 앞서 잰 것입니다.
+
+| 값 | 어디에 쓰는가 |
+|---|---|
+| **10** — `rules_version is not null`인 프로필 전부 | `2026-09-02a` 마이그레이션의 `backfilled_rows` **합격값**. 제외 없이 전부입니다 — 이력은 개발 접속까지 포함해 "실제로 그 행이 동의했다"는 기록이라, 여기서 빼면 이력이 거짓이 됩니다 |
+| **10 − 제외 목록 중 동의한 행** | KF 보고서 **"동의 문구 개정, 재동의 대상 N명"**. 제외 목록(§7 표)의 계정이 게이트를 눌렀다면 그만큼 뺍니다 |
+
+두 번째 값은 아래로 냅니다. 행 내용은 열지 않습니다. 표에 줄을 추가하면 `excluded`에도 추가해야 합니다.
+
+```sql
+with excluded (id) as (values
+  ('4b63bd6c-75d6-467c-883c-bb198b2be807'::uuid),
+  ('cb6b50ab-3877-4aa1-85fe-b5a415e6d6da'::uuid),
+  ('19f6ab00-1a17-4567-a40d-851c61025884'::uuid),
+  ('39edcb02-3928-4190-943b-d318584fd621'::uuid),
+  ('9706ff0f-7f69-422b-acc7-901b4a2aa980'::uuid)
+)
+select
+  count(*) filter (where rules_version is not null)                                   as agreed_all,       -- 마이그레이션 합격값
+  count(*) filter (where rules_version is not null and id in (select id from excluded)) as agreed_dev,       -- 그중 개발 접속
+  count(*) filter (where rules_version is not null and id not in (select id from excluded)) as agreed_for_kf -- KF 보고서 값
+from public.profiles;
+```
+
+`39edcb02`와 `9706ff0f`는 오늘 확인 과정에서 동의 게이트를 눌렀으므로 `agreed_dev`에 최소 2가 잡혀야 정상입니다. 그보다 작게 나오면 표가 틀린 것입니다.

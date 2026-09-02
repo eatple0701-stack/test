@@ -133,6 +133,63 @@ test('the client path is upsert, and a first consent arrives as its INSERT half'
   assert.equal(await count(`select count(*)::int as n from public.rules_consents where profile_id = $1`, [F]), 2);
 });
 
+// ── The trigger must never fail a profile save ─────────────────────────
+//
+// profiles is upserted every time the app is opened. A trigger on it that
+// throws once takes the app down at the same spot the 2026-09-01 outage
+// did. Three shapes of ordinary traffic, each run three times, each
+// counted: zero errors is asserted by the calls not rejecting, and the
+// history is asserted by exact row counts.
+
+test('the same upsert three times in a row: no error, exactly one row', async () => {
+  const G = '00000000-0000-4000-8000-000000000010';
+  const upsert = () => db.query(
+    `insert into public.profiles (id, name, rules_version, rules_agreed_at)
+     values ($1, 'g', 1, $2)
+     on conflict (id) do update set name = excluded.name, rules_version = excluded.rules_version, rules_agreed_at = excluded.rules_agreed_at`,
+    [G, T1]);
+  await upsert(); await upsert(); await upsert();
+  assert.equal(await count(`select count(*)::int as n from public.rules_consents where profile_id = $1`, [G]), 1);
+});
+
+test('a save that does not touch the agreement, three times: no error, history unchanged', async () => {
+  // Most real traffic. Two shapes: the narrow UPDATE of one column, and the
+  // client's actual shape — a full-column upsert that re-sends the same
+  // rules_version and rules_agreed_at beside the field that changed.
+  const G = '00000000-0000-4000-8000-000000000010';
+  const before = await count(`select count(*)::int as n from public.rules_consents`);
+  for (const name of ['g1', 'g2', 'g3']) {
+    await db.query(`update public.profiles set name = $2 where id = $1`, [G, name]);
+  }
+  for (const name of ['g4', 'g5', 'g6']) {
+    await db.query(
+      `insert into public.profiles (id, name, rules_version, rules_agreed_at)
+       values ($1, $2, 1, $3)
+       on conflict (id) do update set name = excluded.name, rules_version = excluded.rules_version, rules_agreed_at = excluded.rules_agreed_at`,
+      [G, name, T1]);
+  }
+  assert.equal(await count(`select count(*)::int as n from public.rules_consents`), before);
+  const { rows } = await db.query(`select name from public.profiles where id = $1`, [G]);
+  assert.equal(rows[0].name, 'g6', 'the saves themselves must have gone through');
+});
+
+test('a stale device re-sending an older agreement: no error, no duplicate', async () => {
+  // The only path that actually reaches the unique constraint, and so the
+  // only thing `on conflict do nothing` is for. G moved to v2; a second
+  // device still holding the v1 profile saves it back. Without the clause
+  // this is a unique violation thrown out of a trigger — a failed profile
+  // save on app launch.
+  const G = '00000000-0000-4000-8000-000000000010';
+  await db.query(`update public.profiles set rules_version = 2, rules_agreed_at = $2 where id = $1`, [G, T3]);
+  assert.equal(await consentsFor(G, 2), 1);
+  await db.query(
+    `insert into public.profiles (id, name, rules_version, rules_agreed_at) values ($1, 'stale', 1, $2)
+     on conflict (id) do update set rules_version = excluded.rules_version, rules_agreed_at = excluded.rules_agreed_at`,
+    [G, T1]);
+  assert.equal(await consentsFor(G, 1), 1, 'the old agreement was logged twice, or the save threw');
+  assert.equal(await consentsFor(G, 2), 1);
+});
+
 test('the trigger is declared for INSERT and for UPDATE', async () => {
   // Read off the catalogue, not inferred from behaviour: the upsert test
   // above proves the effect, this proves the declaration that produces it.
