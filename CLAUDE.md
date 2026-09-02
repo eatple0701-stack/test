@@ -19,7 +19,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (826 tests), `node scripts/audit-i18n.mjs` (must print 0) and
+- `npm test` (834 tests), `node scripts/audit-i18n.mjs` (must print 0) and
   `npm run lint` (must print no `error`) before every push. Lint is on that
   list because `vite build` does NOT fail on an undefined identifier: a
   missing import built cleanly and would have thrown at runtime, and a

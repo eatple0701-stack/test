@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  menus, menuById, CATEGORY_LABEL, defaultHourFor, eatenAtLabels,
+  menus, menuById, defaultHourFor, eatenAtLabels,
 } from '../domain/catalog/menus.js';
+import { categoryLabel, containsLine, conflictLine } from '../domain/policy/dishLabels.js';
 import { validateNewTable } from '../domain/policy/table.js';
 import { MEETING_NOTE_MAX } from '../domain/policy/meeting.js';
 import { GUIDES, TABLE_KIND_LABEL } from '../domain/catalog/hosts.js';
@@ -14,7 +15,7 @@ import RulesConsent from './RulesConsent';
 import { PURPOSE } from '../content/safety.js';
 import { agreedToRules } from '../domain/policy/consent.js';
 import { ChevronLeftIcon } from './Icons';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
 
 // Opening a table.
 //
@@ -28,6 +29,7 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 
 export default function TableCreate({ profile, onProfileChange, onBack, onCreated, prefill }) {
   const say = useText();
+  const locale = useLocale();
   // A request arriving from 찾는 밥상 already named the dish and the day.
   const [menuId, setMenuId] = useState(prefill?.menuId ?? null);
   const [date, setDate] = useState(prefill?.date ?? '');
@@ -231,7 +233,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       {menu && (
         <div className="form-block">
           <div className="dish-brief">
-            <span className="dish-brief__cat">{say(CATEGORY_LABEL[menu.category]?.en, CATEGORY_LABEL[menu.category]?.kr, CATEGORY_LABEL[menu.category]?.es, CATEGORY_LABEL[menu.category]?.fr, CATEGORY_LABEL[menu.category]?.ar, CATEGORY_LABEL[menu.category]?.zh, CATEGORY_LABEL[menu.category]?.ja)}</span>
+            <span className="dish-brief__cat">{categoryLabel(menu.category, locale)}</span>
             <p className="dish-brief__how">{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr, menu.howItWorksZh, menu.howItWorksJa)}</p>
             {eatenAtLabels(menu.id).length > 0 && (
               <p className="dish-brief__when">
@@ -245,23 +247,10 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
                   `ふだんは${eatenAtLabels(menu.id).map(l => l.ja).join('・')}に食べます`)}
               </p>
             )}
-            {menu.contains.length > 0 && (
-              <p className="dish-brief__contains">{say(
-                `Contains ${menu.contains.join(', ')}`, `${menu.contains.join(', ')} 들어감`,
-                `Contiene ${menu.contains.join(', ')}`, `Contient ${menu.contains.join(', ')}`,
-                `يحتوي على ${menu.contains.join('، ')}`, `含有${menu.contains.join('、')}`,
-                `${menu.contains.join('、')}が入っています`)}</p>
-            )}
+            <p className="dish-brief__contains">{containsLine(menu, locale).text}</p>
             {conflictsFor(menu, profile).length > 0 && (
               <p className="detail-conflict">
-                {say(
-                  `You said you do not eat ${conflictsFor(menu, profile).join(' or ')} — you can still host this, you just will not be eating all of it.`,
-                  `${conflictsFor(menu, profile).join(', ')}은(는) 안 드신다고 하셨죠 — 그래도 이 상을 차리실 수 있고, 다만 전부를 드시지는 못합니다.`,
-                  `Dijiste que no comes ${conflictsFor(menu, profile).join(' ni ')}: puedes ser anfitrión igualmente, solo que no comerás todo.`,
-                  `Vous avez dit ne pas manger ${conflictsFor(menu, profile).join(' ni ')} — vous pouvez quand même recevoir, vous n'en mangerez simplement pas tout.`,
-                  `قلت إنك لا تأكل ${conflictsFor(menu, profile).join(' ولا ')} — ما زال بإمكانك استضافة هذه المائدة، لكنك لن تأكل كلّ ما فيها.`,
-                  `你说过你不吃${conflictsFor(menu, profile).join('、')}——你还是可以摆这张桌子，只是不会全都吃。`,
-                  `${conflictsFor(menu, profile).join('、')}は食べないとおっしゃっていました——それでもこの食卓は開けます。ただ、全部は召し上がらないというだけです。`)}
+                {conflictLine(conflictsFor(menu, profile), locale)}
               </p>
             )}
           </div>

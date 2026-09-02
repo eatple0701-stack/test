@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
+import { menuById } from '../domain/catalog/menus.js';
+import { categoryLabel, containsLine } from '../domain/policy/dishLabels.js';
 import { TABLE_VIEW, tableViewState, tableViewText, whoListText } from '../domain/policy/loadState.js';
 import { seatsRemaining, joinBlocker, isPast, BLOCKER_TEXT, JOIN_BLOCK, headcountIfYouJoin } from '../domain/policy/table.js';
 import {
@@ -472,7 +473,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
             sign. A browser translating 감자탕 to "potato soup" takes away the
             one string a traveller can point at. */}
         <span className="detail-hero__word" aria-hidden="true" translate="no">{menu.nameKo}</span>
-        <span className="detail-hero__cat">{CATEGORY_LABEL[menu.category]?.en}</span>
+        <span className="detail-hero__cat">{categoryLabel(menu.category, locale)}</span>
         <h2 className="detail-hero__dish">
           {menu.name}
           <span className="detail-hero__rom" translate="no">{menu.romanization}</span>
@@ -596,13 +597,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           {say('What happens at the table', '식탁에서 벌어지는 일', 'Qué pasa en la mesa', 'Ce qui se passe à table', 'ما الذي يحدث على المائدة', '桌上会发生什么', '食卓で何が起きるか')}
         </h3>
         <p className="detail-block__body">{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr, menu.howItWorksZh, menu.howItWorksJa)}</p>
-        {menu.contains.length > 0 && (
-          <p className="detail-block__contains">{say(
-            `Contains ${menu.contains.join(', ')}`, `${menu.contains.join(', ')} 들어감`,
-            `Contiene ${menu.contains.join(', ')}`, `Contient ${menu.contains.join(', ')}`,
-            `يحتوي على ${menu.contains.join('، ')}`, `含有${menu.contains.join('、')}`,
-            `${menu.contains.join('、')}が入っています`)}</p>
-        )}
+        {/* Always rendered now. An empty list used to render nothing, which
+            read as "nothing to declare"; it says the house decides instead. */}
+        <p className="detail-block__contains">{containsLine(menu, locale).text}</p>
 
         {/* Said where the decision is made, not buried in a settings screen.
             The table is not hidden — a traveller may still want it, and may

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { menus, menuById, CATEGORY_LABEL } from '../domain/catalog/menus.js';
+import { menus, menuById } from '../domain/catalog/menus.js';
+import { categoryLabel } from '../domain/policy/dishLabels.js';
 import { DISH_GROUPS, groupOfMenu } from '../domain/catalog/dishGroups.js';
 import { seatsRemaining, isPast, attendance } from '../domain/policy/table.js';
 import {
@@ -652,7 +653,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
               <span className="table-card__top">
                 <span className="table-card__cat">
-                  {CATEGORY_LABEL[menu.category]?.en ?? ''}
+                  {categoryLabel(menu.category, locale)}
                 </span>
                 {/* The distinction the 8/2 meeting drew, and the one a
                     nervous first-timer is actually scanning for: will

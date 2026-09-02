@@ -1,12 +1,13 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { ChevronLeftIcon } from './Icons';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
+import { ingredientLabels, containsLine, variesLine } from '../domain/policy/dishLabels.js';
 import { sourcesFor } from '../content/sources.js';
 import PhraseSheet from './PhraseSheet';
 
 // A dish, read on its own.
 //
-// The catalogue carries real writing for all ten dishes — why it is shared,
+// The catalogue carries real writing for every dish — why it is shared,
 // what happens at the table, what the dish means at home — and until now every
 // word of it was reachable only through a table's detail page. That is fine
 // while tables exist. On a week with none it means ten dishes' worth of the
@@ -48,15 +49,21 @@ import PhraseSheet from './PhraseSheet';
  */
 function ContainsCard({ menu, onAsk }) {
   const say = useText();
+  const locale = useLocale();
   const list = menu.contains ?? [];
+  const labels = ingredientLabels(list, locale);
   return (
     <>
       {list.length > 0 ? (
         <ul className="dish-card__chips">
-          {list.map(c => <li key={c} className="dish-card__chip">{c}</li>)}
+          {list.map((c, i) => <li key={c} className="dish-card__chip">{labels[i]}</li>)}
         </ul>
       ) : (
-        <p>{say('The catalogue does not enumerate what goes into this one.', '이 요리에 무엇이 들어가는지는 카탈로그에 적혀 있지 않습니다.', 'El catálogo no detalla qué lleva este plato.', "Le catalogue ne détaille pas ce qu'il y a dedans.", 'لا يعدّد الفهرس ما يدخل في هذا الطبق.', '这道菜里有什么，目录里没有列。', 'この料理に何が入るかは、カタログに書かれていません。')}</p>
+        // Two sentences live behind this, chosen by the data: "the house
+        // decides" when the dish says so, and the old "the catalogue does not
+        // enumerate" only for a dish nobody wrote up — which the catalogue
+        // tests keep at zero.
+        <p>{containsLine(menu, locale).text}</p>
       )}
 
       <p className="dish-card__caveat">
@@ -80,6 +87,7 @@ function ContainsCard({ menu, onAsk }) {
 
 export default function DishSheet({ menu, onClose, onOpenTable }) {
   const say = useText();
+  const locale = useLocale();
   const deck = useRef(null);
   const [at, setAt] = useState(0);
   const [asking, setAsking] = useState(false);
@@ -119,11 +127,11 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
             {/* Not a warning about this reader — nobody has told us anything
                 here — but about what the catalogue can and cannot check. */}
             {menu.varies && (
-              <p className="dish-card__caveat">
-                {say('The side dishes change by the house and by the day, so this one cannot be checked in advance. Ask before you sit down.',
-                  '반찬은 집집마다, 날마다 달라져서 미리 확인할 수가 없습니다. 앉기 전에 물어보세요.',
-                  'Las guarniciones cambian según la casa y el día, así que esto no se puede comprobar de antemano. Pregunta antes de sentarte.', "Les accompagnements changent selon la maison et selon le jour : cela ne peut donc pas être vérifié à l'avance. Demandez avant de vous asseoir.", 'تتغيّر الأطباق الجانبية بحسب البيت وبحسب اليوم، فلا يمكن التحقّق من هذا مسبقًا. اسأل قبل أن تجلس.', '小菜按店、按日子变，所以这一项没法提前确认。坐下之前先问一句。', 'おかずは店ごと日ごとに変わるので、これは前もって確認できません。座る前に尋ねてください。')}
-              </p>
+              // Said "the side dishes change" until 2026-09-02, which was
+              // right for 백반 and wrong for 전골, where the pot itself is
+              // what differs. The sentence now matches the field's one
+              // definition: what comes with it, or what it is, is the house's.
+              <p className="dish-card__caveat">{variesLine(locale)}</p>
             )}
           </>
         ),
