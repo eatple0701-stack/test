@@ -8,5 +8,19 @@ Strings written as a "한국어 · English" pair are excluded — there the Hang
 
 | file:line | English string |
 |---|---|
+| src/App.jsx:862 | s content and makes the bar look dead. */}
+      <header className="app-chrome">
+        {/* The wordmark was  |
+| src/components/ErrorBoundary.jsx:56 | [밥친구] recovered from a crash |
+| src/components/RestaurantDetail.jsx:893 |  })}
+                </p>
+              )}
+              {/* This said hello@kfoodmap.com until 2026-08-04. K- |
+| src/components/TablesLead.jsx:60 | )}>
+      <div className="tables-lead__head">
+        <div>
+          {/* The 밥친구 label above this heading is  |
+| src/content/howItWorks.js:4 | s how-strip taught three different steps, with no shared source —
+// so the app answered "what happens here?"  |
 
-Total: 0
+Total: 5

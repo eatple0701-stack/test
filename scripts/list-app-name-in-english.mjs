@@ -36,23 +36,31 @@ function callAt(src, at) {
   return src.slice(at);
 }
 
+// Two places the app's name can sit inside an English sentence: the English
+// arm of a say() call, and a content-data field (safety.js PURPOSE.rule,
+// HostBrief bodies) that the component prints as-is. The first pass found
+// zero in say() arms — those already say Eatple — so the sweep reads every
+// string literal and keeps the ones that are English apart from the name:
+// strip 밥친구/잇플, and if no Hangul remains, the sentence is English and
+// the name in it is the odd word out.
+const HANGUL = /[가-힣]/;
 const rows = [];
 for (const file of walk('src')) {
   const src = fs.readFileSync(file, 'utf8');
-  const re = /\bsay\(/g;
+  const re = /(['"`])((?:\\.|(?!\1)[^\\])*)\1/g;
   let m;
   while ((m = re.exec(src))) {
-    const call = callAt(src, m.index);
-    // The first argument is the English arm. Only a plain string literal is
-    // read; a template or an expression is skipped rather than guessed at.
-    const first = call.slice(4).match(/^\s*(['"])((?:\\.|(?!\1).)*)\1/);
-    if (!first) continue;
-    const en = first[2];
+    const s = m[2];
+    if (!/밥친구|잇플/.test(s)) continue;
     // "한국어 · English" pairs carry Hangul on purpose — LocaleFilter splits them.
-    if (!/밥친구|잇플/.test(en) || / · /.test(en)) continue;
-    rows.push({ file: path.relative('.', file).replace(/\\/g, '/'), line: src.slice(0, m.index).split('\n').length, en });
+    if (/ · /.test(s)) continue;
+    const rest = s.replace(/밥친구|잇플/g, '');
+    if (HANGUL.test(rest)) continue;          // a Korean sentence naming itself: fine
+    if (!/[A-Za-z]{3,}/.test(rest)) continue;  // a bare label like '밥친구' with no sentence around it
+    rows.push({ file: path.relative('.', file).replace(/\\/g, '/'), line: src.slice(0, m.index).split('\n').length, en: s });
   }
 }
+void callAt;
 
 const md = [
   "# The app's own name inside English strings",
