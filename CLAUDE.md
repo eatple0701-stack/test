@@ -19,7 +19,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (817 tests), `node scripts/audit-i18n.mjs` (must print 0) and
+- `npm test` (826 tests), `node scripts/audit-i18n.mjs` (must print 0) and
   `npm run lint` (must print no `error`) before every push. Lint is on that
   list because `vite build` does NOT fail on an undefined identifier: a
   missing import built cleanly and would have thrown at runtime, and a
@@ -145,6 +145,19 @@ and is not done yet.
   paired `-kr`/`-en` elements + LocaleFilter for labels. English is the
   fallback, so a missing translation is invisible to an English reader —
   that is what the audit is for.
+- Korean words inside es/fr/ar prose: **입 밖에 낼 말은 로마자, 설명하는
+  말은 풀어쓴다.** A dish or drink name (jeon, makgeolli, soju, yukhoe) is
+  what a traveller reads off a sign and says to a host, so it stays
+  romanised; a shop type or food category (분식집, 포장마차, 안주) is a
+  description, so it is translated. zh/ja translate everything. Decided
+  2026-09-02 while filling the dish catalogue; the rule caught two of its
+  own violations (pojangmacha, anju) the moment it was written down.
+- The audit reads string literals and `say()` calls. It cannot see a value
+  interpolated into a translated frame — `` `${menu.contains.join(', ')}
+  들어감` `` printed `pork, shellfish 들어감` to Korean readers, and
+  `CATEGORY_LABEL[c]?.en` printed `A whole spread` on Korean cards — and both
+  passed with 0. When a label comes from a table, every language has to come
+  from that table.
 
 ## Git
 Default branch is `main`; pushing it auto-deploys on Vercel — **unless
