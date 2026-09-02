@@ -9,9 +9,6 @@ Strings written as a "한국어 · English" pair are excluded — there the Hang
 | file:line | English string |
 |---|---|
 | src/components/ErrorBoundary.jsx:56 | [밥친구] recovered from a crash |
-| src/components/MainTab.jsx:190 | >밥친구 잇플</span>
-            <span className= |
-| src/components/MainTab.jsx:524 | >밥친구<span className= |
 | src/content/safety.js:72 | 밥친구 seats people who want to eat a dish nobody can order alone. It is  |
 
-Total: 4
+Total: 2

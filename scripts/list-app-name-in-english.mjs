@@ -65,6 +65,7 @@ for (const file of walk('src')) {
     const rest = s.replace(/밥친구|잇플/g, '');
     if (HANGUL.test(rest)) continue;          // a Korean sentence naming itself: fine
     if (!/[A-Za-z]{3,}/.test(rest)) continue;  // a bare label like '밥친구' with no sentence around it
+    if (/[<>]/.test(s)) continue;               // JSX attribute quotes spilling across markup — the wordmark, not a sentence
     rows.push({ file: path.relative('.', file).replace(/\\/g, '/'), line: src.slice(0, m.index).split('\n').length, en: s });
   }
 }
