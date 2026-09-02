@@ -1071,9 +1071,12 @@ export default function App() {
                itself is browsing and stays open, the two doors out of it are
                participation. requireMember opens the auth sheet with the
                right words when the answer is no. */
-            onCreateTable={() => {
+            onCreateTable={(prefill = null) => {
               if (!requireMember('open-table')) return;
-              setTablePrefill(null); setTableView({ screen: 'create' });
+              // A dish the reader searched for and found no table for arrives
+              // here as { menuId }, so the form opens on that dish rather
+              // than asking them to find it again in a grid of twenty-four.
+              setTablePrefill(prefill?.menuId ? prefill : null); setTableView({ screen: 'create' });
             }}
             onRequestTable={() => {
               if (!requireMember('request-table')) return;

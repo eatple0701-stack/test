@@ -79,7 +79,7 @@
  * the same thing at three in the afternoon and three in the morning, and
  * defaulted every table anybody opened to 19:00 regardless of the dish.
  *
- * Set on three dishes out of ten, and deliberately not on the other seven.
+ * Set on three dishes out of twenty-four, and deliberately not on the rest.
  * The rule is the one this catalog already lives under: a field here may only
  * say what the dish's own prose says. 백반's record mentions a morning, but it
  * is the morning the kitchen cooked in — not a claim about when anybody eats

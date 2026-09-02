@@ -11,6 +11,7 @@ import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts
 import { languageLine } from '../domain/catalog/languages.js';
 import { visibleTables } from '../domain/policy/blocking.js';
 import { emptyReason, emptyText, hasOtherDays, EMPTY } from '../domain/policy/emptiness.js';
+import { searchOutcome, SEARCH } from '../domain/policy/dishSearch.js';
 import { stationForTable, cityOfTables } from '../domain/policy/venue.js';
 import { timeText, clockWarning } from '../domain/policy/clock.js';
 import { restaurants } from '../data/restaurants';
@@ -79,8 +80,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // Opened only from the bare-week empty state. Local, the way TableDetail and
   // the Passport each hold their own — the sheet takes no state worth lifting.
   const [phrasesOpen, setPhrasesOpen] = useState(false);
-  // The dish being read, from the shelf that appears on a bare week.
+  // The dish being read, from the shelf that appears on a bare week — or
+  // from a search that found the dish and no table for it.
   const [openDish, setOpenDish] = useState(null);
+  // "떡볶이가 먹고 싶다". What the reader typed; the policy decides the rest.
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     let alive = true;
@@ -149,7 +153,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     [open, groupFilter],
   );
 
-  const shown = useMemo(() => {
+  const filtered = useMemo(() => {
     let list = menuFilter ? inGroup.filter(t => t.menuId === menuFilter) : inGroup;
     // Asked of the server, not worked out here. The genders of other guests
     // are not in `signupsFor` any more and must not be: a per-table boolean
@@ -205,6 +209,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     () => menus.filter(m => inGroup.some(t => t.menuId === m.id)).map(m => m.id),
     [inGroup],
   );
+
+  // The search sits on top of the other filters. What the list shows, and
+  // whether a found dish has nobody eating it yet, is the policy's call.
+  const outcome = useMemo(() => searchOutcome(query, filtered), [query, filtered]);
+  const shown = outcome.tables;
 
   // Choosing a group drops a dish filter that no longer belongs to it —
   // otherwise 🔥 K-BBQ plus a lingering 보쌈 chip shows nothing and blames
@@ -415,6 +424,26 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           one of them. A category that vanished whenever the week was thin
           would make that offer a lie; an empty one lands on an empty state
           whose answer is 상 차리기. */}
+      {/* Looking for something you already want is a different act from
+          browsing, and until 2026-09-02 the tab only had the second. Any of
+          the three names a card prints — 떡볶이, Tteokbokki, "rice cakes" —
+          reaches the dish; dishSearch.js decides what that means. */}
+      <div className="dish-search">
+        <label className="search-field">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={say('Find a dish — 떡볶이, tteokbokki, rice cakes', '요리 이름으로 찾기 — 떡볶이, tteokbokki', 'Busca un plato: 떡볶이, tteokbokki', 'Cherchez un plat : 떡볶이, tteokbokki', 'ابحث عن طبق: 떡볶이، tteokbokki', '找一道菜：떡볶이、tteokbokki', '料理を探す：떡볶이、tteokbokki')}
+            aria-label={say('Find a dish by name', '요리 이름으로 찾기', 'Buscar un plato por su nombre', 'Chercher un plat par son nom', 'ابحث عن طبق باسمه', '按名字找菜', '料理を名前で探す')}
+          />
+        </label>
+      </div>
+
       <div className="menu-chips group-chips" role="group" aria-label={say('Filter by kind of food', '음식 종류로 거르기', 'Filtrar por tipo de comida', 'Filtrer par type de plat', 'صفِّ بنوع الطعام', '按种类筛选', '種類で絞る')}>
         <button
           className={`menu-chip${groupFilter === null ? ' is-on' : ''}`}
@@ -512,7 +541,43 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           checked before it did: "No table for this one yet" named a dish
           nobody had chosen once the app had no tables to offer chips for, and
           "Other days have tables" was printed under a bare week. */}
-      {tables !== null && emptyReason({ open, shown, menuFilter, groupFilter, womenFilter, dayFilter }) && (() => {
+      {/* A search that named a dish and found nobody eating it. The dish
+          itself — name, gloss, a way to read about it and a way to open a
+          table for it — and never an empty list: finding the dish and being
+          shown nothing is the dead end the whole app exists to remove. */}
+      {tables !== null && outcome.kind !== SEARCH.OFF && outcome.dishesWithoutTable.length > 0 && (
+        <div className="dish-found" role="region" aria-label={say('Dishes found', '찾은 요리', 'Platos encontrados', 'Plats trouvés', 'أطباق وُجدت', '找到的菜', '見つかった料理')}>
+          <p className="dish-found__label">
+            {outcome.kind === SEARCH.DISH_ONLY
+              ? say('Nobody has opened a table for this yet — you could be the first.', '아직 이 요리로 열린 밥상이 없어요 — 첫 밥상을 여실 수 있습니다.', 'Nadie ha abierto una mesa con esto todavía: podrías ser la primera persona.', "Personne n'a encore ouvert de table pour ça — vous pourriez être le premier.", 'لم يفتح أحد مائدة لهذا بعد — يمكنك أن تكون الأول.', '还没有人为这道菜开桌——你可以是第一个。', 'まだこの料理で食卓を開いた人はいません——最初の一人になれます。')
+              : say('Also found, with no table yet', '같이 찾았지만 아직 밥상이 없는 요리', 'También encontrados, aún sin mesa', 'Trouvés aussi, sans table pour le moment', 'وُجدت أيضًا، بلا مائدة بعد', '也找到了，但还没有桌', 'こちらも見つかりましたが、まだ食卓はありません')}
+          </p>
+          {outcome.dishesWithoutTable.map(m => (
+            <div key={m.id} className="dish-found__card">
+              <div className="dish-found__name">
+                <span className="dish-found__kr" translate="no">{m.nameKo}</span>
+                <span className="dish-found__en">{m.name}</span>
+              </div>
+              <p className="dish-found__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr, m.glossAr, m.glossZh, m.glossJa)}</p>
+              <div className="dish-found__actions">
+                <button type="button" onClick={() => setOpenDish(m)}>
+                  {say('Read about it', '요리 읽어보기', 'Leer sobre el plato', 'Lire sur ce plat', 'اقرأ عنه', '读一读这道菜', 'この料理について読む')}
+                </button>
+                <button type="button" className="is-primary" onClick={() => onCreateTable?.({ menuId: m.id })}>
+                  {say('Open a table for this', '이 요리로 상 차리기', 'Abrir una mesa con esto', 'Ouvrir une table pour ça', 'افتح مائدة لهذا', '为这道菜开一桌', 'この料理で食卓を開く')}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {tables !== null && outcome.kind === SEARCH.NOTHING && (
+        <p className="dish-found dish-found--none">
+          {say('No dish here goes by that name. Try the Korean name, the romanised one, or a word from its description.', '그 이름의 요리는 여기 없어요. 한국어 이름, 로마자, 또는 설명에 나오는 단어로 찾아보세요.', 'Ningún plato de aquí se llama así. Prueba con el nombre coreano, el romanizado o una palabra de su descripción.', "Aucun plat ici ne porte ce nom. Essayez le nom coréen, la romanisation, ou un mot de sa description.", 'لا طبق هنا بهذا الاسم. جرّب الاسم الكوري، أو المكتوب بالحروف اللاتينية، أو كلمة من وصفه.', '这里没有叫这个名字的菜。试试韩文名、罗马字，或者描述里的一个词。', 'その名前の料理はここにはありません。韓国語の名前、ローマ字、または説明の中の言葉で探してみてください。')}
+        </p>
+      )}
+
+      {tables !== null && outcome.kind === SEARCH.OFF && emptyReason({ open, shown, menuFilter, groupFilter, womenFilter, dayFilter }) && (() => {
         const reason = emptyReason({ open, shown, menuFilter, groupFilter, womenFilter, dayFilter });
         const text = emptyText(reason, { otherDays: hasOtherDays(open, dayFilter), locale });
         return (
@@ -578,7 +643,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       {/* The dishes, on the week that has none of them on a table.
           The filter chips above only render for dishes somebody is actually
           eating — correct, since a filter returning nothing is a dead end
-          dressed as a choice. But all ten dishes exist whether or not anybody
+          dressed as a choice. But all twenty-four dishes exist whether or not anybody
           opened a table, and each carries the only cultural writing this app
           has, reachable until now only through a table's detail page. On a
           bare week that made it reachable through nothing.
@@ -588,7 +653,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           seventeen 인기 검색어 chips and 여기어때 on twenty 인기 여행지 for
           the same reason: a blank screen asks what to look for, and a chip
           answers. */}
-      {tables !== null && emptyReason({ open, shown, menuFilter, womenFilter, dayFilter }) === EMPTY.NONE && (
+      {tables !== null && outcome.kind === SEARCH.OFF && emptyReason({ open, shown, menuFilter, womenFilter, dayFilter }) === EMPTY.NONE && (
         <div className="dish-shelf">
           <p className="dish-shelf__label">{say('읽을거리 · Read about the dishes', '읽을거리',
             'Para leer: los platos', 'À lire : les plats', 'للقراءة: الأطباق', '读一读：那些菜', '読みもの：料理')}</p>
@@ -615,7 +680,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         <DishSheet
           menu={openDish}
           onClose={() => setOpenDish(null)}
-          onOpenTable={() => { setOpenDish(null); onCreateTable?.(); }}
+          onOpenTable={() => { const id = openDish.id; setOpenDish(null); onCreateTable?.({ menuId: id }); }}
         />
       )}
 

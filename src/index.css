@@ -12179,3 +12179,26 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
    whole table on 2026-09-01. */
 .who-row--unread .who-row__role { color: var(--muted-strong); font-style: italic; }
 .tables-empty__body { color: var(--muted-strong); font-size: 14px; margin: 4px 0 14px; }
+
+/* ── Finding a dish by name (tables tab) ─────────────────────────────────
+   A dish you searched for and found no table for is shown as the dish, with
+   a way to open a table for it — never as an empty list. */
+.dish-search { margin: 12px 16px 4px; }
+.dish-search .search-field { margin: 0; }
+.dish-found { margin: 8px 16px 16px; }
+.dish-found__label { font-size: 13px; color: var(--muted, #6b6b6b); margin: 0 0 8px; }
+.dish-found__card {
+  border: 1px solid var(--line, #e6e0d8); border-radius: 14px; padding: 14px 16px;
+  background: var(--card, #fff); margin-bottom: 10px;
+}
+.dish-found__name { display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px; }
+.dish-found__kr { font-size: 18px; font-weight: 700; }
+.dish-found__en { font-size: 14px; color: var(--muted, #6b6b6b); }
+.dish-found__gloss { margin: 0 0 10px; font-size: 14px; }
+.dish-found__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.dish-found__actions button {
+  border-radius: 999px; padding: 8px 14px; font-size: 14px; border: 1px solid var(--line, #e6e0d8);
+  background: transparent; cursor: pointer;
+}
+.dish-found__actions .is-primary { background: var(--accent, #b5652d); border-color: var(--accent, #b5652d); color: #fff; }
+.dish-found--none { color: var(--muted, #6b6b6b); font-size: 14px; }

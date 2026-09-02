@@ -10,7 +10,7 @@ import PhraseSheet from './PhraseSheet';
 // The catalogue carries real writing for every dish — why it is shared,
 // what happens at the table, what the dish means at home — and until now every
 // word of it was reachable only through a table's detail page. That is fine
-// while tables exist. On a week with none it means ten dishes' worth of the
+// while tables exist. On a week with none it means every dish's worth of the
 // only cultural content this app has is unreachable, on exactly the screen
 // with nothing else on it.
 //
