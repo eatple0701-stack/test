@@ -58,18 +58,20 @@
 --
 -- =========================================================================
 -- Paste as is. It ends in `rollback;` and changes nothing: it applies
--- everything, reads the result, prints eight numbers, and throws it away.
+-- everything, reads the result, prints ten numbers, and throws it away.
 --
--- It passes when ALL EIGHT are exactly this:
+-- It passes when ALL TEN are exactly this:
 --
---     consents_table         1
---     rls_enabled            t
---     policies_on_table      0
---     anon_can_select        f
+--     consents_table           1
+--     profile_id_nullable      YES      (a deleted person leaves the row, not an error)
+--     rls_enabled              t
+--     policies_on_table        0
+--     anon_can_select          f
 --     authenticated_can_select f
---     trigger_installed      1
---     backfilled_rows        equal to profiles_with_version (printed beside it)
---     profiles_with_version  unchanged from before you ran it
+--     trigger_on_insert_and_update  t   (the client upserts; a first consent is an INSERT)
+--     function_path_pinned     t
+--     backfilled_rows          equal to profiles_with_version (printed beside it)
+--     profiles_with_version    unchanged from before you ran it
 --
 -- Then change the last line to `commit;` and run it again.
 -- Undo: 2026-09-02a-rules-consents-history-ROLLBACK.sql, written first.
@@ -102,15 +104,28 @@ revoke all on table public.rules_consents from public, anon, authenticated;
 
 -- ── the trigger ─────────────────────────────────────────────────────────
 --
--- Fires on insert and on update of the two columns, and records the NEW
+-- Fires on INSERT and on UPDATE of the two columns, and records the NEW
 -- value whenever either changed and a version is present. A profile saved
 -- again with the same two values records nothing.
+--
+-- INSERT is not optional. The client writes the profile with upsert
+-- (supabaseBackend.js saveProfile), which is an INSERT when the row does not
+-- exist yet and `on conflict do update` when it does. A first agreement from
+-- a brand-new profile arrives as the INSERT half; an update-only trigger
+-- would log every backfilled veteran and none of the people the pilot is
+-- actually for. rulesConsents.test.mjs drives both halves of the upsert.
+--
+-- search_path is pinned to '' and every object in the body is
+-- schema-qualified, so a caller cannot make a definer function resolve a
+-- name through a path of their choosing (Supabase's linter calls this
+-- function_search_path_mutable). Execute is revoked from public: nothing
+-- calls this but the trigger.
 
 create or replace function public.keep_rules_consent()
 returns trigger
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = ''
 as $$
 begin
   if new.rules_version is null or new.rules_agreed_at is null then
@@ -127,6 +142,8 @@ begin
   return new;
 end;
 $$;
+
+revoke execute on function public.keep_rules_consent() from public, anon, authenticated;
 
 drop trigger if exists profiles_keep_rules_consent on public.profiles;
 create trigger profiles_keep_rules_consent
@@ -153,14 +170,22 @@ on conflict (profile_id, version, agreed_at) do nothing;
 select
   (select count(*) from information_schema.tables
     where table_schema = 'public' and table_name = 'rules_consents')        as consents_table,
+  (select is_nullable from information_schema.columns
+    where table_schema = 'public' and table_name = 'rules_consents'
+      and column_name = 'profile_id')                                        as profile_id_nullable,
   (select relrowsecurity from pg_class c join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public' and c.relname = 'rules_consents')             as rls_enabled,
   (select count(*) from pg_policies
     where schemaname = 'public' and tablename = 'rules_consents')            as policies_on_table,
   has_table_privilege('anon', 'public.rules_consents', 'select')              as anon_can_select,
   has_table_privilege('authenticated', 'public.rules_consents', 'select')     as authenticated_can_select,
-  (select count(*) from pg_trigger
-    where tgname = 'profiles_keep_rules_consent' and not tgisinternal)       as trigger_installed,
+  -- pg_trigger.tgtype: 4 = INSERT, 16 = UPDATE. Both, or a first consent is lost.
+  (select (tgtype::int & 4) = 4 and (tgtype::int & 16) = 16 from pg_trigger
+    where tgname = 'profiles_keep_rules_consent' and not tgisinternal)       as trigger_on_insert_and_update,
+  (select coalesce(bool_or(c like 'search_path=%'), false)
+     from pg_proc p join pg_namespace n on n.oid = p.pronamespace,
+          unnest(coalesce(p.proconfig, array[]::text[])) as c
+    where n.nspname = 'public' and p.proname = 'keep_rules_consent')         as function_path_pinned,
   (select count(*) from public.rules_consents)                               as backfilled_rows,
   (select count(*) from public.profiles
     where rules_version is not null and rules_agreed_at is not null)         as profiles_with_version;

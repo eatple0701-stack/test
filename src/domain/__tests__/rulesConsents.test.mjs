@@ -105,6 +105,50 @@ test('a first agreement is recorded whether it arrives by update or by insert', 
   assert.equal(await consentsFor(D, 2), 1);
 });
 
+test('the client path is upsert, and a first consent arrives as its INSERT half', async () => {
+  // supabaseBackend.js saveProfile() upserts. For a brand-new person the row
+  // does not exist yet, so the statement that carries their first agreement
+  // is an INSERT — an update-only trigger would log every backfilled veteran
+  // and none of the people the pilot is for. Both halves, driven for real.
+  const F = '00000000-0000-4000-8000-00000000000f';
+  const upsert = (version, at) => db.query(
+    `insert into public.profiles (id, name, rules_version, rules_agreed_at)
+     values ($1, 'f', $2, $3)
+     on conflict (id) do update set rules_version = excluded.rules_version, rules_agreed_at = excluded.rules_agreed_at`,
+    [F, version, at]);
+
+  // Half one: the row does not exist. Criterion: exactly one v1 row.
+  await upsert(1, T1);
+  assert.equal(await consentsFor(F, 1), 1, 'a first consent that arrived as an INSERT was not logged');
+
+  // Half two: the row exists, `on conflict do update` carries the re-consent.
+  // Criterion: one v1, one v2, exactly two in total.
+  await upsert(2, T3);
+  assert.equal(await consentsFor(F, 1), 1);
+  assert.equal(await consentsFor(F, 2), 1);
+  assert.equal(await count(`select count(*)::int as n from public.rules_consents where profile_id = $1`, [F]), 2);
+
+  // And the same upsert again, unchanged, logs nothing more.
+  await upsert(2, T3);
+  assert.equal(await count(`select count(*)::int as n from public.rules_consents where profile_id = $1`, [F]), 2);
+});
+
+test('the trigger is declared for INSERT and for UPDATE', async () => {
+  // Read off the catalogue, not inferred from behaviour: the upsert test
+  // above proves the effect, this proves the declaration that produces it.
+  const { rows } = await db.query(`
+    select (tgtype::int & 4) = 4 as on_insert, (tgtype::int & 16) = 16 as on_update
+      from pg_trigger where tgname = 'profiles_keep_rules_consent' and not tgisinternal`);
+  assert.deepEqual(rows[0], { on_insert: true, on_update: true });
+});
+
+test('the person column is nullable, so deleting a person is an anonymisation and not an error', async () => {
+  const { rows } = await db.query(`
+    select is_nullable from information_schema.columns
+     where table_schema = 'public' and table_name = 'rules_consents' and column_name = 'profile_id'`);
+  assert.equal(rows[0].is_nullable, 'YES');
+});
+
 test('the log is locked: RLS on, no policy, and neither client role may select', async () => {
   const { rows } = await db.query(`
     select
@@ -131,7 +175,15 @@ test('the trigger writes as definer with a pinned path', async () => {
     select p.prosecdef, p.proconfig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
      where n.nspname = 'public' and p.proname = 'keep_rules_consent'`);
   assert.equal(rows[0].prosecdef, true);
-  assert.ok(rows[0].proconfig.some(c => /^search_path=/.test(c)), 'search_path is not pinned');
+  // Pinned to the empty path: every name in the body is schema-qualified, so
+  // nothing a caller puts on their search_path can be resolved instead.
+  assert.ok(rows[0].proconfig.some(c => /^search_path=("")?$/.test(c)),
+    `search_path is not pinned to '': ${JSON.stringify(rows[0].proconfig)}`);
+  // And nothing but the trigger may call it.
+  const { rows: priv } = await db.query(`
+    select has_function_privilege('anon', 'public.keep_rules_consent()', 'execute') as anon,
+           has_function_privilege('authenticated', 'public.keep_rules_consent()', 'execute') as auth`);
+  assert.deepEqual(priv[0], { anon: false, auth: false });
 });
 
 test('a client role can still agree — the trigger does not need the role to see the log', async () => {
