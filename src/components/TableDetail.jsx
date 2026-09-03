@@ -34,7 +34,7 @@ import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
 import RulesConsent from './RulesConsent';
 import { conflictsFor, dietById } from '../data/profile';
-import { PURPOSE } from '../content/safety.js';
+import { PURPOSE, AGREE_ACTION } from '../content/safety.js';
 import { agreedToRules } from '../domain/policy/consent.js';
 import { shareUrlFor } from '../routes.js';
 import { guideById, hostKindLabel, tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
@@ -1391,7 +1391,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
           <RulesConsent
             profile={profile}
             onProfileChange={onProfileChange}
-            action="ask for a seat"
+            action={AGREE_ACTION.ASK_SEAT}
           />
         </div>
       ) : (
@@ -1460,7 +1460,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
               answer anywhere in it. */}
           <p className="join-purpose">
             <span className="join-purpose__kr">{PURPOSE.kr}</span>
-            {PURPOSE.rule}
+            {say(PURPOSE.rule.en, PURPOSE.rule.ko, PURPOSE.rule.es, PURPOSE.rule.fr, PURPOSE.rule.ar, PURPOSE.rule.zh, PURPOSE.rule.ja)}
           </p>
         </div>
       )}

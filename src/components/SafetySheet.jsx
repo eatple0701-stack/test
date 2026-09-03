@@ -33,8 +33,8 @@ export default function SafetySheet({ onClose }) {
           <span className="safety-purpose__kr">{PURPOSE.kr}</span>
           <span className="safety-purpose__en">{PURPOSE.en}</span>
         </p>
-        <p className="safety-purpose__rule">{PURPOSE.rule}</p>
-        <p className="safety-purpose__broken">{PURPOSE.ifBroken}</p>
+        <p className="safety-purpose__rule">{say(PURPOSE.rule.en, PURPOSE.rule.ko, PURPOSE.rule.es, PURPOSE.rule.fr, PURPOSE.rule.ar, PURPOSE.rule.zh, PURPOSE.rule.ja)}</p>
+        <p className="safety-purpose__broken">{say(PURPOSE.ifBroken.en, PURPOSE.ifBroken.ko, PURPOSE.ifBroken.es, PURPOSE.ifBroken.fr, PURPOSE.ifBroken.ar, PURPOSE.ifBroken.zh, PURPOSE.ifBroken.ja)}</p>
       </div>
 
       <div className="safety">

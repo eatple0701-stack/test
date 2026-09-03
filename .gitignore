@@ -56,3 +56,9 @@ dist-ssr
 *debug*.json
 *output*.txt
 *backup*.json
+
+# Throwaway measurement pages. Type has to be measured in a browser and the
+# preview pane will not open file:// outside the repo, so these land here for
+# a few minutes and are deleted. Ignored so one that outlives its session is
+# never committed for the next person to puzzle over.
+tmp-*

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PURPOSE, RULES } from '../content/safety.js';
+import { PURPOSE, RULES, agreeLabel } from '../content/safety.js';
 import { rulesAgreement } from '../domain/policy/consent.js';
 import { useText } from './localeText.js';
 
@@ -16,6 +16,9 @@ import { useText } from './localeText.js';
 // being agreed to is on screen at the moment the decision is real.
 export default function RulesConsent({ profile, onProfileChange, action }) {
   const say = useText();
+  // Throws on an unknown key rather than falling back to English, which is
+  // what the old `action` prop did by being English in the first place.
+  const label = agreeLabel(action);
   return (
     <div className="rules-consent">
       <p className="rules-consent__head">
@@ -23,8 +26,11 @@ export default function RulesConsent({ profile, onProfileChange, action }) {
         <span className="rules-consent__en">{PURPOSE.en}</span>
       </p>
 
+      {/* key is the English arm rather than the rendered text: the rendered
+          text changes with the language setting, and a key that changes
+          remounts every item on a setting change. */}
       <ul className="rules-consent__list">
-        {RULES.map(r => <li key={r}>{r}</li>)}
+        {RULES.map(r => <li key={r.en}>{say(r.en, r.ko, r.es, r.fr, r.ar, r.zh, r.ja)}</li>)}
       </ul>
 
       {/* A button rather than a checkbox with a separate submit: the extra
@@ -34,8 +40,7 @@ export default function RulesConsent({ profile, onProfileChange, action }) {
         className="form-submit"
         onClick={() => onProfileChange?.({ ...profile, ...rulesAgreement(PURPOSE.version) })}
       >
-        {say(`I agree — ${action}`, `동의하고 계속 — ${action}`, `Acepto — ${action}`,
-          `J'accepte — ${action}`, `أوافق — ${action}`, `我同意 — ${action}`, `同意します — ${action}`)}
+        {say(label.en, label.ko, label.es, label.fr, label.ar, label.zh, label.ja)}
       </button>
 
       {/* Said plainly, because the alternative is somebody discovering it

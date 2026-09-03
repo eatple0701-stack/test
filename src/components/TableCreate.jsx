@@ -12,7 +12,7 @@ import { conflictsFor } from '../data/profile';
 import HostBrief from './HostBrief';
 import PlacePicker from './PlacePicker';
 import RulesConsent from './RulesConsent';
-import { PURPOSE } from '../content/safety.js';
+import { PURPOSE, AGREE_ACTION } from '../content/safety.js';
 import { agreedToRules } from '../domain/policy/consent.js';
 import { ChevronLeftIcon } from './Icons';
 import { useText, useLocale } from './localeText.js';
@@ -156,7 +156,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
           <RulesConsent
             profile={profile}
             onProfileChange={onProfileChange}
-            action="open a table"
+            action={AGREE_ACTION.OPEN_TABLE}
           />
         </div>
       </section>

@@ -49,11 +49,19 @@ test('the patch it produces is one the check then accepts', () => {
   assert.equal(agreedToRules(rulesAgreement(4), 4), true);
 });
 
+// The two below read the English arm only. That is the whole of what they
+// can do from here, and on 2026-09-03 it stopped being the whole of the
+// screen: RULES became seven-language objects, so the version of each of
+// these that covers what a Korean or Arabic reader actually agrees to lives
+// in consentLanguages.test.mjs. These stay because English is the say()
+// fallback — it is what every reader gets when a translation goes missing,
+// so it is worth a floor of its own.
+
 test('the rules a traveller agrees to are real sentences, not placeholders', () => {
   assert.ok(RULES.length >= 3, 'a consent list this short is not worth agreeing to');
   for (const r of RULES) {
-    assert.ok(r.length > 30, `a rule is too thin to mean anything: "${r}"`);
-    assert.match(r, /\.$/, `a rule is not a full sentence: "${r}"`);
+    assert.ok(r.en.length > 30, `a rule is too thin to mean anything: "${r.en}"`);
+    assert.match(r.en, /\.$/, `a rule is not a full sentence: "${r.en}"`);
   }
 });
 
@@ -62,7 +70,7 @@ test('the rules do not promise moderation this app does not have', () => {
   // to imply somebody is watching when nobody is.
   const overclaim = /we (will )?(review|monitor|moderate|verify)|reported users are|banned/i;
   for (const r of RULES) {
-    assert.doesNotMatch(r, overclaim, `a rule overclaims enforcement: "${r}"`);
+    assert.doesNotMatch(r.en, overclaim, `a rule overclaims enforcement: "${r.en}"`);
   }
 });
 
