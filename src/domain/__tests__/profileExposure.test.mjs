@@ -135,6 +135,7 @@ const APPLIED = [
   'supabase/migrations/2026-09-01c-seat-holds-lapse.sql',
   'supabase/migrations/2026-09-01e-signups-soft-cancel.sql',
   'supabase/migrations/2026-09-02a-rules-consents-history.sql',
+  'supabase/migrations/2026-09-03a-consent-cannot-go-backwards.sql',
 ];
 
 /**

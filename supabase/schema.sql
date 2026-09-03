@@ -122,6 +122,76 @@ create trigger profiles_keep_rules_consent
   after insert or update of rules_version, rules_agreed_at on public.profiles
   for each row execute function public.keep_rules_consent();
 
+-- ── The floor under it: an agreement cannot move backwards ──────────────
+--
+-- APPLIED 2026-09-03, six hours after PURPOSE.version went 1 -> 2 and forty
+-- minutes after that deployed. rules_consents held eleven v1 rows and one v2
+-- while profiles held ten v1 and no v2 at all: one profile had gone
+-- 1 -> 2 -> 1, and the reverting row carried a fresh agreed_at half a second
+-- before it was recorded. A fresh one can only come from the client's
+-- rulesAgreement(), called in exactly one place — the consent button. So the
+-- button was pressed on a tab still running the pre-deploy bundle, where
+-- PURPOSE.version was 1: its gate asked `agreed === 1`, the profile said 2,
+-- and it showed the gate to somebody already past it.
+--
+-- The client fixes shipped with this — `>=` in agreedToRules so an old bundle
+-- stops asking anybody ahead of it, and a consent write that touches only its
+-- own two columns. This is the floor under them, because the tab that did it
+-- was one nobody could reach and the next one will be too.
+--
+-- It corrects rather than raises. A trigger on the row every app launch
+-- upserts must never throw, so a lowering or nulling UPDATE keeps what was
+-- there and the rest of that statement applies normally. BEFORE, not AFTER,
+-- so keep_rules_consent() above sees the corrected value and writes no
+-- history row for a change that did not happen. Version and timestamp are
+-- held together: keeping the number while letting the clock through would
+-- record the older agreement as happening at the moment somebody was sent
+-- backwards.
+--
+-- To lower a version ON PURPOSE, name this trigger:
+--   alter table public.profiles disable trigger profiles_keep_highest_rules_consent;
+-- inside a transaction, and re-enable it. Never session_replication_role,
+-- which would silence the history writer too.
+create or replace function public.keep_highest_rules_consent()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  -- Nothing agreed yet: anything is an advance, including the first yes.
+  if old.rules_version is null then
+    return new;
+  end if;
+
+  -- A client that sends null for a row that has a version is a client that
+  -- was not talking about consent at all — every profile save used to carry
+  -- these two columns whether or not it meant to. Hold both.
+  if new.rules_version is null then
+    new.rules_version := old.rules_version;
+    new.rules_agreed_at := old.rules_agreed_at;
+    return new;
+  end if;
+
+  -- The 2026-09-03 case. Hold the version AND its timestamp: keeping the
+  -- number while letting the clock through would record the older agreement
+  -- as having happened at the moment somebody was sent backwards.
+  if new.rules_version < old.rules_version then
+    new.rules_version := old.rules_version;
+    new.rules_agreed_at := old.rules_agreed_at;
+  end if;
+
+  return new;
+end;
+$$;
+
+revoke execute on function public.keep_highest_rules_consent() from public, anon, authenticated;
+
+drop trigger if exists profiles_keep_highest_rules_consent on public.profiles;
+create trigger profiles_keep_highest_rules_consent
+  before update of rules_version, rules_agreed_at on public.profiles
+  for each row execute function public.keep_highest_rules_consent();
+
 -- ---------------------------------------------------------------------------
 -- Tables — a meal somebody is opening seats at.
 -- ---------------------------------------------------------------------------

@@ -28,7 +28,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (886 tests), `node scripts/audit-i18n.mjs` (must print 0) and
+- `npm test` (904 tests), `node scripts/audit-i18n.mjs` (must print 0) and
   `npm run lint` (must print no `error`) before every push. Lint is on that
   list because `vite build` does NOT fail on an undefined identifier: a
   missing import built cleanly and would have thrown at runtime, and a
@@ -45,6 +45,13 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
   real coverage holes. Confirm the *unmutated* tree is green under the exact
   command first — a red baseline cannot tell a caught bug from a broken
   command, and a stale test count in the docs is enough to cause one.
+- **`String.replace` with a replacement STRING eats `$$`.** It is an escape
+  for one `$`, so any script that moves SQL around silently un-quotes every
+  plpgsql body it touches — `as $$` becomes `as $`, and the file stops
+  parsing. Three times on 2026-09-03 alone: folding a migration into
+  `schema.sql`, mutating a function body in a test, and rewriting a fixture.
+  Pass a **function** instead: `s.replace(a, () => b)`. Same for `$&`, `` $` ``
+  and `$'`.
 - **Assert what the code does, not what the source looks like.** Four bugs
   in two days got past tests that matched a file for a token: a guard for
   `toLocaleString(` passed while grouping was switched off, a comma check
@@ -67,8 +74,8 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 
 ## Database — what is applied, and what it costs to change
 Everything live in Supabase is in `supabase/schema.sql`, and each change also
-has a dated file in `supabase/migrations/`. Three applied 2026-09-01 and one
-2026-09-02; the numbers, the expected drift and the caveats are in
+has a dated file in `supabase/migrations/`. Three applied 2026-09-01, one
+2026-09-02 and one 2026-09-03; the numbers, the expected drift and the caveats are in
 `docs/rls-baseline-2026-09-01.md`.
 - **`schema.sql` had never been run by anything, and did not work.** A
   `language sql` body is parse-analysed when the function is created, so
@@ -120,6 +127,20 @@ has a dated file in `supabase/migrations/`. Three applied 2026-09-01 and one
   throw: `on conflict do nothing` is what lets a stale device re-send an
   agreement the log already holds. Bump `PURPOSE.version` only after this is
   live, or the v1 records are gone.
+- `…-03a-consent-cannot-go-backwards.sql` — a client that is behind un-agreed
+  somebody six hours after `PURPOSE.version` went 1→2. `agreedToRules` was
+  `=== currentVersion`, so a tab still running the pre-deploy bundle asked
+  `agreed === 1`, read 2, showed its old gate to somebody already past it and
+  wrote their consent backwards when they passed it. **`profiles` said the v2
+  agreement had never happened**; only `rules_consents` held it. Three fixes:
+  `>=` in `agreedToRules`, a consent write that touches only its own two
+  columns, and a BEFORE UPDATE trigger that silently holds `rules_version`
+  **and** `rules_agreed_at` when a lower or null one arrives. **To lower a
+  version on purpose**, name the trigger in
+  `alter table public.profiles disable trigger profiles_keep_highest_rules_consent`
+  inside a transaction and re-enable it — never `session_replication_role`,
+  which would silence the history writer too. The command is in the
+  migration's header.
 - `rlsPolicies.test.mjs` and `seatLapse.test.mjs` execute those files against
   a real Postgres (PGlite, a devDependency, never bundled). Each keeps the
   version that failed as a control and requires it to still fail.

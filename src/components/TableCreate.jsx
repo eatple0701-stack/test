@@ -27,7 +27,7 @@ import { useText, useLocale } from './localeText.js';
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
-export default function TableCreate({ profile, onProfileChange, onBack, onCreated, prefill }) {
+export default function TableCreate({ profile, onProfileChange, onAgree, onBack, onCreated, prefill }) {
   const say = useText();
   const locale = useLocale();
   // A request arriving from 찾는 밥상 already named the dish and the day.
@@ -154,8 +154,7 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
         <div className="form-block">
           <h2 className="form-label">{say('Before your first table', '첫 상을 차리기 전에', 'Antes de tu primera mesa', 'Avant votre première table', 'قبل مائدتك الأولى', '在你的第一张饭桌之前', 'はじめての食卓の前に')}</h2>
           <RulesConsent
-            profile={profile}
-            onProfileChange={onProfileChange}
+            onAgree={onAgree}
             action={AGREE_ACTION.OPEN_TABLE}
           />
         </div>

@@ -74,7 +74,7 @@ took them, all keyed to the six groups.
 ### Numbers
 | | |
 |---|---|
-| Automated tests | **886, all passing** (`npm test`) |
+| Automated tests | **904, all passing** (`npm test`) |
 | i18n audit | 0 untranslated strings |
 | Register places shipped | 8,118 of 167,659 |
 | Menu lines shipped | 199,574 (ko/en/ja/zh), 94,515 with register prices |
@@ -273,6 +273,20 @@ selection.
 11. Taste-based personalisation and post-meal culture follow-ups (김훈).
 12. SNS export: turn a dish card / table recap into a shareable image.
 
+## 6a. 다음에 `PURPOSE.version`을 올릴 때 — 게이트를 눈으로 보세요
+
+동의 게이트의 네 줄과 버튼은 **실제 앱 화면에서 확인된 적이 없습니다.** 게이트가
+`TableCreate`·`TableDetail` 양쪽 다 가입 뒤에 있고, 확인용 계정을 만드는 것은
+금지돼 있어서, 2026-09-03 착지 때는 컴포넌트를 따로 마운트해서 봤습니다.
+컴포넌트·데이터·`say()`는 실물이었지만 부모가 달랐습니다.
+
+게이트는 사람당 한 번만 뜨고, 그 한 번은 지나갔습니다. **버전을 올리면 다시
+뜹니다** — 그때가 유일한 기회입니다. 밥상 상세에서 `자리 요청`, 또는
+`상 차리기`를 누르면 나옵니다. 무엇을 볼지는
+`docs/rules-consent-text.md`의 "무엇을 어떻게 확인했나"에 적어 뒀습니다.
+
+---
+
 ## 6b. 한국어 화면에 없는 콘텐츠 — 2026-09-03에 발견
 
 동의 문구를 7언어로 옮기다가 나온 것이고, 이번 배치에서 **고치지 않았습니다.**
@@ -365,7 +379,7 @@ the file alone changes nothing that is already running.
 ## 8. Commands
 
 ```bash
-npm test                      # 886 tests — must stay green
+npm test                      # 904 tests — must stay green
 node scripts/audit-i18n.mjs   # must print 0
 npm run dev                   # port 5177 (see .claude/launch.json)
 npm run build                 # artefacts in dist/, data included

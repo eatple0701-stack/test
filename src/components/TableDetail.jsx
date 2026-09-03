@@ -67,7 +67,7 @@ const dayLabelShort = (date, locale) => {
   return d.toLocaleDateString(dateLocale(locale), { day: 'numeric', month: 'short' });
 };
 
-export default function TableDetail({ tableId, profile, onProfileChange, onBack, onOpenTheme, onOpenTable, auth, onRequireAuth }) {
+export default function TableDetail({ tableId, profile, onProfileChange, onAgree, onBack, onOpenTheme, onOpenTable, auth, onRequireAuth }) {
   const say = useText();
   const locale = useLocale();
   const [table, setTable] = useState(null);
@@ -1389,8 +1389,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onBack,
         <div className="join-block">
           <h3 className="detail-block__label">{say('Before your first seat', '첫 자리를 잡기 전에', 'Antes de tu primer sitio', 'Avant votre première place', 'قبل مقعدك الأول', '在你的第一个位子之前', 'はじめての席の前に')}</h3>
           <RulesConsent
-            profile={profile}
-            onProfileChange={onProfileChange}
+            onAgree={onAgree}
             action={AGREE_ACTION.ASK_SEAT}
           />
         </div>

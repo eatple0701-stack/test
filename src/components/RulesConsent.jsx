@@ -14,7 +14,7 @@ import { useText } from './localeText.js';
 // decided to do anything, which is agreement in form only. This sits in the
 // flow it governs, immediately above the button it gates, so the sentence
 // being agreed to is on screen at the moment the decision is real.
-export default function RulesConsent({ profile, onProfileChange, action }) {
+export default function RulesConsent({ onAgree, action }) {
   const say = useText();
   // Throws on an unknown key rather than falling back to English, which is
   // what the old `action` prop did by being English in the first place.
@@ -38,7 +38,7 @@ export default function RulesConsent({ profile, onProfileChange, action }) {
           forgets to submit reads as consent already given. */}
       <button
         className="form-submit"
-        onClick={() => onProfileChange?.({ ...profile, ...rulesAgreement(PURPOSE.version) })}
+        onClick={() => onAgree?.(rulesAgreement(PURPOSE.version))}
       >
         {say(label.en, label.ko, label.es, label.fr, label.ar, label.zh, label.ja)}
       </button>

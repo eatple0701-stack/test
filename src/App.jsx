@@ -30,7 +30,7 @@ import { LOCALE } from './domain/policy/locale.js';
 // whether there is a database to write to at all. On localStorage it is a
 // no-op, so this code path is identical either way.
 import {
-  saveProfileFields, ensureProfile, getAuthState, signOutMember, onAuthChange,
+  saveProfileFields, saveRulesConsent, ensureProfile, getAuthState, signOutMember, onAuthChange,
 } from './data/tableRepository.js';
 import { isMember } from './domain/policy/access.js';
 import AuthSheet from './components/AuthSheet';
@@ -379,19 +379,43 @@ export default function App() {
     // they cannot tell whether the first time counted. Asked on 8/4: "설정만
     // 하고 저장은 어떻게 해?", which is the interface failing, not the person.
     setProfileSave('saving');
+    // The agreement is NOT in here. It used to be, and it meant every save of
+    // a name or a nationality rewrote the consent from whatever copy of the
+    // profile that caller happened to hold — six of the seven callers have
+    // nothing to do with consent, and one of them sends a snapshot taken when
+    // its sheet was opened. Consent goes through agreeToRules() below, on its
+    // own two columns.
     saveProfileFields({
       name: saved.name ?? '',
       nationality: saved.nationality ?? '',
       languages: saved.languages ?? [],
       gender: saved.gender ?? null,
-      rulesVersion: saved.rulesVersion ?? null,
-      rulesAgreedAt: saved.rulesAgreedAt ?? null,
     })
       .then(() => setProfileSave('saved'))
       // Kept, not lost: the device has it and the next change sends the whole
       // object again. Saying "저장됨" here would be the app claiming a write
       // that did not land.
       .catch(() => setProfileSave('device'));
+    return saved;
+  };
+
+  // Agreeing to the rules, and only that.
+  //
+  // Separate from updateProfile because the two write different columns for
+  // different reasons: a profile edit is somebody changing their mind about
+  // their own name, and this is a record that a person read something and
+  // said yes at a moment. Sending them together is what let an unrelated save
+  // move an agreement, and what truncated its timestamp on the way back out.
+  const agreeToRules = (agreement) => {
+    const saved = saveProfile({ ...getProfile(), ...agreement });
+    setProfile(saved);
+    saveRulesConsent({ rulesVersion: agreement.rulesVersion, rulesAgreedAt: agreement.rulesAgreedAt })
+      // Deliberately quiet on both sides: the gate has already let them
+      // through on the strength of the local write, and a red bar under a
+      // consent screen would read as "your agreement did not count". The
+      // device holds it and rules_consents is written by a database trigger
+      // the moment the row lands.
+      .catch(() => {});
     return saved;
   };
 
@@ -1099,6 +1123,7 @@ export default function App() {
             prefill={tablePrefill}
             profile={profile}
             onProfileChange={updateProfile}
+            onAgree={agreeToRules}
             onBack={() => setTableView({ screen: 'list' })}
             onCreated={(id) => setTableView({ screen: 'detail', tableId: id })}
           />
@@ -1110,6 +1135,7 @@ export default function App() {
             auth={auth}
             onRequireAuth={(door) => setAuthDoor(door)}
             onProfileChange={updateProfile}
+            onAgree={agreeToRules}
             onBack={() => setTableView({ screen: 'list' })}
             onOpenTheme={(id) => { setTableView({ screen: 'list' }); setActiveTab('home'); setOpenThemeId(id); }}
             onOpenTable={(id) => setTableView({ screen: 'detail', tableId: id })}

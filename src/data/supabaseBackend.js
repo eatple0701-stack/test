@@ -244,16 +244,44 @@ export async function ensureProfile(local = {}) {
   };
 }
 
-export async function saveProfileFields({
-  name, nationality, languages, gender, rulesVersion, rulesAgreedAt,
-}) {
+/**
+ * The editable profile. NOT the consent — see saveRulesConsent below.
+ *
+ * It used to carry rules_version and rules_agreed_at, which meant every save
+ * of a name or a nationality also rewrote the agreement from whatever the
+ * caller's copy of the profile happened to hold. Seven call sites send this,
+ * six of them have nothing to do with consent, and one of them
+ * (ProfileSheet) sends a snapshot taken when the sheet was opened.
+ *
+ * That was not what reverted a consent on 2026-09-03 — an old bundle's gate
+ * was — but it is a second way to the same place, and it also cost the
+ * timestamp precision: reading gave `new Date(ts).getTime()`, milliseconds,
+ * and writing gave that back as an ISO string, so a round trip through an
+ * unrelated save truncated the microseconds Postgres had stored.
+ */
+export async function saveProfileFields({ name, nationality, languages, gender }) {
+  const sb = await client();
+  const user = await currentUser();
+  const { error } = await sb.from('profiles')
+    .update({ name, nationality, languages, gender: cleanGender(gender) })
+    .eq('id', user.id);
+  if (error) throw new Error(friendlyError(error));
+}
+
+/**
+ * The agreement, and nothing else, written the moment somebody agrees.
+ *
+ * Two columns and no others, so a consent write cannot clobber a name and a
+ * name write cannot clobber a consent. The timestamp goes out exactly once,
+ * from the click that made it, and is never read back and rewritten.
+ */
+export async function saveRulesConsent({ rulesVersion, rulesAgreedAt }) {
   const sb = await client();
   const user = await currentUser();
   const { error } = await sb.from('profiles')
     .update({
-      name, nationality, languages, gender: cleanGender(gender),
-      rules_version: rulesVersion ?? null,
-      rules_agreed_at: rulesAgreedAt ? new Date(rulesAgreedAt).toISOString() : null,
+      rules_version: rulesVersion,
+      rules_agreed_at: new Date(rulesAgreedAt).toISOString(),
     })
     .eq('id', user.id);
   if (error) throw new Error(friendlyError(error));

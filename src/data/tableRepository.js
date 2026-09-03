@@ -478,6 +478,7 @@ export const seedSampleTables = useRemote ? remote.seedSampleTables : local_seed
  */
 export const ensureProfile = useRemote ? remote.ensureProfile : async (local) => local;
 export const saveProfileFields = useRemote ? remote.saveProfileFields : async () => {};
+export const saveRulesConsent = useRemote ? remote.saveRulesConsent : async () => {};
 
 // --- Membership, on the device-only backend ------------------------------
 //
