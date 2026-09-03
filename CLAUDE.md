@@ -6,10 +6,19 @@ Setting up a new machine: `docs/new-computer-setup.md` (Korean).
 Korean operational docs: `HANDOFF.md`, `docs/CHANGELOG-ko.md`.
 
 ## What this is
-Matching solo foreign travellers in Korea with the dishes they cannot
-order alone (2+ serving minimums) and the people already going.
+Matching solo foreign travellers in Korea with the dishes they would rather
+not eat alone (many carry a 2+ serving minimum) and the people already going.
 React 19 + Vite PWA, mobile-first 375×812, Supabase, Leaflet.
 A KF Digital Public Diplomacy Academy project — exchange, not a utility.
+
+이전 정의("혼자 주문할 수 없는")는 카탈로그 24개 중 10개에 대해 거짓이라 폐기.
+요리가 아니라 사람의 바람으로 정의한다. 남은 자리는
+`node scripts/audit-order-alone.mjs`가 셉니다.
+
+**히어로 문구는 375px가 아니라 360px 뷰포트(상자 320px)에서 잰다.**
+2026-09-03 이전 측정은 375px 기준이었고, 그래서 en·fr·ja 줄 넘침이 배포본에
+남아 있었다 — 프랑스어는 세 줄이 아니라 여섯 줄이었다.
+`node scripts/measure-hero.mjs`.
 
 ## How to work in this repo
 - Reply to the team **in Korean**. Code, comments and commits in English.

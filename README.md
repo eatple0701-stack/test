@@ -22,8 +22,13 @@ Two shapes of table, and neither is the lesser one:
   (order / eat / manners / origin) and is offering to walk the table through
   it. This is where the public diplomacy happens — a Korean host teaching a
   stranger their own food, in a language the stranger understands.
-- **테이블 메이트 (Table mates)** — people splitting a dish none of them could
-  order alone. A real table on its own terms, not a fallback.
+- **테이블 메이트 (Table mates)** — people sharing a dish none of them wanted
+  to eat alone. A real table on its own terms, not a fallback.
+
+The older wording said "a dish none of them could order alone". That is a
+claim about what a restaurant allows and it is false for 10 of the 24 dishes
+in the catalogue, so the definition moved from the dish to the person's wish.
+`node scripts/audit-order-alone.mjs` counts what still says the old thing.
 
 The label is never typed in by a host — it is derived from the guides they
 actually ticked (`src/domain/catalog/hosts.js`), so "Hosted table" cannot be

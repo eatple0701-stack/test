@@ -193,22 +193,43 @@ export default function MainTab({
           {/* Two headlines, one shown at a time. The Korean one is the
               default and stays the default — it is the screen the team
               reviewed — and the English one exists only for the English
-              setting, where a 64px Korean headline was the single loudest
-              thing the language setting failed to touch. */}
+              setting, where a 44px Korean headline was the single loudest
+              thing the language setting failed to touch.
+
+              It used to make a claim about what a shop will serve one person.
+              That claim is false for 10 of the 24 dishes in
+              src/domain/catalog/menus.js, so the sentence stopped being
+              about the shop and became about the reader's own past: the
+              dishes they walked by, because they were on their own. Nothing
+              here says a dish was unavailable, which is what keeps it true of
+              bibimbap as well as of samgyeopsal.
+
+              Every line is measured, not guessed — scripts/measure-hero.mjs
+              renders these seven in the shipping stylesheet at 44px in a
+              320px box and fails if any line is wider. Three of the outgoing
+              seven were over: English wrapped to four lines, French to six,
+              Japanese to four. Do not edit a line here without re-running it.
+
+              French is the one language with no second person in it. Spanish
+              gets `dejaste`, Korean 지나쳤던, English "you walked by" — but
+              every French finite-verb construction that names the dishes runs
+              325-413px on its own line, so the reader is carried by the
+              singular `tout seul`, which cannot agree with the plural
+              `plats`. Measured, not preferred. */}
           <h1 className="main-hero__title main-hero__title-kr" translate="no">
-            혼자서는
-            <br />주문할 수 없는
+            혼자라서
+            <br />지나쳤던
             <br />음식들.
           </h1>
           <h1 className="main-hero__title l-en-only">
             {say(
-              <>Some dishes<br />cannot be ordered<br />for one.</>,
+              <>The dishes<br />you walked by<br />when alone.</>,
               null,
-              <>Hay platos<br />que no se piden<br />para uno.</>,
-              <>Certains plats<br />ne se commandent pas<br />pour une personne.</>,
-              <>بعض الأطباق<br />لا تُطلَب<br />لشخص واحد.</>,
-              <>有些菜<br />一个人<br />是点不了的。</>,
-              <>ひとりでは<br />頼めない<br />料理があります。</>,
+              <>Al ir solo,<br />dejaste pasar<br />esos platos.</>,
+              <>Les plats<br />vus en passant<br />tout seul.</>,
+              <>أطباق<br />مررتَ بها<br />وأنت وحدك.</>,
+              <>那些菜，<br />一个人的时候<br />你只是路过。</>,
+              <>ひとりだから<br />素通りしてきた<br />料理です。</>,
             )}
           </h1>
           {/* Prose gets a line per language rather than one line carrying
