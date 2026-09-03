@@ -335,3 +335,73 @@ node scripts/schema-catalog.mjs --diff live.tsv
 프로덕션에는 2026-09-01에 롤백한 시도의 흔적이나 대시보드에서 손으로 만든
 것이 남아 있을 수 있고, 반대로 schema.sql에는 `2026-09-01d`(메일 언어)가
 아직 없습니다 — **d는 적용하지 않았으므로 양쪽 다 없어야 정상입니다.**
+---
+
+# 2026-09-02a — 동의 이력 (적용 완료)
+
+`supabase/migrations/2026-09-02a-rules-consents-history.sql`
+
+## 적용 후 확인된 값
+
+트랜잭션 안에서 한 번(`rollback;`), 커밋 뒤 **트랜잭션 밖에서 다시** 읽었습니다.
+두 번 다 같은 값입니다.
+
+```
+consents_table                1
+profile_id_nullable           YES
+rls_enabled                   true
+policies_on_table             0
+anon_can_select               false
+authenticated_can_select      false
+trigger_on_insert_and_update  true
+function_path_pinned          true
+backfilled_rows               10
+profiles_with_version         10
+profiles_total                253   (참고값)
+```
+
+`backfilled_rows`와 `profiles_with_version`이 같다는 것이 합격 조건입니다.
+앞의 것이 더 크면 **동의하지 않은 행까지 이력에 적히고 있다**는 뜻입니다.
+
+트랜잭션 밖 확인 사이에 앱을 한 번 열었고(`profiles_total` 253), 그 세션은
+동의를 누르지 않았습니다 — 이력은 10 그대로였습니다. 앱이 정상 동작한 것
+자체가 트리거의 첫 프로덕션 실행이고, 프로필 저장이 성공했으니 트리거가
+예외를 던지지 않는다는 것이 실물로 확인된 셈입니다.
+
+## 무엇이 바뀌었나
+
+- **새로 생김**: `rules_consents` 테이블, `keep_rules_consent()` 트리거 함수,
+  `profiles_keep_rules_consent` 트리거(INSERT + UPDATE)
+- **바뀌지 않음**: 클라이언트. `profiles`의 두 열을 쓰는 코드 그대로입니다
+
+불변식 한 줄: **`rules_consents`가 완전한 기록이고,
+`profiles.rules_version`/`rules_agreed_at`은 최신 것의 캐시입니다.**
+
+`PURPOSE.version`을 1→2로 올리면 v1에 동의한 10개 프로필이 다시 묻는 화면을
+보고, 그 순간 두 열이 덮어써집니다. 이 마이그레이션이 먼저 적용된 덕분에
+v1 기록이 이력에 남습니다. **순서를 뒤집으면 v1은 사라집니다.**
+
+## 주의사항
+
+- **트리거는 절대 예외를 던지면 안 됩니다.** 앱을 열 때마다 upsert되는 행에
+  달린 트리거라, 실패하면 프로필 저장 자체가 실패합니다. `on conflict do
+  nothing`이 그것을 보장합니다 — 오래된 기기가 이력에 이미 있는 동의를 다시
+  보내도 흡수됩니다. INSERT 분기가 필요한 이유도 같습니다: 클라이언트가
+  upsert하므로 첫 동의는 UPDATE가 아니라 INSERT로 도착합니다.
+- **RLS on, 정책 0개, anon·authenticated select 권한 없음.** 클라이언트는 이
+  테이블을 읽지 않습니다. 확인은 행 수가 아니라 권한으로 합니다 — 권한이 없는
+  롤은 세지도 못하고 "permission denied"를 받습니다.
+- **`on delete set null`.** 사람을 지우면 링크가 끊기고 사실은 남습니다.
+  대시보드의 사용자 삭제는 auth.users → profiles로 캐스케이드하는데, 여기서
+  그것이 파괴가 아니라 익명화가 됩니다.
+- 되돌리기: `2026-09-02a-rules-consents-history-ROLLBACK.sql`. **이력을
+  버립니다** — 누군가 새 버전에 재동의한 뒤에는 돌리지 마세요.
+
+## 검증
+
+`rulesConsents.test.mjs` 18개가 PGlite에서 마이그레이션을 실제로 실행합니다.
+첫 테스트는 마이그레이션 **없이** 재동의를 수행해 남는 증거가 0임을 보이는
+대조군입니다. `schemaSqlRuns.test.mjs`는 `schema.sql`에 접힌 사본을
+클라이언트와 같은 방식(upsert)으로 몰아 행을 셉니다 — 트리거만 빼면 텍스트
+대조는 전부 초록이고 그 테스트만 빨갛습니다.
+

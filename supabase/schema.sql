@@ -42,6 +42,87 @@ alter table public.profiles add column if not exists rules_version integer;
 alter table public.profiles add column if not exists rules_agreed_at timestamptz;
 
 -- ---------------------------------------------------------------------------
+-- Rules consents — who agreed to which rules, and when. APPLIED 2026-09-02.
+-- ---------------------------------------------------------------------------
+-- The two columns above are a cache of the LATEST agreement: a re-consent
+-- overwrites them, and until 2026-09-02a that overwrite was the only record.
+-- This table is the complete log, written by a trigger on profiles, so the
+-- client keeps writing the two columns it writes today and changes nothing.
+-- After PURPOSE.version goes 1 -> 2 a person has exactly one v1 row and one
+-- v2 row (rulesConsents.test.mjs re-consents in PGlite and counts).
+--
+-- Row level security ON and NO policy, select revoked from anon and
+-- authenticated: no client ever reads it, the trigger writes as definer, the
+-- team reads it in the dashboard. profile_id is nullable and set null on
+-- delete — deleting a person keeps the fact that an agreement happened and
+-- forgets who. The one-time backfill of the rows that were already at v1
+-- lives only in the migration; a fresh project has nothing to backfill.
+
+create table if not exists public.rules_consents (
+  id          bigint generated always as identity primary key,
+  profile_id  uuid references public.profiles(id) on delete set null,
+  version     integer not null,
+  agreed_at   timestamptz not null,
+  recorded_at timestamptz not null default now(),
+  -- A person agrees to a version at a moment once; backfill and trigger
+  -- cannot together produce two rows for the same event.
+  unique (profile_id, version, agreed_at)
+);
+
+create index if not exists rules_consents_version_idx on public.rules_consents (version);
+
+alter table public.rules_consents enable row level security;
+revoke all on table public.rules_consents from public, anon, authenticated;
+
+-- Fires on INSERT and on UPDATE of the two columns. INSERT is not optional:
+-- the client upserts (supabaseBackend.js saveProfile), so a first agreement
+-- from a brand-new profile arrives as the INSERT half. `on conflict do
+-- nothing` is what makes this trigger unable to fail a profile save — a
+-- stale device re-sending an agreement the log already holds is absorbed,
+-- not raised. search_path pinned to '' with every name schema-qualified.
+create or replace function public.keep_rules_consent()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  -- Nothing to record without both halves of an agreement.
+  if new.rules_version is null or new.rules_agreed_at is null then
+    return new;
+  end if;
+
+  -- OLD is only ever read inside the UPDATE branch. A single expression
+  -- `tg_op = 'UPDATE' and old.x = …` would rely on the executor not
+  -- evaluating the right-hand side on INSERT, and SQL does not promise that.
+  -- On INSERT there is no old row, so the agreement is new by definition.
+  if tg_op = 'UPDATE' then
+    if new.rules_version is not distinct from old.rules_version
+       and new.rules_agreed_at is not distinct from old.rules_agreed_at then
+      return new;   -- the client re-sent the same agreement: nothing happened
+    end if;
+  end if;
+
+  -- The one statement that writes. `on conflict do nothing` is what makes
+  -- this trigger unable to fail a profile save: a stale device re-sending an
+  -- agreement the log already holds (say the v1 row the backfill wrote) hits
+  -- the unique constraint and is absorbed, not raised. A trigger on the row
+  -- every app launch upserts must never throw.
+  insert into public.rules_consents (profile_id, version, agreed_at)
+  values (new.id, new.rules_version, new.rules_agreed_at)
+  on conflict (profile_id, version, agreed_at) do nothing;
+  return new;
+end;
+$$;
+
+revoke execute on function public.keep_rules_consent() from public, anon, authenticated;
+
+drop trigger if exists profiles_keep_rules_consent on public.profiles;
+create trigger profiles_keep_rules_consent
+  after insert or update of rules_version, rules_agreed_at on public.profiles
+  for each row execute function public.keep_rules_consent();
+
+-- ---------------------------------------------------------------------------
 -- Tables — a meal somebody is opening seats at.
 -- ---------------------------------------------------------------------------
 -- `seats` counts everyone including the host, matching how the app words it

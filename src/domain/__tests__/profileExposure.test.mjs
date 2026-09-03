@@ -134,6 +134,7 @@ const APPLIED = [
   RETRY,
   'supabase/migrations/2026-09-01c-seat-holds-lapse.sql',
   'supabase/migrations/2026-09-01e-signups-soft-cancel.sql',
+  'supabase/migrations/2026-09-02a-rules-consents-history.sql',
 ];
 
 /**

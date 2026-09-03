@@ -19,7 +19,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (864 tests), `node scripts/audit-i18n.mjs` (must print 0) and
+- `npm test` (865 tests), `node scripts/audit-i18n.mjs` (must print 0) and
   `npm run lint` (must print no `error`) before every push. Lint is on that
   list because `vite build` does NOT fail on an undefined identifier: a
   missing import built cleanly and would have thrown at runtime, and a
@@ -58,8 +58,8 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 
 ## Database — what is applied, and what it costs to change
 Everything live in Supabase is in `supabase/schema.sql`, and each change also
-has a dated file in `supabase/migrations/`. Three applied 2026-09-01; the
-numbers, the expected drift and the caveats are in
+has a dated file in `supabase/migrations/`. Three applied 2026-09-01 and one
+2026-09-02; the numbers, the expected drift and the caveats are in
 `docs/rls-baseline-2026-09-01.md`.
 - **`schema.sql` had never been run by anything, and did not work.** A
   `language sql` body is parse-analysed when the function is created, so
@@ -102,6 +102,15 @@ numbers, the expected drift and the caveats are in
   partial index over live rows so somebody who cancels can come back, and
   `signups_decision_guard` because the cancel policy OR's with the host one
   and would otherwise have let a guest accept their own seat.
+- `…-02a-rules-consents-history.sql` — `profiles.rules_version/rules_agreed_at`
+  are a cache of the latest agreement, and a re-consent overwrote the only
+  record of the previous one. `rules_consents` is the complete log now, written
+  by a trigger on `profiles` (INSERT and UPDATE — the client upserts, so a first
+  consent is an INSERT), RLS on with no policy, `on delete set null` so a
+  deleted person leaves the fact and not the name. The trigger must never
+  throw: `on conflict do nothing` is what lets a stale device re-send an
+  agreement the log already holds. Bump `PURPOSE.version` only after this is
+  live, or the v1 records are gone.
 - `rlsPolicies.test.mjs` and `seatLapse.test.mjs` execute those files against
   a real Postgres (PGlite, a devDependency, never bundled). Each keeps the
   version that failed as a control and requires it to still fail.

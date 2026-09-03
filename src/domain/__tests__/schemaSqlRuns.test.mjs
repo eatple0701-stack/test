@@ -119,7 +119,8 @@ test('the objects the app cannot work without are all there', async () => {
 
   for (const fn of ['seat_holds', 'tables_with_woman', 'assert_seat_available',
     'lapse_window', 'lapse_at', 'is_open_host', 'assert_seat_decision_is_hosts',
-    'notify_seat_requested', 'notify_seat_decided', 'notify_table_cancelled']) {
+    'notify_seat_requested', 'notify_seat_decided', 'notify_table_cancelled',
+    'keep_rules_consent']) {
     const { rows } = await db.query(
       `select count(*)::int as n from pg_proc p join pg_namespace n on n.oid = p.pronamespace
         where n.nspname = 'public' and p.proname = $1`, [fn]);
@@ -141,12 +142,14 @@ test('the objects the app cannot work without are all there', async () => {
   await db.close();
 });
 
-// The two tables that are meant to have RLS on and no policy at all. Both say
-// so in schema.sql: no client ever reads or writes them, the triggers write as
-// definer and the Edge Function reads with the service role key, which bypasses
-// RLS. Deny-everyone IS the design, and naming them here is what keeps the
-// check below able to fail for anything else.
-const DENY_ALL_ON_PURPOSE = ['notifications', 'pilot_team'];
+// The tables that are meant to have RLS on and no policy at all. Each says so
+// in schema.sql: no client ever reads or writes them, the triggers write as
+// definer and the team reads them in the dashboard (the Edge Function reads
+// notifications with the service role key, which bypasses RLS). Deny-everyone
+// IS the design, and naming them here is what keeps the check below able to
+// fail for anything else. rules_consents joined on 2026-09-02: who agreed to
+// which rules is evidence, and the only reader is a person.
+const DENY_ALL_ON_PURPOSE = ['notifications', 'pilot_team', 'rules_consents'];
 
 test('no table is left with row level security on and nothing allowed', async () => {
   // The end state the ordering bug produced under a runner that continues
@@ -188,6 +191,50 @@ test('the two that deny everybody really do have the lock on', async () => {
     assert.equal(rows[0].policies, 0,
       `public.${name} gained a policy — decide whether a client may now read it`);
   }
+  await db.close();
+});
+
+test('the consent log a fresh project builds records what production records', async () => {
+  // profileExposure.test.mjs proves the function's TEXT matches the applied
+  // migration. That would stay green with the trigger missing, and a log
+  // nothing writes to is exactly the failure a text comparison cannot see.
+  // So the folded copy is driven the way the client drives production —
+  // upsert the profile — and the rows are counted. Same three facts
+  // rulesConsents.test.mjs proves for the migration: a first agreement is
+  // one row, re-saving it adds nothing, a new version adds one; and the
+  // foreign key forgets the person without forgetting the fact.
+  const db = await emptyProject();
+  await db.exec(SCHEMA);
+  const id = '00000000-0000-4000-8000-00000000c0de';
+  const rows = async () => (await db.query(
+    `select count(*)::int as n from public.rules_consents where profile_id = $1`, [id])).rows[0].n;
+
+  await db.query(`insert into auth.users (id) values ($1)`, [id]);
+  await db.query(
+    `insert into public.profiles (id, rules_version, rules_agreed_at) values ($1, 1, $2)
+       on conflict (id) do update set rules_version = excluded.rules_version,
+                                      rules_agreed_at = excluded.rules_agreed_at`,
+    [id, '2026-08-20T10:00:00+09:00']);
+  assert.equal(await rows(), 1, 'a first agreement, arriving as the INSERT half of an upsert, was not logged');
+
+  await db.query(
+    `insert into public.profiles (id, rules_version, rules_agreed_at) values ($1, 1, $2)
+       on conflict (id) do update set rules_version = excluded.rules_version,
+                                      rules_agreed_at = excluded.rules_agreed_at`,
+    [id, '2026-08-20T10:00:00+09:00']);
+  assert.equal(await rows(), 1, 'the same agreement saved again produced a second row');
+
+  await db.query(`update public.profiles set rules_version = 2, rules_agreed_at = $2 where id = $1`,
+    [id, '2026-09-03T09:00:00+09:00']);
+  assert.equal(await rows(), 2, 'a re-consent to a new version did not add a row');
+
+  // The dashboard's delete-user path: auth.users -> profiles cascades, the
+  // log's foreign key sets null. Two rows survive with nobody's name on them.
+  await db.query(`delete from auth.users where id = $1`, [id]);
+  const { rows: [after] } = await db.query(
+    `select count(*)::int as total, count(profile_id)::int as named from public.rules_consents`);
+  assert.deepEqual(after, { total: 2, named: 0 },
+    'deleting the person should anonymise the agreements, not destroy them');
   await db.close();
 });
 
