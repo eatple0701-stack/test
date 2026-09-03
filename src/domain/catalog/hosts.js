@@ -132,7 +132,7 @@ export function guideSummary(table) {
  *   professor's note is that without it the product is a useful travel app
  *   and not much else, and that the answer is in 어떻게 rather than 무엇.
  *
- *   테이블 메이트 — people splitting a dish none of them could order alone.
+ *   테이블 메이트 — people sharing a dish none of them wanted to eat alone.
  *   Not a lesser table. A traveller who does not want to be taught anything
  *   tonight is a real traveller, and 삼겹살 for four is the product working.
  *

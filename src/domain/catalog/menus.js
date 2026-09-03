@@ -1,4 +1,4 @@
-// Menu catalog — the Korean dishes you cannot order alone.
+// Menu catalog — the Korean dishes you would rather not eat alone.
 //
 // This is the catalog the whole product turns on. The business plan's finding
 // is that a solo foreign traveller is shut out of a large part of Korean food
@@ -783,7 +783,7 @@ export const menus = [
     romanization: 'baek-ban',
     category: MENU_CATEGORY.SET,
     minPeople: 1,
-    // The honest exception, and it earns its place: this one you *can* order
+    // One of the ten you *can* order for one, and it earns its place anyway:
     // alone. It is here because the plan names it, and because eating it
     // alone misses what it is — a menu-less home meal whose whole character
     // is the shared middle of the table.

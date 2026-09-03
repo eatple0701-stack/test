@@ -1056,8 +1056,8 @@ export default function App() {
             }}
           />
         )}
-        {/* 밥친구. The tab leads with tables now — a dish somebody cannot
-            order alone is the product, and the swipe deck was a demo of
+        {/* 밥친구. The tab leads with tables now — a dish somebody would
+            rather not eat alone is the product, and the swipe deck was a demo of
             people rather than a way to eat. The deck is still reachable from
             the table list, so nothing that existed has gone away. */}
         {!openThemeId && activeTab === 'match' && tableView.screen === 'list' && (
@@ -1262,7 +1262,7 @@ export default function App() {
               ? { lat: point.lat, lng: point.lng }
               : null,
             // The venue's own menu names, carried as a hint rather than as the
-            // dish. The dish is one of the ten that cannot be ordered alone
+            // dish. The dish is one of the twenty-four in the catalogue
             // (src/domain/catalog/menus.js) and this venue may serve none of
             // them — a temple kitchen does not do 삼겹살 — so the host still
             // chooses. Names only: prices are never shown in this app.

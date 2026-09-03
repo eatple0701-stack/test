@@ -21,7 +21,7 @@ function summaryText(s) {
   const lines = [
     '🇰🇷 밥친구 · Solo trip, shared table',
     `${s.tables} ${s.tables === 1 ? 'table' : 'tables'} shared with people I had not met`,
-    s.dishes > 0 ? `${s.dishes} ${s.dishes === 1 ? 'dish' : 'dishes'} I could not have ordered alone` : null,
+    s.dishes > 0 ? `${s.dishes} ${s.dishes === 1 ? 'dish' : 'dishes'} I didn't want to eat alone` : null,
     s.people > 0 ? `${s.people} ${s.people === 1 ? 'person' : 'people'} met over a meal` : null,
     s.cultures > 0 ? `${s.cultures} Korean food ${s.cultures === 1 ? 'culture' : 'cultures'} walked` : null,
   ].filter(Boolean);
@@ -96,7 +96,7 @@ export default function TravelSummary({ journey, profile, onClose }) {
             </div>
             <div>
               <span className="summary-card__num">{summary.dishes}</span>
-              <span className="summary-card__label">{say('Dishes I could not order alone', '혼자서는 못 시켰을 요리', 'Platos que no podía pedir solo', 'Des plats que je ne pouvais pas commander seul', 'أطباق ما كنت لأطلبها وحدي', '我一个人点不了的菜', 'ひとりでは頼めなかった料理')}</span>
+              <span className="summary-card__label">{say("Dishes I didn't want to eat alone", '혼자 먹고 싶지 않던 요리', 'Platos que no quería comer a solas', 'Plats que je ne voulais pas manger en solo', 'أطباق لم أرغب في أكلها وحدي', '我不想一个人吃的菜', 'ひとりでは食べたくなかった料理')}</span>
             </div>
             <div>
               <span className="summary-card__num">{summary.people}</span>

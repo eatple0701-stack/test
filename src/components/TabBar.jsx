@@ -51,7 +51,7 @@ const icons = {
 // also the app's backdrop; now it is a tool opened from wherever the user
 // already is, so it has no place in primary navigation.
 // "Community" was a swipe deck of generated strangers. The product is the
-// table: a dish you cannot order alone, and the people already going to eat
+// table: a dish you would rather not eat alone, and the people already going
 // it. Naming the tab after the thing being offered rather than after the
 // social feature is the difference between a listings app and this one.
 // The Korean label is not a second line. A five-item bar on a 375px screen

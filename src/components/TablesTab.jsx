@@ -280,7 +280,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       <header className="screen-head screen-head--dark">
         <span className="screen-head__kr">밥친구</span>
         <h1 className="screen-head__title">
-          {say('Dishes you cannot order alone.', '혼자서는 주문할 수 없는 음식들.', 'Platos que no puedes pedir solo.', 'Des plats que vous ne pouvez pas commander seul.', 'أطباق لا تستطيع أن تطلبها وحدك.', '一个人点不了的菜。', '一人では頼めない料理。')}
+          {say("Dishes you'd rather not eat alone.", '혼자보다 같이 먹고 싶은 음식들.', 'Platos que prefieres no comer solo.', 'Des plats que vous préférez ne pas manger seul.', 'أطباق تُفضِّل ألّا تأكلها وحدك.', '你不想一个人吃的菜。', '一人では食べたくない料理。')}
         </h1>
         <p className="screen-head__sub">
           {say('Ask to sit at a table, or open one and see who comes.',

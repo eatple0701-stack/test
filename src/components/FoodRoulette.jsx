@@ -24,7 +24,7 @@ import { useText } from './localeText.js';
 //
 // It draws from the catalogue now, so every result is a dish the app can talk
 // about and does. 백반 is excluded on purpose rather than quietly reclassified
-// — the catalogue calls it the honest exception you *can* order alone, and a
+// — the catalogue is plain that you *can* order it for one, and a
 // wheel promising otherwise would be the same lie in a smaller font.
 
 const WHEEL = menus.filter(m => m.minPeople > 1);

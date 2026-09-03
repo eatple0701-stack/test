@@ -22,12 +22,12 @@ export const HOW_STEPS = [
   {
     id: 'find',
     kr: '밥상 찾기',
-    en: 'Find a table serving a dish nobody can order alone.',
-    es: 'Encuentra una mesa con un plato que nadie puede pedir solo.',
-    fr: "Trouvez une table servant un plat que personne ne peut commander seul.",
-    ar: 'اعثر على مائدة تقدّم طبقًا لا يستطيع أحد أن يطلبه وحده.',
-    zh: '找一张饭桌，上面是一个人点不了的菜。',
-    ja: '一人では頼めない料理が出ている食卓を見つける。',
+    en: "Find a table serving a dish you'd rather not eat alone.",
+    es: 'Encuentra una mesa con un plato que prefieres no comer solo.',
+    fr: "Trouvez une table servant un plat que vous préférez ne pas manger seul.",
+    ar: 'اعثر على مائدة تقدّم طبقًا تفضّل ألّا تأكله وحدك.',
+    zh: '找一张饭桌，上面是你不太想一个人吃的菜。',
+    ja: '一人では食べたくない料理が出ている食卓を見つける。',
   },
   {
     id: 'ask',

@@ -2,7 +2,7 @@
 //
 // 서울관광재단's food-tourism database (data.go.kr 15097605) holds 167,659
 // restaurants. 8,118 of them serve one of the twenty-four dishes a person
-// cannot order alone — see src/domain/catalog/dishGroups.js — and those are
+// would rather not eat alone — see src/domain/catalog/dishGroups.js — and those are
 // the ones built into public/data/seoul/ by scripts/build-seoul-places.mjs:
 // one file per 구, plus a small index naming each district's box and count.
 //

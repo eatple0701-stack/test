@@ -179,8 +179,8 @@ export default function TableCreate({ profile, onProfileChange, onBack, onCreate
       <div className={`form-block${bad.menu ? ' is-bad' : ''}`} ref={refFor('menu')}>
         <h2 className="form-label">{say('무엇을 먹나요 · What are you eating?', '무엇을 먹나요', '¿Qué vais a comer?', 'Que mangerez-vous ?', 'ماذا ستأكلون؟', '你们要吃什么？', '何を食べますか？')}</h2>
         {/* What the venue actually serves, when the host came from its page.
-            Not a choice — the dish below is one of the ten nobody can order
-            alone, and a temple kitchen serves none of them, so these two lists
+            Not a choice — the dish below is one of the twenty-four in the
+            catalogue, and a temple kitchen serves none of them, so these two lists
             genuinely do not line up. Shown anyway because the host standing in
             front of that menu should not have to remember it, and hiding it is
             how a page looks like it forgot where you came from. Names only:
