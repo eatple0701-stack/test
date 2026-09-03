@@ -58,13 +58,22 @@ export const HOW_STEPS = [
   },
 ];
 
-/** The cultural fact that makes the whole thing make sense. */
+/**
+ * The cultural fact that makes the whole thing make sense.
+ *
+ * 2026-09-03: en/es/fr/ar/zh/ja used to carry a second sentence here —
+ * browsing is free, an account is for the seat — that HOW_WHY.kr never had.
+ * It was not a missing translation; it was the join panel's own line
+ * (main-join__body, one main-band below this one) said a second time to
+ * everybody reading in a language other than Korean. Cut to match what
+ * Korean already showed: the one fact this element exists to say.
+ */
 export const HOW_WHY = {
   kr: '한국 밥상은 나눠 먹도록 차려집니다',
-  en: 'A Korean table is laid to be shared. Browsing every dish and tip is free; the seat is what an account is for.',
-  es: 'Una mesa coreana se pone para compartirla. Mirar los platos y los consejos es gratis; la cuenta es para el sitio en la mesa.',
-  fr: "Une table coréenne se dresse pour être partagée. Parcourir les plats et les conseils est gratuit ; le compte sert à avoir la place.",
-  ar: 'تُمدّ المائدة الكورية لتُشارَك. تصفّح الأطباق والنصائح مجاني؛ والحساب إنما هو للمقعد.',
-  zh: '韩国的饭桌是摆出来分着吃的。看菜、看攻略都免费；账号是为了那个位子。',
-  ja: '韓国の食卓は分け合うために整えられます。料理も案内も見るのは無料で、アカウントは席のためにあります。',
+  en: 'A Korean table is laid to be shared.',
+  es: 'Una mesa coreana se pone para compartirla.',
+  fr: "Une table coréenne se dresse pour être partagée.",
+  ar: 'تُمدّ المائدة الكورية لتُشارَك.',
+  zh: '韩国的饭桌是摆出来分着吃的。',
+  ja: '韓国の食卓は分け合うために整えられます。',
 };

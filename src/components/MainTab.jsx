@@ -237,20 +237,26 @@ export default function MainTab({
           {/* Prose gets a line per language rather than one line carrying
               both, which is how the notice bar has always done it. A
               sentence with 밥친구 sitting inside an English clause cannot be
-              reduced by any splitter — it has to be written twice. */}
+              reduced by any splitter — it has to be written twice.
+
+              2026-09-03: used to open with "삼겹살은 2인분부터, 감자탕은 냄비째
+              나옵니다" — the same two facts the hero blobs already carry as
+              tags, three lines above, on the dishes named 삼겹살 and 감자탕
+              themselves. Said once there is enough; here it can go straight
+              to the thing the blobs cannot say, which is what the app does
+              about it. */}
           <p className="main-hero__sub main-hero__sub-kr" translate="no">
-            삼겹살은 2인분부터, 감자탕은 냄비째 나옵니다. 밥친구 잇플이 그 밥상과,
-            이미 가고 있는 사람들을 찾아드려요.
+            밥친구 잇플이 그 밥상과, 이미 가고 있는 사람들을 찾아드려요.
           </p>
           <p className="main-hero__sub main-hero__sub-en">
             {say(
-              'Samgyeopsal starts at two servings and gamjatang arrives by the pot. Eatple finds you the table — and the people already going.',
+              'Eatple finds you the table — and the people already going.',
               null,
-              'El samgyeopsal empieza en dos raciones y el gamjatang llega en olla. Eatple te encuentra la mesa — y a la gente que ya va.',
-              "Le samgyeopsal commence à deux parts et le gamjatang arrive à la marmite. Eatple vous trouve la table — et les gens qui y vont déjà.",
-              'السامغيوبسال يبدأ من حصتين، والغامجاتانغ يأتي بالقِدر. يجد لك Eatple المائدة — ومن هم ذاهبون إليها أصلًا.',
-              '五花肉从两人份起，土豆汤是整锅上的。Eatple 替你找到那张饭桌——还有已经要去的人。',
-              'サムギョプサルは二人前から、カムジャタンは鍋ごと出てきます。Eatple がその食卓と、すでに行く人たちを見つけます。',
+              'Eatple te encuentra la mesa — y a la gente que ya va.',
+              'Eatple vous trouve la table — et les gens qui y vont déjà.',
+              'يجد لك Eatple المائدة — ومن هم ذاهبون إليها أصلًا.',
+              'Eatple 替你找到那张饭桌——还有已经要去的人。',
+              'Eatple がその食卓と、すでに行く人たちを見つけます。',
             )}
           </p>
           {/* The middot pairs are Korean-and-English, so a Spanish screen
