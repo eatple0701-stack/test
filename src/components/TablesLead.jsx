@@ -103,19 +103,40 @@ export default function TablesLead({ onOpenTables, onOpenTable, onCreateTable, o
            An empty week in a pilot is the strongest host-recruiting surface
            the app has, so it now asks directly. */
         <div className="tables-lead__empty">
+          {/* Three layers, and until 2026-09-03 the middle one said what the
+              other two had already said.
+
+              The heading above states the fact — 아직 아무도 밥상을 차리지
+              않았어요 / Nobody has set a table yet, in all seven. The two
+              buttons below offer the two verbs. So the only thing left for
+              this line is the invitation, and in the nobody-yet case that is
+              the whole of it: you are first.
+
+              What was here instead: Korean opened by repeating its own
+              heading almost word for word (밥상을 차리지 않았어요 above,
+              상을 차리지 않았어요 here), and every other language opened
+              with "삼겹살은 2인분부터" — the fact the hero blob already
+              carries as a tag — then closed with "open a table and see who
+              comes", which is the second button, spelled out. Nobody read a
+              new word in either language.
+
+              Kept from Korean rather than cut to nothing, because Korean was
+              the one carrying something the rest of the screen does not: an
+              invitation. The other six now say that instead of the two things
+              they were repeating. */}
           <span className="l-ko-only" translate="no">
             {anyUpcoming
               ? '이번 주에 더 청할 밥상은 없어요. 직접 상을 차리고 누가 오는지 보세요.'
-              : '아직 아무도 상을 차리지 않았어요. 그러니 첫 번째는 당신입니다.'}
+              : '그러니 첫 번째는 당신입니다.'}
           </span>
           <span className="tables-lead__empty-en">
             {anyUpcoming
               ? say('Nothing else to ask for this week. Open a table of your own and see who comes.', null,
                 'Nada más que pedir esta semana. Abre una mesa tuya y mira quién viene.',
                 "Rien d'autre à demander cette semaine. Ouvrez votre propre table et voyez qui vient.", 'لا شيء آخر تطلبه هذا الأسبوع. افتح مائدتك أنت وانظر من يأتي.', '这周没有别的可以申请了。自己开一张，看看谁来。', '今週これ以上リクエストできるものはありません。自分の食卓を開いて、誰が来るか見てみてください。')
-              : say('Samgyeopsal starts at two servings. Open a table and see who comes.', null,
-                'El samgyeopsal empieza en dos raciones. Abre una mesa y mira quién viene.',
-                'Le samgyeopsal commence à deux parts. Ouvrez une table et voyez qui vient.', 'السامغيوبسال يبدأ من حصتين. افتح مائدة وانظر من يأتي.', '五花肉从两人份起。开一张饭桌，看看谁来。', 'サムギョプサルは二人前からです。食卓を開いて、誰が来るか見てみてください。')}
+              : say('So the first one is yours.', null,
+                'Así que la primera es tuya.',
+                'La première sera donc la vôtre.', 'فلتكن الأولى لك.', '那么，第一张就是你的。', 'だから、最初のひとつはあなたのものです。')}
           </span>
           {/* The order here is the whole point. A tester who had been in
               Korea for one day wrote that "open a table yourself" asks the
