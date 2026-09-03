@@ -35,7 +35,7 @@ import SafetySheet from './SafetySheet';
 import RulesConsent from './RulesConsent';
 import { conflictsFor, dietById } from '../data/profile';
 import { PURPOSE, AGREE_ACTION } from '../content/safety.js';
-import { agreedToRules } from '../domain/policy/consent.js';
+import { showsRulesGate, consentToRecord, rulesAgreement } from '../domain/policy/consent.js';
 import { shareUrlFor } from '../routes.js';
 import { guideById, hostKindLabel, tableKind, tableKindLabel } from '../domain/catalog/hosts.js';
 import { languageFit, cleanLanguages, languageLine, LANGUAGE_FIT } from '../domain/catalog/languages.js';
@@ -101,6 +101,9 @@ export default function TableDetail({ tableId, profile, onProfileChange, onAgree
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [joined, setJoined] = useState(false);
+  // See TableCreate: the visit, not the record. Leaving this page unmounts
+  // it and the gate stands again.
+  const [agreedHere, setAgreedHere] = useState(null);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
   const [error, setError] = useState(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -281,6 +284,11 @@ export default function TableDetail({ tableId, profile, onProfileChange, onAgree
     // boxes for the third time is the point where an app stops feeling like
     // it is on your side.
     onProfileChange?.({ ...profile, name: name.trim(), nationality: nationality.trim() });
+    // The seat is requested; the agreement that got them here is now a
+    // record. Not at the button — a form somebody backs out of records
+    // nothing and is asked again. Same rule as the host door.
+    const consent = consentToRecord(profile, PURPOSE.version, agreedHere);
+    if (consent) onAgree?.(consent);
     await refresh();
     setBusy(false);
     setJoined(true);
@@ -1380,7 +1388,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onAgree
             {say(gateText('join-table').cta, null, gateText('join-table').ctaEs, gateText('join-table').ctaFr, gateText('join-table').ctaAr, gateText('join-table').ctaZh, gateText('join-table').ctaJa)}
           </button>
         </div>
-      ) : !agreedToRules(profile, PURPOSE.version) ? (
+      ) : showsRulesGate(profile, PURPOSE.version, agreedHere !== null) ? (
         /* 교수님's ask, in the one place it is genuinely read: nobody has
            committed to anything yet, and the next tap is the commitment.
            Replaces the seat form rather than sitting above it, so there is
@@ -1389,7 +1397,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onAgree
         <div className="join-block">
           <h3 className="detail-block__label">{say('Before your first seat', '첫 자리를 잡기 전에', 'Antes de tu primer sitio', 'Avant votre première place', 'قبل مقعدك الأول', '在你的第一个位子之前', 'はじめての席の前に')}</h3>
           <RulesConsent
-            onAgree={onAgree}
+            onAgree={() => setAgreedHere(rulesAgreement(PURPOSE.version))}
             action={AGREE_ACTION.ASK_SEAT}
           />
         </div>

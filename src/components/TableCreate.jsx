@@ -13,7 +13,7 @@ import HostBrief from './HostBrief';
 import PlacePicker from './PlacePicker';
 import RulesConsent from './RulesConsent';
 import { PURPOSE, AGREE_ACTION } from '../content/safety.js';
-import { agreedToRules } from '../domain/policy/consent.js';
+import { showsRulesGate, consentToRecord, rulesAgreement } from '../domain/policy/consent.js';
 import { ChevronLeftIcon } from './Icons';
 import { useText, useLocale } from './localeText.js';
 
@@ -69,6 +69,11 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
   // again when somebody presses the button twice without fixing anything.
   const [attempt, setAttempt] = useState(0);
   const [saving, setSaving] = useState(false);
+  // Passing the gate opens this form and nothing else. It is component
+  // state on purpose: leaving unmounts the screen, the value goes with it,
+  // and the gate is back next time. It reaches the profile only from
+  // submit(), once the table exists.
+  const [agreedHere, setAgreedHere] = useState(null);
 
   const menu = menuId ? menuById(menuId) : null;
 
@@ -135,6 +140,12 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
       hostGender: profile?.gender ?? null,
     });
     onProfileChange?.({ ...profile, name: hostName.trim() });
+    // Here, and not at the button. The table exists; the agreement that got
+    // them to it is now a record. Walking away from this form leaves the
+    // profile untouched and the gate standing next time — reported and fixed
+    // on 2026-09-03, after the button had been writing it.
+    const consent = consentToRecord(profile, PURPOSE.version, agreedHere);
+    if (consent) onAgree?.(consent);
     onCreated(row.id);
   };
 
@@ -142,7 +153,7 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
   // they are the one setting the terms of the evening. Gating the whole form
   // rather than the submit button keeps somebody from filling in a dish, a
   // date and a place before finding out there was a condition.
-  if (!agreedToRules(profile, PURPOSE.version)) {
+  if (showsRulesGate(profile, PURPOSE.version, agreedHere !== null)) {
     return (
       <section className="sheet-page" aria-label={say('Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌', '食卓を開く')}>
         <header className="sheet-page__head">
@@ -154,7 +165,7 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
         <div className="form-block">
           <h2 className="form-label">{say('Before your first table', '첫 상을 차리기 전에', 'Antes de tu primera mesa', 'Avant votre première table', 'قبل مائدتك الأولى', '在你的第一张饭桌之前', 'はじめての食卓の前に')}</h2>
           <RulesConsent
-            onAgree={onAgree}
+            onAgree={() => setAgreedHere(rulesAgreement(PURPOSE.version))}
             action={AGREE_ACTION.OPEN_TABLE}
           />
         </div>

@@ -44,11 +44,26 @@ export default function RulesConsent({ onAgree, action }) {
       </button>
 
       {/* Said plainly, because the alternative is somebody discovering it
-          only when they look for the button and there isn't one. */}
+          only when they look for the button and there isn't one.
+
+          It said "Asked once" until 2026-09-03, and that stopped being true
+          the same day: the agreement is recorded when a table is actually
+          opened or a seat actually asked for, so anybody who backs out of the
+          form sees this again. The sentence says what happens now.
+
+          It also said "under 도움이 필요하면", in all seven. That label is a
+          `journal-tool__kr` span, and index.css:11739 hides every `__kr` class
+          outside Korean — measured against the shipping stylesheet, the button
+          renders with no heading at all in en, es, fr, ar, zh and ja, so six
+          readers out of seven were being sent to look for words that are not
+          on their screen. All seven now name the Passport tab, which TabBar
+          does translate. Korean uses it too rather than the section heading
+          inside it: one signpost for everybody is worth more than a shorter
+          walk for one of them. */}
       <p className="rules-consent__note">
-        {say('Asked once. You can read this again any time under 도움이 필요하면.',
-          '한 번만 여쭙니다. 도움이 필요하면 메뉴에서 언제든 다시 읽으실 수 있어요.',
-          'Se pregunta una sola vez. Puedes volver a leerlo cuando quieras en 도움이 필요하면.', 'Demandé une seule fois. Vous pouvez le relire à tout moment dans 도움이 필요하면.', 'يُسأل مرة واحدة. وتستطيع قراءته مجددًا في أي وقت تحت 도움이 필요하면.', '只问一次。你随时可以在 도움이 필요하면 里再读一遍。', '一度だけ尋ねます。도움이 필요하면 からいつでも読み返せます。')}
+        {say('Asked until you open a table or ask for a seat — then not again. You can read this any time on your Passport.',
+          '상을 차리거나 자리를 요청하실 때까지 여쭙고, 그 뒤로는 묻지 않습니다. 여권에서 언제든 다시 읽으실 수 있어요.',
+          'Te lo preguntamos hasta que abras una mesa o pidas sitio; después, no más. Puedes leerlo cuando quieras en tu Pasaporte.', "Demandé jusqu'à ce que vous ouvriez une table ou demandiez une place — ensuite, plus jamais. Vous pouvez le relire à tout moment dans votre Passeport.", 'نسألك حتى تفتح مائدة أو تطلب مقعدًا، ثم لا نسأل بعدها. وتستطيع قراءته في أي وقت من الجواز.', '在你开一张饭桌或申请一个位子之前，每次都会问；之后就不再问了。你随时可以在护照里再读一遍。', '食卓を開くか席をリクエストするまではそのつどお尋ねし、そのあとは尋ねません。パスポートからいつでも読み返せます。')}
       </p>
     </div>
   );

@@ -74,7 +74,7 @@ took them, all keyed to the six groups.
 ### Numbers
 | | |
 |---|---|
-| Automated tests | **904, all passing** (`npm test`) |
+| Automated tests | **914, all passing** (`npm test`) |
 | i18n audit | 0 untranslated strings |
 | Register places shipped | 8,118 of 167,659 |
 | Menu lines shipped | 199,574 (ko/en/ja/zh), 94,515 with register prices |
@@ -339,6 +339,19 @@ selection.
 **세 단계를 한 커밋에 같이 넣으세요.** 1단계만 한국어를 넣으면 한국어 화면이
 1단계만 문장이 있고 2·3단계는 라벨뿐인 모양이 됩니다.
 
+### 반대 방향으로도 한 건 — 한국어 전용 라벨이 나머지에서 사라집니다
+
+같은 규칙(`[class$="__kr"]`)의 다른 쪽 얼굴입니다. 여권의 안전 절 버튼
+(`JournalPanel.jsx:570`)은 제목이 `journal-tool__kr`뿐이라 **한국어 밖 여섯
+로케일에서 제목 없이** 본문만 뜹니다. 2026-09-03까지 동의 각주가 일곱 언어
+모두 그 제목을 이정표로 쓰고 있었고, 여섯은 화면에 없는 글자를 찾고 있었습니다.
+각주는 여권 탭을 가리키도록 고쳤지만 **버튼 자체는 그대로**입니다 —
+비한국어 화면에서 이름이 없습니다.
+
+같은 시트로 가는 다른 문(`TableDetail.jsx:1546`)은 반대로 일곱 언어로
+번역돼 있습니다. 그래서 같은 화면으로 가는 두 문이 서로 다른 이름을 갖고,
+한쪽은 이름이 아예 없습니다. 별건으로 잡으세요.
+
 ### 같은 부류가 더 있는지 — 훑었습니다
 
 `__en`/`-en`으로 끝나는 슬롯은 저장소 전체에 **43개**이고, 대부분은 정상적인
@@ -379,7 +392,7 @@ the file alone changes nothing that is already running.
 ## 8. Commands
 
 ```bash
-npm test                      # 904 tests — must stay green
+npm test                      # 914 tests — must stay green
 node scripts/audit-i18n.mjs   # must print 0
 npm run dev                   # port 5177 (see .claude/launch.json)
 npm run build                 # artefacts in dist/, data included

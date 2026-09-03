@@ -1,7 +1,7 @@
 # 밥친구 잇플 / Eatple — 인수인계
 
 **최종 갱신:** 2026-08-28 · 배포 중인 최신 커밋 기준
-**테스트:** 904개 전부 통과 (`npm test`)
+**테스트:** 914개 전부 통과 (`npm test`)
 **배포:** https://eatple.vercel.app
 
 이 문서 하나로 이전 대화를 읽지 않고 이어서 작업할 수 있게 썼습니다.
@@ -77,7 +77,7 @@ npm run dev
 anon 키가 공개여도 안전한 이유가 RLS이고, 그게 이 파일에 있습니다.
 
 ```bash
-npm test          # 904개
+npm test          # 914개
 npm run lint      # oxlint
 npm run build
 ```
@@ -437,7 +437,7 @@ delete from public.signups; delete from public.tables; delete from public.profil
 `kfm-bookmarks`, `kfm-markets`, `kfm-experiences`, `kfm-prologue`
 (`kfm-` 접두사는 K-Food Map 시절 이름이 남은 것입니다).
 
-**테스트:** Node 24 내장 러너, 의존성 0. `src/**/*.test.mjs`, 69개 파일 904개.
+**테스트:** Node 24 내장 러너, 의존성 0. `src/**/*.test.mjs`, 69개 파일 914개.
 로컬(localStorage) 백엔드인 `tableRepository.js`는 직접 테스트가 없습니다 —
 도메인 계층(순수 함수)을 통해서만 검증하고, 백엔드 자체는 필요할 때 수동
 스모크 스크립트로 확인하는 게 이 저장소의 방식입니다.
