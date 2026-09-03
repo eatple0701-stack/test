@@ -38,6 +38,12 @@
  *
  * `>=` closes it from the other side, which is the side a deploy cannot
  * reach: an old bundle stops asking people who are ahead of it.
+ *
+ * 2026-09-03, later the same day: no longer what stands between anybody and
+ * a gate — see showsRulesGate below, which stopped calling this. Kept for
+ * `rules_version`'s other reader, the KF report's `agreed_for_kf` count
+ * (docs/pilot-participant-count.md), and because a version comparison this
+ * well-tested is worth more alive than deleted.
  */
 export function agreedToRules(profile, currentVersion) {
   const agreed = profile?.rulesVersion;
@@ -68,9 +74,18 @@ export const rulesAgreement = (currentVersion, now = Date.now()) => ({
  * to the rules is not a promise to finish the action) and the team rejected
  * that; it was not ours to settle. You are asked until you actually open a
  * table or take a seat.
+ *
+ * Later the same day: also used to skip straight past this for anybody
+ * `agreedToRules` already held, so a first table meant every later one
+ * opened straight to the form. That is not the rule stated on screen —
+ * 상을 차리시거나 자리를 요청하실 때마다 여쭙습니다 — it is the rule the
+ * footnote used to state, until "then not again" turned out to be the wrong
+ * half of the fix: an agreement is to tonight's table, not a standing yes
+ * carried into every table after it. The gate stands every time now; only
+ * `agreedInThisForm` — this visit, this table — takes it down.
  */
-export function showsRulesGate(profile, currentVersion, agreedInThisForm) {
-  return !agreedToRules(profile, currentVersion) && !agreedInThisForm;
+export function showsRulesGate(agreedInThisForm) {
+  return !agreedInThisForm;
 }
 
 /**
@@ -82,12 +97,15 @@ export function showsRulesGate(profile, currentVersion, agreedInThisForm) {
  * it a record. Writing the completion time instead would stamp the agreement
  * with a moment at which nobody read anything.
  *
- * Null in the two cases that matter: nobody passed a gate on this screen (they
- * had already agreed), and the profile already records this version or later.
- * The second is what stops a second table rewriting a first agreement.
+ * Null when nobody passed a gate on this screen — there is nothing pending
+ * to write. Used to also go null when the profile already recorded this
+ * version or later, so a second table did not rewrite the first agreement.
+ * That stopped being right the moment showsRulesGate started asking every
+ * time: the gate stands again for the second table, so finishing it is a
+ * genuine second agreement, and `rules_consents` is a log built to hold
+ * exactly that (…-02a-rules-consents-history.sql — its unique constraint is
+ * `(profile_id, version, agreed_at)`, not `(profile_id, version)`).
  */
-export function consentToRecord(profile, currentVersion, pending) {
-  if (!pending) return null;
-  if (agreedToRules(profile, currentVersion)) return null;
-  return pending;
+export function consentToRecord(pending) {
+  return pending ?? null;
 }

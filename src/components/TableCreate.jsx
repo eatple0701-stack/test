@@ -144,7 +144,7 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
     // them to it is now a record. Walking away from this form leaves the
     // profile untouched and the gate standing next time — reported and fixed
     // on 2026-09-03, after the button had been writing it.
-    const consent = consentToRecord(profile, PURPOSE.version, agreedHere);
+    const consent = consentToRecord(agreedHere);
     if (consent) onAgree?.(consent);
     onCreated(row.id);
   };
@@ -153,7 +153,7 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
   // they are the one setting the terms of the evening. Gating the whole form
   // rather than the submit button keeps somebody from filling in a dish, a
   // date and a place before finding out there was a condition.
-  if (showsRulesGate(profile, PURPOSE.version, agreedHere !== null)) {
+  if (showsRulesGate(agreedHere !== null)) {
     return (
       <section className="sheet-page" aria-label={say('Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌', '食卓を開く')}>
         <header className="sheet-page__head">
@@ -163,7 +163,7 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
           <h1>{say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌', '食卓を開く')}</h1>
         </header>
         <div className="form-block">
-          <h2 className="form-label">{say('Before your first table', '첫 상을 차리기 전에', 'Antes de tu primera mesa', 'Avant votre première table', 'قبل مائدتك الأولى', '在你的第一张饭桌之前', 'はじめての食卓の前に')}</h2>
+          <h2 className="form-label">{say('Before you open a table', '상을 차리기 전에', 'Antes de abrir una mesa', "Avant d'ouvrir une table", 'قبل أن تفتح مائدة', '在你开一张饭桌之前', '食卓を開く前に')}</h2>
           <RulesConsent
             onAgree={() => setAgreedHere(rulesAgreement(PURPOSE.version))}
             action={AGREE_ACTION.OPEN_TABLE}

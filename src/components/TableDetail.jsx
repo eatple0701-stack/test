@@ -287,7 +287,7 @@ export default function TableDetail({ tableId, profile, onProfileChange, onAgree
     // The seat is requested; the agreement that got them here is now a
     // record. Not at the button — a form somebody backs out of records
     // nothing and is asked again. Same rule as the host door.
-    const consent = consentToRecord(profile, PURPOSE.version, agreedHere);
+    const consent = consentToRecord(agreedHere);
     if (consent) onAgree?.(consent);
     await refresh();
     setBusy(false);
@@ -1388,14 +1388,14 @@ export default function TableDetail({ tableId, profile, onProfileChange, onAgree
             {say(gateText('join-table').cta, null, gateText('join-table').ctaEs, gateText('join-table').ctaFr, gateText('join-table').ctaAr, gateText('join-table').ctaZh, gateText('join-table').ctaJa)}
           </button>
         </div>
-      ) : showsRulesGate(profile, PURPOSE.version, agreedHere !== null) ? (
+      ) : showsRulesGate(agreedHere !== null) ? (
         /* 교수님's ask, in the one place it is genuinely read: nobody has
            committed to anything yet, and the next tap is the commitment.
            Replaces the seat form rather than sitting above it, so there is
            no half-filled form to lose and no way to reach the button
            without having passed this. */
         <div className="join-block">
-          <h3 className="detail-block__label">{say('Before your first seat', '첫 자리를 잡기 전에', 'Antes de tu primer sitio', 'Avant votre première place', 'قبل مقعدك الأول', '在你的第一个位子之前', 'はじめての席の前に')}</h3>
+          <h3 className="detail-block__label">{say('Before you ask for a seat', '자리를 요청하기 전에', 'Antes de pedir sitio', 'Avant de demander une place', 'قبل أن تطلب مقعدًا', '在你申请一个位子之前', '席をリクエストする前に')}</h3>
           <RulesConsent
             onAgree={() => setAgreedHere(rulesAgreement(PURPOSE.version))}
             action={AGREE_ACTION.ASK_SEAT}

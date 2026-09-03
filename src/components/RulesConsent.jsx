@@ -49,7 +49,11 @@ export default function RulesConsent({ onAgree, action }) {
           It said "Asked once" until 2026-09-03, and that stopped being true
           the same day: the agreement is recorded when a table is actually
           opened or a seat actually asked for, so anybody who backs out of the
-          form sees this again. The sentence says what happens now.
+          form sees this again. It then said "then not again", the same day —
+          true for a few hours, until the team settled the larger question
+          the fix had only half-answered: an agreement is to tonight's table,
+          not a standing yes carried into every table after it. The gate
+          stands every time now, both doors, and this says so.
 
           It also said "under 도움이 필요하면", in all seven. That label is a
           `journal-tool__kr` span, and index.css:11739 hides every `__kr` class
@@ -61,9 +65,9 @@ export default function RulesConsent({ onAgree, action }) {
           inside it: one signpost for everybody is worth more than a shorter
           walk for one of them. */}
       <p className="rules-consent__note">
-        {say('Asked until you open a table or ask for a seat — then not again. You can read this any time on your Passport.',
-          '상을 차리거나 자리를 요청하실 때까지 여쭙고, 그 뒤로는 묻지 않습니다. 여권에서 언제든 다시 읽으실 수 있어요.',
-          'Te lo preguntamos hasta que abras una mesa o pidas sitio; después, no más. Puedes leerlo cuando quieras en tu Pasaporte.', "Demandé jusqu'à ce que vous ouvriez une table ou demandiez une place — ensuite, plus jamais. Vous pouvez le relire à tout moment dans votre Passeport.", 'نسألك حتى تفتح مائدة أو تطلب مقعدًا، ثم لا نسأل بعدها. وتستطيع قراءته في أي وقت من الجواز.', '在你开一张饭桌或申请一个位子之前，每次都会问；之后就不再问了。你随时可以在护照里再读一遍。', '食卓を開くか席をリクエストするまではそのつどお尋ねし、そのあとは尋ねません。パスポートからいつでも読み返せます。')}
+        {say('Asked every time you open a table or ask for a seat. You can read this any time on your Passport.',
+          '상을 차리시거나 자리를 요청하실 때마다 여쭙습니다. 여권에서 언제든 다시 읽으실 수 있어요.',
+          'Te lo preguntamos cada vez que abras una mesa o pidas sitio. Puedes leerlo cuando quieras en tu Pasaporte.', 'Demandé chaque fois que vous ouvrez une table ou demandez une place. Vous pouvez le relire à tout moment dans votre Passeport.', 'نسألك في كل مرة تفتح فيها مائدة أو تطلب مقعدًا. وتستطيع قراءته في أي وقت من الجواز.', '每次你开一张饭桌或申请一个位子，都会问一次。你随时可以在护照里再读一遍。', '食卓を開くときも席をリクエストするときも、そのたびにお尋ねします。パスポートからいつでも読み返せます。')}
       </p>
     </div>
   );

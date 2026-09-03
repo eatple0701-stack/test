@@ -149,15 +149,14 @@ test('the gate a stale bundle shows cannot write consent backwards', () => {
 // the sequence can be tested without a browser: press, leave, come back,
 // press, finish.
 
-test('the gate stands in front of somebody who has not agreed', () => {
-  assert.equal(showsRulesGate({ rulesVersion: null }, 2, false), true);
-  assert.equal(showsRulesGate({ rulesVersion: 1 }, 2, false), true);
+test('the gate stands in front of somebody who has not agreed in this visit', () => {
+  assert.equal(showsRulesGate(false), true);
 });
 
 test('passing the gate opens the form for this visit only', () => {
-  // The second argument is the visit, not the record: it is component state
-  // that dies with the screen, which is what makes leaving undo it.
-  assert.equal(showsRulesGate({ rulesVersion: 1 }, 2, true), false);
+  // The argument is the visit, not the record: it is component state that
+  // dies with the screen, which is what makes leaving undo it.
+  assert.equal(showsRulesGate(true), false);
 });
 
 /**
@@ -170,53 +169,46 @@ test('passing the gate opens the form for this visit only', () => {
  * to write. A version of this that recorded on `agree()` would pass every
  * assertion above and fail every one below.
  */
-const visit = (profile, version) => {
+const visit = (version) => {
   let pending = null;
   return {
-    gate: () => showsRulesGate(profile, version, pending !== null),
+    gate: () => showsRulesGate(pending !== null),
     agree: (at) => { pending = rulesAgreement(version, at); },
     leave: () => { pending = null; },
-    finish: () => consentToRecord(profile, version, pending),
+    finish: () => consentToRecord(pending),
   };
 };
 
 test('leaving without finishing brings the gate back', () => {
   // The reported bug, as the sequence a person actually performed.
-  const profile = { rulesVersion: 1 };
-
-  const first = visit(profile, 2);
+  const first = visit(2);
   assert.equal(first.gate(), true, 'first visit: the gate should stand');
   first.agree(1_756_000_000_000);
   assert.equal(first.gate(), false, 'after agreeing: the form should open');
   first.leave();                       // back, without opening a table
 
-  assert.equal(profile.rulesVersion, 1, 'walking away wrote to the profile');
-
-  const second = visit(profile, 2);
+  const second = visit(2);
   assert.equal(second.gate(), true, 'second visit: the gate should stand again');
 });
 
 test('a table that never gets created records nothing', () => {
   // The same sequence from the writing side: finish() is the only thing that
   // produces a record, and it is never called on a screen somebody left.
-  const profile = { rulesVersion: 1 };
-  const v = visit(profile, 2);
+  const v = visit(2);
   v.agree(1_756_000_000_000);
   v.leave();
   assert.equal(v.finish(), null, 'a screen that was left behind still had something to write');
 });
 
 test('the same visit, carried through to a created table, does record', () => {
-  const profile = { rulesVersion: 1 };
-  const v = visit(profile, 2);
+  const v = visit(2);
   v.agree(1_756_000_000_000);
   assert.deepEqual(v.finish(), { rulesVersion: 2, rulesAgreedAt: 1_756_000_000_000 });
 });
 
 test('finishing the action is what records the agreement', () => {
   const pending = { rulesVersion: 2, rulesAgreedAt: 1_756_000_000_000 };
-  assert.deepEqual(consentToRecord({ rulesVersion: 1 }, 2, pending), pending);
-  assert.deepEqual(consentToRecord({ rulesVersion: null }, 2, pending), pending);
+  assert.deepEqual(consentToRecord(pending), pending);
 });
 
 test('the recorded timestamp is when they agreed, not when they finished', () => {
@@ -224,30 +216,38 @@ test('the recorded timestamp is when they agreed, not when they finished', () =>
   // the completion time instead would put a moment on it at which nobody read
   // anything.
   const pressedAt = 1_756_000_000_000;
-  const recorded = consentToRecord({ rulesVersion: 1 }, 2,
-    { rulesVersion: 2, rulesAgreedAt: pressedAt });
+  const recorded = consentToRecord({ rulesVersion: 2, rulesAgreedAt: pressedAt });
   assert.equal(recorded.rulesAgreedAt, pressedAt);
 });
 
-test('finishing again writes nothing the second time', () => {
-  // Somebody who has already agreed opens a second table. There is no gate
-  // for them to pass, so there is no pending consent — and even if a caller
-  // passed one, it must not re-write a record that already exists.
-  assert.equal(consentToRecord({ rulesVersion: 2 }, 2, null), null);
-  assert.equal(consentToRecord({ rulesVersion: 2 }, 2, { rulesVersion: 2, rulesAgreedAt: 9 }), null);
+test('nothing pending writes nothing', () => {
+  // Nobody passed a gate on this screen, so there is nothing to record.
+  assert.equal(consentToRecord(null), null);
 });
 
-test('one door satisfies the other', () => {
-  // Both gates read the same column and the rules are the same four lines,
-  // so a guest who has taken a seat is not asked again when they later host.
-  const afterTakingASeat = { rulesVersion: 2, rulesAgreedAt: 1 };
-  assert.equal(showsRulesGate(afterTakingASeat, 2, false), false,
-    'the host door asked somebody who had already agreed as a guest');
+// ── Every table asks again, both doors ────────────────────────────────────
+//
+// 2026-09-03, later the same day: showsRulesGate and consentToRecord used to
+// also read `agreedToRules(profile, currentVersion)`, so a first table meant
+// every later one — and the other door — skipped straight past the wall. The
+// footnote said "then not again" for a few hours before the team settled the
+// plainer rule the module comment states now: an agreement is to tonight's
+// table, not a standing yes carried into the next one. `agreedToRules` is
+// kept (tested above) for `rules_version`'s other reader, but neither gate
+// function calls it any more — both take the visit, and nothing else.
+
+test('having agreed moments ago does not skip the gate for a new table', () => {
+  // The old signature would have read a profile carrying a fresh agreement
+  // and opened straight past the wall. A brand new visit simply has no
+  // agreedInThisForm to pass, whatever the profile remembers.
+  assert.equal(showsRulesGate(false), true);
 });
 
-test('an agreement to a newer version still opens both doors', () => {
-  // The 2026-09-03 incident's fix, held here too: this is the check a stale
-  // bundle runs, and it must not put its own gate in front of somebody ahead
-  // of it — which is how the un-agreement happened in the first place.
-  assert.equal(showsRulesGate({ rulesVersion: 3 }, 2, false), false);
+test('finishing again writes again the second time', () => {
+  // Opening a second table after agreeing to the first is still a gate the
+  // person passed, so it is still something to record — rules_consents is a
+  // log, not a single cell, and is built to hold both rows
+  // (…-02a-rules-consents-history.sql).
+  const second = { rulesVersion: 2, rulesAgreedAt: 2_000_000_000_000 };
+  assert.deepEqual(consentToRecord(second), second);
 });
