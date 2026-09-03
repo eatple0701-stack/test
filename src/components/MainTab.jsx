@@ -332,7 +332,59 @@ export default function MainTab({
             {playing && !reducedMotion ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
           </button>
         </div>
+
       </header>
+
+      {/* ---- How it happens, moved up here 2026-09-03 from a band far down
+              the page. Pilot feedback: too many things to read before
+              landing on one to do, and a request to surface more of the page
+              as something swiped through rather than scrolled past. Measured
+              before and after on a 375px phone: the first step used to begin
+              3,552px down the document and now begins at 777px.
+
+              Directly after the hero and not inside it, which was the first
+              attempt and does not work: on desktop `.main-hero__blobs` is
+              `position: absolute; inset: 0` over the hero, and 보쌈 and 족발
+              are pinned to its *bottom* (`.main-blob--2/--3 { bottom: 64px
+              /84px }`). Growing the hero moves that bottom, so the two blobs
+              landed on the new cards — 7,171px² of 족발 across the third one,
+              its word over the money line. Sitting outside the hero, the
+              blobs keep the coordinates they were drawn for and this keeps
+              its place near the top: measured 0 overlapping pixels.
+
+              The zigzag-and-curly-arrow layout this replaced was built for a
+              fixed three-card spread, which a swipeable row cannot be (a card
+              mid-swipe is not "at 42% from the left" the way an arrow needed
+              it to be) — dropped rather than carried over. Same swipe-rail
+              recipe as an open dish category's cards (index.css,
+              .dish-row__panel .dish-grid): overflow-x + scroll-snap, no
+              library. One row at every width; at 768px and up all three fit
+              with nothing left to swipe. ---- */}
+      <div className="main-how">
+        <h2 className="main-how__label">
+          <span className="main-how__label-kr" translate="no">밥친구가 이루어지는 방식</span>
+          <span className="main-how__label-en">
+            {say('How a table happens', null, 'Cómo nace una mesa', 'Comment naît une table', 'كيف تنشأ مائدة', '一张饭桌是怎么成的', '食卓はどう生まれるか')}
+          </span>
+        </h2>
+        <div className="main-zig" role="group" aria-label={say('How a table happens, in three steps', '밥친구가 이루어지는 세 단계', 'Cómo nace una mesa, en tres pasos', 'Comment naît une table, en trois étapes', 'كيف تنشأ مائدة، في ثلاث خطوات', '一张饭桌是怎么成的，分三步', '食卓が生まれる三つの段階')}>
+          {HOW_STEPS.map((s, i) => (
+            <div key={s.id} className="main-zig__step">
+              <span className="main-zig__num" aria-hidden="true">{i + 1}</span>
+              <span className="main-zig__kr" translate="no">{s.kr}</span>
+              <span className="main-zig__en">{say(s.en, null, s.es, s.fr, s.ar, s.zh, s.ja)}</span>
+            </div>
+          ))}
+        </div>
+        {/* One sentence, two elements rather than "<strong>한국어</strong> —
+            English" in a single node: the em dash joining them belongs to
+            neither language, so a splitter cannot cut this cleanly and the
+            markup has to do it. */}
+        <p className="main-how__why">
+          <strong className="main-how__why-kr" translate="no">{HOW_WHY.kr}</strong>
+          <span className="main-how__why-en">{say(HOW_WHY.en, null, HOW_WHY.es, HOW_WHY.fr, HOW_WHY.ar, HOW_WHY.zh, HOW_WHY.ja)}</span>
+        </p>
+      </div>
 
       {/* ---- The six groups: matching starts by naming what you came
               to eat. Each card is a door into the tables screen with that
@@ -409,43 +461,6 @@ export default function MainTab({
             </button>
           ))}
         </div>
-      </div>
-
-      {/* ---- How it happens: the zigzag with curly arrows ---- */}
-      <div className="main-band main-band--how">
-        <h2 className="main-band__title">
-          <span className="main-band__title-kr" translate="no">밥친구가 이루어지는 방식</span>
-          <span className="main-band__title-en">
-            {say('How a table happens', null, 'Cómo nace una mesa', 'Comment naît une table', 'كيف تنشأ مائدة', '一张饭桌是怎么成的', '食卓はどう生まれるか')}
-          </span>
-        </h2>
-        <div className="main-zig">
-          {HOW_STEPS.map((s, i) => (
-            <div key={s.id} className={`main-zig__step main-zig__step--${i}`}>
-              <span className="main-zig__num" aria-hidden="true">{i + 1}</span>
-              <span className="main-zig__kr" translate="no">{s.kr}</span>
-              <span className="main-zig__en">{say(s.en, null, s.es, s.fr, s.ar, s.zh, s.ja)}</span>
-            </div>
-          ))}
-          <svg className="main-zig__arrow main-zig__arrow--0" viewBox="0 0 160 80" fill="none" aria-hidden="true">
-            <path d="M10 20 C 60 -6, 96 10, 96 34 C 96 52, 72 56, 68 42 C 64 28, 92 22, 120 34 C 136 41, 146 52, 150 62"
-              stroke="currentColor" strokeWidth="2" strokeDasharray="1 7" strokeLinecap="round" />
-            <path d="M142 58 L 150 62 L 146 53" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <svg className="main-zig__arrow main-zig__arrow--1" viewBox="0 0 160 80" fill="none" aria-hidden="true">
-            <path d="M150 18 C 110 46, 70 40, 48 44 C 30 47, 16 56, 10 64"
-              stroke="currentColor" strokeWidth="2" strokeDasharray="1 7" strokeLinecap="round" />
-            <path d="M18 60 L 10 64 L 15 55" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        {/* One sentence, two elements rather than "<strong>한국어</strong> —
-            English" in a single node: the em dash joining them belongs to
-            neither language, so a splitter cannot cut this cleanly and the
-            markup has to do it. */}
-        <p className="main-how__why">
-          <strong className="main-how__why-kr" translate="no">{HOW_WHY.kr}</strong>
-          <span className="main-how__why-en">{say(HOW_WHY.en, null, HOW_WHY.es, HOW_WHY.fr, HOW_WHY.ar, HOW_WHY.zh, HOW_WHY.ja)}</span>
-        </p>
       </div>
 
       {/* ---- What keeps a table safe ----
