@@ -116,8 +116,19 @@ export const PURPOSE = {
    * that do not change what is being agreed to should NOT bump it — asking
    * a traveller to re-agree to a comma is how a consent step turns into
    * something people click through without reading.
+   *
+   * 1 -> 2 on 2026-09-03, and this one is not a wording fix. The first
+   * sentence of `rule` made a claim about what a restaurant will serve one
+   * person — false for 10 of the 24 dishes in the catalogue — and it was the
+   * sentence that said what the app is. Everybody who agreed to v1 agreed to
+   * that. They are asked again.
+   *
+   * The ten v1 agreements survive the bump because 2026-09-02a landed first:
+   * rules_consents is the complete log and profiles' two columns are a cache
+   * of the latest. Bumping before that migration would have overwritten the
+   * only record each of them had.
    */
-  version: 1,
+  version: 2,
   /**
    * What the app is for. Read by the guest under the seat button
    * (TableDetail) and by anyone who opens 도움이 필요하면 (SafetySheet).
