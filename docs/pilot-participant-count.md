@@ -206,6 +206,8 @@
 | `39edcb02-3928-4190-943b-d318584fd621` | 2026-09-02 | 요리 24개 확장 dev 서버 확인 (브라우저 pane 세션) |
 | `9706ff0f-7f69-422b-acc7-901b4a2aa980` | 2026-09-02 | 요리 24개 배포 확인. **19f6ab00 재사용 지시를 어기고 생긴 새 행** — pane 저장소가 비어 있었고 id 불일치 시 멈추는 가드가 없었음. 동의 게이트도 눌러 `rules_agreed_at` 기록됨 |
 | `61503ff6-9fc7-4b37-9913-aec1ec6cfd85` | 2026-09-03 | 동의 게이트 7언어 착지 확인. dev 서버를 새로 켜면서 생긴 **새 행** — pane 저장소가 다시 비어 있었습니다. 가드가 잡아 즉시 기록했고, **동의 버튼은 누르지 않았으므로** `rules_version`은 비어 있습니다 |
+| `f76f70c0-5284-4cd8-891f-a4dc98654405` | 2026-09-03 | 요리 6그룹 아코디언 착지 확인 (포트 5177, 브라우저 pane 세션). 동의 버튼은 누르지 않았습니다 |
+| `c2de072b-a618-4add-9113-b391163fd344` | 2026-09-03 | 같은 작업의 두 번째 서버(포트 5179). **켜지 말았어야 할 행**입니다 — `vite --mode test`가 `.env.local`을 무시할 거라고 본 판단이 틀렸고, 그대로 프로덕션에 가입했습니다. `.env.local`을 잠시 치우는 방법만이 실제로 로컬 전용입니다 |
 
 새로 dev를 붙일 때마다 이 표에 한 줄 추가하세요. uuid는 브라우저
 콘솔에서 이렇게 확인합니다:
@@ -226,7 +228,10 @@ with excluded (id) as (values
   ('cb6b50ab-3877-4aa1-85fe-b5a415e6d6da'::uuid),
   ('19f6ab00-1a17-4567-a40d-851c61025884'::uuid),
   ('39edcb02-3928-4190-943b-d318584fd621'::uuid),
-  ('9706ff0f-7f69-422b-acc7-901b4a2aa980'::uuid)
+  ('9706ff0f-7f69-422b-acc7-901b4a2aa980'::uuid),
+  ('61503ff6-9fc7-4b37-9913-aec1ec6cfd85'::uuid),
+  ('f76f70c0-5284-4cd8-891f-a4dc98654405'::uuid),
+  ('c2de072b-a618-4add-9113-b391163fd344'::uuid)
 )
 select
   (select count(*) from public.profiles)                                as profiles_all,
@@ -309,7 +314,10 @@ with excluded (id) as (values
   ('cb6b50ab-3877-4aa1-85fe-b5a415e6d6da'::uuid),
   ('19f6ab00-1a17-4567-a40d-851c61025884'::uuid),
   ('39edcb02-3928-4190-943b-d318584fd621'::uuid),
-  ('9706ff0f-7f69-422b-acc7-901b4a2aa980'::uuid)
+  ('9706ff0f-7f69-422b-acc7-901b4a2aa980'::uuid),
+  ('61503ff6-9fc7-4b37-9913-aec1ec6cfd85'::uuid),
+  ('f76f70c0-5284-4cd8-891f-a4dc98654405'::uuid),
+  ('c2de072b-a618-4add-9113-b391163fd344'::uuid)
 )
 select
   count(*) filter (where rules_version is not null)                                   as agreed_all,       -- 마이그레이션 합격값
@@ -341,7 +349,10 @@ with excluded (id) as (values
   ('cb6b50ab-3877-4aa1-85fe-b5a415e6d6da'::uuid),
   ('19f6ab00-1a17-4567-a40d-851c61025884'::uuid),
   ('39edcb02-3928-4190-943b-d318584fd621'::uuid),
-  ('9706ff0f-7f69-422b-acc7-901b4a2aa980'::uuid)
+  ('9706ff0f-7f69-422b-acc7-901b4a2aa980'::uuid),
+  ('61503ff6-9fc7-4b37-9913-aec1ec6cfd85'::uuid),
+  ('f76f70c0-5284-4cd8-891f-a4dc98654405'::uuid),
+  ('c2de072b-a618-4add-9113-b391163fd344'::uuid)
 ), kf as (
   select id from public.profiles
    where rules_version is not null and id not in (select id from excluded)

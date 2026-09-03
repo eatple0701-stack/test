@@ -12202,3 +12202,59 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 }
 .dish-found__actions .is-primary { background: var(--accent, #b5652d); border-color: var(--accent, #b5652d); color: #fff; }
 .dish-found--none { color: var(--muted, #6b6b6b); font-size: 14px; }
+
+/* ── The two-level dish picker ────────────────────────────────────────────
+   Six category rows, all shut, opening in place. Shared by 상 차리기 and the
+   tables list — see components/DishGroupAccordion.jsx. The tint is the same
+   one the map's dots and the front page's cards take, passed down as --tint,
+   so a category is one colour everywhere it appears. */
+.dish-picker { margin: 0 0 4px; }
+.dish-picker__groups { display: flex; flex-direction: column; gap: 8px; margin: 0 16px; }
+.dish-picker__results { margin: 8px 16px 0; }
+.dish-picker__none { margin: 8px 0 0; font-size: 14px; color: var(--muted, #6b6b6b); }
+.dish-picker__clear { margin: 10px 16px 0; }
+
+.dish-row {
+  border: 1px solid var(--line, #e6e0d8);
+  border-radius: 14px;
+  background: var(--card, #fff);
+  overflow: hidden;
+}
+/* The chosen category, on the guest's screen. A left edge rather than a fill:
+   the row holds four dish tiles that do their own selected state, and a
+   filled header competed with them. */
+.dish-row.is-chosen { border-color: var(--tint); box-shadow: inset 3px 0 0 0 var(--tint); }
+.dish-row__head { margin: 0; font-size: inherit; font-weight: inherit; }
+.dish-row__toggle {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 14px 14px; background: transparent; border: 0; cursor: pointer;
+  text-align: start; font: inherit; color: inherit;
+}
+.dish-row__emoji { font-size: 20px; line-height: 1; }
+.dish-row__name { flex: 1; font-size: 16px; font-weight: 700; }
+.dish-row__count {
+  font-size: 12px; color: var(--muted, #6b6b6b);
+  border: 1px solid var(--line, #e6e0d8); border-radius: 999px; padding: 2px 8px;
+  white-space: nowrap;
+}
+/* Points down when the row is open. The icon is the same chevron the rest of
+   the app turns, so the direction means the same thing here as everywhere. */
+.dish-row__chevron { display: inline-flex; color: var(--muted, #6b6b6b); transition: transform 120ms ease; }
+.dish-row.is-expanded .dish-row__chevron { transform: rotate(90deg); }
+.dish-row__panel { padding: 0 14px 14px; }
+.dish-row__all {
+  display: block; width: 100%; margin: 0 0 10px;
+  padding: 10px 12px; border-radius: 10px; cursor: pointer; font: inherit;
+  border: 1px dashed var(--tint); background: transparent; color: var(--tint);
+  font-weight: 600; text-align: start;
+}
+.dish-row__all.is-on { background: var(--tint); border-style: solid; color: #fff; }
+
+/* Right to left, the chevron points the other way and so does its rotation. */
+[dir="rtl"] .dish-row__chevron { transform: scaleX(-1); }
+[dir="rtl"] .dish-row.is-expanded .dish-row__chevron { transform: scaleX(-1) rotate(90deg); }
+[dir="rtl"] .dish-row.is-chosen { box-shadow: inset -3px 0 0 0 var(--tint); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dish-row__chevron { transition: none; }
+}

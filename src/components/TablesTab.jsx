@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { menus, menuById } from '../domain/catalog/menus.js';
 import { categoryLabel } from '../domain/policy/dishLabels.js';
-import { DISH_GROUPS, groupOfMenu } from '../domain/catalog/dishGroups.js';
+import { groupOfMenu } from '../domain/catalog/dishGroups.js';
+import { PICK, joinableCount } from '../domain/policy/dishGroupPicker.js';
 import { seatsRemaining, isPast, attendance } from '../domain/policy/table.js';
 import {
   listTables, listAllSignups, listBlocks, seedSampleTables, isLocalOnly, tablesWithWoman,
@@ -20,6 +21,7 @@ import { waitingForYou } from '../domain/policy/waiting.js';
 import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
+import DishGroupAccordion from './DishGroupAccordion';
 import TablesMap from './TablesMap';
 import PhraseSheet from './PhraseSheet';
 import DishSheet from './DishSheet';
@@ -203,12 +205,14 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Only offer a filter for dishes somebody is actually eating — a chip that
-  // always returns nothing is a dead end dressed as a choice.
-  const liveMenuIds = useMemo(
-    () => menus.filter(m => inGroup.some(t => t.menuId === m.id)).map(m => m.id),
-    [inGroup],
-  );
+  // The number beside each category: tables somebody could still sit at, not
+  // tables that exist. One `now` for all six, and the arithmetic is
+  // seatsRemaining()'s rather than a second copy of the seat rules — the list
+  // and the detail page disagreed about exactly that until 2026-09-03.
+  const countFor = useMemo(() => {
+    const now = new Date();
+    return (g) => joinableCount(g, open, signupsFor, now);
+  }, [open, signupsFor]);
 
   // The search sits on top of the other filters. What the list shows, and
   // whether a found dish has nobody eating it yet, is the policy's call.
@@ -418,80 +422,41 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </p>
       )}
 
-      {/* The six groups, always all six. That deliberately breaks the rule
-          the dish chips live by — no chip that can return nothing — because
-          these are the app's own taxonomy and the front page offers every
-          one of them. A category that vanished whenever the week was thin
-          would make that offer a lie; an empty one lands on an empty state
-          whose answer is 상 차리기. */}
-      {/* Looking for something you already want is a different act from
-          browsing, and until 2026-09-02 the tab only had the second. Any of
-          the three names a card prints — 떡볶이, Tteokbokki, "rice cakes" —
-          reaches the dish; dishSearch.js decides what that means. */}
-      <div className="dish-search">
-        <label className="search-field">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" />
-            <path d="m20 20-3.5-3.5" />
-          </svg>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={say('Find a dish — 떡볶이, tteokbokki, rice cakes', '요리 이름으로 찾기 — 떡볶이, tteokbokki', 'Busca un plato: 떡볶이, tteokbokki', 'Cherchez un plat : 떡볶이, tteokbokki', 'ابحث عن طبق: 떡볶이، tteokbokki', '找一道菜：떡볶이、tteokbokki', '料理を探す：떡볶이、tteokbokki')}
-            aria-label={say('Find a dish by name', '요리 이름으로 찾기', 'Buscar un plato por su nombre', 'Chercher un plat par son nom', 'ابحث عن طبق باسمه', '按名字找菜', '料理を名前で探す')}
-          />
-        </label>
-      </div>
+      {/* The six groups, always all six, and the twenty-four dishes under
+          them — one component with the host's form, see DishGroupAccordion.
+          A category that vanished whenever the week was thin would make the
+          front page's offer a lie, so an empty one stays and reads 0; it
+          lands on an empty state whose answer is 상 차리기.
 
-      <div className="menu-chips group-chips" role="group" aria-label={say('Filter by kind of food', '음식 종류로 거르기', 'Filtrar por tipo de comida', 'Filtrer par type de plat', 'صفِّ بنوع الطعام', '按种类筛选', '種類で絞る')}>
-        <button
-          className={`menu-chip${groupFilter === null ? ' is-on' : ''}`}
-          onClick={() => pickGroup(null)}
-        >
-          {say('All', '전체', 'Todas', 'Toutes', 'الكل', '全部', 'すべて')}
-        </button>
-        {DISH_GROUPS.map(g => (
-          <button
-            key={g.id}
-            className={`menu-chip group-chip${groupFilter === g.id ? ' is-on' : ''}`}
-            style={groupFilter === g.id ? { background: g.tint, borderColor: g.tint, color: '#FFFFFF' } : undefined}
-            aria-pressed={groupFilter === g.id}
-            onClick={() => pickGroup(groupFilter === g.id ? null : g.id)}
-          >
-            <span aria-hidden="true">{g.emoji}</span> {say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}
-          </button>
-        ))}
-      </div>
+          Looking for something you already want is a different act from
+          browsing, and until 2026-09-02 the tab only had the second. The
+          search box is the picker's first row now: any of the three names a
+          card prints — 떡볶이, Tteokbokki, "rice cakes" — reaches the dish,
+          and dishSearch.js decides what that means.
 
-      {liveMenuIds.length > 1 && (
-        <div className="menu-chips" role="group" aria-label={say('Filter by dish', '요리로 거르기', 'Filtrar por plato', 'Filtrer par plat', 'صفِّ بالطبق', '按菜筛选', '料理で絞る')}>
-          <button
-            className={`menu-chip${menuFilter === null ? ' is-on' : ''}`}
-            onClick={() => setMenuFilter(null)}
-          >
-            {say('All', '전체', 'Todas', 'Toutes', 'الكل', '全部', 'すべて')}
+          The second chip row — one chip per dish somebody had already opened
+          a table for — is gone. On a week with one 간장게장 table it offered
+          exactly one dish, which is a list of what exists rather than a way
+          to choose. The accordion is all twenty-four, always. */}
+      <DishGroupAccordion
+        mode={PICK.GROUP_OR_DISH}
+        query={query}
+        onQueryChange={setQuery}
+        selectedMenuId={menuFilter}
+        onPickDish={(m) => setMenuFilter(menuFilter === m.id ? null : m.id)}
+        selectedGroupId={groupFilter}
+        onPickGroup={pickGroup}
+        countFor={countFor}
+      />
+
+      {/* The way back out. The chip row this replaced carried a 전체 button;
+          without one, clearing a category means remembering which row you
+          chose it in. Shown only when there is something to clear. */}
+      {(groupFilter || menuFilter) && (
+        <div className="dish-picker__clear">
+          <button type="button" className="menu-chip" onClick={() => { pickGroup(null); setMenuFilter(null); }}>
+            {say('Show every table', '전체 밥상 보기', 'Ver todas las mesas', 'Voir toutes les tables', 'اعرض كل الموائد', '看全部饭桌', 'すべての食卓を見る')}
           </button>
-          {liveMenuIds.map(id => {
-            const m = menuById(id);
-            return (
-              <button
-                key={id}
-                className={`menu-chip${menuFilter === id ? ' is-on' : ''}`}
-                onClick={() => setMenuFilter(menuFilter === id ? null : id)}
-              >
-                {/* 삼겹살 Samgyeopsal is a name and a spelling of that name —
-                    neither tells somebody who landed yesterday what the food
-                    is. The cards below have carried the gloss since the 8/1
-                    review asked for it ("로마자만 쓰지 않기"); the control you
-                    filter with had not, so the choice was between words with
-                    no meaning attached. */}
-                <span className="menu-chip__kr" translate="no">{m.nameKo}</span>
-                <span className="menu-chip__en">{m.name}</span>
-                <span className="menu-chip__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr, m.glossAr, m.glossZh, m.glossJa)}</span>
-              </button>
-            );
-          })}
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { menus } from '../domain/catalog/menus.js';
-import { DISH_GROUPS, romanDishes, glossDishes } from '../domain/catalog/dishGroups.js';
+import { DISH_GROUPS, romanDishes } from '../domain/catalog/dishGroups.js';
+import { glossDishesIn } from '../domain/policy/dishGroupPicker.js';
 import { isMember } from '../domain/policy/access.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import { MAIN_PHOTOS } from '../content/mainPhotos.js';
@@ -8,7 +9,7 @@ import { SAFETY_POINTS } from '../content/safetyPromise.js';
 import TablesLead from './TablesLead';
 import DishSheet from './DishSheet';
 import { ChevronRightIcon, XIcon, PauseIcon, PlayIcon } from './Icons';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
 
 // 메인 — the front door, added 2026-08-06 and rebuilt the same day.
 //
@@ -96,6 +97,7 @@ export default function MainTab({
   onRequestTable,
 }) {
   const say = useText();
+  const locale = useLocale();
   const [openDish, setOpenDish] = useState(null);
   // Whether the sticky join bar has been waved away. Component state, so it
   // lasts as long as this visit and no longer — see the bar's own comment.
@@ -352,9 +354,14 @@ export default function MainTab({
                   description appear for everyone not reading in Korean. */}
               <span className="main-group__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
               <span className="main-group__rom l-en-only" translate="no">{romanDishes(g)}</span>
-              <span className="main-group__gloss l-en-only">
-                {say(glossDishes(g), null, glossDishes(g), glossDishes(g), glossDishes(g), glossDishes(g), glossDishes(g))}
-              </span>
+              {/* This line said "grilled pork belly · grilled beef short rib"
+                  to a Spanish, French, Arabic, Chinese or Japanese reader —
+                  English, on a card with no other English on it, because it
+                  was built from DISH_NAME[].en and that table has one
+                  language. The catalogue has had all seven for every one of
+                  the twenty-four dishes since 2026-09-02; the card was simply
+                  reading the wrong table. Fixed 2026-09-03. */}
+              <span className="main-group__gloss l-en-only">{glossDishesIn(g, locale)}</span>
               <span className="main-group__go">{say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →</span>
             </button>
           ))}

@@ -164,7 +164,19 @@ export const DISH_NAME = {
 export const romanDishes = (group) =>
   group.dishes.map(d => DISH_NAME[d]?.rom ?? DISH_KO[d] ?? d).join(' · ');
 
-/** The same four, said plainly: "grilled pork belly · grilled beef short rib…" */
+/**
+ * The same four, said plainly: "grilled pork belly · grilled beef short rib…"
+ *
+ * English only, because DISH_NAME has one language — and as of 2026-09-03
+ * nothing calls it. The front page card did, and printed English to Spanish,
+ * French, Arabic, Chinese and Japanese readers the whole time it did. Use
+ * `glossDishesIn(group, locale)` in domain/policy/dishGroupPicker.js, which
+ * reads the catalogue's own seven.
+ *
+ * Left here rather than deleted so that the next person who wants this line
+ * finds the sentence above before they find the function. Do not put it on a
+ * screen.
+ */
 export const glossDishes = (group) =>
   group.dishes.map(d => DISH_NAME[d]?.en).filter(Boolean).join(' · ');
 

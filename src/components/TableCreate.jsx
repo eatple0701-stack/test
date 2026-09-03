@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  menus, menuById, defaultHourFor, eatenAtLabels,
+  menuById, defaultHourFor, eatenAtLabels,
 } from '../domain/catalog/menus.js';
+import { PICK } from '../domain/policy/dishGroupPicker.js';
 import { categoryLabel, containsLine, conflictLine } from '../domain/policy/dishLabels.js';
 import { validateNewTable } from '../domain/policy/table.js';
 import { MEETING_NOTE_MAX } from '../domain/policy/meeting.js';
@@ -9,6 +10,7 @@ import { GUIDES, TABLE_KIND_LABEL } from '../domain/catalog/hosts.js';
 import { LANGUAGES, cleanLanguages, languageLabel } from '../domain/catalog/languages.js';
 import { createTable } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
+import DishGroupAccordion from './DishGroupAccordion';
 import HostBrief from './HostBrief';
 import PlacePicker from './PlacePicker';
 import RulesConsent from './RulesConsent';
@@ -39,6 +41,9 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
   // time inheriting one from the dish before it, which is the app treating
   // its own guess as somebody's decision.
   const [timeTouched, setTimeTouched] = useState(false);
+  // "떡볶이가 먹고 싶다" on the host's side too. Local to the form: it
+  // narrows what the picker shows and nothing that gets submitted.
+  const [dishQuery, setDishQuery] = useState('');
   // Arriving from a restaurant fills in the two things that place already
   // knows. The dish is still asked, because a restaurant's category is not a
   // menu and guessing one would put the wrong word on somebody's table.
@@ -212,32 +217,27 @@ export default function TableCreate({ profile, onProfileChange, onAgree, onBack,
           </div>
         )}
         {bad.menu && <p className="field__error">{say('요리를 하나 골라 주세요 · Choose a dish.', '요리를 하나 골라 주세요', 'Elige un plato.', 'Choisissez un plat.', 'اختر طبقًا.', '挑一道菜。', '料理をひとつ選んでください。')}</p>}
-        <div className="dish-grid">
-          {menus.map(m => (
-            <button
-              key={m.id}
-              className={`dish-option${menuId === m.id ? ' is-on' : ''}`}
-              onClick={() => {
-                setMenuId(m.id);
-                // Never leave a seat count below the dish's own minimum.
-                setSeats(s => Math.max(Number(s) || 0, m.minPeople, 2));
-                // 감자탕 at 19:00 was the form's guess, not the dish's. Only
-                // moved where the catalog actually knows — a dish with no
-                // recorded time keeps whatever the host already set.
-                if (!timeTouched) setTime(defaultHourFor(m.id) ?? '19:00');
-              }}
-            >
-              <span className="dish-option__kr">{m.nameKo}</span>
-              <span className="dish-option__name">{m.name}</span>
-              {/* The romanisation is a sound, not a meaning. Testers could not
-                  tell what half these words were until they opened one. */}
-              <span className="dish-option__gloss">{say(m.gloss, m.glossKo, m.glossEs, m.glossFr, m.glossAr, m.glossZh, m.glossJa)}</span>
-              <span className="dish-option__min">
-                {m.minPeople > 1 ? say(`${m.minPeople}+ people`, `${m.minPeople}명 이상`, `${m.minPeople}+ personas`, `${m.minPeople}+ personnes`, `${m.minPeople} فأكثر`, `${m.minPeople} 人以上`, `${m.minPeople}人以上`) : say('Any size', '인원 제한 없음', 'Cualquier número', 'Sans minimum', 'أيّ عدد', '几个人都行', '人数は自由')}
-              </span>
-            </button>
-          ))}
-        </div>
+        {/* Twenty-four dishes in one flat grid was every dish at once and no
+            way in for somebody who does not already know them. Six rows now,
+            all shut, opened one at a time — and the same component the guest
+            browses with, so a dish that moves group moves on both screens.
+            The search box above it is part of that component: a host who
+            knows the word should not have to find its category first. */}
+        <DishGroupAccordion
+          mode={PICK.DISH}
+          query={dishQuery}
+          onQueryChange={setDishQuery}
+          selectedMenuId={menuId}
+          onPickDish={(m) => {
+            setMenuId(m.id);
+            // Never leave a seat count below the dish's own minimum.
+            setSeats(s => Math.max(Number(s) || 0, m.minPeople, 2));
+            // 감자탕 at 19:00 was the form's guess, not the dish's. Only
+            // moved where the catalog actually knows — a dish with no
+            // recorded time keeps whatever the host already set.
+            if (!timeTouched) setTime(defaultHourFor(m.id) ?? '19:00');
+          }}
+        />
       </div>
 
       {menu && (

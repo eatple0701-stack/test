@@ -40,6 +40,31 @@ export function categoryLabel(category, locale) {
 }
 
 /**
+ * What a dish is, in one phrase, in the reader's language.
+ *
+ * The catalogue spells the seven as `gloss`, `glossKo`, `glossEs` … rather
+ * than as a `{en, ko, es}` table, so this is the adapter and not a second
+ * translation. Written on 2026-09-03 because the front page's category cards
+ * printed `DISH_NAME[].en` — "grilled pork belly · grilled beef short rib" —
+ * to Spanish, French, Arabic, Chinese and Japanese readers, on a card with no
+ * English anywhere else on it. Same family as the four bugs in the note at
+ * the top of this file: the label came from a table, and only one language
+ * came with it.
+ */
+export function dishGloss(menu, locale) {
+  if (!menu) return '';
+  return pick(locale, {
+    en: menu.gloss,
+    ko: menu.glossKo,
+    es: menu.glossEs,
+    fr: menu.glossFr,
+    ar: menu.glossAr,
+    zh: menu.glossZh,
+    ja: menu.glossJa,
+  }) ?? '';
+}
+
+/**
  * The ingredient chips, one per value, in order.
  *
  * A value with no label comes back as its own id rather than being dropped:
