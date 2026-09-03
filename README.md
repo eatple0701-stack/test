@@ -113,14 +113,26 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 880 tests, node's built-in runner, no test-framework dependency
+npm test          # 886 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 npm run audit-i18n # every user-visible string that is not wired to the language setting
 ```
 
 Verify UI changes at **375×812** — desktop-width verification has missed real
-regressions before.
+regressions before. **Large type is measured at 360px, not 375.** A 360px
+viewport leaves the hero a 320px box, and the hero that shipped until
+2026-09-03 wrapped there in English, French and Japanese while passing at
+375px:
+
+```bash
+node scripts/measure-hero.mjs            # check; exits 1 on any line over the box
+node scripts/measure-hero.mjs --harness  # write the page to re-measure in a browser
+```
+
+It records the measured width of every line, so editing a line invalidates
+its number and fails until somebody re-measures. `heroFits.test.mjs` runs the
+same check in the suite.
 
 ### The language audit is the instrument, and it lies if you let it
 
