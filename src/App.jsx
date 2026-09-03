@@ -1037,6 +1037,13 @@ export default function App() {
               setActiveTab('match');
               setTableView({ screen: 'list', group: gid });
             }}
+            /* One dish rather than a whole category — the front page's group
+               cards open to their four dishes now, and picking one of those
+               is a narrower version of the same door. */
+            onPickDish={(menuId) => {
+              setActiveTab('match');
+              setTableView({ screen: 'list', menu: menuId });
+            }}
             onOpenTable={(id) => {
               setActiveTab('match');
               setTableView({ screen: 'detail', tableId: id });
@@ -1086,8 +1093,9 @@ export default function App() {
             the table list, so nothing that existed has gone away. */}
         {!openThemeId && activeTab === 'match' && tableView.screen === 'list' && (
           <TablesTab
-            key={tableView.group ?? 'all'}
+            key={`${tableView.group ?? 'all'}:${tableView.menu ?? 'all'}`}
             initialGroup={tableView.group ?? null}
+            initialMenu={tableView.menu ?? null}
             profile={profile}
             auth={auth}
             onOpenAuth={(mode) => setAuthMode(mode)}

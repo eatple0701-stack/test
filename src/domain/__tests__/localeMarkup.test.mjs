@@ -78,13 +78,20 @@ test('the front page says every hero word in both languages', () => {
 
   // Section headings were a bare Korean text node with an English span under
   // it. A bare text node has no element, so nothing could hide it.
-  // Three now: the six-group matching band, the dish tiles and the safety
-  // section. The zigzag moved up to sit directly under the hero on
-  // 2026-09-03 (see .main-how) and took its heading with it, under a
-  // different class — .main-band__title would have set 33px section type on
-  // a block that is deliberately quieter than the bands below it.
-  assert.equal(main.split('main-band__title-kr').length - 1, 3);
-  assert.equal(main.split('main-band__title-en').length - 1, 3);
+  // Two now: the six-group matching band and the safety section. The zigzag
+  // moved up to sit directly under the hero on 2026-09-03 (see .main-how)
+  // and took its heading with it, under a different class — .main-band__title
+  // would have set 33px section type on a block that is deliberately quieter
+  // than the bands below it. The dish tiles' band went on 2026-09-04, merged
+  // into the group cards, which open onto those same dishes now.
+  assert.equal(main.split('main-band__title-kr').length - 1, 2);
+  assert.equal(main.split('main-band__title-en').length - 1, 2);
+
+  // The merged section's subtitle — the dish band's old heading, kept as the
+  // line under the six cards. Asserted here so a heading that changed class
+  // does not quietly leave the rule this file exists to enforce.
+  assert.match(main, /main-groups__sub-kr/);
+  assert.match(main, /main-groups__sub-en/);
 
   // The zigzag's heading, now main-how__label rather than
   // main-band__title, still needs the same pair or it is exempt from the

@@ -56,13 +56,16 @@ const dayLabel = (date) => {
 // onOpenPassport is gone with the top bar it served: the way to your own
 // Passport is the chip in the app chrome now, on every screen rather than
 // this one.
-export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, initialGroup = null }) {
+export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, initialGroup = null, initialMenu = null }) {
   const say = useText();
   const locale = useLocale();
   const [tables, setTables] = useState(null);
   const [signups, setSignups] = useState([]);
   const [blockedIds, setBlockedIds] = useState([]);
-  const [menuFilter, setMenuFilter] = useState(null);
+  // Arrives already set when the front page sent the reader here having
+  // picked one dish rather than a whole category — the same door as
+  // initialGroup below, one level narrower.
+  const [menuFilter, setMenuFilter] = useState(initialMenu);
   // The six groups above the dishes. Arrives already set when one of the
   // front page's category cards brought the reader here — that is the
   // matching flow: say what you came to eat, then see who is already going.

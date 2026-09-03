@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { menus } from '../domain/catalog/menus.js';
-import { DISH_GROUPS, romanDishes } from '../domain/catalog/dishGroups.js';
+import { menuById } from '../domain/catalog/menus.js';
+import { DISH_GROUPS, romanDishes, menuIdOfDish } from '../domain/catalog/dishGroups.js';
 import { glossDishesIn } from '../domain/policy/dishGroupPicker.js';
+import { dishGloss } from '../domain/policy/dishLabels.js';
 import { isMember } from '../domain/policy/access.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import { MAIN_PHOTOS } from '../content/mainPhotos.js';
@@ -43,9 +44,6 @@ const HERO_BLOBS = [
   { word: '보쌈', roman: 'Bossam', tone: 'b-brass', tag: '호스트가 안내', tagEn: 'Your host explains', tagEs: 'El anfitrión te guía', tagFr: "L'hôte vous explique", tagAr: 'المضيف يشرح لك', tagZh: '主人带你', tagJa: 'ホストが案内します' },
   { word: '족발', roman: 'Jokbal', tone: 'b-pine', tag: '앱 결제 없음', tagEn: 'No in-app payment', tagEs: 'Sin pagos en la app', tagFr: "Aucun paiement dans l'app", tagAr: 'لا دفع في التطبيق', tagZh: '应用内不收钱', tagJa: 'アプリ内での支払いなし' },
 ];
-
-// Tile accents, cycled through the dish shelf.
-const TILE_TONES = ['t-brass', 't-green', 't-orange', 't-field'];
 
 // How long a hero dish holds the screen. Five seconds is slower than most
 // carousels on purpose: each slide carries Korean somebody may be sounding
@@ -93,12 +91,36 @@ const Squiggle = ({ className }) => (
 );
 
 export default function MainTab({
-  auth, profile, onNavigate, onOpenTable, onCreateTable, onOpenAuth, onPickGroup,
+  auth, profile, onNavigate, onOpenTable, onCreateTable, onOpenAuth, onPickGroup, onPickDish,
   onRequestTable,
 }) {
   const say = useText();
   const locale = useLocale();
   const [openDish, setOpenDish] = useState(null);
+  // Which category card is open, and which of its four dishes is picked.
+  // Component state on purpose: this is where somebody is looking, not
+  // anything the app should remember about them.
+  const [openGroup, setOpenGroup] = useState(null);
+  const [openGroupDish, setOpenGroupDish] = useState(null);
+  // How many cards the grid is drawing per row, so the open panel can be
+  // placed after the last card of that row rather than after the card
+  // itself. Read from the grid rather than assumed: index.css draws two
+  // columns and three from 768px up, and a hard-coded guess would put the
+  // panel mid-row on whichever width it guessed wrong.
+  const groupsRef = useRef(null);
+  const [cols, setCols] = useState(2);
+  useEffect(() => {
+    const el = groupsRef.current;
+    if (!el || typeof ResizeObserver !== 'function') return undefined;
+    const read = () => {
+      const n = getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length;
+      if (n > 0) setCols(n);
+    };
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   // Whether the sticky join bar has been waved away. Component state, so it
   // lasts as long as this visit and no longer — see the bar's own comment.
   const [stickyClosed, setStickyClosed] = useState(false);
@@ -387,9 +409,22 @@ export default function MainTab({
       </div>
 
       {/* ---- The six groups: matching starts by naming what you came
-              to eat. Each card is a door into the tables screen with that
-              category already chosen — the same taxonomy the map's dots and
-              the register filter run on, from the same file. ---- */}
+              to eat. Each card opens, in place, onto the four dishes under
+              it — the same taxonomy the map's dots and the register filter
+              run on, from the same file.
+
+              Merged 2026-09-04 with the dish shelf that used to be its own
+              band below "이번 주". Two sections were offering the same
+              twenty-four dishes under two different organisations, and the
+              one further down offered them as a flat wall of twenty-four
+              with no way to see which four belonged together.
+
+              Pressing a card no longer jumps to the tables screen. It opens
+              a panel that takes a whole grid row of its own, directly under
+              the row the card is in — so the cards below move down rather
+              than being covered, and the reader keeps their place. The jump
+              is a button inside that panel, and there is a second one for a
+              single dish: the category, then the dish, then the tables. ---- */}
       <div className="main-band main-band--groups">
         <h2 className="main-band__title">
           <span className="main-band__title-kr" translate="no">한국에서 혼자 먹기 어려웠던 음식을 함께 먹어보세요</span>
@@ -402,27 +437,112 @@ export default function MainTab({
               '韓国でひとりでは食べにくかったものを、一緒に食べてみませんか')}
           </span>
         </h2>
-        <div className="main-groups" role="group" aria-label={say('Pick a kind of food', '음식 종류 고르기', 'Elige un tipo de comida', 'Choisissez un type de plat', 'اختر نوع الطعام', '选一种吃的', '食べたいものを選ぶ')}>
-          {DISH_GROUPS.map(g => (
-            <button key={g.id} className="main-group" style={{ '--tint': g.tint }} onClick={() => onPickGroup?.(g.id)}>
-              <span className="main-group__emoji" aria-hidden="true">{g.emoji}</span>
-              <span className="main-group__name">{say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}</span>
-              {/* Korean always — it is what the sign says and what a
-                  traveller points at. The romanisation and the plain
-                  description appear for everyone not reading in Korean. */}
-              <span className="main-group__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
-              <span className="main-group__rom l-en-only" translate="no">{romanDishes(g)}</span>
-              {/* This line said "grilled pork belly · grilled beef short rib"
-                  to a Spanish, French, Arabic, Chinese or Japanese reader —
-                  English, on a card with no other English on it, because it
-                  was built from DISH_NAME[].en and that table has one
-                  language. The catalogue has had all seven for every one of
-                  the twenty-four dishes since 2026-09-02; the card was simply
-                  reading the wrong table. Fixed 2026-09-03. */}
-              <span className="main-group__gloss l-en-only">{glossDishesIn(g, locale)}</span>
-              <span className="main-group__go">{say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →</span>
-            </button>
-          ))}
+        {/* The old dish band's heading, kept as this one's subtitle: the
+            headline above says why, this says what the six cards are for. */}
+        <p className="main-groups__sub">
+          <span className="main-groups__sub-kr" translate="no">한식 살펴보기</span>
+          <span className="main-groups__sub-en">
+            {say('Browse Korean food', null, 'Explora la comida coreana', 'Parcourir la cuisine coréenne', 'تصفّح الطعام الكوري', '看看韩国菜', '韓国の料理を見てみる')}
+          </span>
+        </p>
+        <div className="main-groups" ref={groupsRef} role="group" aria-label={say('Pick a kind of food', '음식 종류 고르기', 'Elige un tipo de comida', 'Choisissez un type de plat', 'اختر نوع الطعام', '选一种吃的', '食べたいものを選ぶ')}>
+          {DISH_GROUPS.map((g, i) => {
+            const isOpen = openGroup === g.id;
+            const name = say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja);
+            // The panel belongs after the last card of the row the open card
+            // is in, not after the card itself — a full-width item placed
+            // mid-row would push the rest of that row down with it. The
+            // column count is read off the grid rather than assumed, because
+            // it is two on a phone and three from 768px up.
+            const openIdx = DISH_GROUPS.findIndex(x => x.id === openGroup);
+            const endsRow = (i + 1) % cols === 0 || i === DISH_GROUPS.length - 1;
+            const panelHere = openIdx >= 0 && endsRow
+              && Math.floor(openIdx / cols) === Math.floor(i / cols);
+            const og = panelHere ? DISH_GROUPS[openIdx] : null;
+            const picked = openGroupDish ? menuById(openGroupDish) : null;
+            return (
+              <React.Fragment key={g.id}>
+                <button
+                  type="button"
+                  className={`main-group${isOpen ? ' is-open' : ''}`}
+                  style={{ '--tint': g.tint }}
+                  aria-expanded={isOpen}
+                  aria-controls={`main-group-panel-${g.id}`}
+                  onClick={() => { setOpenGroup(isOpen ? null : g.id); setOpenGroupDish(null); }}
+                >
+                  <span className="main-group__emoji" aria-hidden="true">{g.emoji}</span>
+                  <span className="main-group__name">{name}</span>
+                  {/* Korean always — it is what the sign says and what a
+                      traveller points at. The romanisation and the plain
+                      description appear for everyone not reading in Korean. */}
+                  <span className="main-group__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
+                  <span className="main-group__rom l-en-only" translate="no">{romanDishes(g)}</span>
+                  {/* This line said "grilled pork belly · grilled beef short rib"
+                      to a Spanish, French, Arabic, Chinese or Japanese reader —
+                      English, on a card with no other English on it, because it
+                      was built from DISH_NAME[].en and that table has one
+                      language. The catalogue has had all seven for every one of
+                      the twenty-four dishes since 2026-09-02; the card was simply
+                      reading the wrong table. Fixed 2026-09-03. */}
+                  <span className="main-group__gloss l-en-only">{glossDishesIn(g, locale)}</span>
+                  {/* Was "이 밥상 찾기 →", which is the button inside the panel
+                      this opens now. A card that says "find" and then opens a
+                      list instead is a card that lied. */}
+                  <span className="main-group__go">
+                    {say('See the four dishes', '요리 네 가지 보기', 'Ver los cuatro platos', 'Voir les quatre plats', 'انظر الأطباق الأربعة', '看这四道菜', '四つの料理を見る')}
+                    <span className="main-group__caret" aria-hidden="true">▾</span>
+                  </span>
+                </button>
+                {panelHere && og && (
+                  <div className="main-group-panel" id={`main-group-panel-${og.id}`} style={{ '--tint': og.tint }}>
+                    {/* Between the category and its dishes, which is where
+                        somebody who wants K-BBQ rather than one particular
+                        dish will look for it. */}
+                    <button className="main-group-panel__go" type="button" onClick={() => onPickGroup?.(og.id)}>
+                      {say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →
+                    </button>
+                    <div className="main-group-panel__dishes" role="group" aria-label={say('Pick a dish', '요리 고르기', 'Elige un plato', 'Choisissez un plat', 'اختر طبقًا', '选一道菜', '料理を選ぶ')}>
+                      {og.dishes.map(d => menuById(menuIdOfDish(d))).filter(Boolean).map(m => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          className={`main-group-dish${openGroupDish === m.id ? ' is-on' : ''}`}
+                          aria-pressed={openGroupDish === m.id}
+                          onClick={() => setOpenGroupDish(openGroupDish === m.id ? null : m.id)}
+                        >
+                          <span className="main-group-dish__kr" translate="no" data-no-locale>{m.nameKo}</span>
+                          <span className="main-group-dish__rom" translate="no">{m.romanization}</span>
+                          <span className="main-group-dish__gloss">{dishGloss(m, locale)}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {/* The same door one level narrower, once a dish is named.
+                        Reading about it stays reachable here — the band this
+                        merged into was the only way in. */}
+                    {picked && (
+                      <div className="main-group-panel__pick">
+                        {/* The same pair the tile above uses, and for the
+                            same reason: this line names the dish the button
+                            beside it is about to go looking for, so it has to
+                            be a name the reader can actually read. Korean on
+                            a Korean screen, the romanisation everywhere else. */}
+                        <span className="main-group-panel__pick-name">
+                          <span className="main-group-panel__pick-kr" translate="no">{picked.nameKo}</span>
+                          <span className="main-group-panel__pick-rom l-en-only" translate="no">{picked.romanization}</span>
+                        </span>
+                        <button className="main-group-panel__pick-go" type="button" onClick={() => onPickDish?.(picked.id)}>
+                          {say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →
+                        </button>
+                        <button className="main-group-panel__pick-read" type="button" onClick={() => setOpenDish(picked)}>
+                          {say('Read about this dish', '이 요리 알아보기', 'Leer sobre este plato', 'En savoir plus sur ce plat', 'اقرأ عن هذا الطبق', '了解这道菜', 'この料理について読む')}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
 
@@ -435,32 +555,6 @@ export default function MainTab({
           onRequestTable={onRequestTable}
           profile={profile}
         />
-      </div>
-
-      {/* ---- The dishes, as Meetup's category tiles ---- */}
-      <div className="main-band main-band--dishes">
-        {/* The Korean half was a bare text node with no element of its own,
-            so nothing could hide it and an English interface kept every
-            section heading in Korean. Both halves are spans now. */}
-        <h2 className="main-band__title">
-          <span className="main-band__title-kr" translate="no">요리 살펴보기</span>
-          <span className="main-band__title-en">
-            {say('The dishes this app is about', null, 'Los platos de los que trata esta app', 'Les plats dont parle cette application', 'الأطباق التي يتحدّث عنها هذا التطبيق', '这个应用讲的那些菜', 'このアプリが扱っている料理')}
-          </span>
-        </h2>
-        <div className="main-dishes__row" role="group" aria-label={say('Read about a dish', '요리 읽어보기', 'Leer sobre un plato', 'Lire sur un plat', 'اقرأ عن طبق', '读一道菜', '料理について読む')}>
-          {menus.map((m, i) => (
-            <button key={m.id} className={`main-dish ${TILE_TONES[i % TILE_TONES.length]}`} onClick={() => setOpenDish(m)}>
-              <span className="main-dish__arrow" aria-hidden="true">↗</span>
-              <span className="main-dish__kr" translate="no">{m.nameKo}</span>
-              <span className="main-dish__en">{m.name}</span>
-              {/* The one thing a traveller needs before they can say it out
-                  loud, and it was already in the catalogue — reachable only
-                  by opening the dish. Now it is on the tile you tap. */}
-              <span className="main-dish__rom" translate="no" data-no-locale>{m.romanization}</span>
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* ---- What keeps a table safe ----

@@ -12369,3 +12369,158 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 @media (prefers-reduced-motion: reduce) {
   .dish-row__chevron { transition: none; }
 }
+
+/* ---- The category subtitle, and the panel a category opens onto ---------
+   Added 2026-09-04, when the front page's six category cards and the flat
+   twenty-four-dish shelf below them were merged into one section. The cards
+   used to jump straight to the tables screen; they open in place now, and
+   the jump is a button inside what they open. */
+.main-groups__sub {
+  margin: -14px 0 16px;
+  text-align: center;
+}
+.main-groups__sub-kr {
+  display: block;
+  font-family: var(--ex-kr);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-title);
+}
+.main-groups__sub-en {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+
+/* The open card keeps its tint and gains the weight of the thing it is
+   holding open, so the panel below reads as belonging to it rather than to
+   the row. */
+.main-group.is-open {
+  border-color: var(--tint);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+}
+.main-group.is-open:hover { transform: none; }
+.main-group__caret {
+  display: inline-block;
+  margin-inline-start: 5px;
+  font-size: 10px;
+  transition: transform 0.14s ease;
+}
+.main-group.is-open .main-group__caret { transform: rotate(180deg); }
+
+/* A whole grid row of its own, directly under the row its card is in — so
+   the cards below move down rather than being covered. `1 / -1` is what
+   makes that true at two columns and at three without either number being
+   written here. */
+.main-group-panel {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-block-start: 3px solid var(--tint);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken, var(--surface));
+  animation: main-group-panel-in 0.16s ease-out;
+}
+@keyframes main-group-panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .main-group-panel { animation: none; }
+  .main-group__caret { transition: none; }
+}
+
+/* Above the dishes, for somebody who wants the category and not one dish
+   in it. Filled rather than outlined: it is the one thing in this panel
+   that leaves the page. */
+.main-group-panel__go {
+  align-self: flex-start;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tint);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.main-group-panel__go:hover { filter: brightness(0.94); }
+
+.main-group-panel__dishes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.main-group-dish {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius, 12px);
+  background: var(--card, #fff);
+  text-align: start;
+  cursor: pointer;
+  font: inherit;
+}
+.main-group-dish:hover { border-color: var(--tint); }
+.main-group-dish.is-on {
+  border-color: var(--tint);
+  box-shadow: inset 0 0 0 1px var(--tint);
+}
+.main-group-dish__kr { font-size: 14px; font-weight: 800; color: var(--ink-title); }
+.main-group-dish__rom { font-size: 11px; font-weight: 600; color: var(--ink-body); }
+.main-group-dish__gloss { font-size: 11px; line-height: 1.45; color: var(--muted-strong); }
+
+/* Appears under the four when one is picked, naming it — so the button
+   below says which table it is about to go looking for. */
+.main-group-panel__pick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.main-group-panel__pick-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink-title);
+}
+.main-group-panel__pick-go {
+  padding: 8px 15px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tint);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.main-group-panel__pick-go:hover { filter: brightness(0.94); }
+.main-group-panel__pick-read {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-body);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.main-group-panel__pick-read:hover { border-color: var(--tint); color: var(--ink-title); }
+
+@media (min-width: 768px) {
+  .main-group-panel { padding: 18px; gap: 14px; }
+  .main-group-panel__dishes { grid-template-columns: repeat(4, 1fr); }
+  .main-groups__sub { margin: -18px 0 20px; }
+  .main-groups__sub-kr { font-size: 17px; }
+}
