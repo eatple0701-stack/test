@@ -6010,14 +6010,22 @@ button {
 
 .dish-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  /* Search results, and the only place this grid still wraps — an open
+     category is a swipe rail now (.dish-row__panel .dish-grid, below).
+     125px rather than 104px raises the floor at which a third column appears,
+     so a narrow screen gets two roomy cards instead of three cramped ones.
+     It is a minimum, not a width: `1fr` still stretches whatever fits. */
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
   gap: 8px;
 }
 .dish-option {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 12px 10px;
+  /* A little more top and bottom than before, on top of the gloss line's own
+     reserved height below — between the two, a card has room for its
+     longest-language gloss to wrap without the box changing size around it. */
+  padding: 14px 10px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -8765,6 +8773,19 @@ body {
   margin-top: 1px;
   font-size: 11px;
   line-height: 1.35;
+  /* Two lines' worth, reserved whether the text needs them or not.
+     Nothing here ever clipped — there is no overflow, clamp or max-height on
+     this element and there never was, so a long gloss always wrapped and
+     showed in full. What it did was change the card's height between locales.
+     Two and not three, and that is measured rather than guessed: at the
+     184px the card is now, every one of the 24 glosses fits in two lines in
+     Korean, Chinese, Japanese, English and Spanish — Korean and Chinese fit
+     all 24 in *one* — and only three of the 168 dish-language pairs need a
+     third (haemuljjim in Arabic, two dishes in French). Reserving that third
+     line would put two blank lines under every Korean card to spare three
+     cards elsewhere; those three get a taller row instead, which is what
+     flex does anyway. The room this was asked for came from the width. */
+  min-height: 2.7em;
   color: var(--ink-secondary);
 }
 .dish-option.is-on .dish-option__gloss { color: rgba(255, 255, 255, 0.88); }
@@ -12242,15 +12263,68 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 .dish-row__chevron { display: inline-flex; color: var(--muted, #6b6b6b); transition: transform 120ms ease; }
 .dish-row.is-expanded .dish-row__chevron { transform: rotate(90deg); }
 .dish-row__panel { padding: 0 14px 14px; }
+/* 2026-09-03: the vertical padding here used to match the toggle above it
+   (10px), which read as thicker than it needed to be for one line of text —
+   top and bottom stay equal so the label keeps sitting on its own centre
+   rather than drifting toward whichever side shrank. */
 .dish-row__all {
   display: block; width: 100%; margin: 0 0 10px;
-  padding: 10px 12px; border-radius: 10px; cursor: pointer; font: inherit;
+  padding: 7px 12px; border-radius: 10px; cursor: pointer; font: inherit;
   border: 1px dashed var(--tint); background: transparent; color: var(--tint);
   font-weight: 600; text-align: start;
 }
 .dish-row__all.is-on { background: var(--tint); border-style: solid; color: #fff; }
 
-/* Right to left, the chevron points the other way and so does its rotation. */
+/* The four (soon to be more) dishes under an open category, on a horizontal
+   rail instead of the wrapping grid the search results still use — see
+   .dish-picker__results .dish-grid above, untouched. A category that gains
+   a fifth or sixth dish should grow sideways, scrolled to, rather than push
+   the row taller and start reflowing every row below it. scroll-snap-type
+   is `proximity` and not `mandatory`: a swipe that stops halfway between two
+   cards should settle on the nearer one, not get yanked back to where it
+   started. -webkit-overflow-scrolling and the scrollbar-hiding pair are
+   cosmetic only — overflow-x: auto already gives touch and trackpad users
+   the scroll, on mobile and on desktop alike. */
+.dish-row__panel .dish-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 -14px;
+  padding: 2px 14px 4px;
+}
+.dish-row__panel .dish-grid::-webkit-scrollbar { display: none; }
+/* A card is 1.2× the width it actually rendered at before the rail, and that
+   is two numbers rather than one because the old rule was
+   `minmax(104px, 1fr)` — 104px was a *minimum* and never a rendered width.
+   Measured on 2026-09-03 on the screens this app is built for. At 375px the
+   grid had room for two columns (313px of usable width, and three 104px
+   columns need 328px), so `1fr` drew them at 153px. At 1440px it drew 125px.
+   Hence 184 and 150, where one flex-basis for both would have made the phone
+   — the screen this product is actually used on — 18% narrower instead of
+   the 20% wider that was asked for.
+   The phone is the unqualified rule and the desktop is the override, which
+   is the way round this stylesheet is written: `min-width: 768px` is its
+   breakpoint fourteen times over, and a `max-width` here would be a
+   fifteenth number for somebody to find later.
+   flex-grow 0 so a card never shrinks to fit; scroll-snap-align: start so a
+   swipe lands with a card's leading edge flush against the row's rather than
+   stopped mid-card. */
+.dish-row__panel .dish-grid .dish-option {
+  flex: 0 0 184px;
+  scroll-snap-align: start;
+}
+@media (min-width: 768px) {
+  .dish-row__panel .dish-grid .dish-option { flex: 0 0 150px; }
+}
+
+/* Right to left, the chevron points the other way and so does its rotation.
+   The swipe rail follows: it is direction-agnostic CSS (no left/right of its
+   own), so RTL's mirrored writing-mode already carries it the right way —
+   nothing to override here. */
 [dir="rtl"] .dish-row__chevron { transform: scaleX(-1); }
 [dir="rtl"] .dish-row.is-expanded .dish-row__chevron { transform: scaleX(-1) rotate(90deg); }
 [dir="rtl"] .dish-row.is-chosen { box-shadow: inset -3px 0 0 0 var(--tint); }
