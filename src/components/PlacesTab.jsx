@@ -7,8 +7,6 @@ import {
 } from '../data/experiences';
 import PlaceImage from './PlaceImage';
 import PlaceCard from './PlaceCard';
-import CultureCards from './CultureCards';
-import { CULTURE_CARDS } from '../content/cultureCards.js';
 import { ChevronRightIcon, MapPinIcon, SparkleIcon, CheckIcon } from './Icons';
 import { useText } from './localeText.js';
 import { ZONE_KO, ZONE_ES, ZONE_FR, ZONE_AR, ZONE_ZH, ZONE_JA } from '../data/culture';
@@ -88,12 +86,10 @@ function oneAppearance() {
 
 export default function PlacesTab({
   onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds = [], onToggleBookmark,
-  visitedMarkets = [], onToggleMarket, onOpenMap,
+  visitedMarkets = [], onToggleMarket, onOpenMap, onOpenMapTab,
 }) {
   const say = useText();
   const byId = useMemo(() => Object.fromEntries(restaurants.map(r => [r.id, r])), []);
-  const [showCulture, setShowCulture] = useState(false);
-  const [cultureStart, setCultureStart] = useState(0);
 
   // Which city the reader is willing to travel to. Seven of the eighteen
   // places are in Incheon, an hour from Seoul, and the tab gave no way to say
@@ -389,20 +385,14 @@ export default function PlacesTab({
       </div>
       )}
 
-      {CULTURE_CARDS.length > 0 && (
-      <div className="home-section">
-        <div className="home-section__header"><h2>{say('Korean Dining Culture', '한국의 식문화', 'La cultura de la mesa coreana', 'La culture de la table coréenne', 'ثقافة المائدة الكورية', '韩国的餐桌文化', '韓国の食卓の文化')}</h2></div>
-        <div className="home-scroll-row">
-          {CULTURE_CARDS.slice(0, 4).map((c, i) => (
-            <button key={c.title} className="zone-card" style={{ flex: '0 0 180px' }}
-              onClick={() => { setCultureStart(i); setShowCulture(true); }}>
-              <h3>{say(c.title, c.titleKo, c.titleEs, c.titleFr, c.titleAr, c.titleZh, c.titleJa)}</h3>
-              <p>{say(c.desc, c.descKo, c.descEs, c.descFr, c.descAr, c.descZh, c.descJa)}</p>
-            </button>
-          ))}
-        </div>
-      </div>
-      )}
+      {/* 한국의 식문화 stood here and rendered CULTURE_CARDS — the same deck
+          문화's own 문화 카드 button opens, four of its cards, one scroll from
+          the rest of this list. Removed 2026-09-04 when these shelves moved
+          into 문화: the duplicate was the clearest argument that the two
+          curation tracks were one. The deck itself is untouched and is
+          reached from 문화, which is why the sheet, its two state hooks and
+          the CULTURE_CARDS import went with the shelf — nothing here opened
+          them any more. */}
 
       {zoneRail.length > 0 && (
       <div className="home-section">
@@ -421,7 +411,9 @@ export default function PlacesTab({
       <div className="home-section home-section--tight">
         <button
           className="map-cta"
-          onClick={() => onOpenMap?.({ title: 'Every place, plotted', subtitle: 'Filter by zone, diet or vibe' })}
+          /* The map is the 장소 tab now, not something summoned over this
+             one. Falls back to the overlay if no navigator was passed. */
+          onClick={() => (onOpenMapTab ? onOpenMapTab() : onOpenMap?.({ title: 'Every place, plotted', subtitle: 'Filter by zone, diet or vibe' }))}
         >
           <span className="map-cta__title">{say('See it all on the map', '지도에서 한눈에 보기', 'Verlo todo en el mapa', 'Voir tout sur la carte', 'انظر كل شيء على الخريطة', '在地图上看全部', '地図でまとめて見る')}</span>
           <span className="map-cta__body">
@@ -434,7 +426,6 @@ export default function PlacesTab({
         </button>
       </div>
 
-      {showCulture && <CultureCards onClose={() => setShowCulture(false)} startIndex={cultureStart} />}
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { restaurants } from './data/restaurants';
 import { menuById } from './domain/catalog/menus.js';
 import { menuIdOfDish } from './domain/catalog/dishGroups.js';
 import { loadRegistryPlaces, servesGroup } from './data/seoulRegistry.js';
+import { matchesPlaceQuery } from './domain/policy/placeSearch.js';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
 import TabBar from './components/TabBar';
@@ -15,7 +16,6 @@ import HomeTab from './components/HomeTab';
 import TravelSummary from './components/TravelSummary';
 import ThemeComplete from './components/ThemeComplete';
 import TablesTab from './components/TablesTab';
-import PlacesTab from './components/PlacesTab';
 import TableCreate from './components/TableCreate';
 import TableDetail from './components/TableDetail';
 import TableRequest from './components/TableRequest';
@@ -472,6 +472,12 @@ export default function App() {
   // was looking at when they opened it, so the overlay can say which question
   // it is answering rather than presenting itself as the destination.
   const [mapOpen, setMapOpen] = useState(false);
+  // The 장소 tab's two desktop rails. Held here rather than in MapOverlay
+  // because the switches that fold them are in the app chrome, beside the
+  // gear — app-level controls for an app-level screen. The rails themselves
+  // carry the same two switches on their own edge.
+  const [mapRails, setMapRails] = useState({ left: true, right: true });
+  const toggleRail = (side) => setMapRails(r => ({ ...r, [side]: !r[side] }));
   const [mapScope, setMapScope] = useState({ title: 'Explore on the map', subtitle: null });
 
   // Theme is a screen, not a sheet: it replaces the tab's content and has a
@@ -725,9 +731,11 @@ export default function App() {
 
   // Logged from Match's "Eat together" — re-matching the same traveler moves
   // their entry to the top rather than duplicating it in Journal.
-  // "Explore nearby" used to switch to a map tab. There is no map tab now:
-  // the same intent opens the map as a tool, pre-filtered to what was asked
-  // for, and closing it returns to whatever the user was reading.
+  // "Explore nearby" opens the map as a tool, pre-filtered to what was asked
+  // for, and closing it returns to whatever the user was reading. There is a
+  // map tab again as of 2026-09-04 and this deliberately does not go there:
+  // the tab is every place at once, and this is one question. It is also the
+  // last way in to the filter chips, which the tab does without.
   const goExplore = (query) => {
     setSearchQuery(query);
     openMap({ title: query, subtitle: 'Places matching this search' });
@@ -846,12 +854,14 @@ export default function App() {
         return group ? traits.some(t => group.includes(t)) : traits.includes(f);
       });
 
-      // 2. Search Query Filtering (Match name, vibe or area)
-      const query = searchQuery.toLowerCase().trim();
-      const matchesSearch = query === '' ||
-                            r.name.toLowerCase().includes(query) ||
-                            (r.vibe ?? '').toLowerCase().includes(query) ||
-                            (r.zone ?? '').toLowerCase().includes(query);
+      // 2. The search box. Name and address, from the same rule the map's
+      //    dot layer runs — see domain/policy/placeSearch.js. It used to read
+      //    name, vibe and zone here and name alone over there, which is two
+      //    answers to one query and how "종로" came back 22 in this list and
+      //    160 on the map beside it. vibe and zone are gone from it on
+      //    purpose: zone is derived English for a register place, so a Korean
+      //    query matched it for the curated twenty and nothing else.
+      const matchesSearch = matchesPlaceQuery(r, searchQuery);
 
       return matchesChips && matchesSearch;
     });
@@ -922,6 +932,35 @@ export default function App() {
             the signed-in branch so it is in the same corner either way — a
             control that moves when you sign in is a control you hunt for. */}
         <span className="app-chrome__end">
+          {/* The map's two rails, offered only where there are rails to fold.
+              They sat in the map's own header bar until 2026-09-04, which is
+              a bar the tab does not have any more — and these are the same
+              kind of thing as the gear beside them: a control over the
+              screen rather than a control inside it. */}
+          {!openThemeId && activeTab === 'places' && (
+            <span className="app-chrome__rails">
+              <button
+                type="button"
+                className={`app-chrome__rail${mapRails.left ? ' is-on' : ''}`}
+                aria-pressed={mapRails.left}
+                onClick={() => toggleRail('left')}
+              >
+                {mapRails.left
+                  ? say('Hide the filters', '필터 접기', 'Ocultar los filtros', 'Masquer les filtres', 'إخفاء عوامل التصفية', '收起筛选', '絞り込みをたたむ')
+                  : say('Show the filters', '필터 펼치기', 'Mostrar los filtros', 'Afficher les filtres', 'إظهار عوامل التصفية', '展开筛选', '絞り込みを開く')}
+              </button>
+              <button
+                type="button"
+                className={`app-chrome__rail${mapRails.right ? ' is-on' : ''}`}
+                aria-pressed={mapRails.right}
+                onClick={() => toggleRail('right')}
+              >
+                {mapRails.right
+                  ? say('Hide the list', '목록 접기', 'Ocultar la lista', 'Masquer la liste', 'إخفاء القائمة', '收起列表', 'リストをたたむ')
+                  : say('Show the list', '목록 펼치기', 'Mostrar la lista', 'Afficher la liste', 'إظهار القائمة', '展开列表', 'リストを開く')}
+              </button>
+            </span>
+          )}
           <button
             className={`app-chrome__gear${activeTab === 'settings' ? ' is-on' : ''}`}
             aria-label={say('설정 · Settings', '설정', 'Ajustes', 'Réglages', 'الإعدادات', '设置', '設定')}
@@ -998,7 +1037,7 @@ export default function App() {
           — at `inset: 0` on mobile, holding most of the viewport on desktop —
           which made a culture platform read as a maps product. It is summoned
           from here instead, by whichever surface wants it. */}
-      <div className="content-region" key={openThemeId ?? activeTab}>
+      <div className={`content-region${!openThemeId && activeTab === 'places' ? ' content-region--map' : ''}`} key={openThemeId ?? activeTab}>
         {/* A theme takes over the content area rather than opening over it. */}
         {openThemeId && (
           <ThemePage
@@ -1149,16 +1188,38 @@ export default function App() {
             onOpenTable={(id) => setTableView({ screen: 'detail', tableId: id })}
           />
         )}
+        {/* 장소 — the map, full screen, 2026-09-04.
+
+            It held eleven shelves of curated reading until today, which is
+            what 문화 is for, and one of them (한국의 식문화) rendered the
+            same CULTURE_CARDS that 문화's own 문화 카드 button opens. Two
+            tracks of curation, one of them a literal duplicate. The shelves
+            moved to 문화; this tab is the thing it was named after.
+
+            MapOverlay's own note says the map used to be the app shell and
+            was deliberately demoted to something summoned. This does not
+            undo that: it is one of five tabs somebody chooses, not the
+            substrate behind every screen. Same component, asTab. */}
         {!openThemeId && activeTab === 'places' && (
-          <PlacesTab
-            onOpenRestaurant={openDetail}
-            onOpenStory={openStory}
-            onExploreZone={goExplore}
+          <MapOverlay
+            asTab
+            open
+            railsOpen={mapRails}
+            onToggleRail={toggleRail}
+            restaurants={filteredRestaurants}
+            mapCenter={mapCenter}
+            onCenterChange={setMapCenter}
+            selectedId={selectedRestaurant?.id}
+            onRestaurantClick={openDetail}
+            onReadStory={openStory}
             bookmarkedIds={bookmarkedIds}
             onToggleBookmark={handleToggleBookmark}
-            visitedMarkets={visitedMarkets}
-            onToggleMarket={handleToggleMarket}
-            onOpenMap={openMap}
+            sustainabilityLens={sustainabilityLens}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedFilters={selectedFilters}
+            onToggleFilter={handleToggleFilter}
+            onResetFilters={() => { setSelectedFilters([]); setSearchQuery(''); }}
           />
         )}
         {/* The Passport renders for everyone — 8/4's correction of 8/3's

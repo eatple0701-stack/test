@@ -12524,3 +12524,322 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
   .main-groups__sub { margin: -18px 0 20px; }
   .main-groups__sub-kr { font-size: 17px; }
 }
+
+/* ---- The map as the 장소 tab ------------------------------------------
+   Added 2026-09-04. Same component as the summoned overlay — see
+   MapOverlay's asTab — so the map, the filters and the list are one
+   implementation. What changes is that it sits inside the content region
+   instead of covering it: no fixed position, no entrance animation, no
+   close button, and the region itself stops scrolling so the map can be
+   the full height rather than a strip at the top of a scrolling page. */
+.content-region--map { overflow: hidden; }
+.map-overlay--tab {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  height: 100%;
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-overlay { animation: none; }
+}
+
+/* ---- The map tab on a desktop: filters left, map centre, list right ----
+   Added 2026-09-04. Until now this tab inherited the shell's desktop column
+   — `.content-region > * { max-width: 720px }` — so on a 1440px screen the
+   map was a 720px strip with 360px of nothing either side, and the list was
+   folded under it because there was nowhere else to put it.
+
+   The two rails go in that empty space. The map keeps the middle and grows
+   with the viewport rather than being capped at a phone's idea of wide.
+   `display: contents` on the panel is what lets the search box and the list
+   land in different columns while staying one element in the markup, which
+   is what the phone layout still needs them to be.
+
+   Phones and tablets are untouched: below 1024px this is the same stacked
+   map-over-folded-list it was, and the fold bar is the control that decides
+   which of the two you are looking at. */
+@media (min-width: 1024px) {
+  .content-region--map > .map-overlay--tab { max-width: none; margin-inline: 0; }
+
+  .map-overlay--tab {
+    display: grid;
+    /* Rails as narrow as a place card and a row of chips can stand, because
+       every pixel they do not take is one the map does. Measured at 1440px:
+       the map was 720px in the old centred column and is 877px here, about
+       two centimetres wider on each side. Narrower rails would buy the third
+       centimetre and cost the list its layout — its cards carry a 112px
+       image column. clamp so a 2560px screen spends the extra on the map
+       rather than on a 600px search box. */
+    grid-template-columns:
+      calc(clamp(238px, 17vw, 300px) + 38px)
+      minmax(0, 1fr)
+      calc(clamp(252px, 18vw, 330px) + 38px);
+    /* No bar row any more — the tab bar names this screen. Filters on the
+       first row of the left column, legend under them, map and list down
+       both. */
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 14px;
+    padding: 14px 16px 16px;
+  }
+  .map-overlay--tab .home-header { grid-column: 1; grid-row: 1; }
+  .map-overlay--tab .map-legend {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: stretch;
+    align-content: start;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  .map-overlay--tab .map-overlay__map {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  /* The panel stops being a sheet and becomes two grid items. */
+  .map-overlay--tab .map-overlay__panel {
+    display: contents;
+  }
+  .map-overlay--tab .map-overlay__list {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    min-height: 0;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  /* The card stacks in this rail. Its phone layout is a 112px thumbnail
+     beside the text, which works at the 343px a folded sheet gives it and
+     not at the ~260px of a rail — measured, the name column came out at
+     70px and every restaurant read "THE PLA…". Stacking gives the name the
+     whole width, and it is what buys the map the rail it took. */
+  .map-overlay--tab .map-overlay__list .place-card {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'media'
+      'body'
+      'foot';
+  }
+
+  /* Nothing left to fold: the list has a column of its own. */
+  .map-overlay--tab .map-overlay__fold { display: none; }
+  /* Folding is a phone affordance, and the state is still there because one
+     component serves both layouts. Here it means nothing: the search box and
+     the list have columns of their own, and the control that would toggle it
+     is hidden above. Written at the same specificity as the rule it undoes
+     (.map-overlay.is-folded .map-overlay__panel > *:not(.map-overlay__fold),
+     four classes) and later in the file, which is how it wins the tie. */
+  .map-overlay--tab.is-folded .map-overlay__panel > *:not(.map-overlay__fold) {
+    display: block;
+  }
+}
+
+/* ---- The desktop rails: wrapping, folding, and the island --------------
+   2026-09-04, after looking at the first version on a 1440px screen.
+
+   Two things were broken rather than tight. The dietary chips sat in
+   .chip-group, which does not wrap, so a 388px group inside a 217px rail
+   put "Local Sourcing" half outside it. The legend was worse: six items,
+   nowrap, 1,837px of content in a 245px column — all six rendered outside
+   the rail, which is what the two stray ovals in the corner were. Both are
+   phone rules meeting a column narrower than a phone. */
+@media (min-width: 1024px) {
+  .map-overlay--tab:not(.is-left-folded) .home-header .chip-row,
+  .map-overlay--tab:not(.is-left-folded) .home-header .chip-group { flex-wrap: wrap; }
+  .map-overlay--tab:not(.is-left-folded) .home-header .chip-row { overflow: visible; }
+  /* min-width: 0 is the part that actually does it. A flex item defaults to
+     min-width: auto, so .chip-group refused to shrink below its 388px of
+     content and wrapping inside it never got the chance to happen — the row
+     wrapped, the group did not, and Local Sourcing hung outside the rail. */
+  .map-overlay--tab:not(.is-left-folded) .home-header .chip-group { min-width: 0; flex-shrink: 1; }
+  /* And the chips inside it, which are flex-shrink: 0 so a phone row scrolls
+     rather than squashing them. In a column they have to be allowed to fall
+     onto the next line instead. */
+  .map-overlay--tab:not(.is-left-folded) .home-header .chip-group > .chip { flex-shrink: 1; }
+  /* A stack, not a row: each item carries a colour, a name and its four
+     dish names, which is a line of its own at any rail width worth having. */
+  .map-overlay--tab .map-legend {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .map-overlay--tab .map-legend__item { white-space: normal; }
+
+  /* ── Folding ─────────────────────────────────────────────────────────
+     The column goes to zero rather than the contents going to display:none,
+     so the map grows into the space instead of leaving a gap where a rail
+     used to be. */
+  .map-overlay--tab.is-left-folded { grid-template-columns: 0 minmax(0, 1fr) calc(clamp(252px, 18vw, 330px) + 38px); }
+  .map-overlay--tab.is-right-folded { grid-template-columns: calc(clamp(238px, 17vw, 300px) + 38px) minmax(0, 1fr) 0; }
+  .map-overlay--tab.is-left-folded.is-right-folded { grid-template-columns: 0 minmax(0, 1fr) 0; }
+  .map-overlay--tab.is-left-folded .map-legend { display: none; }
+  /* Written through .map-overlay__panel > so it matches the specificity of
+     the rule that undoes the phone fold above (four classes) and comes after
+     it. Without that the list stayed display: block in a zero-width column
+     and left a two-pixel border down the edge of the map. */
+  .map-overlay--tab.is-right-folded .map-overlay__panel > .map-overlay__list { display: none; }
+
+  /* ── The island ──────────────────────────────────────────────────────
+     Folding the left rail does not put the search away; it moves it onto
+     the map. Placed in the map's own grid cell rather than positioned
+     absolutely, so it centres on the map whether or not the right rail is
+     also folded — no arithmetic to keep in step with the columns. */
+  .map-overlay--tab.is-left-folded .home-header {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    justify-self: center;
+    align-self: start;
+    /* position, because z-index does nothing to a static element — the
+       island was in the DOM, hit-testable, and invisible.
+       900, because 5 was not enough either: Leaflet paints its panes at
+       z-index 400, and neither .map-overlay__map nor the grid above it
+       creates a stacking context (position: relative with z-index: auto
+       does not), so those 400s sit in the same context this does and won.
+       Above the panes, below Leaflet controls at 1000. */
+    position: relative;
+    z-index: 900;
+    width: min(560px, calc(100% - 32px));
+    margin-top: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+    max-height: calc(100% - 28px);
+    overflow-y: auto;
+  }
+  /* Compact, which is the whole idea of putting it here: the chips keep the
+     one-row-that-scrolls behaviour they have on a phone rather than the
+     wrapping the rail needs, so the island is a bar over the map and not a
+     panel covering it. Wrapping made it 368px tall on a 1440px screen. */
+  .map-overlay--tab.is-left-folded .home-header .chip-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  /* Browsers without color-mix get an opaque panel rather than an unreadable
+     one — the map is directly behind this. */
+  @supports not (background: color-mix(in srgb, red 50%, transparent)) {
+    .map-overlay--tab.is-left-folded .home-header { background: var(--surface); }
+  }
+
+  /* The two rail controls, in the bar. */
+  .map-overlay__rails { display: flex; gap: 8px; flex-shrink: 0; }
+  .map-overlay__rail-btn {
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted-strong);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .map-overlay__rail-btn.is-on { color: var(--ink-title); border-color: var(--ink-muted, var(--line)); }
+  .map-overlay__rail-btn:hover { background: var(--fill); }
+}
+/* Below the breakpoint there are no rails to fold, so the controls that
+   fold them are not offered. */
+@media (max-width: 1023px) {
+  .map-overlay__rails { display: none; }
+}
+
+/* ---- The rail handles, and the same two switches in the app chrome ----
+   2026-09-04. Two places to fold a rail from, on purpose: the handle sits on
+   the seam and is what you reach for while looking at the map, and the pair
+   in the chrome is where a control that survives its own rail has to live —
+   a button that disappears with the thing it collapsed is a button nobody
+   finds again. */
+.map-overlay__edge { display: none; }
+
+@media (min-width: 1024px) {
+  .map-overlay__edge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+    /* Above Leaflet's panes, which paint at 400 in this same stacking
+       context — see the island above, which learned this the hard way. */
+    z-index: 900;
+    width: 22px;
+    height: 56px;
+    padding: 0;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--muted-strong);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+  .map-overlay__edge:hover { color: var(--ink-title); }
+  .map-overlay__edge--left {
+    justify-self: start;
+    border-start-end-radius: 8px;
+    border-end-end-radius: 8px;
+    border-inline-start: 0;
+  }
+  .map-overlay__edge--right {
+    justify-self: end;
+    border-start-start-radius: 8px;
+    border-end-start-radius: 8px;
+    border-inline-end: 0;
+  }
+}
+
+/* The chrome pair. Quiet by default — they are beside the gear, not competing
+   with the tab bar — and only rendered on 장소, so no other screen carries a
+   switch for something it does not have. */
+.app-chrome__rails { display: none; }
+@media (min-width: 1024px) {
+  .app-chrome__rails { display: flex; gap: 6px; margin-inline-end: 4px; }
+  .app-chrome__rail {
+    padding: 6px 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted-strong);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .app-chrome__rail:hover { background: var(--fill); color: var(--ink-title); }
+  .app-chrome__rail.is-on { color: var(--ink-title); }
+}
+
+/* ---- The legend rows, on two lines ------------------------------------
+   2026-09-04. One row of swatch, emoji, group and four dish names wrapped
+   wherever it ran out of room in a 245px rail — 전골·탕 came apart with 골
+   alone on the second line. Two lines on purpose now: the group centred on
+   the first, the dishes it stands for on the second, and a little more
+   height so each one reads as its own thing rather than as a list item. */
+@media (min-width: 1024px) {
+  .map-overlay--tab .map-legend__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .map-overlay--tab .map-legend__head {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .map-overlay--tab .map-legend__name { font-weight: 700; }
+  .map-overlay--tab .map-legend__dishes {
+    display: block;
+    line-height: 1.45;
+  }
+}

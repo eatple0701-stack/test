@@ -8,21 +8,27 @@ import TablesLead from './TablesLead';
 import TodayTable from './TodayTable';
 import FoodRoulette from './FoodRoulette';
 import CultureCards from './CultureCards';
+import PlacesTab from './PlacesTab';
 import { useText } from './localeText.js';
 
-// Eight props were still declared here that this component stopped reading
-// when Explore was rebuilt around themes: onOpenRestaurant, onOpenStory,
-// onExploreZone, bookmarkedIds, onToggleBookmark, visitedMarkets,
-// onToggleMarket, onOpenMap. App.jsx still passes them, which costs nothing,
-// but a signature listing eight handlers it never calls describes a component
-// that no longer exists. Removed from the signature, not from the call site —
-// deleting them there would mean deciding whether the handlers themselves are
-// dead, which is a bigger question than this cleanup.
+// Eight props were declared here and unread after Explore was rebuilt around
+// themes — onOpenRestaurant, onOpenStory, onExploreZone, bookmarkedIds,
+// onToggleBookmark, visitedMarkets, onToggleMarket, onOpenMap — kept at the
+// call site rather than deleted. They are read again as of 2026-09-04: the
+// eleven curated shelves that had their own 장소 tab render here now, and
+// they are exactly the eight handlers those shelves need. App.jsx was already
+// passing every one of them.
+//
+// Why they moved: 장소 was a second track of curation, and one of its shelves
+// (한국의 식문화) rendered the same CULTURE_CARDS deck this tab's 문화 카드
+// button opens. Editorial reading belongs in one place; 장소 is the map now.
 export default function HomeTab({
   onNavigate,
   journey, onOpenSummary,
   onOpenTheme, continueTheme, nextExperience, suggestedTheme, suggestedReason,
   themeProgress, profile, onOpenTodayTable, onOpenTable,
+  onOpenRestaurant, onOpenStory, onExploreZone,
+  bookmarkedIds, onToggleBookmark, visitedMarkets, onToggleMarket, onOpenMap,
 }) {
   const say = useText();
   const [showRoulette, setShowRoulette] = useState(false);
@@ -174,6 +180,23 @@ export default function HomeTab({
           Two of those shelves are not in the new tab either: the journey
           dashboard and the challenge row were already on the Passport, in
           the same words, and printing progress twice does not double it. */}
+
+      {/* The places, markets and neighbourhoods that had their own tab until
+          2026-09-04. Last, after the cultures and the two surprises, because
+          this answers "where could I go" and everything above answers "what
+          should I do today" — the order the split was originally made to
+          protect, kept without needing two tabs to keep it. */}
+      <PlacesTab
+        onOpenRestaurant={onOpenRestaurant}
+        onOpenStory={onOpenStory}
+        onExploreZone={onExploreZone}
+        bookmarkedIds={bookmarkedIds}
+        onToggleBookmark={onToggleBookmark}
+        visitedMarkets={visitedMarkets}
+        onToggleMarket={onToggleMarket}
+        onOpenMap={onOpenMap}
+        onOpenMapTab={() => onNavigate('places')}
+      />
 
       {showRoulette && (
         <FoodRoulette

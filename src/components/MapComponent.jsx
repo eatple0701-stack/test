@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MAP_CENTER, coordsOf, kakaoMapUrl } from '../utils';
-import { loadAllPlaces, placesInView, asPlace } from '../data/nearbyPlaces.js';
+import { loadAllPlaces, placesInView, placesMatching, asPlace } from '../data/nearbyPlaces.js';
 import { isRegistryPlace, placeFromRegistry, displayName } from '../data/seoulRegistry.js';
 import { DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
 import { useText, useLocale } from './localeText.js';
@@ -75,7 +75,7 @@ const dotIcon = (tint) => {
  * the cap samples across the visible rows rather than taking the first ones,
  * so a city-wide view is a spread over Seoul and not a clump in 강남구.
  */
-function NearbyLayer({ onSelect }) {
+function NearbyLayer({ onSelect, query }) {
   const [layer, setLayer] = useState(null);
   const [view, setView] = useState(null);
 
@@ -93,16 +93,25 @@ function NearbyLayer({ onSelect }) {
     return () => { alive = false; };
   }, [map]);
 
-  // No filter here. Every row in the file already serves one of the
-  // twenty-four dishes — that is what the build script keeps and everything
-  // else is deleted — so the layer draws all of them, coloured by group.
+  // With nothing typed: every row in view. Every row in the file already
+  // serves one of the twenty-four dishes — that is what the build script
+  // keeps — so the layer draws them all, coloured by group.
+  //
+  // With something typed: the rows that match it, anywhere in Seoul. Until
+  // 2026-09-04 the search reached the list and not these dots, so typing a
+  // restaurant name narrowed a list that could be folded away and left the
+  // map identical — which is what "검색이 안 된다" looked like from a
+  // screen showing only the map.
   const shown = useMemo(() => {
-    if (!layer || !view) return [];
+    if (!layer) return [];
+    const q = String(query ?? '').trim();
+    if (q) return placesMatching(layer, q);
+    if (!view) return [];
     const b = view.bounds;
     return placesInView(layer, {
       north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest(),
     }, view.zoom);
-  }, [layer, view]);
+  }, [layer, view, query]);
 
   return shown.map((p) => (
     <Marker
@@ -186,7 +195,7 @@ function NearbyCard({ place, onClose, onDetails }) {
   );
 }
 
-export default function MapComponent({ restaurants, onMarkerClick, selectedId, onCenterChange, showNearby = false }) {
+export default function MapComponent({ restaurants, onMarkerClick, selectedId, onCenterChange, showNearby = false, query = '' }) {
   // Which register dot is open, if any. Held here rather than in the layer
   // because the card is drawn outside the map, over it.
   const [nearbySelected, setNearbySelected] = useState(null);
@@ -201,7 +210,7 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
         {onCenterChange && <CenterReporter onCenterChange={onCenterChange} />}
         <ResizeSync />
         <TileLayer attribution={tiles.attribution} url={tiles.url} />
-        {showNearby && <NearbyLayer onSelect={setNearbySelected} />}
+        {showNearby && <NearbyLayer onSelect={setNearbySelected} query={query} />}
         {/* The teardrop layer is the twenty curated places and nothing else.
             Since the register joined the same pool, this list arrives holding
             every one of its 167,659 rows too — and drawing them as teardrops

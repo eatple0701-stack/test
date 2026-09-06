@@ -146,10 +146,33 @@ test('no rail contradicts the city chip the reader just pressed', () => {
   assert.equal(festivals.every(f => !('city' in f) && !('zone' in f)), true,
     'festivals now carry a location — filter them properly instead of hiding the rail');
   assert.match(placesTab, /\{festivals\.length > 0 && !city && \(/);
-  // Seasonal foods and the culture cards claim no location at all, so they
-  // survive a city filter honestly and must not be hidden with it.
+  // Seasonal foods claim no location at all, so they survive a city filter
+  // honestly and must not be hidden with it.
   assert.match(placesTab, /\{seasonalFoods\.length > 0 && \(/);
-  assert.match(placesTab, /\{CULTURE_CARDS\.length > 0 && \(/);
+  // The culture-cards rail was asserted here for the same reason until
+  // 2026-09-04, when it was removed rather than hidden: it rendered the same
+  // CULTURE_CARDS deck that 문화's own 문화 카드 button opens, four of its
+  // cards, one scroll from these rails. The check that replaces it is below —
+  // that the deck now has exactly one entrance.
+});
+
+test('the culture deck is offered from one place, not two', () => {
+  // Two tracks of curation is what merging these shelves into 문화 was for,
+  // and this deck was the literal duplicate: the same seven cards, reachable
+  // from a rail in 장소 and from a button in 문화. Kept as a positive check
+  // on the surviving entrance rather than only an absence, so deleting both
+  // by accident fails here instead of passing quietly.
+  // Comments stripped first, per CLAUDE.md. Written without it, this failed
+  // on the note left in PlacesTab.jsx explaining where the rail went — the
+  // assertion read the explanation of the rule as a breach of it, which is
+  // the exact failure that rule was written after.
+  const noComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+  // `\b` on purpose: written as /<CultureCards/ this passed against
+  // `<CultureCardsX`, so the mutation that proves it can fail did not fail.
+  const home = src('src/components/HomeTab.jsx');
+  assert.match(noComments(home), /<CultureCards\b/);
+  assert.doesNotMatch(noComments(placesTab), /CULTURE_CARDS/);
+  assert.doesNotMatch(noComments(placesTab), /<CultureCards\b/);
 });
 
 // ── A1 · open state, from the record the card already had ────────────────

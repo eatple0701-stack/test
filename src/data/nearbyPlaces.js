@@ -1,3 +1,5 @@
+import { matchesRegistryRow } from '../domain/policy/placeSearch.js';
+
 // The register, filtered to the dishes this app exists for.
 //
 // 서울관광재단's food-tourism database (data.go.kr 15097605) holds 167,659
@@ -180,6 +182,40 @@ export function placesInView(layer, bounds, zoom, limit = VIEW_LIMIT) {
   const stride = inside.length / limit;
   const out = [];
   for (let i = 0; i < limit; i += 1) out.push(inside[Math.floor(i * stride)]);
+  return out;
+}
+
+/**
+ * The rows a search names, anywhere in the city.
+ *
+ * Deliberately not bounded by the viewport, which is what placesInView is
+ * for. A search is somebody naming a place, and the answer to "where is
+ * 토담토담" cannot be "nowhere" because they happened to be looking at
+ * 강남 when they asked. What counts as a match is not decided here: both this
+ * and the list call matchesRegistryRow/matchesPlaceQuery in
+ * domain/policy/placeSearch.js, because the two of them disagreeing about
+ * one query is the failure this was written after.
+ *
+ * Capped like the viewport is, and for the same reason: Leaflet keeps a DOM
+ * node per marker. A one-letter query matches thousands of rows.
+ */
+export function placesMatching(layer, query, limit = VIEW_LIMIT) {
+  const q = String(query ?? '').trim().toLowerCase();
+  if (!layer?.rows || !q) return [];
+  const hits = [];
+  for (const p of layer.rows) {
+    if (p.y === undefined || p.x === undefined) continue;
+    if (!matchesRegistryRow(p, q)) continue;
+    hits.push(p);
+  }
+  if (hits.length <= limit) return hits;
+  // Over the cap, take an even stride rather than the first N — the same
+  // reason placesInView does. The rows are ordered by district, so '종로구'
+  // cut at 160 would be 160 dots in whichever 구 sorts first and an empty map
+  // everywhere else, which reads as a claim about where the food is.
+  const stride = hits.length / limit;
+  const out = [];
+  for (let i = 0; i < limit; i += 1) out.push(hits[Math.floor(i * stride)]);
   return out;
 }
 

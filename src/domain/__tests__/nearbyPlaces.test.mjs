@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { placesInView, asPlace, MIN_ZOOM, NEAR_DISTRICTS } from '../../data/nearbyPlaces.js';
+import { placesInView, placesMatching, asPlace, MIN_ZOOM, NEAR_DISTRICTS, VIEW_LIMIT } from '../../data/nearbyPlaces.js';
 import { DISH_IDS } from '../catalog/dishGroups.js';
 
 // The register, filtered to the app's premise and split into 25 district
@@ -164,4 +164,69 @@ test('ids are unique across the whole register, not just within a district', () 
     }
   }
   assert.equal(seen.size, index.total);
+});
+
+// ── Searching the register from the map ──────────────────────────────────
+//
+// Reported 2026-09-04: somebody typed a restaurant name into the map's search
+// box and the map did not move. The list behind it was answering — it always
+// had — but the eight thousand dots came from a layer that took no query at
+// all, so on a screen showing only the map the search looked broken. These
+// pin what the layer answers now.
+
+const SEARCH_ROWS = {
+  rows: [
+    { i: 1, n: '토담토담', a: '서울특별시 종로구 수표로 121', y: 37.572, x: 126.9889 },
+    { i: 2, n: '강호', a: '서울특별시 종로구 어딘가', y: 37.57, x: 126.98 },
+    { i: 3, n: '종로 곱 육개장', a: '서울특별시 종로구 다른 곳', y: 37.58, x: 126.99 },
+    { i: 4, n: '좌표없는집', a: '서울특별시 종로구 없음' },
+  ],
+};
+
+test('a name finds its place wherever in the city it is', () => {
+  // The point of not bounding this by the viewport: the answer to "where is
+  // 토담토담" must not depend on where the reader happened to be looking.
+  assert.deepEqual(placesMatching(SEARCH_ROWS, '토담토담').map(p => p.i), [1]);
+  assert.deepEqual(placesMatching(SEARCH_ROWS, '강호').map(p => p.i), [2]);
+  // Partial matches, so the list narrows as somebody types rather than
+  // staying empty until the last character lands.
+  assert.deepEqual(placesMatching(SEARCH_ROWS, '육개장').map(p => p.i), [3]);
+});
+
+test('the address is searched too, because that is where the neighbourhood is', () => {
+  // 홍대, 이태원, 종로 are how somebody says where they want to eat, and none
+  // of them is a field in the register — they are inside the address. All
+  // three drawable rows here are in 종로구, so all three match, and the one
+  // that also carries it in its name is not counted twice.
+  assert.deepEqual(placesMatching(SEARCH_ROWS, '종로').map(p => p.i), [1, 2, 3]);
+  assert.deepEqual(placesMatching(SEARCH_ROWS, '수표로').map(p => p.i), [1]);
+});
+
+test('an empty query asks for nothing rather than for everything', () => {
+  // The caller falls back to the viewport when there is no query; returning
+  // every row here would put the whole city on the map at once.
+  for (const q of ['', '   ', null, undefined]) {
+    assert.deepEqual(placesMatching(SEARCH_ROWS, q), []);
+  }
+});
+
+test('a row the register gave no coordinates is not drawn', () => {
+  // It is a real restaurant and it stays in the data — see the note at the
+  // top of nearbyPlaces.js — but a marker needs a point.
+  assert.deepEqual(placesMatching(SEARCH_ROWS, '좌표없는집'), []);
+});
+
+test('a one-letter query is capped the way a viewport is', () => {
+  // Leaflet keeps a DOM node per marker, so this cannot answer honestly and
+  // unboundedly at the same time.
+  const many = { rows: [] };
+  for (let k = 0; k < VIEW_LIMIT + 40; k += 1) {
+    many.rows.push({ i: k, n: '집' + k, y: 37.5, x: 127 });
+  }
+  const shown = placesMatching(many, '집');
+  assert.equal(shown.length, VIEW_LIMIT);
+  // And spread across the matches rather than taken off the front: the rows
+  // are ordered by district, so the first 160 of 487 would be one 구 and an
+  // empty map everywhere else.
+  assert.ok(shown[shown.length - 1].i > VIEW_LIMIT, 'the survivors are the first N, not a spread');
 });

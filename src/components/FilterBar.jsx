@@ -11,7 +11,13 @@ const CHIP_GROUPS = [
   { label: 'Dining filters', chips: ['Mild Taste', 'Fermented'] },
 ];
 
-export default function FilterBar({ selectedFilters, onToggleFilter, searchQuery, onSearchChange }) {
+// showChips: the 장소 tab asks for the search box alone. Its left rail sits
+// directly above the colour legend, which names the same six groups the
+// first chip row does and names them better — a swatch, the group and its
+// four dishes, against a chip carrying the group alone. Two lists of the
+// same six in one 245px column was what the reader actually saw. The map
+// overlay, summoned from another screen, keeps all of it.
+export default function FilterBar({ selectedFilters, onToggleFilter, searchQuery, onSearchChange, showChips = true }) {
   const say = useText();
   return (
     <header className="home-header">
@@ -29,48 +35,53 @@ export default function FilterBar({ selectedFilters, onToggleFilter, searchQuery
         />
       </div>
 
-      {/* The six dish groups, first because they are why the 8,000
-          register places are in this list at all. Same colours as the map's
-          dots and the front page's cards — one colour, one category. These
-          filter on the register's menu evidence, so the twenty curated
-          places sit out a group chip rather than being guessed about. */}
-      <div className="chip-row no-scrollbar" role="group" aria-label={say('Filter by kind of food', '음식 종류로 거르기', 'Filtrar por tipo de comida', 'Filtrer par type de plat', 'صفِّ بنوع الطعام', '按种类筛选', '種類で絞る')}>
-        {DISH_GROUPS.map(g => {
-          const id = `group:${g.id}`;
-          const isActive = selectedFilters.includes(id);
-          return (
-            <button
-              key={g.id}
-              className={`chip chip--group${isActive ? ' active' : ''}`}
-              style={isActive ? { background: g.tint, borderColor: g.tint, color: '#FFFFFF' } : undefined}
-              aria-pressed={isActive}
-              onClick={() => onToggleFilter(id)}
-            >
-              <span aria-hidden="true">{g.emoji}</span> {say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="chip-row no-scrollbar">
-        {CHIP_GROUPS.map(group => (
-          <div key={group.label} className="chip-group" role="group" aria-label={group.label}>
-            {group.chips.map(f => {
-              const isActive = selectedFilters.includes(f);
+      {showChips && (
+        <>
+          {/* The six dish groups, first because they are why the 8,000
+              register places are in this list at all. Same colours as the map's
+              dots and the front page's cards — one colour, one category. These
+              filter on the register's menu evidence, so the twenty curated
+              places sit out a group chip rather than being guessed about. */}
+          <div className="chip-row no-scrollbar" role="group" aria-label={say('Filter by kind of food', '음식 종류로 거르기', 'Filtrar por tipo de comida', 'Filtrer par type de plat', 'صفِّ بنوع الطعام', '按种类筛选', '種類で絞る')}>
+            {DISH_GROUPS.map(g => {
+              const id = `group:${g.id}`;
+              const isActive = selectedFilters.includes(id);
               return (
                 <button
-                  key={f}
-                  className={`chip${isActive ? ' active' : ''}`}
+                  key={g.id}
+                  className={`chip chip--group${isActive ? ' active' : ''}`}
+                  style={isActive ? { background: g.tint, borderColor: g.tint, color: '#FFFFFF' } : undefined}
                   aria-pressed={isActive}
-                  onClick={() => onToggleFilter(f)}
+                  onClick={() => onToggleFilter(id)}
                 >
-                  {f}
+                  <span aria-hidden="true">{g.emoji}</span> {say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}
                 </button>
               );
             })}
           </div>
-        ))}
-      </div>
+
+          <div className="chip-row no-scrollbar">
+            {CHIP_GROUPS.map(group => (
+              <div key={group.label} className="chip-group" role="group" aria-label={group.label}>
+                {group.chips.map(f => {
+                  const isActive = selectedFilters.includes(f);
+                  return (
+                    <button
+                      key={f}
+                      className={`chip${isActive ? ' active' : ''}`}
+                      aria-pressed={isActive}
+                      onClick={() => onToggleFilter(f)}
+                    >
+                      {f}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
     </header>
   );
 }
