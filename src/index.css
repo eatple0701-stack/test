@@ -12843,3 +12843,104 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
     line-height: 1.45;
   }
 }
+
+/* The Korean sentence under each step's name. `-kr` so index.css's own pair
+   rule hides it wherever the reader is not reading Korean — the other six
+   languages already have the same words inside their one line. Added
+   2026-09-04; Korean had the names and none of the meanings until then. */
+.main-zig__long-kr,
+.how-strip__long-kr {
+  display: block;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+
+/* ---- What the two kinds of marker are ---------------------------------
+   The map has always drawn teardrop pins for the eighteen places somebody
+   visited and coloured dots for the 8,118 the register lists. The legend
+   explained the dot colours and never said what a pin was, so the clearest
+   distinction on the screen was the one nobody could read. */
+.map-legend__kinds {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius, 12px);
+  background: var(--bg);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ink-body);
+}
+.map-legend__kind { display: flex; align-items: flex-start; gap: 7px; text-align: start; }
+/* A teardrop, at the size a legend can carry: the marker's silhouette rather
+   than a scaled copy of it. */
+.map-legend__pin {
+  flex: 0 0 auto;
+  width: 11px;
+  height: 15px;
+  margin-top: 1px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--ex-pine, #0E9F6E);
+}
+/* The register dot, in no group's colour — the six below say what the
+   colours mean, and this row is about which kind of thing it is. */
+.map-legend__dot--any {
+  flex: 0 0 auto;
+  margin-top: 4px;
+  background: var(--muted-strong);
+}
+@media (min-width: 1024px) {
+  .map-overlay--tab .map-legend__kinds { align-self: stretch; }
+}
+
+/* ---- The merged 장소 shelves, behind one press -------------------------
+   문화 absorbed eleven shelves on 2026-09-04 and became 8.0 screens on a
+   phone, which is the complaint that started the merge wearing new clothes.
+   Nothing was cut — which of the eleven is worth least is a judgement, not a
+   cleanup — so they are shut until somebody wants them. */
+.home-places { padding-top: 4px; }
+.home-places__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.home-places__toggle:hover { border-color: var(--accent-strong); }
+.home-places__label-kr {
+  display: block;
+  font-family: var(--ex-kr);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink-title);
+}
+.home-places__label-en {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--muted-strong);
+}
+.home-places__caret {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--muted-strong);
+  transition: transform 0.14s ease;
+}
+.home-places__toggle.is-open .home-places__caret { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .home-places__caret { transition: none; }
+}
+/* Inside the fold it is a section, not a tab: its own screen-head sized for
+   a page of its own would shout over the heading that opened it. */
+.home-places .places-tab .screen-head { padding-top: 18px; }

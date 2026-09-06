@@ -33,6 +33,8 @@ export default function HomeTab({
   const say = useText();
   const [showRoulette, setShowRoulette] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
+  // The merged 장소 shelves, shut until asked for. See the note at the mount.
+  const [placesOpen, setPlacesOpen] = useState(false);
   const [cultureStart, setCultureStart] = useState(0);
 
   // The Phase 0 catalog, filtered through the same visibility policy the
@@ -186,17 +188,44 @@ export default function HomeTab({
           this answers "where could I go" and everything above answers "what
           should I do today" — the order the split was originally made to
           protect, kept without needing two tabs to keep it. */}
-      <PlacesTab
-        onOpenRestaurant={onOpenRestaurant}
-        onOpenStory={onOpenStory}
-        onExploreZone={onExploreZone}
-        bookmarkedIds={bookmarkedIds}
-        onToggleBookmark={onToggleBookmark}
-        visitedMarkets={visitedMarkets}
-        onToggleMarket={onToggleMarket}
-        onOpenMap={onOpenMap}
-        onOpenMapTab={() => onNavigate('places')}
-      />
+      {/* Folded to start. Merging 장소 in here answered "two tracks of
+          curation" and created "one very long tab" — measured at 8.0 screens
+          on a 375px phone, when the complaint that started this was that
+          there was too much to read. Nothing was cut to fix that: which of
+          eleven shelves is worth less than the others is the team's call and
+          not a thing to decide by deleting. So it is one press instead, and
+          the reading above it — the cultures, the two surprises — reaches
+          the end of the page again. */}
+      <div className="home-section home-places">
+        <button
+          type="button"
+          className={`home-places__toggle${placesOpen ? ' is-open' : ''}`}
+          aria-expanded={placesOpen}
+          aria-controls="home-places-panel"
+          onClick={() => setPlacesOpen(v => !v)}
+        >
+          <span className="home-places__label">
+            <span className="home-places__label-kr" translate="no">가볼 만한 곳</span>
+            <span className="home-places__label-en">
+              {say('Places, markets and neighbourhoods', null, 'Sitios, mercados y barrios', 'Adresses, marchés et quartiers', 'أماكن وأسواق وأحياء', '地点、市场和街区', '店と市場と街')}
+            </span>
+          </span>
+          <span className="home-places__caret" aria-hidden="true">▾</span>
+        </button>
+        <div id="home-places-panel" hidden={!placesOpen}>
+          <PlacesTab
+            onOpenRestaurant={onOpenRestaurant}
+            onOpenStory={onOpenStory}
+            onExploreZone={onExploreZone}
+            bookmarkedIds={bookmarkedIds}
+            onToggleBookmark={onToggleBookmark}
+            visitedMarkets={visitedMarkets}
+            onToggleMarket={onToggleMarket}
+            onOpenMap={onOpenMap}
+            onOpenMapTab={() => onNavigate('places')}
+          />
+        </div>
+      </div>
 
       {showRoulette && (
         <FoodRoulette

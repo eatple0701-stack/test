@@ -4,6 +4,14 @@ import FilterBar from './FilterBar';
 import BottomSheetList from './BottomSheetList';
 import { XIcon, ChevronDownIcon, ChevronUpIcon } from './Icons';
 import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
+import { REGISTRY_TOTAL } from '../data/nearbyPlaces.js';
+import { restaurants } from '../data/restaurants';
+import { isQuarantined } from '../data/verification';
+
+// The count the legend names. Computed, never typed: the twenty curated
+// records include two the verification policy quarantines, and a legend that
+// says 20 beside eighteen pins is a legend somebody has to check.
+const CURATED_COUNT = restaurants.filter(r => !isQuarantined(r)).length;
 import { useText } from './localeText.js';
 
 // The map as a tool rather than a substrate.
@@ -118,6 +126,37 @@ export default function MapOverlay({
           on screen and unreadable, which is the same as not being there.
           Hidden when the layer is off, because then they mean nothing. */}
       <div className="map-legend" aria-label={say('What the colours mean', '색깔이 뜻하는 것', 'Qué significan los colores', 'Ce que signifient les couleurs', 'معنى الألوان', '颜色的含义', '色の意味')}>
+        {/* What the two kinds of marker are.
+            The map draws teardrop pins for the eighteen places somebody went
+            to and wrote up, and coloured dots for the 8,118 the register
+            knows about — a difference anybody can see and nobody could read,
+            because the legend explained the dot colours and never mentioned
+            the pins at all. Reported as "너저분하다" on 2026-09-04, which is
+            what an unexplained distinction looks like from outside.
+            First, because it is the difference between a place this app
+            vouches for and one it merely lists. */}
+        <span className="map-legend__kinds">
+          <span className="map-legend__kind">
+            <span className="map-legend__pin" aria-hidden="true" />
+            {say(`${CURATED_COUNT} we went to and wrote up`,
+              `직접 가보고 기록한 ${CURATED_COUNT}곳`,
+              `${CURATED_COUNT} que visitamos y describimos`,
+              `${CURATED_COUNT} où nous sommes allés et que nous avons décrites`,
+              `${CURATED_COUNT} مكانًا زرناها وكتبنا عنها`,
+              `我们亲自去过并写下来的 ${CURATED_COUNT} 处`,
+              `実際に行って書いた${CURATED_COUNT}か所`)}
+          </span>
+          <span className="map-legend__kind">
+            <span className="map-legend__dot map-legend__dot--any" aria-hidden="true" />
+            {say(`${REGISTRY_TOTAL.toLocaleString('en-US')} from Seoul's public register — nobody here has been to those`,
+              `서울시 공공 등록부의 ${REGISTRY_TOTAL.toLocaleString('ko-KR')}곳 — 저희가 가본 곳은 아닙니다`,
+              `${REGISTRY_TOTAL.toLocaleString('es-ES')} del registro público de Seúl: a esos no hemos ido`,
+              `${REGISTRY_TOTAL.toLocaleString('fr-FR')} du registre public de Séoul : nous n'y sommes pas allés`,
+              `${REGISTRY_TOTAL.toLocaleString('en-US')} من السجل العام لمدينة سول — تلك لم نزرها`,
+              `来自首尔市公开登记册的 ${REGISTRY_TOTAL.toLocaleString('en-US')} 家——那些我们没有去过`,
+              `ソウル市の公開登録簿にある${REGISTRY_TOTAL.toLocaleString('ja-JP')}軒 — そちらには行っていません`)}
+          </span>
+        </span>
         <button
           className={`map-overlay__nearby${nearby ? ' is-on' : ''}`}
           aria-pressed={nearby}

@@ -18,10 +18,22 @@
 // hold three things. The fourth thing worth saying — the record — lives in
 // the Passport, which is where it can be shown rather than promised.
 
+// `kr` is the step's name; `krLong` is what it means. The other six
+// languages carry both in one sentence, because that is how they were
+// written. Korean had no second half at all until 2026-09-04, so a Korean
+// reader saw three labels — 밥상 찾기, 자리 요청, 나눠 먹기 — and none of the
+// sentences under them. The third of those is the money line, which the note
+// above calls the fact that removes the hesitation, and it was the one the
+// team's own language could not read.
+//
+// audit-i18n cannot see a hole of this shape: every string it knows about was
+// present and translated. What was missing was a field, and the stylesheet's
+// rule hiding every `__en` class on a Korean screen did the rest.
 export const HOW_STEPS = [
   {
     id: 'find',
     kr: '밥상 찾기',
+    krLong: '혼자서는 시키기 어려운 요리가 올라온 밥상을 찾습니다.',
     en: "Find a table serving a dish you'd rather not eat alone.",
     es: 'Encuentra una mesa con un plato que prefieres no comer solo.',
     fr: "Trouvez une table servant un plat que vous préférez ne pas manger seul.",
@@ -32,6 +44,7 @@ export const HOW_STEPS = [
   {
     id: 'ask',
     kr: '자리 요청',
+    krLong: '자리를 청하면 호스트가 당신이 어떤 사람인지 읽고, 이름을 보고 승낙합니다. 이름이 신청서의 전부입니다.',
     en: 'Ask for the seat. The host reads who you are and says yes by name — your name is the whole form.',
     es: 'Pide el sitio. El anfitrión lee quién eres y dice que sí por tu nombre: tu nombre es todo el formulario.',
     fr: "Demandez la place. L'hôte lit qui vous êtes et dit oui par votre nom : votre nom est tout le formulaire.",
@@ -45,6 +58,7 @@ export const HOW_STEPS = [
     // removes the hesitation. Worded as what this app does, not as a promise
     // about what a restaurant charges — the app cannot know that.
     kr: '나눠 먹기',
+    krLong: '만나서 함께 먹습니다. 밥친구는 돈을 다루지 않습니다. 먹은 만큼 각자 식당에 내기 때문에, 밥상에서 누가 누구에게 빚지는 일이 없습니다.',
     // The brand is written Eatple inside an English clause. It was 밥친구,
     // which no splitter can lift out of a sentence — the whole line read as
     // Korean to anything measuring script, so it stayed on an English-only

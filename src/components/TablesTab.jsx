@@ -891,6 +891,8 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
               <li key={s.id} className="how-strip__step">
                 <span className="how-strip__num" aria-hidden="true">{i + 1}</span>
                 <span className="how-strip__kr" translate="no">{s.kr}</span>
+                {/* Same hole as MainTab had: the name without the sentence. */}
+                <span className="how-strip__long-kr" translate="no">{s.krLong}</span>
                 <span className="how-strip__en">{say(s.en, null, s.es, s.fr, s.ar, s.zh, s.ja)}</span>
               </li>
             ))}

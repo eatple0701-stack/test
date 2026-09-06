@@ -394,6 +394,11 @@ export default function MainTab({
             <div key={s.id} className="main-zig__step">
               <span className="main-zig__num" aria-hidden="true">{i + 1}</span>
               <span className="main-zig__kr" translate="no">{s.kr}</span>
+              {/* The Korean half was the step name and nothing else, so a Korean
+                  reader got three labels and none of the sentences — see
+                  content/howItWorks.js. The other six carry name and meaning
+                  in one line already. */}
+              <span className="main-zig__long-kr" translate="no">{s.krLong}</span>
               <span className="main-zig__en">{say(s.en, null, s.es, s.fr, s.ar, s.zh, s.ja)}</span>
             </div>
           ))}
