@@ -2512,7 +2512,11 @@ button {
 }
 .stat-box {
   flex: 1;
-  background: var(--bg);
+  /* --surface, not --bg. These were drawn to sit inset on a white section,
+     so a background the colour of the page read as a well. The section
+     stopped being a card on 2026-09-07 and the page is that colour now, so
+     the same value made them disappear into it — a border around nothing. */
+  background: var(--surface);
   border-radius: var(--radius-lg);
   padding: 16px;
   display: flex;
@@ -2573,6 +2577,42 @@ button {
 .journal-section {
   padding: 24px 20px 0;
 }
+/* ---- Primary actions stop being banners once there is room ----
+
+   Every screen in this app is one 720px column of full-width blocks, which
+   is what a 375px phone is and what a phone should be. The buttons inherited
+   that: 들어가기 was 680px wide on 문화, 만들기 650 and 밥상 찾기 622 on 여권,
+   상 차리기 680 on 밥상 until the tables pass. A 650px slab of accent colour
+   is not a button any more, it is a banner with a word in the middle, and
+   stacking two of them is what "UI가 끔찍하다" was pointing at on 2026-09-07.
+
+   Sized to what they say from 768px up. Still the loudest thing on their
+   screens, which they should be — each one is the single action its screen
+   exists for. Phones keep the full width, where it is correct.
+
+   Row-shaped buttons are deliberately not here: .journal-tool and
+   .home-places__toggle are panels you press, not pills, and a panel that
+   shrinks to its text is no longer a panel. */
+@media (min-width: 768px) {
+  /* .cover .cover__cta, not .cover__cta: the rule this overrides sits 2,900
+     lines further down the file, and at equal specificity the later one wins.
+     Measured 680px until the parent was added. */
+  .cover .cover__cta,
+  .journal-panel .auth-primary,
+  .journal-empty__cta,
+  .journal-empty__ask {
+    width: fit-content;
+    min-width: 220px;
+    padding-inline: 30px;
+  }
+
+  /* The card boxes down the passport line up on one edge. They were at 20,
+     16 and 0, which reads as three attempts at the same margin — and the
+     text inside the gate sat two pixels off the head above it. */
+  .journal-panel > .journal-empty { margin-inline: 20px; }
+  .journal-panel > .member-gate { padding-inline: 20px; }
+}
+
 .journal-section:last-child {
   padding-bottom: 32px;
 }
