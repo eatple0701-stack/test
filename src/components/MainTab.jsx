@@ -283,6 +283,15 @@ export default function MainTab({
       // barely moves.
       const step = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1;
       e.preventDefault();
+      // App.jsx keeps a wheel handler on the document that does the opposite
+      // on purpose — it walks up from the target and turns a vertical wheel
+      // into sideways scrolling for whichever row the cursor is over, which
+      // is what makes the small dish rails usable. This rail is not a small
+      // row, and without stopping here that handler runs on the same event
+      // and nudges it sideways underneath a page that is already scrolling;
+      // scroll-snap then drags it back, or past, depending on how much was
+      // asked for. One event, one answer.
+      e.stopPropagation();
       scroller.scrollTop += e.deltaY * step;
     };
 
