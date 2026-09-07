@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import { menuById } from '../domain/catalog/menus.js';
 import { DISH_GROUPS, romanDishes, menuIdOfDish } from '../domain/catalog/dishGroups.js';
 import { glossDishesIn } from '../domain/policy/dishGroupPicker.js';
-import { railTallest, railIndex } from '../domain/policy/rail.js';
+import { railTallest, railIndex, railAdvance } from '../domain/policy/rail.js';
 import { dishGloss } from '../domain/policy/dishLabels.js';
 import { isMember } from '../domain/policy/access.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
@@ -261,8 +261,34 @@ export default function MainTab({
       if (frame) return;
       frame = requestAnimationFrame(() => { frame = 0; measure(); });
     };
+    // A vertical wheel over the rail scrolls the page, not the rail.
+    //
+    // Chrome turns a vertical wheel into horizontal scrolling whenever it
+    // lands on something that scrolls sideways and not up and down, which is
+    // exactly this. Measured on 2026-09-07 at 1280px: four notches down over
+    // the middle of the page moved the page 0px and the rail 1100 — the whole
+    // way to the last screen. The rail is most of what is on screen at the
+    // top, so for a reader that is the page refusing to scroll unless the
+    // cursor is out in the margin, which is how it was reported.
+    //
+    // Only when the gesture is more vertical than horizontal, so a trackpad
+    // swiped sideways still turns the rail. passive: false because this has
+    // to be able to say no.
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const scroller = el.closest('.content-region') ?? document.scrollingElement;
+      if (!scroller) return;
+      // deltaMode is pixels almost everywhere, lines on some Windows mice and
+      // pages on a few. Left unconverted, a line becomes a pixel and the page
+      // barely moves.
+      const step = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1;
+      e.preventDefault();
+      scroller.scrollTop += e.deltaY * step;
+    };
+
     measure();
     el.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('wheel', onWheel, { passive: false });
     // The rail itself is not observed: its height is set from this callback,
     // so watching it would be watching its own output. A slide is 100% of the
     // rail, so a width change still arrives through them.
@@ -277,18 +303,27 @@ export default function MainTab({
     return () => {
       if (frame) cancelAnimationFrame(frame);
       el.removeEventListener('scroll', onScroll);
+      el.removeEventListener('wheel', onWheel);
       ro?.disconnect();
     };
   }, []);
   // scrollIntoView rather than scrollLeft arithmetic, because it gets the
   // Arabic direction right on its own. block: 'nearest' so moving between the
   // three never scrolls the page vertically as well.
-  const goDeck = (i) => {
+  // `jump` skips the animation. It is for the wrap from the last screen back
+  // to the first: there is nothing to the right of the last one, so animating
+  // there means travelling left across everything in between, and a rail that
+  // has been going one way for eight seconds suddenly rewinds through the
+  // middle screen. Reported on 2026-09-07 in those terms. Cut instead — the
+  // first screen is simply there — which is not a forward turn but is at
+  // least not a backward one.
+  const goDeck = (i, jump = false) => {
     // Said here rather than waited for, so the label answers the press at
     // once and the clock below starts its four seconds from the press.
     setDeckAt(i);
     deckRef.current?.children[i]?.scrollIntoView({
-      inline: 'start', block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth',
+      inline: 'start', block: 'nearest',
+      behavior: (jump || reducedMotion) ? 'auto' : 'smooth',
     });
   };
 
@@ -314,7 +349,10 @@ export default function MainTab({
   const deckTurning = playing && !reducedMotion;
   useEffect(() => {
     if (!deckTurning || deckHeld) return undefined;
-    const id = setTimeout(() => goDeck((deckAt + 1) % DECK_COUNT), DECK_MS);
+    const id = setTimeout(() => {
+      const { to, jump } = railAdvance(deckAt, DECK_COUNT);
+      goDeck(to, jump);
+    }, DECK_MS);
     return () => clearTimeout(id);
   }, [deckTurning, deckHeld, deckAt]);   // eslint-disable-line react-hooks/exhaustive-deps
   const deckLabels = [

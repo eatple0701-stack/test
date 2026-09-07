@@ -43,3 +43,19 @@ export function railTallest(heights = [], extraOnFirst = 0) {
   if (!heights.length || !heights[0] || heights[0] < 0) return null;
   return Math.round(Math.max(heights[0] + extraOnFirst, ...heights));
 }
+
+/**
+ * The next slide, and whether getting there should be a cut rather than a
+ * slide.
+ *
+ * There is nothing to the right of the last screen, so animating to the
+ * first means travelling left across everything in between: a rail that has
+ * been going one way for four seconds rewinds through the middle one.
+ * Reported on 2026-09-07 in those words. Every other step animates.
+ */
+export function railAdvance(from, count) {
+  const n = Math.max(1, Math.floor(count) || 1);
+  const at = Math.min(n - 1, Math.max(0, Math.floor(from) || 0));
+  const to = (at + 1) % n;
+  return { to, jump: to < at };
+}

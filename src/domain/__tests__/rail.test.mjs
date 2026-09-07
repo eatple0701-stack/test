@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { railFraction, railIndex, railTallest } from '../policy/rail.js';
+import { railFraction, railIndex, railTallest, railAdvance } from '../policy/rail.js';
 
 const KO = [758, 527, 510];    // the three top slides on a 375px phone, Korean
 const EN = [758, 1021, 550];   // the same three in English, which carry more
@@ -53,4 +53,18 @@ test('the index rounds to the slide a reader would say they are on', () => {
 
 test('a rail with no width yet does not divide by zero', () => {
   assert.equal(Number.isFinite(railFraction(0, 0, 3)), true);
+});
+
+test('every step but the last one turns; the wrap is a cut', () => {
+  assert.deepEqual(railAdvance(0, 3), { to: 1, jump: false });
+  assert.deepEqual(railAdvance(1, 3), { to: 2, jump: false });
+  // Nothing sits to the right of the last screen, so animating to the first
+  // would travel back across the middle one.
+  assert.deepEqual(railAdvance(2, 3), { to: 0, jump: true });
+});
+
+test('the advance survives a count of one and an index off the end', () => {
+  assert.deepEqual(railAdvance(0, 1), { to: 0, jump: false });
+  assert.deepEqual(railAdvance(9, 3), { to: 0, jump: true });
+  assert.deepEqual(railAdvance(-4, 3), { to: 1, jump: false });
 });
