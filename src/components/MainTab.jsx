@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import { menuById } from '../domain/catalog/menus.js';
 import { DISH_GROUPS, romanDishes, menuIdOfDish } from '../domain/catalog/dishGroups.js';
 import { glossDishesIn } from '../domain/policy/dishGroupPicker.js';
-import { railTallest, railIndex, railAdvance } from '../domain/policy/rail.js';
+import { railTallest, railIndex, railLoopStep } from '../domain/policy/rail.js';
 import { dishGloss } from '../domain/policy/dishLabels.js';
 import { isMember } from '../domain/policy/access.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
@@ -55,6 +55,12 @@ const SLIDE_MS = 5000;
 // Three screens at the top: the hero, the six categories, and what keeps a
 // table safe. Named in deckLabels, which is also the rail’s controls.
 const DECK_COUNT = 3;
+
+// Four children, not three. The last is a second copy of the hero, so that
+// coming back to the first screen is a step forward onto something identical
+// rather than a slide back across the middle one. railLoopStep in rail.js is
+// what knows to put the rail quietly back on the real one afterwards.
+const DECK_SLIDES = 4;
 
 // The centimetre asked for on 2026-09-07, added under the first slide so the
 // hero has room to breathe — 1cm is 37.8 CSS pixels at the 96dpi the unit is
@@ -158,25 +164,22 @@ export default function MainTab({
   // A scroll position is not an event that can fail to arrive. It is read
   // once at mount and on every scroll, and the answer is the same every
   // time, so there is no state to get stuck in.
-  const heroRef = useRef(null);
   const [heroSeen, setHeroSeen] = useState(true);
   useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return undefined;
+    // The rail, not the hero: the hero is drawn twice now — once for real and
+    // once as the copy at the end — so it cannot carry a ref that means "the
+    // one at the top", and the rail is what stands there anyway.
+    const rail = deckRef.current;
+    if (!rail) return undefined;
     // The app scrolls inside .content-region, not the document.
-    const scroller = hero.closest('.content-region') ?? document.scrollingElement;
+    const scroller = rail.closest('.content-region') ?? document.scrollingElement;
     if (!scroller) return undefined;
 
     // 120px of the hero may have left before the bar is allowed back: the
     // second CTA sits near its bottom edge, and a bar that returns the
     // instant the hero's last pixel moves would clip it again on the way.
     const PAST = 120;
-    // The rail is what stands at the top of the page now, and it is as tall
-    // as whichever of its three screens is showing — 510px on the safety one
-    // against the hero’s 758. Measuring the hero would hold the bar back for
-    // 128px of a page that had already been read past.
-    const top = () => deckRef.current ?? hero;
-    const update = () => setHeroSeen(scroller.scrollTop < Math.max(0, top().offsetHeight - PAST));
+    const update = () => setHeroSeen(scroller.scrollTop < Math.max(0, rail.offsetHeight - PAST));
 
     update();   // decided before the first scroll, and after any restore
     scroller.addEventListener('scroll', update, { passive: true });
@@ -229,6 +232,9 @@ export default function MainTab({
   // whenever a slide changes size — which the 한식 one does every time a
   // category opens.
   const deckRef = useRef(null);
+  // Read by the timer below, which must not restart every time this changes:
+  // a reader swiping the rail themselves is not a reason to reset the clock.
+  const deckPos = useRef(0);
   const [deckAt, setDeckAt] = useState(0);
   const [deckH, setDeckH] = useState(null);
   useLayoutEffect(() => {
@@ -237,7 +243,7 @@ export default function MainTab({
     let frame = 0;
     const measure = () => {
       const sl = el.children;
-      if (sl.length < DECK_COUNT) return;
+      if (sl.length < DECK_SLIDES) return;
       // The slides are read off the rail rather than collected into a ref
       // array. An inline ref callback is a new function every render, so
       // React detaches and re-attaches it each time, and a measurement that
@@ -251,7 +257,9 @@ export default function MainTab({
       const heights = Array.from(sl, c => c.firstElementChild?.offsetHeight ?? 0);
       const h = railTallest(heights, DECK_EXTRA);
       if (h !== null) setDeckH(h);
-      setDeckAt(railIndex(el.scrollLeft, el.clientWidth, DECK_COUNT));
+      const i = railIndex(el.scrollLeft, el.clientWidth, DECK_SLIDES);
+      deckPos.current = i;
+      setDeckAt(i);
     };
     // One measurement per frame at most: a swipe fires scroll far faster than
     // the page can be laid out, and every one of these reads offsetHeight.
@@ -327,8 +335,8 @@ export default function MainTab({
   // first screen is simply there — which is not a forward turn but is at
   // least not a backward one.
   const goDeck = (i, jump = false) => {
-    // Said here rather than waited for, so the label answers the press at
-    // once and the clock below starts its four seconds from the press.
+    // Said here rather than waited for, so the label answers the press at once.
+    deckPos.current = i;
     setDeckAt(i);
     deckRef.current?.children[i]?.scrollIntoView({
       inline: 'start', block: 'nearest',
@@ -336,39 +344,203 @@ export default function MainTab({
     });
   };
 
-  // The rail turns itself, asked for on 2026-09-07. Same shape as the hero's
-  // own carousel above: a setTimeout keyed on where we are rather than one
-  // long interval, so a swipe or a tap on a label gives that screen a full
-  // turn instead of the remainder of a tick that was already half spent.
+  // The rail turns itself, and keeps turning. Asked for on 2026-09-07: the
+  // pause is the only thing that stops it. Somebody who swipes back to a
+  // screen they wanted is not interrupting anything and is not answered —
+  // the next turn simply comes from wherever they left it.
   //
-  // goDeck sets deckAt itself, so the clock re-arms on the press rather than
-  // on the browser finishing its animation — and still re-arms if a scroll is
-  // ever refused, instead of the rail stopping for good with no way to tell
-  // why.
+  // Which is why this is a steady interval and not the timeout-per-step it
+  // was at first: that one restarted the clock every time the position
+  // changed, and therefore every time anybody touched the rail. The position
+  // is read from a ref for the same reason — as a dependency it would tear
+  // the interval down and build it again on every turn.
   //
-  // Never under prefers-reduced-motion, and never while the focus is inside
-  // the rail: somebody reading with a keyboard has said which screen they are
-  // on more clearly than a timer can.
+  // Never under prefers-reduced-motion.
   //
   // `playing` is the hero carousel's, shared rather than copied. Both are the
   // page moving on its own, and giving each its own switch put two pause
   // buttons thirty pixels apart with nothing to say which stopped what. One
   // idea, one state: press either and the page holds still.
-  const [deckHeld, setDeckHeld] = useState(false);
   const deckTurning = playing && !reducedMotion;
   useEffect(() => {
-    if (!deckTurning || deckHeld) return undefined;
-    const id = setTimeout(() => {
-      const { to, jump } = railAdvance(deckAt, DECK_COUNT);
-      goDeck(to, jump);
+    if (!deckTurning) return undefined;
+    const id = setInterval(() => {
+      const { reset, to } = railLoopStep(deckPos.current, DECK_SLIDES);
+      if (!reset) { goDeck(to); return; }
+      // Standing on the copy. Put the rail back on the real first screen with
+      // no animation — the two are the same picture, so there is nothing to
+      // see — and carry on forward from there a frame later, so the browser
+      // paints the jump instead of folding both moves into one long scroll
+      // back the way it came.
+      goDeck(0, true);
+      requestAnimationFrame(() => goDeck(to));
     }, DECK_MS);
-    return () => clearTimeout(id);
-  }, [deckTurning, deckHeld, deckAt]);   // eslint-disable-line react-hooks/exhaustive-deps
+    return () => clearInterval(id);
+  }, [deckTurning]);   // eslint-disable-line react-hooks/exhaustive-deps
   const deckLabels = [
     say('About', '소개', 'Qué es', 'À propos', 'نبذة', '介绍', '紹介'),
     say('Korean food', '한식', 'Comida coreana', 'Cuisine coréenne', 'الطعام الكوري', '韩餐', '韓国料理'),
     say('Safety', '안전', 'Seguridad', 'Sécurité', 'الأمان', '安全', '安全'),
   ];
+
+  // Drawn twice: once at the top for real, and once as the last child of the
+  // rail so that coming back round to it is a step forward. Held here rather
+  // than written out twice, so the two can never drift apart — the copy has
+  // to be the same picture down to which dish the blobs are showing, or the
+  // silent jump back would be a visible one.
+  const heroScreen = (
+    <header className="main-hero">
+      <div className="main-hero__copy">
+        {/* The brand, in halves. It was one string in a class ending -kr,
+            which meant an English interface dropped the app's own name off
+            its own front page. Split, so each setting keeps a name. */}
+        <span className="main-hero__eyebrow l-pair" translate="no">
+          <span className="main-hero__eyebrow-kr">밥친구 잇플</span>
+          <span className="main-hero__eyebrow-en">Eatple</span>
+        </span>
+        {/* Two headlines, one shown at a time. The Korean one is the
+            default and stays the default — it is the screen the team
+            reviewed — and the English one exists only for the English
+            setting, where a 44px Korean headline was the single loudest
+            thing the language setting failed to touch.
+
+            It used to make a claim about what a shop will serve one person.
+            That claim is false for 10 of the 24 dishes in
+            src/domain/catalog/menus.js, so the sentence stopped being
+            about the shop and became about the reader's own past: the
+            dishes they walked by, because they were on their own. Nothing
+            here says a dish was unavailable, which is what keeps it true of
+            bibimbap as well as of samgyeopsal.
+
+            Every line is measured, not guessed — scripts/measure-hero.mjs
+            renders these seven in the shipping stylesheet at 44px in a
+            320px box and fails if any line is wider. Three of the outgoing
+            seven were over: English wrapped to four lines, French to six,
+            Japanese to four. Do not edit a line here without re-running it.
+
+            French is the one language with no second person in it. Spanish
+            gets `dejaste`, Korean 지나쳤던, English "you walked by" — but
+            every French finite-verb construction that names the dishes runs
+            325-413px on its own line, so the reader is carried by the
+            singular `tout seul`, which cannot agree with the plural
+            `plats`. Measured, not preferred. */}
+        <h1 className="main-hero__title main-hero__title-kr" translate="no">
+          혼자라서
+          <br />지나쳤던
+          <br />음식들.
+        </h1>
+        <h1 className="main-hero__title l-en-only">
+          {say(
+            <>The dishes<br />you walked by<br />when alone.</>,
+            null,
+            <>Al ir solo,<br />dejaste pasar<br />esos platos.</>,
+            <>Les plats<br />vus en passant<br />tout seul.</>,
+            <>أطباق<br />مررتَ بها<br />وأنت وحدك.</>,
+            <>那些菜，<br />一个人的时候<br />你只是路过。</>,
+            <>ひとりだから<br />素通りしてきた<br />料理です。</>,
+          )}
+        </h1>
+        {/* Prose gets a line per language rather than one line carrying
+            both, which is how the notice bar has always done it. A
+            sentence with 밥친구 sitting inside an English clause cannot be
+            reduced by any splitter — it has to be written twice.
+
+            2026-09-03: used to open with "삼겹살은 2인분부터, 감자탕은 냄비째
+            나옵니다" — the same two facts the hero blobs already carry as
+            tags, three lines above, on the dishes named 삼겹살 and 감자탕
+            themselves. Said once there is enough; here it can go straight
+            to the thing the blobs cannot say, which is what the app does
+            about it. */}
+        <p className="main-hero__sub main-hero__sub-kr" translate="no">
+          밥친구 잇플이 그 밥상과, 이미 가고 있는 사람들을 찾아드려요.
+        </p>
+        <p className="main-hero__sub main-hero__sub-en">
+          {say(
+            'Eatple finds you the table — and the people already going.',
+            null,
+            'Eatple te encuentra la mesa — y a la gente que ya va.',
+            'Eatple vous trouve la table — et les gens qui y vont déjà.',
+            'يجد لك Eatple المائدة — ومن هم ذاهبون إليها أصلًا.',
+            'Eatple 替你找到那张饭桌——还有已经要去的人。',
+            'Eatple がその食卓と、すでに行く人たちを見つけます。',
+          )}
+        </p>
+        {/* The middot pairs are Korean-and-English, so a Spanish screen
+            would keep the English half. These three carry the whole
+            journey — see the tables, open one, join — so they are worth
+            the explicit third string rather than a fallback. */}
+        <button className="main-hero__cta" translate="no" onClick={() => onNavigate('match')}>
+          {say('이번 주 밥상 보기 · See this week\u2019s tables', '이번 주 밥상 보기', 'Ver las mesas de esta semana', 'Voir les tables de cette semaine', 'انظر موائد هذا الأسبوع', '看这周的饭桌', '今週の食卓を見る')}
+        </button>
+        <button className="main-hero__alt" translate="no" onClick={onCreateTable}>
+          {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌', '食卓を開く')} <ChevronRightIcon size={14} />
+        </button>
+      </div>
+
+      {/* The collage. One big blob under the CTA on a phone, four floating
+          around the headline on a desktop — Meetup's own split. Photos
+          take these slots the moment mainPhotos.js has any. */}
+      <div className="main-hero__blobs">
+        {HERO_BLOBS.map((b, i) => {
+          const photo = MAIN_PHOTOS[i];
+          return (
+            <button
+              key={b.word}
+              type="button"
+              className={`main-blob main-blob--${i} ${b.tone}${i === slide ? ' is-on' : ''}`}
+              aria-hidden={i === slide ? undefined : 'true'}
+              tabIndex={i === slide ? 0 : -1}
+              aria-label={`${b.word} — ${b.tag}. 다음 요리 보기`}
+              onClick={() => setSlide((slide + 1) % HERO_BLOBS.length)}
+            >
+              {photo
+                ? <img className="main-blob__img" src={photo.src} alt="" loading="lazy" />
+                : (
+                  <>
+                    <span className="main-blob__word main-blob__word-kr" translate="no">{b.word}</span>
+                    <span className="main-blob__word l-en-only">{b.roman}</span>
+                  </>
+                )}
+              <span className="main-blob__tag">
+                <span className="main-blob__tag-kr" translate="no">{photo?.label ?? b.tag}</span>
+                <span className="l-en-only">{say(b.tagEn, null, b.tagEs, b.tagFr, b.tagAr, b.tagZh, b.tagJa)}</span>
+              </span>
+            </button>
+          );
+        })}
+        <Squiggle className="main-hero__squiggle main-hero__squiggle--l" />
+        <Squiggle className="main-hero__squiggle main-hero__squiggle--r" />
+      </div>
+
+      {/* The 인하대 front page's own furniture: a dot per slide, then the
+          pause. Phone only — the desktop shows all four dishes at once,
+          and dots for a thing already fully visible are a control with
+          nothing to control. */}
+      <div className="main-hero__dots">
+        {HERO_BLOBS.map((b, i) => (
+          <button
+            key={b.word}
+            type="button"
+            className={`main-dot${i === slide ? ' is-on' : ''}`}
+            aria-label={`${b.word} 보기`}
+            aria-current={i === slide ? 'true' : undefined}
+            onClick={() => setSlide(i)}
+          />
+        ))}
+        <button
+          type="button"
+          className="main-dots__toggle"
+          aria-label={playing && !reducedMotion
+            ? '자동 넘김 멈추기 · Pause'
+            : '자동 넘김 시작 · Play'}
+          onClick={() => setPlaying(p => !p)}
+        >
+          {playing && !reducedMotion ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
+        </button>
+      </div>
+
+    </header>
+  );
 
   return (
     <section
@@ -405,8 +577,6 @@ export default function MainTab({
       <div
         className="main-deck"
         ref={deckRef}
-        onFocusCapture={() => setDeckHeld(true)}
-        onBlurCapture={() => setDeckHeld(false)}
         style={deckH ? { height: `${deckH}px` } : undefined}
         role="group"
         aria-label={say(
@@ -431,157 +601,7 @@ export default function MainTab({
                   the DOM so the phone's natural flow is already Meetup's order,
                   and the desktop lifts the blobs out with position:absolute
                   where DOM order stops mattering. ---- */}
-          <header className="main-hero" ref={heroRef}>
-            <div className="main-hero__copy">
-              {/* The brand, in halves. It was one string in a class ending -kr,
-                  which meant an English interface dropped the app's own name off
-                  its own front page. Split, so each setting keeps a name. */}
-              <span className="main-hero__eyebrow l-pair" translate="no">
-                <span className="main-hero__eyebrow-kr">밥친구 잇플</span>
-                <span className="main-hero__eyebrow-en">Eatple</span>
-              </span>
-              {/* Two headlines, one shown at a time. The Korean one is the
-                  default and stays the default — it is the screen the team
-                  reviewed — and the English one exists only for the English
-                  setting, where a 44px Korean headline was the single loudest
-                  thing the language setting failed to touch.
-
-                  It used to make a claim about what a shop will serve one person.
-                  That claim is false for 10 of the 24 dishes in
-                  src/domain/catalog/menus.js, so the sentence stopped being
-                  about the shop and became about the reader's own past: the
-                  dishes they walked by, because they were on their own. Nothing
-                  here says a dish was unavailable, which is what keeps it true of
-                  bibimbap as well as of samgyeopsal.
-
-                  Every line is measured, not guessed — scripts/measure-hero.mjs
-                  renders these seven in the shipping stylesheet at 44px in a
-                  320px box and fails if any line is wider. Three of the outgoing
-                  seven were over: English wrapped to four lines, French to six,
-                  Japanese to four. Do not edit a line here without re-running it.
-
-                  French is the one language with no second person in it. Spanish
-                  gets `dejaste`, Korean 지나쳤던, English "you walked by" — but
-                  every French finite-verb construction that names the dishes runs
-                  325-413px on its own line, so the reader is carried by the
-                  singular `tout seul`, which cannot agree with the plural
-                  `plats`. Measured, not preferred. */}
-              <h1 className="main-hero__title main-hero__title-kr" translate="no">
-                혼자라서
-                <br />지나쳤던
-                <br />음식들.
-              </h1>
-              <h1 className="main-hero__title l-en-only">
-                {say(
-                  <>The dishes<br />you walked by<br />when alone.</>,
-                  null,
-                  <>Al ir solo,<br />dejaste pasar<br />esos platos.</>,
-                  <>Les plats<br />vus en passant<br />tout seul.</>,
-                  <>أطباق<br />مررتَ بها<br />وأنت وحدك.</>,
-                  <>那些菜，<br />一个人的时候<br />你只是路过。</>,
-                  <>ひとりだから<br />素通りしてきた<br />料理です。</>,
-                )}
-              </h1>
-              {/* Prose gets a line per language rather than one line carrying
-                  both, which is how the notice bar has always done it. A
-                  sentence with 밥친구 sitting inside an English clause cannot be
-                  reduced by any splitter — it has to be written twice.
-
-                  2026-09-03: used to open with "삼겹살은 2인분부터, 감자탕은 냄비째
-                  나옵니다" — the same two facts the hero blobs already carry as
-                  tags, three lines above, on the dishes named 삼겹살 and 감자탕
-                  themselves. Said once there is enough; here it can go straight
-                  to the thing the blobs cannot say, which is what the app does
-                  about it. */}
-              <p className="main-hero__sub main-hero__sub-kr" translate="no">
-                밥친구 잇플이 그 밥상과, 이미 가고 있는 사람들을 찾아드려요.
-              </p>
-              <p className="main-hero__sub main-hero__sub-en">
-                {say(
-                  'Eatple finds you the table — and the people already going.',
-                  null,
-                  'Eatple te encuentra la mesa — y a la gente que ya va.',
-                  'Eatple vous trouve la table — et les gens qui y vont déjà.',
-                  'يجد لك Eatple المائدة — ومن هم ذاهبون إليها أصلًا.',
-                  'Eatple 替你找到那张饭桌——还有已经要去的人。',
-                  'Eatple がその食卓と、すでに行く人たちを見つけます。',
-                )}
-              </p>
-              {/* The middot pairs are Korean-and-English, so a Spanish screen
-                  would keep the English half. These three carry the whole
-                  journey — see the tables, open one, join — so they are worth
-                  the explicit third string rather than a fallback. */}
-              <button className="main-hero__cta" translate="no" onClick={() => onNavigate('match')}>
-                {say('이번 주 밥상 보기 · See this week\u2019s tables', '이번 주 밥상 보기', 'Ver las mesas de esta semana', 'Voir les tables de cette semaine', 'انظر موائد هذا الأسبوع', '看这周的饭桌', '今週の食卓を見る')}
-              </button>
-              <button className="main-hero__alt" translate="no" onClick={onCreateTable}>
-                {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌', '食卓を開く')} <ChevronRightIcon size={14} />
-              </button>
-            </div>
-
-            {/* The collage. One big blob under the CTA on a phone, four floating
-                around the headline on a desktop — Meetup's own split. Photos
-                take these slots the moment mainPhotos.js has any. */}
-            <div className="main-hero__blobs">
-              {HERO_BLOBS.map((b, i) => {
-                const photo = MAIN_PHOTOS[i];
-                return (
-                  <button
-                    key={b.word}
-                    type="button"
-                    className={`main-blob main-blob--${i} ${b.tone}${i === slide ? ' is-on' : ''}`}
-                    aria-hidden={i === slide ? undefined : 'true'}
-                    tabIndex={i === slide ? 0 : -1}
-                    aria-label={`${b.word} — ${b.tag}. 다음 요리 보기`}
-                    onClick={() => setSlide((slide + 1) % HERO_BLOBS.length)}
-                  >
-                    {photo
-                      ? <img className="main-blob__img" src={photo.src} alt="" loading="lazy" />
-                      : (
-                        <>
-                          <span className="main-blob__word main-blob__word-kr" translate="no">{b.word}</span>
-                          <span className="main-blob__word l-en-only">{b.roman}</span>
-                        </>
-                      )}
-                    <span className="main-blob__tag">
-                      <span className="main-blob__tag-kr" translate="no">{photo?.label ?? b.tag}</span>
-                      <span className="l-en-only">{say(b.tagEn, null, b.tagEs, b.tagFr, b.tagAr, b.tagZh, b.tagJa)}</span>
-                    </span>
-                  </button>
-                );
-              })}
-              <Squiggle className="main-hero__squiggle main-hero__squiggle--l" />
-              <Squiggle className="main-hero__squiggle main-hero__squiggle--r" />
-            </div>
-
-            {/* The 인하대 front page's own furniture: a dot per slide, then the
-                pause. Phone only — the desktop shows all four dishes at once,
-                and dots for a thing already fully visible are a control with
-                nothing to control. */}
-            <div className="main-hero__dots">
-              {HERO_BLOBS.map((b, i) => (
-                <button
-                  key={b.word}
-                  type="button"
-                  className={`main-dot${i === slide ? ' is-on' : ''}`}
-                  aria-label={`${b.word} 보기`}
-                  aria-current={i === slide ? 'true' : undefined}
-                  onClick={() => setSlide(i)}
-                />
-              ))}
-              <button
-                type="button"
-                className="main-dots__toggle"
-                aria-label={playing && !reducedMotion
-                  ? '자동 넘김 멈추기 · Pause'
-                  : '자동 넘김 시작 · Play'}
-                onClick={() => setPlaying(p => !p)}
-              >
-                {playing && !reducedMotion ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
-              </button>
-            </div>
-
-          </header>
+          {heroScreen}
         </div>
         <div
           className="main-deck__slide"
@@ -778,6 +798,13 @@ export default function MainTab({
             </p>
           </div>
         </div>
+        {/* The copy. aria-hidden and inert together, so the whole of it —
+            the headline, both buttons, the dish dots and their pause — is
+            out of reach of a screen reader, the tab key and the mouse
+            alike. It exists to be scrolled onto and then quietly left. */}
+        <div className="main-deck__slide" aria-hidden="true" inert>
+          {heroScreen}
+        </div>
       </div>
 
       {/* The rail's table of contents, its position indicator and its
@@ -789,7 +816,7 @@ export default function MainTab({
             key={i}
             type="button"
             className="main-deck__tab"
-            aria-current={i === deckAt ? 'true' : undefined}
+            aria-current={i === deckAt % DECK_COUNT ? 'true' : undefined}
             onClick={() => goDeck(i)}
           >
             {label}

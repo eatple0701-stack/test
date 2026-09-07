@@ -45,17 +45,23 @@ export function railTallest(heights = [], extraOnFirst = 0) {
 }
 
 /**
- * The next slide, and whether getting there should be a cut rather than a
- * slide.
+ * The rail's next move, when the last of its children is a copy of the
+ * first.
  *
- * There is nothing to the right of the last screen, so animating to the
- * first means travelling left across everything in between: a rail that has
- * been going one way for four seconds rewinds through the middle one.
- * Reported on 2026-09-07 in those words. Every other step animates.
+ * The copy is what makes the turn one-directional. There is nothing to the
+ * right of the last real screen, so reaching the first one by animating
+ * means travelling back across everything between — which is what this
+ * replaced, and what it was reported as on 2026-09-07. With a copy sitting
+ * after the last, forward keeps working: the rail slides onto something
+ * that looks exactly like screen one.
+ *
+ * Standing on the copy, the rail is already showing screen one, so the next
+ * move is two things: put it back on the real one with no animation, where
+ * nothing appears to happen because the two are identical, and then carry on
+ * forward from there. The reset flag says to do the silent half first.
  */
-export function railAdvance(from, count) {
-  const n = Math.max(1, Math.floor(count) || 1);
-  const at = Math.min(n - 1, Math.max(0, Math.floor(from) || 0));
-  const to = (at + 1) % n;
-  return { to, jump: to < at };
+export function railLoopStep(at, slides) {
+  const n = Math.max(2, Math.floor(slides) || 2);
+  const p = Math.min(n - 1, Math.max(0, Math.floor(at) || 0));
+  return p === n - 1 ? { reset: true, to: 1 } : { reset: false, to: p + 1 };
 }

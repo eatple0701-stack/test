@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { railFraction, railIndex, railTallest, railAdvance } from '../policy/rail.js';
+import { railFraction, railIndex, railTallest, railLoopStep } from '../policy/rail.js';
 
 const KO = [758, 527, 510];    // the three top slides on a 375px phone, Korean
 const EN = [758, 1021, 550];   // the same three in English, which carry more
@@ -55,16 +55,21 @@ test('a rail with no width yet does not divide by zero', () => {
   assert.equal(Number.isFinite(railFraction(0, 0, 3)), true);
 });
 
-test('every step but the last one turns; the wrap is a cut', () => {
-  assert.deepEqual(railAdvance(0, 3), { to: 1, jump: false });
-  assert.deepEqual(railAdvance(1, 3), { to: 2, jump: false });
-  // Nothing sits to the right of the last screen, so animating to the first
-  // would travel back across the middle one.
-  assert.deepEqual(railAdvance(2, 3), { to: 0, jump: true });
+test('with a copy after the last screen, every step goes forward', () => {
+  // Four children, the fourth a copy of the first.
+  assert.deepEqual(railLoopStep(0, 4), { reset: false, to: 1 });
+  assert.deepEqual(railLoopStep(1, 4), { reset: false, to: 2 });
+  assert.deepEqual(railLoopStep(2, 4), { reset: false, to: 3 });   // onto the copy
 });
 
-test('the advance survives a count of one and an index off the end', () => {
-  assert.deepEqual(railAdvance(0, 1), { to: 0, jump: false });
-  assert.deepEqual(railAdvance(9, 3), { to: 0, jump: true });
-  assert.deepEqual(railAdvance(-4, 3), { to: 1, jump: false });
+test('standing on the copy, it goes back to the real one silently and carries on', () => {
+  const step = railLoopStep(3, 4);
+  assert.equal(step.reset, true, 'the rail has to be put back on the real first screen');
+  assert.equal(step.to, 1, 'and then carry on forward, not sit still');
+});
+
+test('the step survives an index off either end', () => {
+  assert.deepEqual(railLoopStep(9, 4), { reset: true, to: 1 });
+  assert.deepEqual(railLoopStep(-4, 4), { reset: false, to: 1 });
+  assert.deepEqual(railLoopStep(0, 2), { reset: false, to: 1 });
 });
