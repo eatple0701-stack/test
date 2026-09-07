@@ -10132,7 +10132,10 @@ body {
 }
 .tables-map-preview__canvas {
   display: block;
-  height: 170px;
+  /* 170px until 2026-09-07, when it was called too small: a map that fits
+     four pins and no streets answers nothing the list has not already
+     said. Half again. */
+  height: 255px;
   /* Leaflet paints its own panes above anything without a stacking context,
      which is how a map ends up over a sticky header. */
   position: relative;

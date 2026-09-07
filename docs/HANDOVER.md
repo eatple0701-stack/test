@@ -74,7 +74,7 @@ took them, all keyed to the six groups.
 ### Numbers
 | | |
 |---|---|
-| Automated tests | **965, all passing** (`npm test`) |
+| Automated tests | **967, all passing** (`npm test`) |
 | i18n audit | 0 untranslated strings |
 | Register places shipped | 8,118 of 167,659 |
 | Menu lines shipped | 199,574 (ko/en/ja/zh), 94,515 with register prices |
@@ -90,7 +90,7 @@ data.go.kr 15097605 (서울관광재단 음식관광 DB)
 │   ├─ /api/rstr        167,659 restaurants        → scripts/.cache.local/
 │   ├─ /api/rstr/oprt   hours + foreign-menu flag
 │   ├─ /api/rstr/img    8,087 photos (1,370 places)
-│   └─ /api/menu/korean 573,965 menu lines + MENU_PRICE (574 pages!)
+│   └─ /api/menu/korean 573,967 menu lines + MENU_PRICE (574 pages!)
 │
 ├─ bulk download "다국어메뉴 설명정보" (CSVs, gitignored 서울관광재단*/ dirs)
 │   └─ 873,117 menu lines × 4 languages, keyed by 메뉴(ID)
@@ -392,7 +392,7 @@ the file alone changes nothing that is already running.
 ## 8. Commands
 
 ```bash
-npm test                      # 965 tests — must stay green
+npm test                      # 967 tests — must stay green
 node scripts/audit-i18n.mjs   # must print 0
 npm run dev                   # port 5177 (see .claude/launch.json)
 npm run build                 # artefacts in dist/, data included

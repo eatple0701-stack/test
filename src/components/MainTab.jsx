@@ -324,22 +324,32 @@ export default function MainTab({
       ro?.disconnect();
     };
   }, []);
-  // scrollIntoView rather than scrollLeft arithmetic, because it gets the
-  // Arabic direction right on its own. block: 'nearest' so moving between the
-  // three never scrolls the page vertically as well.
-  // `jump` skips the animation. It is for the wrap from the last screen back
-  // to the first: there is nothing to the right of the last one, so animating
-  // there means travelling left across everything in between, and a rail that
-  // has been going one way for eight seconds suddenly rewinds through the
-  // middle screen. Reported on 2026-09-07 in those terms. Cut instead — the
-  // first screen is simply there — which is not a forward turn but is at
-  // least not a backward one.
+  // scrollTo on the rail, never scrollIntoView.
+  //
+  // scrollIntoView with block: 'nearest' leaves the page alone only while the
+  // rail is still on screen. Once a reader has scrolled down past it,
+  // "nearest" means bringing it back — so every four seconds the page hauled
+  // itself to the top while somebody was reading further down. Reported on
+  // 2026-09-07 as the window forcing its way back up, and it is the rail's
+  // business to turn, not the page's to move.
+  //
+  // The direction has to be worked out here instead, which is the one thing
+  // scrollIntoView was doing for free: an Arabic layout starts at scrollLeft
+  // 0 on the right and counts down into negatives going left. railFraction
+  // reads the same offset back through Math.abs.
+  //
+  // `jump` skips the animation. It is for the silent half of the loop —
+  // stepping off the copy of the first screen and onto the real one, which
+  // must not be seen — see railLoopStep.
   const goDeck = (i, jump = false) => {
     // Said here rather than waited for, so the label answers the press at once.
     deckPos.current = i;
     setDeckAt(i);
-    deckRef.current?.children[i]?.scrollIntoView({
-      inline: 'start', block: 'nearest',
+    const el = deckRef.current;
+    if (!el) return;
+    const rtl = getComputedStyle(el).direction === 'rtl' ? -1 : 1;
+    el.scrollTo({
+      left: rtl * i * el.clientWidth,
       behavior: (jump || reducedMotion) ? 'auto' : 'smooth',
     });
   };
