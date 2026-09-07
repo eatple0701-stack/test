@@ -11,5 +11,13 @@ export default defineConfig({
   // guide, HANDOVER, and the Supabase redirect allow-list all name.
   // Not strictPort: if 5177 is taken, Vite steps to the next free port and
   // prints it, which is friendlier than refusing to start.
-  server: { port: 5177 },
+  server: {
+    port: 5177,
+    // Vite refuses a request whose Host header it does not know, which is
+    // every request that arrives through a tunnel. Named by suffix rather
+    // than opened with `true`, so this allows the three services that hand
+    // out throwaway hostnames and nothing else. Dev server only — nothing
+    // here is in the built bundle.
+    allowedHosts: [".lhr.life", ".trycloudflare.com", ".loca.lt", ".serveo.net"],
+  },
 })

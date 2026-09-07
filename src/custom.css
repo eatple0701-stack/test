@@ -13,25 +13,30 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Was a hardcoded #ffffff. This file loads after index.css, so it silently
-   beat the dark-mode branch in index.css the same way the font-family bug
-   above it once beat the font token — every section on Explore, Places and
-   Passport stayed a white card no matter what --surface was set to. Routing
-   through the token is the actual fix; the token is what changes value
-   under @media (prefers-color-scheme: dark). */
-.home-section, .detail-section, .journal-section {
-  padding: calc(var(--spacing-unit) * 3);
-  margin-bottom: calc(var(--spacing-unit) * 3);
-  background: var(--surface);
-  border-radius: var(--panel-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform var(--transition-speed) ease;
-}
+/* The card treatment that used to stand here is gone, and this note is what
+   is left of it.
 
-.home-section:hover, .detail-section:hover, .journal-section:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
+   It set background, a 20px radius and a shadow on .home-section,
+   .detail-section and .journal-section, plus a hover that lifted the whole
+   section two pixels. Loading after index.css, it won — which is the third
+   time this file has quietly beaten the design system, after the font token
+   and the dark-mode branch whose post-mortems used to sit here.
+
+   What it did to the screens: .home-section and .journal-section are wrappers
+   in index.css with padding and nothing else, on purpose — a heading and its
+   contents, sitting on the page. This made each one a white shadowed box, and
+   the real cards inside them (.story-card, .stat-box, .lead-table, all white,
+   bordered, shadowed) became cards inside a card. Everything on the screen
+   carried the same weight, so nothing on it had any. That is what "UI가 너무
+   끔찍하다" was looking at on 2026-09-07, and picking the sections back apart
+   was the answer chosen over widening the column.
+
+   .detail-section did not need it either: index.css already draws it as a
+   card, with a border and --radius-lg, and this laid a second and different
+   card on top of the first.
+
+   The hover lift went with it. A section is not a control, and a page that
+   twitches wherever the pointer passes is not polish. */
 
 .btn-primary, .btn-secondary {
   transition: all 0.2s ease;
