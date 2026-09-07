@@ -28,7 +28,7 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
 - **Verify what the user sees**, not what the DOM contains: run the dev
   server (`npm run dev`, port 5177), open it, measure, click. A component
   once passed every DOM query while rendering 3,405px below the fold.
-- `npm test` (953 tests), `node scripts/audit-i18n.mjs` (must print 0) and
+- `npm test` (954 tests), `node scripts/audit-i18n.mjs` (must print 0) and
   `npm run lint` (must print no `error`) before every push. Lint is on that
   list because `vite build` does NOT fail on an undefined identifier: a
   missing import built cleanly and would have thrown at runtime, and a
@@ -60,6 +60,16 @@ A KF Digital Public Diplomacy Academy project — exchange, not a utility.
   one was fixed the same way — pull the behaviour into a function and call
   it. Where a source-text assertion is genuinely the only option, strip
   comments first.
+- **A fixture that leaves its premise to the clock has no premise.** PGlite's
+  `now()` ticks in whole milliseconds where real Postgres records
+  microseconds, so two statements written back to back can share a timestamp
+  — bare inserts tie 17 times in 40. `deliberateRevert.test.mjs` ordered three
+  consents by `recorded_at` and let the clock supply that order, with 1.026 ms
+  of margin at its narrowest; it went red once in a full suite on 2026-09-03
+  and green on the re-run, and the failing run was the *fast* one, 854ms
+  against 936. State the ordering the subject reads instead of hoping for it.
+  The applied migration was not the thing to change — a fixture's sin is no
+  reason to rewrite SQL that has already run.
 
 ## Rules the tests enforce (each added after a real incident)
 1. No unsourced facts — curated place fields carry source/confidence/date.

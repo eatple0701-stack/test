@@ -77,8 +77,42 @@ async function productionNow({ third = false } = {}) {
   }
   await db.query(`update public.profiles set rules_version = 2, rules_agreed_at = $2 where id = $1`,
     [WALKTHROUGH, WALKTHROUGH_V2_AT]);
+  // Say when each agreement was recorded, because the migration sorts on it
+  // and the clock underneath is too coarse to be asked. The test below holds
+  // this line down and explains the millisecond it turns on.
+  await db.query(`update public.rules_consents set recorded_at = agreed_at where version = 2`);
   return db;
 }
+
+/**
+ * The premise, stated rather than hoped for.
+ *
+ * The migration identifies its target by rules_consents.recorded_at, and this
+ * fixture used to leave that column to whatever now() returned. PGlite's
+ * clock ticks in whole milliseconds — real Postgres records microseconds —
+ * and the two v2 writes above are 1.0 to 4.0 ms apart, measured minimum
+ * 1.026. That is 26 microseconds of margin. Land them in the same
+ * millisecond and `order by v2_recorded_at desc limit 1` has a tie, resolves
+ * it to the third profile, and the run reverts somebody else's consent:
+ * which is how this file failed once in a full suite on 2026-09-03 and
+ * passed on the re-run. The failing run took 854ms where a passing one took
+ * 936 — it was the fast one.
+ *
+ * The migration is applied and was not the thing to change. The fixture was:
+ * it says when each agreement was recorded now, so the order the story
+ * describes is the order the database has. Removing that line turns this red.
+ */
+test('the fixture says when each v2 was recorded, rather than the clock', async () => {
+  const db = await productionNow({ third: true });
+  const rows = (await db.query(`select profile_id, recorded_at from public.rules_consents
+                                 where version = 2 order by recorded_at`)).rows;
+  assert.deepEqual(rows.map(r => r.profile_id), [INCIDENT, THIRD, WALKTHROUGH],
+    'the incident agreed first and the walkthrough last, which is what it reads');
+  assert.deepEqual(rows.map(r => r.recorded_at.toISOString()),
+    [INCIDENT_V2_AT, THIRD_V2_AT, WALKTHROUGH_V2_AT].map(t => new Date(t).toISOString()),
+    'these are wall-clock values, so the ordering is luck rather than a premise');
+  await db.close();
+});
 
 test('the eleven values are the ones the file documents, and none is null', async () => {
   const db = await productionNow();
