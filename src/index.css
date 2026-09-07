@@ -11126,6 +11126,101 @@ svg.animal-avatar {
   .main-tab--sticky { padding-bottom: 34px; }
 }
 
+/* ---- The three screens at the top, on one rail ----
+
+   overflow-x + scroll-snap, one screen per slide, no library — the recipe
+   the dish deck and the category rows already use.
+
+   The slides fill the rail — they have to, or there is no room inside one to
+   centre anything in. What must NOT be stretched is .main-hero: the blobs
+   are positioned against its bottom edge (.main-blob--2/--3 { bottom:
+   64px/84px }), so a hero pulled a centimetre taller drags 보쌈 and 족발 down
+   with it. Column flex with justify-content is what keeps both: a flex item
+   with no flex-grow keeps its own height, and the slide holds the spare room
+   around it. Measured after: 0 pixels of blob over anything.
+
+   overflow-y: hidden for the same reason the dish deck refuses it: a slide
+   that scrolls vertically inside a rail that scrolls horizontally is two
+   directions fighting over one finger. The height is set from JS to whatever
+   the slide under the swipe needs, so the visible one is never the one being
+   clipped. */
+.main-deck {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.main-deck::-webkit-scrollbar { display: none; }
+
+/* Every slide is the same height now — the hero's plus a centimetre, or the
+   tallest slide if a language needs more — so the shorter two have room left
+   over and their content sits in the middle of it.
+
+   justify-content only. align-items is left at stretch on purpose: centring
+   across the axis would shrink each child to its content width, and the six
+   category cards are a grid that is supposed to fill the slide. The contents
+   are already centred left-to-right by the band's own symmetric padding, so
+   there is nothing to do there and something to break. */
+.main-deck__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* The label row: table of contents, position indicator and controls at
+   once. Same pill as .dish-tab, centred, because three of them never fill a
+   row and a left-aligned three would read as the start of a longer list. */
+.main-deck__tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 16px 0;
+}
+.main-deck__tab {
+  min-height: 34px;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+/* The stop, same furniture as the hero carousel’s own. */
+.main-deck__play {
+  width: 34px;
+  height: 34px;
+  margin-inline-start: 2px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+.main-deck__play:hover { background: var(--fill); color: var(--ink-title); }
+
+.main-deck__tab[aria-current='true'] {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+  color: #fff;
+}
+
+/* The bands inside the rail carry the padding they had on the page; the
+   first one no longer needs its top gap, because the rail's own slide is
+   already the top of a screen. */
+.main-deck__slide > .main-band { padding-top: 8px; }
+
 /* ---- Hero (phone: copy, then the collage under it) ---- */
 .main-hero {
   position: relative;

@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import { menuById } from '../domain/catalog/menus.js';
 import { DISH_GROUPS, romanDishes, menuIdOfDish } from '../domain/catalog/dishGroups.js';
 import { glossDishesIn } from '../domain/policy/dishGroupPicker.js';
+import { railTallest, railIndex } from '../domain/policy/rail.js';
 import { dishGloss } from '../domain/policy/dishLabels.js';
 import { isMember } from '../domain/policy/access.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
@@ -50,6 +51,22 @@ const HERO_BLOBS = [
 // out for the first time, and the usual four is enough time to read a photo,
 // not a word you have never seen.
 const SLIDE_MS = 5000;
+
+// Three screens at the top: the hero, the six categories, and what keeps a
+// table safe. Named in deckLabels, which is also the rail’s controls.
+const DECK_COUNT = 3;
+
+// The centimetre asked for on 2026-09-07, added under the first slide so the
+// hero has room to breathe — 1cm is 37.8 CSS pixels at the 96dpi the unit is
+// defined against, and a rail is not the place for a fraction of one.
+const DECK_EXTRA = 38;
+
+// Four seconds, asked for on 2026-09-07 after eight was tried and read as
+// slow. Shorter than the hero's own 5s even though a slide here is a
+// paragraph where that one is a single dish name, which leaves the pause
+// beside the labels as the only way to read the safety screen through
+// rather than one way among several.
+const DECK_MS = 4000;
 
 /**
  * Does this person's device ask for less movement?
@@ -154,7 +171,12 @@ export default function MainTab({
     // second CTA sits near its bottom edge, and a bar that returns the
     // instant the hero's last pixel moves would clip it again on the way.
     const PAST = 120;
-    const update = () => setHeroSeen(scroller.scrollTop < Math.max(0, hero.offsetHeight - PAST));
+    // The rail is what stands at the top of the page now, and it is as tall
+    // as whichever of its three screens is showing — 510px on the safety one
+    // against the hero’s 758. Measuring the hero would hold the bar back for
+    // 128px of a page that had already been read past.
+    const top = () => deckRef.current ?? hero;
+    const update = () => setHeroSeen(scroller.scrollTop < Math.max(0, top().offsetHeight - PAST));
 
     update();   // decided before the first scroll, and after any restore
     scroller.addEventListener('scroll', update, { passive: true });
@@ -192,170 +214,557 @@ export default function MainTab({
   // Not while the hero is on screen — see the observer above.
   const stickyShown = !member && !stickyClosed && !heroSeen;
 
+  // ── The top of the page, read sideways ─────────────────────────────────
+  //
+  // Asked for on 2026-09-07: swipe the top screen and have the sections
+  // under it come round in turn. So the hero, 한식 살펴보기 and the safety
+  // band are three slides of one rail rather than three stops on a scroll.
+  //
+  // Same recipe as every other rail here — overflow-x + scroll-snap, no
+  // library (index.css, .dish-deck). The height is what is different. The
+  // three measure 758, 1057 and 586 on a 375px phone, so a rail as tall as
+  // the tallest would leave 471px of nothing under the shortest. It follows
+  // the slide instead, interpolated across the swipe so the page moves with
+  // the finger rather than jumping when the snap lands, and re-measured
+  // whenever a slide changes size — which the 한식 one does every time a
+  // category opens.
+  const deckRef = useRef(null);
+  const [deckAt, setDeckAt] = useState(0);
+  const [deckH, setDeckH] = useState(null);
+  useLayoutEffect(() => {
+    const el = deckRef.current;
+    if (!el) return undefined;
+    let frame = 0;
+    const measure = () => {
+      const sl = el.children;
+      if (sl.length < DECK_COUNT) return;
+      // The slides are read off the rail rather than collected into a ref
+      // array. An inline ref callback is a new function every render, so
+      // React detaches and re-attaches it each time, and a measurement that
+      // landed in that window read null, skipped the write, and left the rail
+      // at whatever height it had on first paint — 825px against a hero that
+      // had settled to 758. The children are always there.
+      // The content, not the slide. A slide is stretched to the rail's own
+      // height so it has room to centre in, so measuring one would be reading
+      // back the number this function just wrote — and adding a centimetre to
+      // it every frame.
+      const heights = Array.from(sl, c => c.firstElementChild?.offsetHeight ?? 0);
+      const h = railTallest(heights, DECK_EXTRA);
+      if (h !== null) setDeckH(h);
+      setDeckAt(railIndex(el.scrollLeft, el.clientWidth, DECK_COUNT));
+    };
+    // One measurement per frame at most: a swipe fires scroll far faster than
+    // the page can be laid out, and every one of these reads offsetHeight.
+    // Only the label row moves with a swipe now — the height is one number
+    // for all three slides and changes only when a slide resizes.
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => { frame = 0; measure(); });
+    };
+    measure();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    // The rail itself is not observed: its height is set from this callback,
+    // so watching it would be watching its own output. A slide is 100% of the
+    // rail, so a width change still arrives through them.
+    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(measure) : null;
+    // The content again, for the same reason: a slide's own height is fixed
+    // now, so a category opening inside one would never reach the observer.
+    for (const child of el.children) if (child.firstElementChild) ro?.observe(child.firstElementChild);
+    // A webfont landing rewraps the headline and changes the first slide's
+    // height. The observer catches that; this is the belt to its braces,
+    // because first paint is the one height nobody scrolls away from.
+    document.fonts?.ready?.then(measure).catch(() => {});
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      el.removeEventListener('scroll', onScroll);
+      ro?.disconnect();
+    };
+  }, []);
+  // scrollIntoView rather than scrollLeft arithmetic, because it gets the
+  // Arabic direction right on its own. block: 'nearest' so moving between the
+  // three never scrolls the page vertically as well.
+  const goDeck = (i) => {
+    // Said here rather than waited for, so the label answers the press at
+    // once and the clock below starts its four seconds from the press.
+    setDeckAt(i);
+    deckRef.current?.children[i]?.scrollIntoView({
+      inline: 'start', block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth',
+    });
+  };
+
+  // The rail turns itself, asked for on 2026-09-07. Same shape as the hero's
+  // own carousel above: a setTimeout keyed on where we are rather than one
+  // long interval, so a swipe or a tap on a label gives that screen a full
+  // turn instead of the remainder of a tick that was already half spent.
+  //
+  // goDeck sets deckAt itself, so the clock re-arms on the press rather than
+  // on the browser finishing its animation — and still re-arms if a scroll is
+  // ever refused, instead of the rail stopping for good with no way to tell
+  // why.
+  //
+  // Never under prefers-reduced-motion, and never while the focus is inside
+  // the rail: somebody reading with a keyboard has said which screen they are
+  // on more clearly than a timer can.
+  //
+  // `playing` is the hero carousel's, shared rather than copied. Both are the
+  // page moving on its own, and giving each its own switch put two pause
+  // buttons thirty pixels apart with nothing to say which stopped what. One
+  // idea, one state: press either and the page holds still.
+  const [deckHeld, setDeckHeld] = useState(false);
+  const deckTurning = playing && !reducedMotion;
+  useEffect(() => {
+    if (!deckTurning || deckHeld) return undefined;
+    const id = setTimeout(() => goDeck((deckAt + 1) % DECK_COUNT), DECK_MS);
+    return () => clearTimeout(id);
+  }, [deckTurning, deckHeld, deckAt]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const deckLabels = [
+    say('About', '소개', 'Qué es', 'À propos', 'نبذة', '介绍', '紹介'),
+    say('Korean food', '한식', 'Comida coreana', 'Cuisine coréenne', 'الطعام الكوري', '韩餐', '韓国料理'),
+    say('Safety', '안전', 'Seguridad', 'Sécurité', 'الأمان', '安全', '安全'),
+  ];
+
   return (
     <section
       className={`main-tab${stickyShown ? ' main-tab--sticky' : ''}`}
       aria-label={say('Eatple home', '밥친구 메인', 'Inicio de Eatple', "Accueil d'Eatple", 'الصفحة الرئيسية لـ Eatple', 'Eatple 首页', 'Eatple のホーム')}
     >
 
-      {/* ---- Hero. Meetup's phone and desktop heroes are different
-              layouts, not one squeezed: the phone puts headline, then CTA,
-              then one big collage blob under it; the desktop floats four
-              blobs around a huge centred headline. The copy comes first in
-              the DOM so the phone's natural flow is already Meetup's order,
-              and the desktop lifts the blobs out with position:absolute
-              where DOM order stops mattering. ---- */}
-      <header className="main-hero" ref={heroRef}>
-        <div className="main-hero__copy">
-          {/* The brand, in halves. It was one string in a class ending -kr,
-              which meant an English interface dropped the app's own name off
-              its own front page. Split, so each setting keeps a name. */}
-          <span className="main-hero__eyebrow l-pair" translate="no">
-            <span className="main-hero__eyebrow-kr">밥친구 잇플</span>
-            <span className="main-hero__eyebrow-en">Eatple</span>
-          </span>
-          {/* Two headlines, one shown at a time. The Korean one is the
-              default and stays the default — it is the screen the team
-              reviewed — and the English one exists only for the English
-              setting, where a 44px Korean headline was the single loudest
-              thing the language setting failed to touch.
+      {/* ---- The three screens at the top, on one rail ----
 
-              It used to make a claim about what a shop will serve one person.
-              That claim is false for 10 of the 24 dishes in
-              src/domain/catalog/menus.js, so the sentence stopped being
-              about the shop and became about the reader's own past: the
-              dishes they walked by, because they were on their own. Nothing
-              here says a dish was unavailable, which is what keeps it true of
-              bibimbap as well as of samgyeopsal.
+              Asked for on 2026-09-07 in those words: swipe the top screen,
+              and have the sections under it come round in turn. The hero,
+              the six categories and what keeps a table safe are one
+              horizontal rail now instead of three stops on the way down.
 
-              Every line is measured, not guessed — scripts/measure-hero.mjs
-              renders these seven in the shipping stylesheet at 44px in a
-              320px box and fails if any line is wider. Three of the outgoing
-              seven were over: English wrapped to four lines, French to six,
-              Japanese to four. Do not edit a line here without re-running it.
+              Nothing was rewritten to get here — the three blocks are the
+              blocks that were already on the page, moved. Everything else
+              keeps its order below, including "밥친구가 이루어지는 방식",
+              which its own note requires to sit directly after the hero and
+              outside it: the blobs are pinned to the hero's bottom edge, and
+              anything that moves that edge lands 족발 on whatever is next.
+              It still does — the rail is outside the hero too.
 
-              French is the one language with no second person in it. Spanish
-              gets `dejaste`, Korean 지나쳤던, English "you walked by" — but
-              every French finite-verb construction that names the dishes runs
-              325-413px on its own line, so the reader is carried by the
-              singular `tout seul`, which cannot agree with the plural
-              `plats`. Measured, not preferred. */}
-          <h1 className="main-hero__title main-hero__title-kr" translate="no">
-            혼자라서
-            <br />지나쳤던
-            <br />음식들.
-          </h1>
-          <h1 className="main-hero__title l-en-only">
-            {say(
-              <>The dishes<br />you walked by<br />when alone.</>,
-              null,
-              <>Al ir solo,<br />dejaste pasar<br />esos platos.</>,
-              <>Les plats<br />vus en passant<br />tout seul.</>,
-              <>أطباق<br />مررتَ بها<br />وأنت وحدك.</>,
-              <>那些菜，<br />一个人的时候<br />你只是路过。</>,
-              <>ひとりだから<br />素通りしてきた<br />料理です。</>,
-            )}
-          </h1>
-          {/* Prose gets a line per language rather than one line carrying
-              both, which is how the notice bar has always done it. A
-              sentence with 밥친구 sitting inside an English clause cannot be
-              reduced by any splitter — it has to be written twice.
+              What this costs, said plainly: two of the three are now behind
+              a swipe rather than a scroll, and the safety one is the half
+              somebody most needs and least looks for. That is what the label
+              row under the rail is for — the same answer the dish sheet
+              reached (index.css, .dish-tabs), where a sideways deck with no
+              labels is content nobody knows is there. Below the rail rather
+              than above it, so the headline is still the first thing on the
+              page. Measured cost of that choice on a 375px phone: the row
+              sits 93px under the fold — the content area is 751px and the
+              rail is 796 — so it takes a nudge of scroll to appear, and the
+              swipe on the hero itself is the other way in. ---- */}
+      <div
+        className="main-deck"
+        ref={deckRef}
+        onFocusCapture={() => setDeckHeld(true)}
+        onBlurCapture={() => setDeckHeld(false)}
+        style={deckH ? { height: `${deckH}px` } : undefined}
+        role="group"
+        aria-label={say(
+          'The top of the page, in three screens',
+          '맨 위 세 화면',
+          'La parte de arriba, en tres pantallas',
+          'Le haut de la page, en trois écrans',
+          'أعلى الصفحة في ثلاث شاشات',
+          '页面顶部的三个画面',
+          'ページ上部の三つの画面',
+        )}
+      >
+        <div
+          className="main-deck__slide"
+          role="group"
+          aria-label={deckLabels[0]}
+        >
+          {/* ---- Hero. Meetup's phone and desktop heroes are different
+                  layouts, not one squeezed: the phone puts headline, then CTA,
+                  then one big collage blob under it; the desktop floats four
+                  blobs around a huge centred headline. The copy comes first in
+                  the DOM so the phone's natural flow is already Meetup's order,
+                  and the desktop lifts the blobs out with position:absolute
+                  where DOM order stops mattering. ---- */}
+          <header className="main-hero" ref={heroRef}>
+            <div className="main-hero__copy">
+              {/* The brand, in halves. It was one string in a class ending -kr,
+                  which meant an English interface dropped the app's own name off
+                  its own front page. Split, so each setting keeps a name. */}
+              <span className="main-hero__eyebrow l-pair" translate="no">
+                <span className="main-hero__eyebrow-kr">밥친구 잇플</span>
+                <span className="main-hero__eyebrow-en">Eatple</span>
+              </span>
+              {/* Two headlines, one shown at a time. The Korean one is the
+                  default and stays the default — it is the screen the team
+                  reviewed — and the English one exists only for the English
+                  setting, where a 44px Korean headline was the single loudest
+                  thing the language setting failed to touch.
 
-              2026-09-03: used to open with "삼겹살은 2인분부터, 감자탕은 냄비째
-              나옵니다" — the same two facts the hero blobs already carry as
-              tags, three lines above, on the dishes named 삼겹살 and 감자탕
-              themselves. Said once there is enough; here it can go straight
-              to the thing the blobs cannot say, which is what the app does
-              about it. */}
-          <p className="main-hero__sub main-hero__sub-kr" translate="no">
-            밥친구 잇플이 그 밥상과, 이미 가고 있는 사람들을 찾아드려요.
-          </p>
-          <p className="main-hero__sub main-hero__sub-en">
-            {say(
-              'Eatple finds you the table — and the people already going.',
-              null,
-              'Eatple te encuentra la mesa — y a la gente que ya va.',
-              'Eatple vous trouve la table — et les gens qui y vont déjà.',
-              'يجد لك Eatple المائدة — ومن هم ذاهبون إليها أصلًا.',
-              'Eatple 替你找到那张饭桌——还有已经要去的人。',
-              'Eatple がその食卓と、すでに行く人たちを見つけます。',
-            )}
-          </p>
-          {/* The middot pairs are Korean-and-English, so a Spanish screen
-              would keep the English half. These three carry the whole
-              journey — see the tables, open one, join — so they are worth
-              the explicit third string rather than a fallback. */}
-          <button className="main-hero__cta" translate="no" onClick={() => onNavigate('match')}>
-            {say('이번 주 밥상 보기 · See this week\u2019s tables', '이번 주 밥상 보기', 'Ver las mesas de esta semana', 'Voir les tables de cette semaine', 'انظر موائد هذا الأسبوع', '看这周的饭桌', '今週の食卓を見る')}
-          </button>
-          <button className="main-hero__alt" translate="no" onClick={onCreateTable}>
-            {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌', '食卓を開く')} <ChevronRightIcon size={14} />
-          </button>
-        </div>
+                  It used to make a claim about what a shop will serve one person.
+                  That claim is false for 10 of the 24 dishes in
+                  src/domain/catalog/menus.js, so the sentence stopped being
+                  about the shop and became about the reader's own past: the
+                  dishes they walked by, because they were on their own. Nothing
+                  here says a dish was unavailable, which is what keeps it true of
+                  bibimbap as well as of samgyeopsal.
 
-        {/* The collage. One big blob under the CTA on a phone, four floating
-            around the headline on a desktop — Meetup's own split. Photos
-            take these slots the moment mainPhotos.js has any. */}
-        <div className="main-hero__blobs">
-          {HERO_BLOBS.map((b, i) => {
-            const photo = MAIN_PHOTOS[i];
-            return (
-              <button
-                key={b.word}
-                type="button"
-                className={`main-blob main-blob--${i} ${b.tone}${i === slide ? ' is-on' : ''}`}
-                aria-hidden={i === slide ? undefined : 'true'}
-                tabIndex={i === slide ? 0 : -1}
-                aria-label={`${b.word} — ${b.tag}. 다음 요리 보기`}
-                onClick={() => setSlide((slide + 1) % HERO_BLOBS.length)}
-              >
-                {photo
-                  ? <img className="main-blob__img" src={photo.src} alt="" loading="lazy" />
-                  : (
-                    <>
-                      <span className="main-blob__word main-blob__word-kr" translate="no">{b.word}</span>
-                      <span className="main-blob__word l-en-only">{b.roman}</span>
-                    </>
-                  )}
-                <span className="main-blob__tag">
-                  <span className="main-blob__tag-kr" translate="no">{photo?.label ?? b.tag}</span>
-                  <span className="l-en-only">{say(b.tagEn, null, b.tagEs, b.tagFr, b.tagAr, b.tagZh, b.tagJa)}</span>
-                </span>
+                  Every line is measured, not guessed — scripts/measure-hero.mjs
+                  renders these seven in the shipping stylesheet at 44px in a
+                  320px box and fails if any line is wider. Three of the outgoing
+                  seven were over: English wrapped to four lines, French to six,
+                  Japanese to four. Do not edit a line here without re-running it.
+
+                  French is the one language with no second person in it. Spanish
+                  gets `dejaste`, Korean 지나쳤던, English "you walked by" — but
+                  every French finite-verb construction that names the dishes runs
+                  325-413px on its own line, so the reader is carried by the
+                  singular `tout seul`, which cannot agree with the plural
+                  `plats`. Measured, not preferred. */}
+              <h1 className="main-hero__title main-hero__title-kr" translate="no">
+                혼자라서
+                <br />지나쳤던
+                <br />음식들.
+              </h1>
+              <h1 className="main-hero__title l-en-only">
+                {say(
+                  <>The dishes<br />you walked by<br />when alone.</>,
+                  null,
+                  <>Al ir solo,<br />dejaste pasar<br />esos platos.</>,
+                  <>Les plats<br />vus en passant<br />tout seul.</>,
+                  <>أطباق<br />مررتَ بها<br />وأنت وحدك.</>,
+                  <>那些菜，<br />一个人的时候<br />你只是路过。</>,
+                  <>ひとりだから<br />素通りしてきた<br />料理です。</>,
+                )}
+              </h1>
+              {/* Prose gets a line per language rather than one line carrying
+                  both, which is how the notice bar has always done it. A
+                  sentence with 밥친구 sitting inside an English clause cannot be
+                  reduced by any splitter — it has to be written twice.
+
+                  2026-09-03: used to open with "삼겹살은 2인분부터, 감자탕은 냄비째
+                  나옵니다" — the same two facts the hero blobs already carry as
+                  tags, three lines above, on the dishes named 삼겹살 and 감자탕
+                  themselves. Said once there is enough; here it can go straight
+                  to the thing the blobs cannot say, which is what the app does
+                  about it. */}
+              <p className="main-hero__sub main-hero__sub-kr" translate="no">
+                밥친구 잇플이 그 밥상과, 이미 가고 있는 사람들을 찾아드려요.
+              </p>
+              <p className="main-hero__sub main-hero__sub-en">
+                {say(
+                  'Eatple finds you the table — and the people already going.',
+                  null,
+                  'Eatple te encuentra la mesa — y a la gente que ya va.',
+                  'Eatple vous trouve la table — et les gens qui y vont déjà.',
+                  'يجد لك Eatple المائدة — ومن هم ذاهبون إليها أصلًا.',
+                  'Eatple 替你找到那张饭桌——还有已经要去的人。',
+                  'Eatple がその食卓と、すでに行く人たちを見つけます。',
+                )}
+              </p>
+              {/* The middot pairs are Korean-and-English, so a Spanish screen
+                  would keep the English half. These three carry the whole
+                  journey — see the tables, open one, join — so they are worth
+                  the explicit third string rather than a fallback. */}
+              <button className="main-hero__cta" translate="no" onClick={() => onNavigate('match')}>
+                {say('이번 주 밥상 보기 · See this week\u2019s tables', '이번 주 밥상 보기', 'Ver las mesas de esta semana', 'Voir les tables de cette semaine', 'انظر موائد هذا الأسبوع', '看这周的饭桌', '今週の食卓を見る')}
               </button>
-            );
-          })}
-          <Squiggle className="main-hero__squiggle main-hero__squiggle--l" />
-          <Squiggle className="main-hero__squiggle main-hero__squiggle--r" />
-        </div>
+              <button className="main-hero__alt" translate="no" onClick={onCreateTable}>
+                {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌', '食卓を開く')} <ChevronRightIcon size={14} />
+              </button>
+            </div>
 
-        {/* The 인하대 front page's own furniture: a dot per slide, then the
-            pause. Phone only — the desktop shows all four dishes at once,
-            and dots for a thing already fully visible are a control with
-            nothing to control. */}
-        <div className="main-hero__dots">
-          {HERO_BLOBS.map((b, i) => (
-            <button
-              key={b.word}
-              type="button"
-              className={`main-dot${i === slide ? ' is-on' : ''}`}
-              aria-label={`${b.word} 보기`}
-              aria-current={i === slide ? 'true' : undefined}
-              onClick={() => setSlide(i)}
-            />
-          ))}
+            {/* The collage. One big blob under the CTA on a phone, four floating
+                around the headline on a desktop — Meetup's own split. Photos
+                take these slots the moment mainPhotos.js has any. */}
+            <div className="main-hero__blobs">
+              {HERO_BLOBS.map((b, i) => {
+                const photo = MAIN_PHOTOS[i];
+                return (
+                  <button
+                    key={b.word}
+                    type="button"
+                    className={`main-blob main-blob--${i} ${b.tone}${i === slide ? ' is-on' : ''}`}
+                    aria-hidden={i === slide ? undefined : 'true'}
+                    tabIndex={i === slide ? 0 : -1}
+                    aria-label={`${b.word} — ${b.tag}. 다음 요리 보기`}
+                    onClick={() => setSlide((slide + 1) % HERO_BLOBS.length)}
+                  >
+                    {photo
+                      ? <img className="main-blob__img" src={photo.src} alt="" loading="lazy" />
+                      : (
+                        <>
+                          <span className="main-blob__word main-blob__word-kr" translate="no">{b.word}</span>
+                          <span className="main-blob__word l-en-only">{b.roman}</span>
+                        </>
+                      )}
+                    <span className="main-blob__tag">
+                      <span className="main-blob__tag-kr" translate="no">{photo?.label ?? b.tag}</span>
+                      <span className="l-en-only">{say(b.tagEn, null, b.tagEs, b.tagFr, b.tagAr, b.tagZh, b.tagJa)}</span>
+                    </span>
+                  </button>
+                );
+              })}
+              <Squiggle className="main-hero__squiggle main-hero__squiggle--l" />
+              <Squiggle className="main-hero__squiggle main-hero__squiggle--r" />
+            </div>
+
+            {/* The 인하대 front page's own furniture: a dot per slide, then the
+                pause. Phone only — the desktop shows all four dishes at once,
+                and dots for a thing already fully visible are a control with
+                nothing to control. */}
+            <div className="main-hero__dots">
+              {HERO_BLOBS.map((b, i) => (
+                <button
+                  key={b.word}
+                  type="button"
+                  className={`main-dot${i === slide ? ' is-on' : ''}`}
+                  aria-label={`${b.word} 보기`}
+                  aria-current={i === slide ? 'true' : undefined}
+                  onClick={() => setSlide(i)}
+                />
+              ))}
+              <button
+                type="button"
+                className="main-dots__toggle"
+                aria-label={playing && !reducedMotion
+                  ? '자동 넘김 멈추기 · Pause'
+                  : '자동 넘김 시작 · Play'}
+                onClick={() => setPlaying(p => !p)}
+              >
+                {playing && !reducedMotion ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
+              </button>
+            </div>
+
+          </header>
+        </div>
+        <div
+          className="main-deck__slide"
+          role="group"
+          aria-label={deckLabels[1]}
+        >
+          {/* ---- The six groups: matching starts by naming what you came
+                  to eat. Each card opens, in place, onto the four dishes under
+                  it — the same taxonomy the map's dots and the register filter
+                  run on, from the same file.
+
+                  Merged 2026-09-04 with the dish shelf that used to be its own
+                  band below "이번 주". Two sections were offering the same
+                  twenty-four dishes under two different organisations, and the
+                  one further down offered them as a flat wall of twenty-four
+                  with no way to see which four belonged together.
+
+                  Pressing a card no longer jumps to the tables screen. It opens
+                  a panel that takes a whole grid row of its own, directly under
+                  the row the card is in — so the cards below move down rather
+                  than being covered, and the reader keeps their place. The jump
+                  is a button inside that panel, and there is a second one for a
+                  single dish: the category, then the dish, then the tables. ---- */}
+          <div className="main-band main-band--groups">
+            <h2 className="main-band__title">
+              <span className="main-band__title-kr" translate="no">한국에서 혼자 먹기 어려웠던 음식을 함께 먹어보세요</span>
+              <span className="main-band__title-en">
+                {say('The food that was hard to eat alone in Korea — eat it together', null,
+                  'La comida difícil de comer solo en Corea — para comerla juntos',
+                  'Ces plats difficiles à manger seul en Corée — à partager ensemble',
+                  'الطعام الذي يصعب أكله وحيدًا في كوريا — كُلْه مع آخرين',
+                  '在韩国一个人很难吃到的东西——一起去吃吧',
+                  '韓国でひとりでは食べにくかったものを、一緒に食べてみませんか')}
+              </span>
+            </h2>
+            {/* The old dish band's heading, kept as this one's subtitle: the
+                headline above says why, this says what the six cards are for. */}
+            <p className="main-groups__sub">
+              <span className="main-groups__sub-kr" translate="no">한식 살펴보기</span>
+              <span className="main-groups__sub-en">
+                {say('Browse Korean food', null, 'Explora la comida coreana', 'Parcourir la cuisine coréenne', 'تصفّح الطعام الكوري', '看看韩国菜', '韓国の料理を見てみる')}
+              </span>
+            </p>
+            <div className="main-groups" ref={groupsRef} role="group" aria-label={say('Pick a kind of food', '음식 종류 고르기', 'Elige un tipo de comida', 'Choisissez un type de plat', 'اختر نوع الطعام', '选一种吃的', '食べたいものを選ぶ')}>
+              {DISH_GROUPS.map((g, i) => {
+                const isOpen = openGroup === g.id;
+                const name = say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja);
+                // The panel belongs after the last card of the row the open card
+                // is in, not after the card itself — a full-width item placed
+                // mid-row would push the rest of that row down with it. The
+                // column count is read off the grid rather than assumed, because
+                // it is two on a phone and three from 768px up.
+                const openIdx = DISH_GROUPS.findIndex(x => x.id === openGroup);
+                const endsRow = (i + 1) % cols === 0 || i === DISH_GROUPS.length - 1;
+                const panelHere = openIdx >= 0 && endsRow
+                  && Math.floor(openIdx / cols) === Math.floor(i / cols);
+                const og = panelHere ? DISH_GROUPS[openIdx] : null;
+                const picked = openGroupDish ? menuById(openGroupDish) : null;
+                return (
+                  <React.Fragment key={g.id}>
+                    <button
+                      type="button"
+                      className={`main-group${isOpen ? ' is-open' : ''}`}
+                      style={{ '--tint': g.tint }}
+                      aria-expanded={isOpen}
+                      aria-controls={`main-group-panel-${g.id}`}
+                      onClick={() => { setOpenGroup(isOpen ? null : g.id); setOpenGroupDish(null); }}
+                    >
+                      <span className="main-group__emoji" aria-hidden="true">{g.emoji}</span>
+                      <span className="main-group__name">{name}</span>
+                      {/* Korean always — it is what the sign says and what a
+                          traveller points at. The romanisation and the plain
+                          description appear for everyone not reading in Korean. */}
+                      <span className="main-group__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
+                      <span className="main-group__rom l-en-only" translate="no">{romanDishes(g)}</span>
+                      {/* This line said "grilled pork belly · grilled beef short rib"
+                          to a Spanish, French, Arabic, Chinese or Japanese reader —
+                          English, on a card with no other English on it, because it
+                          was built from DISH_NAME[].en and that table has one
+                          language. The catalogue has had all seven for every one of
+                          the twenty-four dishes since 2026-09-02; the card was simply
+                          reading the wrong table. Fixed 2026-09-03. */}
+                      <span className="main-group__gloss l-en-only">{glossDishesIn(g, locale)}</span>
+                      {/* Was "이 밥상 찾기 →", which is the button inside the panel
+                          this opens now. A card that says "find" and then opens a
+                          list instead is a card that lied. */}
+                      <span className="main-group__go">
+                        {say('See the four dishes', '요리 네 가지 보기', 'Ver los cuatro platos', 'Voir les quatre plats', 'انظر الأطباق الأربعة', '看这四道菜', '四つの料理を見る')}
+                        <span className="main-group__caret" aria-hidden="true">▾</span>
+                      </span>
+                    </button>
+                    {panelHere && og && (
+                      <div className="main-group-panel" id={`main-group-panel-${og.id}`} style={{ '--tint': og.tint }}>
+                        {/* Between the category and its dishes, which is where
+                            somebody who wants K-BBQ rather than one particular
+                            dish will look for it. */}
+                        <button className="main-group-panel__go" type="button" onClick={() => onPickGroup?.(og.id)}>
+                          {say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →
+                        </button>
+                        <div className="main-group-panel__dishes" role="group" aria-label={say('Pick a dish', '요리 고르기', 'Elige un plato', 'Choisissez un plat', 'اختر طبقًا', '选一道菜', '料理を選ぶ')}>
+                          {og.dishes.map(d => menuById(menuIdOfDish(d))).filter(Boolean).map(m => (
+                            <button
+                              key={m.id}
+                              type="button"
+                              className={`main-group-dish${openGroupDish === m.id ? ' is-on' : ''}`}
+                              aria-pressed={openGroupDish === m.id}
+                              onClick={() => setOpenGroupDish(openGroupDish === m.id ? null : m.id)}
+                            >
+                              <span className="main-group-dish__kr" translate="no" data-no-locale>{m.nameKo}</span>
+                              <span className="main-group-dish__rom" translate="no">{m.romanization}</span>
+                              <span className="main-group-dish__gloss">{dishGloss(m, locale)}</span>
+                            </button>
+                          ))}
+                        </div>
+                        {/* The same door one level narrower, once a dish is named.
+                            Reading about it stays reachable here — the band this
+                            merged into was the only way in. */}
+                        {picked && (
+                          <div className="main-group-panel__pick">
+                            {/* The same pair the tile above uses, and for the
+                                same reason: this line names the dish the button
+                                beside it is about to go looking for, so it has to
+                                be a name the reader can actually read. Korean on
+                                a Korean screen, the romanisation everywhere else. */}
+                            <span className="main-group-panel__pick-name">
+                              <span className="main-group-panel__pick-kr" translate="no">{picked.nameKo}</span>
+                              <span className="main-group-panel__pick-rom l-en-only" translate="no">{picked.romanization}</span>
+                            </span>
+                            <button className="main-group-panel__pick-go" type="button" onClick={() => onPickDish?.(picked.id)}>
+                              {say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →
+                            </button>
+                            <button className="main-group-panel__pick-read" type="button" onClick={() => setOpenDish(picked)}>
+                              {say('Read about this dish', '이 요리 알아보기', 'Leer sobre este plato', 'En savoir plus sur ce plat', 'اقرأ عن هذا الطبق', '了解这道菜', 'この料理について読む')}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div
+          className="main-deck__slide"
+          role="group"
+          aria-label={deckLabels[2]}
+        >
+          {/* ---- What keeps a table safe ----
+                  Everything named here already exists in the app: hostRecord on
+                  the cards, RulesConsent before a first table, report.js and
+                  blocking.js behind the table and profile views. None of it was
+                  visible to somebody deciding whether to join, which is the one
+                  moment it is for. A tester searched the whole site for
+                  "verified / report / block / cancel" on 2026-08-30 and found
+                  nothing, and said so in exactly those terms. ---- */}
+          <div className="main-band main-band--safety">
+            <h2 className="main-band__title">
+              <span className="main-band__title-kr" translate="no">모르는 사람과 먹는 일이니까</span>
+              <span className="main-band__title-en">
+                {say('Eating with strangers, safely', null,
+                  'Comer con desconocidos, con seguridad',
+                  'Manger avec des inconnus, en sécurité',
+                  'أن تأكل مع غرباء، بأمان',
+                  '和陌生人吃饭，也要安心',
+                  '知らない人と食べるからこそ')}
+              </span>
+            </h2>
+            <ul className="main-safety">
+              {SAFETY_POINTS.map(pt => (
+                <li key={pt.id} className="main-safety__item">
+                  <h3 className="main-safety__head">
+                    {say(pt.en, pt.ko, pt.es, pt.fr, pt.ar, pt.zh, pt.ja)}
+                  </h3>
+                  <p className="main-safety__body">
+                    {say(pt.bodyEn, pt.bodyKo, pt.bodyEs, pt.bodyFr, pt.bodyAr, pt.bodyZh, pt.bodyJa)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            {/* The women-only filter was described by the same tester as "the
+                right instinct and the only safety-adjacent thing on the site",
+                sitting unexplained among the cuisine chips where it reads as a
+                preference. Named here, where it belongs. */}
+            <p className="main-safety__note">
+              {say('The tables list also has a filter for tables another woman has already joined.',
+                '밥상 목록에는 다른 여성이 이미 참여한 밥상만 보는 필터도 있습니다.',
+                'La lista de mesas también tiene un filtro para mesas a las que ya se ha apuntado otra mujer.',
+                "La liste des tables a aussi un filtre pour celles où une autre femme s'est déjà inscrite.",
+                'في قائمة الموائد أيضًا مصفٍّ يُظهر الموائد التي انضمّت إليها امرأة أخرى بالفعل.',
+                '饭桌列表里还有一个筛选，只看已经有其他女性参加的饭桌。',
+                '食卓の一覧には、ほかの女性がすでに参加している食卓だけを見る絞り込みもあります。')}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* The rail's table of contents, its position indicator and its
+          controls, in one row — a phone gets no hover and no scrollbar, so
+          without this the second and third screens are a rumour. */}
+      <div className="main-deck__tabs">
+        {deckLabels.map((label, i) => (
           <button
+            key={i}
             type="button"
-            className="main-dots__toggle"
-            aria-label={playing && !reducedMotion
-              ? '자동 넘김 멈추기 · Pause'
-              : '자동 넘김 시작 · Play'}
-            onClick={() => setPlaying(p => !p)}
+            className="main-deck__tab"
+            aria-current={i === deckAt ? 'true' : undefined}
+            onClick={() => goDeck(i)}
           >
-            {playing && !reducedMotion ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
+            {label}
           </button>
-        </div>
-
-      </header>
+        ))}
+        {/* WCAG 2.2.2: content that starts moving on its own and runs longer
+            than five seconds needs a way to stop it. The hero's carousel
+            carries the same control for the same reason. */}
+        <button
+          type="button"
+          className="main-deck__play"
+          aria-label={deckTurning
+            ? say('Stop the screens turning', '자동 넘김 멈추기', 'Detener el paso automático',
+              'Arrêter le défilement automatique', 'إيقاف التنقّل التلقائي', '停止自动切换',
+              '自動切り替えを止める')
+            : say('Turn the screens automatically', '자동 넘김 시작', 'Pasar automáticamente',
+              'Faire défiler automatiquement', 'التنقّل تلقائيًا', '自动切换', '自動で切り替える')}
+          onClick={() => setPlaying(v => !v)}
+        >
+          {deckTurning ? <PauseIcon size={13} /> : <PlayIcon size={13} />}
+        </button>
+      </div>
 
       {/* ---- How it happens, moved up here 2026-09-03 from a band far down
               the page. Pilot feedback: too many things to read before
@@ -413,144 +822,6 @@ export default function MainTab({
         </p>
       </div>
 
-      {/* ---- The six groups: matching starts by naming what you came
-              to eat. Each card opens, in place, onto the four dishes under
-              it — the same taxonomy the map's dots and the register filter
-              run on, from the same file.
-
-              Merged 2026-09-04 with the dish shelf that used to be its own
-              band below "이번 주". Two sections were offering the same
-              twenty-four dishes under two different organisations, and the
-              one further down offered them as a flat wall of twenty-four
-              with no way to see which four belonged together.
-
-              Pressing a card no longer jumps to the tables screen. It opens
-              a panel that takes a whole grid row of its own, directly under
-              the row the card is in — so the cards below move down rather
-              than being covered, and the reader keeps their place. The jump
-              is a button inside that panel, and there is a second one for a
-              single dish: the category, then the dish, then the tables. ---- */}
-      <div className="main-band main-band--groups">
-        <h2 className="main-band__title">
-          <span className="main-band__title-kr" translate="no">한국에서 혼자 먹기 어려웠던 음식을 함께 먹어보세요</span>
-          <span className="main-band__title-en">
-            {say('The food that was hard to eat alone in Korea — eat it together', null,
-              'La comida difícil de comer solo en Corea — para comerla juntos',
-              'Ces plats difficiles à manger seul en Corée — à partager ensemble',
-              'الطعام الذي يصعب أكله وحيدًا في كوريا — كُلْه مع آخرين',
-              '在韩国一个人很难吃到的东西——一起去吃吧',
-              '韓国でひとりでは食べにくかったものを、一緒に食べてみませんか')}
-          </span>
-        </h2>
-        {/* The old dish band's heading, kept as this one's subtitle: the
-            headline above says why, this says what the six cards are for. */}
-        <p className="main-groups__sub">
-          <span className="main-groups__sub-kr" translate="no">한식 살펴보기</span>
-          <span className="main-groups__sub-en">
-            {say('Browse Korean food', null, 'Explora la comida coreana', 'Parcourir la cuisine coréenne', 'تصفّح الطعام الكوري', '看看韩国菜', '韓国の料理を見てみる')}
-          </span>
-        </p>
-        <div className="main-groups" ref={groupsRef} role="group" aria-label={say('Pick a kind of food', '음식 종류 고르기', 'Elige un tipo de comida', 'Choisissez un type de plat', 'اختر نوع الطعام', '选一种吃的', '食べたいものを選ぶ')}>
-          {DISH_GROUPS.map((g, i) => {
-            const isOpen = openGroup === g.id;
-            const name = say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja);
-            // The panel belongs after the last card of the row the open card
-            // is in, not after the card itself — a full-width item placed
-            // mid-row would push the rest of that row down with it. The
-            // column count is read off the grid rather than assumed, because
-            // it is two on a phone and three from 768px up.
-            const openIdx = DISH_GROUPS.findIndex(x => x.id === openGroup);
-            const endsRow = (i + 1) % cols === 0 || i === DISH_GROUPS.length - 1;
-            const panelHere = openIdx >= 0 && endsRow
-              && Math.floor(openIdx / cols) === Math.floor(i / cols);
-            const og = panelHere ? DISH_GROUPS[openIdx] : null;
-            const picked = openGroupDish ? menuById(openGroupDish) : null;
-            return (
-              <React.Fragment key={g.id}>
-                <button
-                  type="button"
-                  className={`main-group${isOpen ? ' is-open' : ''}`}
-                  style={{ '--tint': g.tint }}
-                  aria-expanded={isOpen}
-                  aria-controls={`main-group-panel-${g.id}`}
-                  onClick={() => { setOpenGroup(isOpen ? null : g.id); setOpenGroupDish(null); }}
-                >
-                  <span className="main-group__emoji" aria-hidden="true">{g.emoji}</span>
-                  <span className="main-group__name">{name}</span>
-                  {/* Korean always — it is what the sign says and what a
-                      traveller points at. The romanisation and the plain
-                      description appear for everyone not reading in Korean. */}
-                  <span className="main-group__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
-                  <span className="main-group__rom l-en-only" translate="no">{romanDishes(g)}</span>
-                  {/* This line said "grilled pork belly · grilled beef short rib"
-                      to a Spanish, French, Arabic, Chinese or Japanese reader —
-                      English, on a card with no other English on it, because it
-                      was built from DISH_NAME[].en and that table has one
-                      language. The catalogue has had all seven for every one of
-                      the twenty-four dishes since 2026-09-02; the card was simply
-                      reading the wrong table. Fixed 2026-09-03. */}
-                  <span className="main-group__gloss l-en-only">{glossDishesIn(g, locale)}</span>
-                  {/* Was "이 밥상 찾기 →", which is the button inside the panel
-                      this opens now. A card that says "find" and then opens a
-                      list instead is a card that lied. */}
-                  <span className="main-group__go">
-                    {say('See the four dishes', '요리 네 가지 보기', 'Ver los cuatro platos', 'Voir les quatre plats', 'انظر الأطباق الأربعة', '看这四道菜', '四つの料理を見る')}
-                    <span className="main-group__caret" aria-hidden="true">▾</span>
-                  </span>
-                </button>
-                {panelHere && og && (
-                  <div className="main-group-panel" id={`main-group-panel-${og.id}`} style={{ '--tint': og.tint }}>
-                    {/* Between the category and its dishes, which is where
-                        somebody who wants K-BBQ rather than one particular
-                        dish will look for it. */}
-                    <button className="main-group-panel__go" type="button" onClick={() => onPickGroup?.(og.id)}>
-                      {say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →
-                    </button>
-                    <div className="main-group-panel__dishes" role="group" aria-label={say('Pick a dish', '요리 고르기', 'Elige un plato', 'Choisissez un plat', 'اختر طبقًا', '选一道菜', '料理を選ぶ')}>
-                      {og.dishes.map(d => menuById(menuIdOfDish(d))).filter(Boolean).map(m => (
-                        <button
-                          key={m.id}
-                          type="button"
-                          className={`main-group-dish${openGroupDish === m.id ? ' is-on' : ''}`}
-                          aria-pressed={openGroupDish === m.id}
-                          onClick={() => setOpenGroupDish(openGroupDish === m.id ? null : m.id)}
-                        >
-                          <span className="main-group-dish__kr" translate="no" data-no-locale>{m.nameKo}</span>
-                          <span className="main-group-dish__rom" translate="no">{m.romanization}</span>
-                          <span className="main-group-dish__gloss">{dishGloss(m, locale)}</span>
-                        </button>
-                      ))}
-                    </div>
-                    {/* The same door one level narrower, once a dish is named.
-                        Reading about it stays reachable here — the band this
-                        merged into was the only way in. */}
-                    {picked && (
-                      <div className="main-group-panel__pick">
-                        {/* The same pair the tile above uses, and for the
-                            same reason: this line names the dish the button
-                            beside it is about to go looking for, so it has to
-                            be a name the reader can actually read. Korean on
-                            a Korean screen, the romanisation everywhere else. */}
-                        <span className="main-group-panel__pick-name">
-                          <span className="main-group-panel__pick-kr" translate="no">{picked.nameKo}</span>
-                          <span className="main-group-panel__pick-rom l-en-only" translate="no">{picked.romanization}</span>
-                        </span>
-                        <button className="main-group-panel__pick-go" type="button" onClick={() => onPickDish?.(picked.id)}>
-                          {say('Find this table', '이 밥상 찾기', 'Buscar esta mesa', 'Trouver cette table', 'ابحث عن هذه المائدة', '找这桌', 'この食卓を探す')} →
-                        </button>
-                        <button className="main-group-panel__pick-read" type="button" onClick={() => setOpenDish(picked)}>
-                          {say('Read about this dish', '이 요리 알아보기', 'Leer sobre este plato', 'En savoir plus sur ce plat', 'اقرأ عن هذا الطبق', '了解这道菜', 'この料理について読む')}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </div>
-
       {/* ---- This week ---- */}
       <div className="main-band">
         <TablesLead
@@ -560,53 +831,6 @@ export default function MainTab({
           onRequestTable={onRequestTable}
           profile={profile}
         />
-      </div>
-
-      {/* ---- What keeps a table safe ----
-              Everything named here already exists in the app: hostRecord on
-              the cards, RulesConsent before a first table, report.js and
-              blocking.js behind the table and profile views. None of it was
-              visible to somebody deciding whether to join, which is the one
-              moment it is for. A tester searched the whole site for
-              "verified / report / block / cancel" on 2026-08-30 and found
-              nothing, and said so in exactly those terms. ---- */}
-      <div className="main-band main-band--safety">
-        <h2 className="main-band__title">
-          <span className="main-band__title-kr" translate="no">모르는 사람과 먹는 일이니까</span>
-          <span className="main-band__title-en">
-            {say('Eating with strangers, safely', null,
-              'Comer con desconocidos, con seguridad',
-              'Manger avec des inconnus, en sécurité',
-              'أن تأكل مع غرباء، بأمان',
-              '和陌生人吃饭，也要安心',
-              '知らない人と食べるからこそ')}
-          </span>
-        </h2>
-        <ul className="main-safety">
-          {SAFETY_POINTS.map(pt => (
-            <li key={pt.id} className="main-safety__item">
-              <h3 className="main-safety__head">
-                {say(pt.en, pt.ko, pt.es, pt.fr, pt.ar, pt.zh, pt.ja)}
-              </h3>
-              <p className="main-safety__body">
-                {say(pt.bodyEn, pt.bodyKo, pt.bodyEs, pt.bodyFr, pt.bodyAr, pt.bodyZh, pt.bodyJa)}
-              </p>
-            </li>
-          ))}
-        </ul>
-        {/* The women-only filter was described by the same tester as "the
-            right instinct and the only safety-adjacent thing on the site",
-            sitting unexplained among the cuisine chips where it reads as a
-            preference. Named here, where it belongs. */}
-        <p className="main-safety__note">
-          {say('The tables list also has a filter for tables another woman has already joined.',
-            '밥상 목록에는 다른 여성이 이미 참여한 밥상만 보는 필터도 있습니다.',
-            'La lista de mesas también tiene un filtro para mesas a las que ya se ha apuntado otra mujer.',
-            "La liste des tables a aussi un filtre pour celles où une autre femme s'est déjà inscrite.",
-            'في قائمة الموائد أيضًا مصفٍّ يُظهر الموائد التي انضمّت إليها امرأة أخرى بالفعل.',
-            '饭桌列表里还有一个筛选，只看已经有其他女性参加的饭桌。',
-            '食卓の一覧には、ほかの女性がすでに参加している食卓だけを見る絞り込みもあります。')}
-        </p>
       </div>
 
       {/* ---- The giant join panel ---- */}
