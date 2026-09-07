@@ -424,18 +424,13 @@ import * as remote from './supabaseBackend.js';
 
 const useRemote = remote.isConfigured();
 
-/**
- * True while tables live in this browser only.
- *
- * The UI reads this to tell the truth on screen rather than letting a host
- * believe strangers can already see what they just opened.
- */
-export const isLocalOnly = () => !useRemote;
-
-// No isShared here. It existed as the negation of the line above, documented
-// as "read by the Tables screen", and no screen ever read it — the Tables
-// screen asks isLocalOnly() because the only thing it has to say is the
-// warning, and there is nothing to announce about the ordinary case.
+// Neither isLocalOnly nor isShared lives here any more. isShared went first,
+// as a negation no screen ever read. isLocalOnly outlasted it because the
+// Tables screen showed a line saying tables were saved on this device alone —
+// taken out on 2026-09-07 at the owner’s word. It only ever appeared where
+// Supabase was unconfigured, which is to say on a developer’s machine and
+// never in front of anybody the sentence was written for. useRemote below is
+// the same answer, and the only one anything still asks for.
 
 export const listTables = useRemote ? remote.listTables : local_listTables;
 export const getTable = useRemote ? remote.getTable : local_getTable;

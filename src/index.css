@@ -5733,19 +5733,6 @@ button {
   outline-offset: 3px;
 }
 
-/* Said out loud, not discovered. A host who thinks strangers can already
-   see their table has been misled by our silence. */
-.tables-notice {
-  margin: 14px 20px 0;
-  padding: 10px 12px;
-  background: var(--orange-tint);
-  border: 1px solid var(--orange-line);
-  border-radius: var(--radius);
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--ink-body);
-}
-
 .menu-chips {
   display: flex;
   gap: 8px;
@@ -9575,7 +9562,12 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: center;
+  /* Against the first line of the step, not the middle of the row. Centred,
+     it was level with the label while a step ran to one line and dropped
+     half a line below it the moment one ran to two — which is what 나눠 먹기
+     does, and it read as a number that had come loose. */
+  align-self: start;
+  margin-top: -1px;
 }
 .how-strip__kr { font-weight: 700; font-size: 13px; color: var(--ink); white-space: nowrap; }
 .how-strip__en { font-size: 12.5px; color: var(--ink-body); }
@@ -10070,6 +10062,64 @@ body {
   background: var(--green-tint);
 }
 .week-day.is-on .week-day__count { background: var(--green-strong); color: #fff; }
+
+/* ---- The tables screen, once there is a desk in front of it ----
+
+   The column has been capped at 720px since it was written, which is right
+   for reading. Everything inside it was still drawn for a 375px phone,
+   where full width is the only width there is — and at 720 that reads as a
+   680px slab of a button under three short lines, seven date cells stretched
+   to 93px around thirty of content, and four different left edges: the title
+   at 22, the map at 16, the week label at 16, the notice at 20. Said in
+   stronger words on 2026-09-07.
+
+   Phones keep all of it, because on a phone every one of those is correct. */
+@media (min-width: 768px) {
+  /* The button stops being a banner: beside the words rather than under
+     them, at the width of what it says. Still the loudest thing here, which
+     it should be — it is the only thing on this screen that opens a table. */
+  .tables-tab .screen-head--dark {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 28px;
+    padding: 30px 22px 26px;
+  }
+  .tables-tab .screen-head--dark .screen-head__kr,
+  .tables-tab .screen-head--dark .screen-head__title,
+  .tables-tab .screen-head--dark .screen-head__sub,
+  .tables-tab .screen-head--dark .screen-head__reward { grid-column: 1; }
+  .tables-tab .screen-head--dark .screen-head__cta {
+    /* Spans the three text rows, which are three whether or not the reward
+       line follows: a member is shown the button alone, a visitor the button
+       and then what joining buys. */
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+    width: auto;
+    min-width: 200px;
+    margin-top: 0;
+    padding-inline: 30px;
+  }
+
+  /* One left edge under the head, so the map, the week and the notice line
+     up with the headline instead of each other's approximation of it. */
+  .tables-tab .tables-map-preview {
+    margin-inline: 22px;
+    width: calc(100% - 44px);
+  }
+  .tables-tab .week-strip__label { margin-inline: 22px; }
+
+  /* The week keeps its seven equal columns. Sizing the cells to their
+     contents was tried and put back: at 720px it took them from 93px to 84
+     and bought nothing but a row that stopped short of every other right
+     edge on the screen. What was actually thin was the inside of each cell,
+     so that is what changed. */
+  .tables-tab .week-strip { padding-inline: 22px; }
+  .tables-tab .week-day { padding: 9px 2px 10px; gap: 3px; }
+  .tables-tab .week-day__name { font-size: 12px; }
+  .tables-tab .week-day__date { font-size: 18px; }
+}
 
 /* What joining buys, stated in seats. */
 .screen-head__reward {

@@ -5,7 +5,7 @@ import { groupOfMenu } from '../domain/catalog/dishGroups.js';
 import { PICK, joinableCount } from '../domain/policy/dishGroupPicker.js';
 import { seatsRemaining, isPast, attendance } from '../domain/policy/table.js';
 import {
-  listTables, listAllSignups, listBlocks, seedSampleTables, isLocalOnly, tablesWithWoman,
+  listTables, listAllSignups, listBlocks, seedSampleTables, tablesWithWoman,
 } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
@@ -411,18 +411,6 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             </button>
           ))}
         </div>
-      )}
-
-      {/* Said plainly rather than discovered later. A host who believes
-          strangers can already see this would be misled by silence — and once
-          they genuinely can, the notice has to stop appearing rather than
-          keep warning about a limitation that no longer exists. */}
-      {isLocalOnly() && (
-        <p className="tables-notice">
-          {say('Tables are saved on this device only for now — shared tables go live when the server lands.',
-            '지금은 밥상이 이 기기에만 저장됩니다 — 서버가 붙으면 공유 밥상이 살아납니다.',
-            'Por ahora las mesas se guardan solo en este dispositivo: las mesas compartidas llegarán con el servidor.', "Pour l'instant les tables ne sont enregistrées que sur cet appareil : les tables partagées arriveront avec le serveur.", 'الموائد محفوظة الآن على هذا الجهاز وحده: أمّا الموائد المشتركة فتصل مع الخادم.', '目前饭桌只存在这台设备上：共享的饭桌会随服务器一起到。', 'いまのところ食卓はこの端末にだけ保存されます。共有の食卓はサーバーとともに来ます。')}
-        </p>
       )}
 
       {/* The six groups, always all six, and the twenty-four dishes under
