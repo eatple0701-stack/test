@@ -11,6 +11,7 @@ import { conflictsFor } from '../data/profile';
 import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
 import { languageLine } from '../domain/catalog/languages.js';
 import { visibleTables } from '../domain/policy/blocking.js';
+import { rankByTaste } from '../domain/policy/taste.js';
 import { emptyReason, emptyText, hasOtherDays, EMPTY } from '../domain/policy/emptiness.js';
 import { searchOutcome, SEARCH } from '../domain/policy/dishSearch.js';
 import { stationForTable, cityOfTables } from '../domain/policy/venue.js';
@@ -22,7 +23,6 @@ import { weekAhead } from '../domain/policy/week.js';
 import { PROMISES, PROMISES_LEAD } from '../content/promises.js';
 import { HOW_STEPS, HOW_WHY } from '../content/howItWorks.js';
 import DishGroupAccordion from './DishGroupAccordion';
-import TablesMap from './TablesMap';
 import PhraseSheet from './PhraseSheet';
 import DishSheet from './DishSheet';
 import { hostRecord } from '../data/tableRepository.js';
@@ -56,7 +56,7 @@ const dayLabel = (date) => {
 // onOpenPassport is gone with the top bar it served: the way to your own
 // Passport is the chip in the app chrome now, on every screen rather than
 // this one.
-export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, initialGroup = null, initialMenu = null }) {
+export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, initialGroup = null, initialMenu = null, preferredMenus = [] }) {
   const say = useText();
   const locale = useLocale();
   const [tables, setTables] = useState(null);
@@ -81,7 +81,6 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   const [womenTables, setWomenTables] = useState(null);
   // A date from the week strip, or null for the whole week.
   const [dayFilter, setDayFilter] = useState(null);
-  const [mapOpen, setMapOpen] = useState(false);
   // Opened only from the bare-week empty state. Local, the way TableDetail and
   // the Passport each hold their own — the sheet takes no state worth lifting.
   const [phrasesOpen, setPhrasesOpen] = useState(false);
@@ -220,7 +219,27 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // The search sits on top of the other filters. What the list shows, and
   // whether a found dish has nobody eating it yet, is the policy's call.
   const outcome = useMemo(() => searchOutcome(query, filtered), [query, filtered]);
-  const shown = outcome.tables;
+  // The deck's answer, applied last — after the filters and after the search,
+  // so it reorders what this screen was already going to show and changes
+  // nothing about what that is. Suppressed while a dish or category filter is
+  // on: the reader has already said what they want, more narrowly than the
+  // map does, and lifting a subset of one dish above the rest of that same
+  // dish is noise. See domain/policy/taste.js for why this is a partition
+  // rather than a filter.
+  const narrowed = Boolean(menuFilter || groupFilter);
+  const ranked = useMemo(
+    () => (narrowed ? { tables: outcome.tables, preferredCount: 0 }
+      : rankByTaste(outcome.tables, preferredMenus)),
+    [outcome.tables, preferredMenus, narrowed],
+  );
+  const shown = ranked.tables;
+  // Split rather than headed. The two headings inside one list were still
+  // under the search box, which is where the reader said they could not find
+  // them — a heading cannot lift a section past the control above it. The
+  // reader's own dishes are their own block now, above the picker; what is
+  // left keeps the list it always had.
+  const mine = shown.slice(0, ranked.preferredCount);
+  const rest = shown.slice(ranked.preferredCount);
 
   // Choosing a group drops a dish filter that no longer belongs to it —
   // otherwise 🔥 K-BBQ plus a lingering 보쌈 chip shows nothing and blames
@@ -228,6 +247,221 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   const pickGroup = (gid) => {
     setGroupFilter(gid);
     if (gid && menuFilter && groupOfMenu(menuFilter)?.id !== gid) setMenuFilter(null);
+  };
+
+  // One table, drawn the same wherever it is drawn. Pulled out of the
+  // list on 2026-09-07 so the reader's own dishes can have a section of
+  // their own above the picker without a second copy of this markup —
+  // two copies of a card is two places to fix the next thing found in it.
+  const renderTableCard = (t) => {
+        const menu = menuById(t.menuId);
+        if (!menu) return null;
+        const rows = signupsFor[t.id] ?? [];
+        const left = seatsRemaining(t, rows);
+        const isMine = profile && t.hostId === profile.userId;
+        // A seat you already hold. The host got a badge and a guest got
+        // nothing, so somebody scrolling this list could not tell which
+        // table they were already going to without opening each one.
+        const iAmGoing = Boolean(profile?.userId) && rows.some(s => s.userId === profile.userId);
+        const conflicts = conflictsFor(menu, profile);
+
+        return (
+          <button key={t.id} className="table-card" onClick={() => onOpenTable(t.id)}>
+            <span className="table-card__word" aria-hidden="true" translate="no">{menu.nameKo}</span>
+
+            <span className="table-card__top">
+              <span className="table-card__cat">
+                {categoryLabel(menu.category, locale)}
+              </span>
+              {/* The distinction the 8/2 meeting drew, and the one a
+                  nervous first-timer is actually scanning for: will
+                  somebody explain this to me, or are we all guessing? */}
+              {/* Both languages. This badge carried only the Korean until
+                  2026-08-04, which made 호스트 테이블 — the Korean host
+                  teaching their own food, the thing the professor's review
+                  called the actual public diplomacy here — unreadable to
+                  the exact person it exists for. The detail page has always
+                  glossed it; the list is where somebody decides which table
+                  to open, so the list is where the word has to work. */}
+              <span className={`table-card__kind is-${tableKind(t)}`}>
+                <span className="table-card__kind-kr">{tableKindLabel(t).kr}</span>
+                <span className="table-card__kind-en">{tableKindLabel(t).en}</span>
+              </span>
+              {/* Meetup leads every card with 무료 or ₩40,000, because the
+                  first thing anybody checks before joining strangers is
+                  what it costs. This app writes no prices — they move by
+                  district and we cannot verify one — but that rule left the
+                  question unanswered rather than answered, and "does this
+                  app take my money?" is exactly what a traveller asks before
+                  handing over a phone number.
+
+                  So the card states the part we *can* verify, which is not a
+                  price but the absence of one: nothing is charged here. The
+                  fuller sentence — you pay the restaurant, so nobody at the
+                  table owes anybody — is in HOW_STEPS, two screens down the
+                  landing where a card-scanner never reaches it. */}
+              <span className="table-card__free" translate="no">
+                <span className="table-card__free-kr">앱 결제 없음</span>
+                <span className="table-card__free-en">{say('No app payment', '앱 결제 없음', 'Sin pago en la app', "Aucun paiement dans l'application", 'لا دفع داخل التطبيق', '应用内不收钱', 'アプリ内での支払いなし')}</span>
+              </span>
+              {isMine && <span className="table-card__mine">{say('Your table', '내 밥상', 'Tu mesa', 'Votre table', 'مائدتك', '你的饭桌', 'あなたの食卓')}</span>}
+              {iAmGoing && <span className="table-card__mine">{say('You are going', '가시는 중', 'Vas a ir', 'Vous y allez', 'أنت ذاهب', '你会去', '行く予定です')}</span>}
+              {conflicts.length > 0 && (
+                <span className="table-card__warn">{say(
+                  `contains ${conflicts.join(', ')}`, `${conflicts.join(', ')} 들어감`,
+                  `contiene ${conflicts.join(', ')}`, `contient ${conflicts.join(', ')}`,
+                  `يحتوي على ${conflicts.join('، ')}`, `含有${conflicts.join('、')}`,
+                  `${conflicts.join('、')}が入っています`)}</span>
+              )}
+            </span>
+
+            <h2 className="table-card__dish">{menu.name}</h2>
+            <p className="table-card__rom" translate="no" data-no-locale>{menu.romanization}</p>
+            <p className="table-card__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr, menu.glossZh, menu.glossJa)}</p>
+
+            {/* 신보람 교수님's note, answered where it is actually asked.
+                The badge above says 호스트 테이블 — a category. This says
+                what this host will do, which is the 어떻게 the review asked
+                for, and it has been in the data since 8/2 while rendering
+                only on the detail page. Somebody scanning the list to pick
+                an evening could not tell a host who will walk them through
+                ordering from a table that splits a bill.
+
+                Only on hosted tables: guideSummary returns null when there
+                is nothing ticked, so a 테이블 메이트 card gains no line and
+                no apology. */}
+            {/* The first one, then a count. Spelling out all four — "How to
+                order · How it is eaten · Table manners · Where the dish
+                comes from" — was the longest line on the card and pushed it
+                to 292px, against 4–5 short lines on every card Meetup, 당근
+                and 여기어때 put in a list.
+
+                First-plus-count rather than a bare number, and rather than a
+                written summary: the number is countable and the first is
+                quoted from the catalogue, so neither can describe guides
+                this host did not tick. All four are named on the page they
+                open. Catalogue order, so "the first" is the first thing that
+                happens at a table, not the first one they tapped. */}
+            {guideSummary(t) && (
+              <p className="table-card__guides">
+                <span className="table-card__guides-label">{say('Host shows you', '호스트가 안내', 'El anfitrión te guía', "L'hôte vous guide", 'المضيف يرشدك', '主人带你', 'ホストが案内します')}</span>
+                {guideSummary(t).guides[0].en}
+                {guideSummary(t).guides.length > 1 && (
+                  <span className="table-card__guides-more">
+                    +{guideSummary(t).guides.length - 1}
+                  </span>
+                )}
+              </p>
+            )}
+
+            {/* whyShared — three lines explaining why this dish is eaten
+                together — moved off the card on 2026-08-04. It is the best
+                paragraph in the catalog and it was making every card 289px
+                tall, which is the wrong trade in a list: somebody scanning
+                is asking when, where and how many, and reads the reason on
+                the page they open. The dish's own name, set large behind
+                the card, does the work the missing photograph would.
+
+                The photograph is genuinely missing, and not faked here:
+                public/images holds eight category illustrations built for
+                restaurants (된장, 국수, 사찰음식), none of which is 삼겹살.
+                Mapping one on would be the app showing a picture of a dish
+                nobody is serving. Real dish artwork is a team task. */}
+
+            {/* A deadline that already exists, said out loud. Only inside
+                the last day, so it informs rather than nags — see
+                askDeadline in SeatRequestPolicy. */}
+            {(() => {
+              const d = askDeadline(t);
+              if (!d) return null;
+              return (
+                <span className={`table-card__deadline${d.urgent ? ' is-urgent' : ''}`} translate="no">
+                  {say(d.short.en, d.short.kr, d.short.es, d.short.fr, d.short.ar, d.short.zh, d.short.ja)}
+                </span>
+              );
+            })()}
+
+            {/* When and where, in the shape a list is scanned.
+                The time carries KST because the reader may have landed
+                yesterday and never changed their phone — Meetup prints
+                GMT+9 on every card for the same reason.
+                Where says the station when we hold one, measured on a
+                walking route rather than guessed. It used to print the
+                whole postal address: sixty-two characters of "5F Templestay
+                Information Center, 56 Ujeongguk-ro, Jongno-gu, Seoul" in a
+                row somebody is skimming. 여기어때 prints "길동역 도보 3분"
+                in the same slot. The address is still on the page they
+                open, and is still what shows for a venue nobody measured. */}
+            <span className="table-card__meta">
+              <ClockIcon size={13} /> {dayLabel(t.date)} · {timeText(t.time)}
+              <span className="table-card__dot" aria-hidden="true">·</span>
+              <MapPinIcon size={13} /> {stationForTable(t, restaurants)?.en ?? t.place}
+            </span>
+
+            <span className="table-card__foot">
+              <span className="table-card__host">
+                {say(`Hosted by ${t.hostName}`, `${t.hostName}님이 차림`, `Anfitrión: ${t.hostName}`,
+                  `Hôte : ${t.hostName}`, `المضيف ${t.hostName}`, `主人是${t.hostName}`, `ホストは${t.hostName}`)}
+                {/* Only once there is something to say. A first-time host
+                    gets no badge rather than a "0 tables" one — the detail
+                    page says "첫 밥상" in words, where there is room to say
+                    it kindly. */}
+                {hostRecords[t.hostId]?.tablesHosted > 0 && (
+                  <span className="table-card__record">
+                    {say(`${hostRecords[t.hostId].tablesHosted} held`, `밥상 ${hostRecords[t.hostId].tablesHosted}번`,
+                      `${hostRecords[t.hostId].tablesHosted} puestas`, `${hostRecords[t.hostId].tablesHosted} dressées`,
+                      `${hostRecords[t.hostId].tablesHosted} موائد`, `摆过 ${hostRecords[t.hostId].tablesHosted} 次`,
+                      `${hostRecords[t.hostId].tablesHosted}回`)}
+                  </span>
+                )}
+                {t.hostVerified && <span className="table-card__verified">{say('인증 · verified', '인증', 'verificado', 'vérifié', 'موثّق', '已核实', '確認済み')}</span>}
+                {/* Scanning a list, the language is the fastest filter a
+                    traveller applies — but only if they can read it. The
+                    card said 한국어 and left a Spanish speaker guessing at
+                    the one fact that decides their evening. */}
+                {(t.languages ?? []).length > 0 && (
+                  <span className="table-card__langs">{languageLine(t.languages)}</span>
+                )}
+                {t.isSample && <span className="table-card__sample">{say('sample', '샘플', 'ejemplo', 'exemple', 'مثال', '示例', 'サンプル')}</span>}
+              </span>
+              <span className="table-card__right">
+                {/* Confirmed faces, Meetup's oldest trick told honestly:
+                    only seats the host actually gave, never pending ones.
+                    An empty stack renders nothing — zero avatars is not a
+                    fact worth a badge. */}
+                {(() => {
+                  const going = acceptedSignups(rows);
+                  if (going.length === 0) return null;
+                  return (
+                    <span className="avatar-stack" aria-label={`${going.length} going`}>
+                      {going.slice(0, 3).map(s => (
+                        s.avatarUrl
+                          ? <img key={s.id} className="avatar-stack__face" src={s.avatarUrl} alt="" />
+                          : <AnimalAvatar key={s.id} className="avatar-stack__face" seed={s.id ?? s.name} animal={s.avatarAnimal} size={22} />
+                      ))}
+                      {going.length > 3 && <span className="avatar-stack__more">+{going.length - 3}</span>}
+                    </span>
+                  );
+                })()}
+                {/* Who is coming, then how many are missing — the order
+                    every reference uses and the one this had backwards.
+                    TablePolicy owns both numbers so they cannot disagree. */}
+                <span className={`table-card__seats${left === 0 ? ' is-full' : ''}`}>
+                  <span className="table-card__going">{attendance(t, rows).en}</span>
+                  {left > 0 && (
+                    <span className="table-card__left">
+                      {say(`${left} seat${left === 1 ? '' : 's'} left`, `${left}자리 남음`,
+                        `${left} sitio${left === 1 ? '' : 's'} libre${left === 1 ? '' : 's'}`,
+                        `${left} place${left === 1 ? '' : 's'} libre${left === 1 ? '' : 's'}`,
+                        `بقي ${left} مقعد`, `还剩 ${left} 个位子`, `残り${left}席`)}
+                    </span>
+                  )}
+                  <ChevronRightIcon size={14} />
+                </span>
+              </span>
+            </span>
+          </button>
+        );
   };
 
   return (
@@ -359,14 +593,11 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           possible. 여기어때 and 야놀자 both draw the map on the list screen
           for the same reason. The preview does not take touch; the whole
           card is the way into the real one. */}
-      {tables !== null && open.length > 0 && (
-        <TablesMap
-          variant="preview"
-          tables={open}
-          signupsFor={signupsFor}
-          onOpen={() => setMapOpen(true)}
-        />
-      )}
+      {/* The map preview stood here and was taken out on 2026-09-07 at the
+          team's word: 장소 is the map tab, and drawing a second one at the
+          top of this screen pushed the tables — the only thing this tab is
+          for — below the fold to answer a question another tab answers
+          better. Nothing was lost; TablesMap is still what 장소 renders. */}
 
       {/* The strip had no label, so the list never said what window it was
           showing or where. Meetup heads its own list "Incheon, KR 근처의
@@ -411,6 +642,77 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
             </button>
           ))}
         </div>
+      )}
+
+      {/* ---- 내 입맛 지도에서 ----
+
+              Above the picker, and directly under the week. It was two
+              headings inside the list on 2026-09-07 and the reader could not
+              find it: the list sits below the search box and the accordion,
+              so anything in the list is below them too, however it is
+              labelled. A section that is meant to be the first thing has to
+              be placed first — a heading is not a position.
+
+              Suppressed while a dish or category filter is on, and while
+              somebody is searching: they have already said what they want,
+              more narrowly than the map says it, and answering a narrower
+              question with a broader one is noise.
+
+              The empty case is the load-bearing one. A traveller who has
+              just told the app fourteen things about themselves and is shown
+              nothing is the dead end this whole product exists to remove —
+              so when no table is open for any of it, the screen says which
+              dish is missing and offers the one action that fixes it. ---- */}
+      {tables !== null && !narrowed && !query && preferredMenus.length > 0 && (
+        <section className="taste-tables" aria-label={say('From your taste map', '내 입맛 지도에서', 'De tu mapa de sabores', 'D’après votre carte des goûts', 'من خريطة ذوقك', '来自你的口味地图', '好みの地図から')}>
+          <h2 className="taste-tables__head">
+            <span className="taste-tables__kr" translate="no">내 입맛 지도에서</span>
+            <span className="taste-tables__en">
+              {say('From your taste map', null, 'De tu mapa de sabores', 'D’après votre carte des goûts', 'من خريطة ذوقك', '来自你的口味地图', '好みの地図から')}
+            </span>
+          </h2>
+
+          {mine.length > 0 ? (
+            <div className="table-list">{mine.map(renderTableCard)}</div>
+          ) : (
+            <div className="taste-tables__none">
+              <p className="taste-tables__none-text">
+                {(() => {
+                  const top = menuById(preferredMenus[0]);
+                  const name = top ? say(top.name, top.nameKo, top.name, top.name, top.name, top.nameKo, top.nameKo) : null;
+                  return name
+                    ? say(`Nobody has opened a ${name} table yet.`, `아직 ${name} 밥상이 열려 있지 않아요.`,
+                      `Todavía nadie ha abierto una mesa de ${name}.`, `Personne n’a encore ouvert de table pour ${name}.`,
+                      `لم يفتح أحد بعد مائدة ${name}.`, `还没有人开${name}的饭桌。`, `${name}の食卓は、まだ誰も開いていません。`)
+                    : say('No table is open for what you picked yet.', '고르신 음식으로 열린 밥상이 아직 없어요.',
+                      'Aún no hay mesa abierta para lo que elegiste.', 'Aucune table n’est encore ouverte pour vos choix.',
+                      'لا توجد بعد مائدة لما اخترته.', '你选的菜还没有开着的饭桌。', '選んだ料理の食卓は、まだありません。');
+                })()}
+              </p>
+              {/* The offer, and it is the true one: this is a dish that
+                  starts at two servings, so the way to eat it is to bring
+                  somebody — which is what opening a table is. The form opens
+                  on that dish rather than asking them to find it again in a
+                  grid of twenty-four. */}
+              <button
+                type="button"
+                className="taste-tables__host"
+                onClick={() => onCreateTable?.({ menuId: preferredMenus[0] })}
+              >
+                {say('Open the first one', '첫 상을 열어보기', 'Abre la primera', 'Ouvrez la première', 'افتح أول واحدة', '开第一张', '最初のひとつを開く')}
+              </button>
+              <p className="taste-tables__none-why">
+                {say('It starts at two servings — so the table is how you eat it.',
+                  '2인분부터 나오는 음식이라, 밥상이 곧 먹는 방법이에요.',
+                  'Se sirve desde dos raciones: la mesa es la forma de comerlo.',
+                  'Il se sert à partir de deux portions — la table est la façon de le manger.',
+                  'يُقدَّم ابتداءً من حصتين — فالمائدة هي طريقة أكله.',
+                  '这道菜从两人份起卖——所以饭桌就是吃到它的方法。',
+                  '二人前からの料理です。食卓が、食べる方法そのものです。')}
+              </p>
+            </div>
+          )}
+        </section>
       )}
 
       {/* The six groups, always all six, and the twenty-four dishes under
@@ -656,216 +958,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       )}
 
       <div className="table-list">
-        {shown.map(t => {
-          const menu = menuById(t.menuId);
-          if (!menu) return null;
-          const rows = signupsFor[t.id] ?? [];
-          const left = seatsRemaining(t, rows);
-          const isMine = profile && t.hostId === profile.userId;
-          // A seat you already hold. The host got a badge and a guest got
-          // nothing, so somebody scrolling this list could not tell which
-          // table they were already going to without opening each one.
-          const iAmGoing = Boolean(profile?.userId) && rows.some(s => s.userId === profile.userId);
-          const conflicts = conflictsFor(menu, profile);
-
-          return (
-            <button key={t.id} className="table-card" onClick={() => onOpenTable(t.id)}>
-              <span className="table-card__word" aria-hidden="true" translate="no">{menu.nameKo}</span>
-
-              <span className="table-card__top">
-                <span className="table-card__cat">
-                  {categoryLabel(menu.category, locale)}
-                </span>
-                {/* The distinction the 8/2 meeting drew, and the one a
-                    nervous first-timer is actually scanning for: will
-                    somebody explain this to me, or are we all guessing? */}
-                {/* Both languages. This badge carried only the Korean until
-                    2026-08-04, which made 호스트 테이블 — the Korean host
-                    teaching their own food, the thing the professor's review
-                    called the actual public diplomacy here — unreadable to
-                    the exact person it exists for. The detail page has always
-                    glossed it; the list is where somebody decides which table
-                    to open, so the list is where the word has to work. */}
-                <span className={`table-card__kind is-${tableKind(t)}`}>
-                  <span className="table-card__kind-kr">{tableKindLabel(t).kr}</span>
-                  <span className="table-card__kind-en">{tableKindLabel(t).en}</span>
-                </span>
-                {/* Meetup leads every card with 무료 or ₩40,000, because the
-                    first thing anybody checks before joining strangers is
-                    what it costs. This app writes no prices — they move by
-                    district and we cannot verify one — but that rule left the
-                    question unanswered rather than answered, and "does this
-                    app take my money?" is exactly what a traveller asks before
-                    handing over a phone number.
-
-                    So the card states the part we *can* verify, which is not a
-                    price but the absence of one: nothing is charged here. The
-                    fuller sentence — you pay the restaurant, so nobody at the
-                    table owes anybody — is in HOW_STEPS, two screens down the
-                    landing where a card-scanner never reaches it. */}
-                <span className="table-card__free" translate="no">
-                  <span className="table-card__free-kr">앱 결제 없음</span>
-                  <span className="table-card__free-en">{say('No app payment', '앱 결제 없음', 'Sin pago en la app', "Aucun paiement dans l'application", 'لا دفع داخل التطبيق', '应用内不收钱', 'アプリ内での支払いなし')}</span>
-                </span>
-                {isMine && <span className="table-card__mine">{say('Your table', '내 밥상', 'Tu mesa', 'Votre table', 'مائدتك', '你的饭桌', 'あなたの食卓')}</span>}
-                {iAmGoing && <span className="table-card__mine">{say('You are going', '가시는 중', 'Vas a ir', 'Vous y allez', 'أنت ذاهب', '你会去', '行く予定です')}</span>}
-                {conflicts.length > 0 && (
-                  <span className="table-card__warn">{say(
-                    `contains ${conflicts.join(', ')}`, `${conflicts.join(', ')} 들어감`,
-                    `contiene ${conflicts.join(', ')}`, `contient ${conflicts.join(', ')}`,
-                    `يحتوي على ${conflicts.join('، ')}`, `含有${conflicts.join('、')}`,
-                    `${conflicts.join('、')}が入っています`)}</span>
-                )}
-              </span>
-
-              <h2 className="table-card__dish">{menu.name}</h2>
-              <p className="table-card__rom" translate="no" data-no-locale>{menu.romanization}</p>
-              <p className="table-card__gloss">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr, menu.glossZh, menu.glossJa)}</p>
-
-              {/* 신보람 교수님's note, answered where it is actually asked.
-                  The badge above says 호스트 테이블 — a category. This says
-                  what this host will do, which is the 어떻게 the review asked
-                  for, and it has been in the data since 8/2 while rendering
-                  only on the detail page. Somebody scanning the list to pick
-                  an evening could not tell a host who will walk them through
-                  ordering from a table that splits a bill.
-
-                  Only on hosted tables: guideSummary returns null when there
-                  is nothing ticked, so a 테이블 메이트 card gains no line and
-                  no apology. */}
-              {/* The first one, then a count. Spelling out all four — "How to
-                  order · How it is eaten · Table manners · Where the dish
-                  comes from" — was the longest line on the card and pushed it
-                  to 292px, against 4–5 short lines on every card Meetup, 당근
-                  and 여기어때 put in a list.
-
-                  First-plus-count rather than a bare number, and rather than a
-                  written summary: the number is countable and the first is
-                  quoted from the catalogue, so neither can describe guides
-                  this host did not tick. All four are named on the page they
-                  open. Catalogue order, so "the first" is the first thing that
-                  happens at a table, not the first one they tapped. */}
-              {guideSummary(t) && (
-                <p className="table-card__guides">
-                  <span className="table-card__guides-label">{say('Host shows you', '호스트가 안내', 'El anfitrión te guía', "L'hôte vous guide", 'المضيف يرشدك', '主人带你', 'ホストが案内します')}</span>
-                  {guideSummary(t).guides[0].en}
-                  {guideSummary(t).guides.length > 1 && (
-                    <span className="table-card__guides-more">
-                      +{guideSummary(t).guides.length - 1}
-                    </span>
-                  )}
-                </p>
-              )}
-
-              {/* whyShared — three lines explaining why this dish is eaten
-                  together — moved off the card on 2026-08-04. It is the best
-                  paragraph in the catalog and it was making every card 289px
-                  tall, which is the wrong trade in a list: somebody scanning
-                  is asking when, where and how many, and reads the reason on
-                  the page they open. The dish's own name, set large behind
-                  the card, does the work the missing photograph would.
-
-                  The photograph is genuinely missing, and not faked here:
-                  public/images holds eight category illustrations built for
-                  restaurants (된장, 국수, 사찰음식), none of which is 삼겹살.
-                  Mapping one on would be the app showing a picture of a dish
-                  nobody is serving. Real dish artwork is a team task. */}
-
-              {/* A deadline that already exists, said out loud. Only inside
-                  the last day, so it informs rather than nags — see
-                  askDeadline in SeatRequestPolicy. */}
-              {(() => {
-                const d = askDeadline(t);
-                if (!d) return null;
-                return (
-                  <span className={`table-card__deadline${d.urgent ? ' is-urgent' : ''}`} translate="no">
-                    {say(d.short.en, d.short.kr, d.short.es, d.short.fr, d.short.ar, d.short.zh, d.short.ja)}
-                  </span>
-                );
-              })()}
-
-              {/* When and where, in the shape a list is scanned.
-                  The time carries KST because the reader may have landed
-                  yesterday and never changed their phone — Meetup prints
-                  GMT+9 on every card for the same reason.
-                  Where says the station when we hold one, measured on a
-                  walking route rather than guessed. It used to print the
-                  whole postal address: sixty-two characters of "5F Templestay
-                  Information Center, 56 Ujeongguk-ro, Jongno-gu, Seoul" in a
-                  row somebody is skimming. 여기어때 prints "길동역 도보 3분"
-                  in the same slot. The address is still on the page they
-                  open, and is still what shows for a venue nobody measured. */}
-              <span className="table-card__meta">
-                <ClockIcon size={13} /> {dayLabel(t.date)} · {timeText(t.time)}
-                <span className="table-card__dot" aria-hidden="true">·</span>
-                <MapPinIcon size={13} /> {stationForTable(t, restaurants)?.en ?? t.place}
-              </span>
-
-              <span className="table-card__foot">
-                <span className="table-card__host">
-                  {say(`Hosted by ${t.hostName}`, `${t.hostName}님이 차림`, `Anfitrión: ${t.hostName}`,
-                    `Hôte : ${t.hostName}`, `المضيف ${t.hostName}`, `主人是${t.hostName}`, `ホストは${t.hostName}`)}
-                  {/* Only once there is something to say. A first-time host
-                      gets no badge rather than a "0 tables" one — the detail
-                      page says "첫 밥상" in words, where there is room to say
-                      it kindly. */}
-                  {hostRecords[t.hostId]?.tablesHosted > 0 && (
-                    <span className="table-card__record">
-                      {say(`${hostRecords[t.hostId].tablesHosted} held`, `밥상 ${hostRecords[t.hostId].tablesHosted}번`,
-                        `${hostRecords[t.hostId].tablesHosted} puestas`, `${hostRecords[t.hostId].tablesHosted} dressées`,
-                        `${hostRecords[t.hostId].tablesHosted} موائد`, `摆过 ${hostRecords[t.hostId].tablesHosted} 次`,
-                        `${hostRecords[t.hostId].tablesHosted}回`)}
-                    </span>
-                  )}
-                  {t.hostVerified && <span className="table-card__verified">{say('인증 · verified', '인증', 'verificado', 'vérifié', 'موثّق', '已核实', '確認済み')}</span>}
-                  {/* Scanning a list, the language is the fastest filter a
-                      traveller applies — but only if they can read it. The
-                      card said 한국어 and left a Spanish speaker guessing at
-                      the one fact that decides their evening. */}
-                  {(t.languages ?? []).length > 0 && (
-                    <span className="table-card__langs">{languageLine(t.languages)}</span>
-                  )}
-                  {t.isSample && <span className="table-card__sample">{say('sample', '샘플', 'ejemplo', 'exemple', 'مثال', '示例', 'サンプル')}</span>}
-                </span>
-                <span className="table-card__right">
-                  {/* Confirmed faces, Meetup's oldest trick told honestly:
-                      only seats the host actually gave, never pending ones.
-                      An empty stack renders nothing — zero avatars is not a
-                      fact worth a badge. */}
-                  {(() => {
-                    const going = acceptedSignups(rows);
-                    if (going.length === 0) return null;
-                    return (
-                      <span className="avatar-stack" aria-label={`${going.length} going`}>
-                        {going.slice(0, 3).map(s => (
-                          s.avatarUrl
-                            ? <img key={s.id} className="avatar-stack__face" src={s.avatarUrl} alt="" />
-                            : <AnimalAvatar key={s.id} className="avatar-stack__face" seed={s.id ?? s.name} animal={s.avatarAnimal} size={22} />
-                        ))}
-                        {going.length > 3 && <span className="avatar-stack__more">+{going.length - 3}</span>}
-                      </span>
-                    );
-                  })()}
-                  {/* Who is coming, then how many are missing — the order
-                      every reference uses and the one this had backwards.
-                      TablePolicy owns both numbers so they cannot disagree. */}
-                  <span className={`table-card__seats${left === 0 ? ' is-full' : ''}`}>
-                    <span className="table-card__going">{attendance(t, rows).en}</span>
-                    {left > 0 && (
-                      <span className="table-card__left">
-                        {say(`${left} seat${left === 1 ? '' : 's'} left`, `${left}자리 남음`,
-                          `${left} sitio${left === 1 ? '' : 's'} libre${left === 1 ? '' : 's'}`,
-                          `${left} place${left === 1 ? '' : 's'} libre${left === 1 ? '' : 's'}`,
-                          `بقي ${left} مقعد`, `还剩 ${left} 个位子`, `残り${left}席`)}
-                      </span>
-                    )}
-                    <ChevronRightIcon size={14} />
-                  </span>
-                </span>
-              </span>
-            </button>
-          );
-        })}
+        {rest.map(renderTableCard)}
       </div>
 
       {/* The explaining, now that the tables have made their case.
@@ -937,16 +1030,6 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </button>
       )}
 
-      {/* Shows every open table, not the filtered list: a map is for finding
-          what you did not know to filter for. */}
-      {mapOpen && (
-        <TablesMap
-          tables={open}
-          signupsFor={signupsFor}
-          onOpenTable={(id) => { setMapOpen(false); onOpenTable(id); }}
-          onClose={() => setMapOpen(false)}
-        />
-      )}
     </section>
   );
 }

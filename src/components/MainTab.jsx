@@ -10,6 +10,7 @@ import { MAIN_PHOTOS } from '../content/mainPhotos.js';
 import { SAFETY_POINTS } from '../content/safetyPromise.js';
 import TablesLead from './TablesLead';
 import DishSheet from './DishSheet';
+import DishSwipe from './DishSwipe';
 import { ChevronRightIcon, XIcon, PauseIcon, PlayIcon } from './Icons';
 import { useText, useLocale } from './localeText.js';
 
@@ -115,7 +116,7 @@ const Squiggle = ({ className }) => (
 
 export default function MainTab({
   auth, profile, onNavigate, onOpenTable, onCreateTable, onOpenAuth, onPickGroup, onPickDish,
-  onRequestTable,
+  onRequestTable, onTasteChange,
 }) {
   const say = useText();
   const locale = useLocale();
@@ -479,9 +480,12 @@ export default function MainTab({
             would keep the English half. These three carry the whole
             journey — see the tables, open one, join — so they are worth
             the explicit third string rather than a fallback. */}
-        <button className="main-hero__cta" translate="no" onClick={() => onNavigate('match')}>
-          {say('이번 주 밥상 보기 · See this week\u2019s tables', '이번 주 밥상 보기', 'Ver las mesas de esta semana', 'Voir les tables de cette semaine', 'انظر موائد هذا الأسبوع', '看这周的饭桌', '今週の食卓を見る')}
-        </button>
+        {/* 이번 주 밥상 보기 stood here and was taken out on 2026-09-07 at
+            the team's word. The deck above the rail now asks the question
+            this button answered, and answers it with the reader's own
+            picks rather than with the whole week: the tables it opens are
+            the tables for what they just chose. 밥상 is still one tap away
+            on the bar, and 상 차리기 below is untouched. */}
         <button className="main-hero__alt" translate="no" onClick={onCreateTable}>
           {say('상 차리기 · Open a table', '상 차리기', 'Abrir una mesa', 'Ouvrir une table', 'افتح مائدة', '开一张饭桌', '食卓を開く')} <ChevronRightIcon size={14} />
         </button>
@@ -557,6 +561,26 @@ export default function MainTab({
       className={`main-tab${stickyShown ? ' main-tab--sticky' : ''}`}
       aria-label={say('Eatple home', '밥친구 메인', 'Inicio de Eatple', "Accueil d'Eatple", 'الصفحة الرئيسية لـ Eatple', 'Eatple 首页', 'Eatple のホーム')}
     >
+
+      {/* ---- 입맛 지도, above everything ----
+
+              Asked for on 2026-09-07: no second tap to reach it, and the
+              login prompt after it rather than before. So it opens the page.
+
+              Above the rail and not inside it. The rail gives all three of
+              its slides one height taken from the hero (domain/policy/rail.js,
+              railTallest), so a 550px deck dropped into slide one would have
+              added 550px of blank to the six categories and to the safety
+              screen as well. Outside it, the rail's arithmetic is untouched
+              and the three screens keep the heights they were measured at.
+              ---- */}
+      <DishSwipe
+        inline
+        auth={auth}
+        onOpenAuth={onOpenAuth}
+        onTasteChange={onTasteChange}
+        onOpenTables={() => onNavigate('match')}
+      />
 
       {/* ---- The three screens at the top, on one rail ----
 

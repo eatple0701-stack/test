@@ -7,6 +7,7 @@ import ThemeStoryCard from './ThemeStoryCard';
 import TablesLead from './TablesLead';
 import TodayTable from './TodayTable';
 import FoodRoulette from './FoodRoulette';
+import DishSwipe from './DishSwipe';
 import CultureCards from './CultureCards';
 import PlacesTab from './PlacesTab';
 import { useText } from './localeText.js';
@@ -32,6 +33,7 @@ export default function HomeTab({
 }) {
   const say = useText();
   const [showRoulette, setShowRoulette] = useState(false);
+  const [showSwipe, setShowSwipe] = useState(false);
   const [showCulture, setShowCulture] = useState(false);
   // The merged 장소 shelves, shut until asked for. See the note at the mount.
   const [placesOpen, setPlacesOpen] = useState(false);
@@ -95,6 +97,31 @@ export default function HomeTab({
           only reminder the app can give is being unmissable when opened. */}
       <TodayTable profile={profile} onOpenTable={onOpenTodayTable} />
 
+      {/* 입맛 지도. First thing under today's meal, because it is the only
+          part of this tab that works for somebody who reads none of it —
+          and this tab measures 8.0 screens of reading on a 375px phone.
+          Fourteen cards, a yes or a no, and the app knows what to seat them
+          at. See DishSwipe.jsx for why the deck is what it is. */}
+      <div className="home-section home-section--tight">
+        <button type="button" className="taste-lead" onClick={() => setShowSwipe(true)}>
+          <span className="taste-lead__kr" translate="no">입맛 지도</span>
+          <span className="taste-lead__title">
+            {say('Fourteen dishes. Which are yours?', '요리 열네 가지, 어느 쪽이 당겨요?',
+              'Catorce platos. ¿Cuáles son los tuyos?', 'Quatorze plats. Lesquels sont les vôtres ?',
+              'أربعة عشر طبقًا. أيّها لك؟', '十四道菜，哪些是你的？', '十四の料理。どれがあなたのですか？')}
+          </span>
+          <span className="taste-lead__sub">
+            {say('Swipe once each. Not one of them is served for one.',
+              '한 장씩 넘겨 보세요. 그중 1인분으로 나오는 건 하나도 없어요.',
+              'Desliza una por una. Ninguno se sirve para una sola persona.',
+              'Glissez une par une. Aucun ne se sert pour une personne.',
+              'اسحب واحدًا تلو الآخر. ما منها طبق يُقدَّم لشخص واحد.',
+              '一张张滑过去。没有一道是给一个人上的。',
+              '一枚ずつめくってください。ひとり分で出てくるものは、ひとつもありません。')}
+          </span>
+        </button>
+      </div>
+
       {/* FirstRun used to stand here, teaching three steps that were not the
           three steps the landing page taught — two answers to "what happens
           here?", depending on which tab somebody opened first. The steps are
@@ -155,6 +182,40 @@ export default function HomeTab({
             />
           ))}
         </div>
+      </div>
+
+      {/* ---- 인스타그램 ----
+
+              Placed after the seven cultures and not before them: this asks
+              somebody to leave the app, and the moment to ask that is when
+              they have just finished reading and want more — not while they
+              still have the reading in front of them.
+
+              The link is the thing and the QR is the extra. A code on the
+              screen somebody is holding cannot be scanned by that same
+              person, so a QR-first card would be an offer most readers
+              cannot take. Tapping opens the account; the code is there for
+              a laptop, and for showing the phone to somebody else — which
+              is the whole point of a project about eating together. ---- */}
+      <div className="home-section home-section--tight">
+        <a
+          className="insta-card"
+          href="https://instagram.com/eat.ple_project"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img className="insta-card__qr" src="/images/eatple-instagram-qr.jpg" alt="" width="72" height="72" loading="lazy" />
+          <span className="insta-card__body">
+            <span className="insta-card__kr" translate="no">인스타그램</span>
+            <span className="insta-card__title">
+              {say('More of these stories, as we find them', '이런 이야기들을 더 찾는 대로 올립니다',
+                'Más historias como estas, según las encontramos', 'D’autres récits comme ceux-ci, au fil de nos trouvailles',
+                'مزيد من هذه الحكايات، كلّما وجدناها', '这样的故事，我们找到就发', 'こうした話を、見つけしだい載せています')}
+            </span>
+            <span className="insta-card__handle" translate="no" data-no-locale>@eat.ple_project</span>
+          </span>
+          <span className="insta-card__go" aria-hidden="true">↗</span>
+        </a>
       </div>
 
       {/* 4. The two ways to be surprised, kept — moved off the opening, where
@@ -235,6 +296,13 @@ export default function HomeTab({
         />
       )}
       {showCulture && <CultureCards onClose={() => setShowCulture(false)} startIndex={cultureStart} />}
+      {showSwipe && (
+        <DishSwipe
+          onClose={() => setShowSwipe(false)}
+          /* A map with nowhere to go is where the roulette used to stop. */
+          onOpenTables={() => onNavigate('match')}
+        />
+      )}
     </section>
   );
 }

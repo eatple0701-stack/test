@@ -21,6 +21,7 @@ import TableDetail from './components/TableDetail';
 import TableRequest from './components/TableRequest';
 import { getProfile, saveProfile } from './data/profile';
 import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
+import { getStoredTaste, preferredMenuIds } from './data/taste.js';
 import { getStoredLocale, setStoredLocale } from './data/locale.js';
 import LocaleFilter from './components/LocaleFilter';
 import { LocaleContext } from './components/localeText.js';
@@ -201,6 +202,13 @@ export default function App() {
   // tab state — opening a table is a step inside that tab, not a fifth
   // destination, and switching tabs should not strand you mid-form.
   const [tableView, setTableView] = useState(opening.tableView);
+  // The taste map, read once here and re-read when the deck says it changed.
+  // It lives in localStorage (data/taste.js) and is not on an account: the
+  // whole ordering of this flow is fourteen swipes before anybody is asked
+  // who they are. Held in App because two screens read it — the deck writes
+  // it on Main, and the Tables list lifts the dishes it names to the top.
+  const [taste, setTaste] = useState(getStoredTaste);
+  const preferredMenus = useMemo(() => preferredMenuIds(taste), [taste]);
   // Carried from a restaurant into the open-a-table form.
   const [tablePrefill, setTablePrefill] = useState(null);
 
@@ -900,6 +908,12 @@ export default function App() {
             the English name exists, it was just never on screen. Korean
             readers keep the Korean; everyone else gets the name they can
             type into a search box. */}
+        {/* The badge, added 2026-09-07. Beside the wordmark and not instead
+            of it: the mark is a picture of the name, and the tester who
+            wrote "I cannot read it, say it, or search for it" needed the
+            name as text. A logo would have taken that back. alt is empty
+            because the words next to it already say what it says. */}
+        <img className="app-chrome__logo" src="/images/eatple-logo.jpg" alt="" width="28" height="28" />
         <span className="app-chrome__mark l-ko-only" aria-hidden="true" translate="no">밥친구</span>
         <span className="app-chrome__mark l-en-only" aria-hidden="true" translate="no">Eatple</span>
         {/* The language control lived three taps deep, in Passport →
@@ -1070,6 +1084,9 @@ export default function App() {
               setTableView({ screen: 'request' });
             }}
             onOpenAuth={(mode) => setAuthMode(mode)}
+            /* The deck writes straight to localStorage; this is how the rest
+               of the app hears about it without polling storage. */
+            onTasteChange={() => setTaste(getStoredTaste())}
             /* The matching flow: a category card on the front page opens the
                tables screen already filtered to that category. */
             onPickGroup={(gid) => {
@@ -1135,6 +1152,11 @@ export default function App() {
             key={`${tableView.group ?? 'all'}:${tableView.menu ?? 'all'}`}
             initialGroup={tableView.group ?? null}
             initialMenu={tableView.menu ?? null}
+            /* What the deck was told, so the tables for those dishes come
+               first. A ranking and not a filter: a filter on a pilot with few
+               tables is an empty screen, and the answer to "I want 감자탕" has
+               to be able to be "not this week, but here is what there is". */
+            preferredMenus={preferredMenus}
             profile={profile}
             auth={auth}
             onOpenAuth={(mode) => setAuthMode(mode)}

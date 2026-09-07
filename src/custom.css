@@ -241,3 +241,334 @@ body {
 .match-actions button {
   flex: 1;
 }
+/* ── 입맛 지도 · the dish swipe deck ──────────────────────────────────────
+   Every colour here is a token. This file loads after index.css, so a
+   hardcoded value wins silently against the dark-mode branch — which is
+   exactly how every section on Explore stayed white no matter what --surface
+   was set to, twice, before the two notes at the top of this file. */
+
+/* The overlay must never be taller than the screen it is drawn on. It was,
+   on 2026-09-07: the backdrop is position:fixed with no scroll of its own,
+   the deck measured about 824px against a 375x812 phone's 812, and the last
+   child of an overflowing fixed box cannot be reached at all. The fix is two
+   rules — cap the height, and let the one part that can afford to scroll do
+   the scrolling — plus moving anything pressable above the card. */
+.dish-swipe-backdrop { align-items: center; padding: 16px; }
+
+.dish-swipe {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  margin: auto;
+  padding: 16px 16px 20px;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+
+/* On Main it is the page, not a dialog: no backdrop, no shadow, no cap. */
+.dish-swipe-inline-wrap { display: block; padding: 0 16px; margin-bottom: 20px; }
+.dish-swipe--inline {
+  max-width: 520px; max-height: none; padding: 0;
+  background: none; box-shadow: none; border-radius: 0; overflow: visible;
+}
+
+.dish-swipe__head { display: flex; align-items: flex-start; gap: 12px; }
+.dish-swipe__titles { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.dish-swipe__kr { font-size: 13px; font-weight: 700; color: var(--green-strong); letter-spacing: 0.02em; }
+.dish-swipe__en { font-size: 19px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+
+.dish-swipe__close {
+  flex: none; width: 32px; height: 32px; padding: 0;
+  font-size: 22px; line-height: 1;
+  color: var(--muted); background: var(--fill);
+  border: 0; border-radius: 50%; cursor: pointer;
+}
+.dish-swipe__close:hover { color: var(--ink); background: var(--line); }
+
+/* Progress. The bar is the feedback the swipe itself cannot give — a card
+   leaving the screen says nothing about how far along the deck is. */
+.dish-swipe__progress {
+  height: 4px; margin: 14px 0 6px;
+  background: var(--fill); border-radius: 999px; overflow: hidden;
+}
+.dish-swipe__progress-fill {
+  height: 100%; background: var(--green);
+  border-radius: 999px; transition: width 0.28s ease;
+}
+.dish-swipe__count {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin: 0 0 10px; font-size: 12px; color: var(--muted);
+}
+.dish-swipe__nearly { font-weight: 700; color: var(--orange-ink); }
+
+.dish-swipe__stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;              /* a flex child will not shrink without this */
+  overflow: hidden;
+}
+.dish-swipe--inline .dish-swipe__stage { flex: none; min-height: 420px; }
+
+.dish-card {
+  position: relative;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  touch-action: pan-y;       /* the page still scrolls; the card takes sideways */
+  cursor: grab;
+  user-select: none;
+}
+.dish-card:active { cursor: grabbing; }
+.dish-card.is-flying { transition: transform 0.24s ease-out; }
+
+/* The card behind, so finishing one visibly uncovers the next. */
+.dish-card--behind {
+  position: absolute; inset: 0;
+  transform: scale(0.96) translateY(10px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* The photograph slot: sized and positioned, deliberately empty. Dropping
+   images in should be this one rule and nothing else. --fill is the token
+   whose own comment reads "inset fields, image placeholders". */
+.dish-card__photo {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--fill);
+  display: grid; place-items: center;
+}
+.dish-card__photo-mark {
+  font-size: 64px; font-weight: 800;
+  color: var(--line-hover); opacity: 0.6;
+}
+
+.dish-card__body { padding: 14px 16px 18px; }
+.dish-card__kind {
+  display: inline-block; margin-bottom: 8px;
+  padding: 3px 9px; font-size: 11px; font-weight: 700;
+  color: var(--green-strong); background: var(--green-tint);
+  border-radius: var(--radius-sm);
+}
+.dish-card__name { margin: 0; font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1.15; }
+.dish-card__roman { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.dish-card__gloss { margin: 8px 0 0; font-size: 15px; color: var(--ink-body); }
+.dish-card__why {
+  margin: 10px 0 0; font-size: 14px; line-height: 1.55; color: var(--ink-body);
+  /* Clamped so fourteen cards are the same height. whyShared runs to three
+     lines in Korean and six in French, and a deck whose cards jump height as
+     they turn reads as broken rather than as varied. */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+  line-clamp: 3; overflow: hidden;
+}
+.dish-card__min {
+  margin: 12px 0 0; padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 12px; font-weight: 700; color: var(--orange-ink);
+}
+
+/* The two stamps, which appear only while a drag is past the threshold —
+   read from the same function the release reads, so a card can never say
+   YES and record a pass. */
+.dish-card__stamp {
+  position: absolute; top: 16px;
+  padding: 6px 12px;
+  font-size: 15px; font-weight: 800; letter-spacing: 0.04em;
+  border: 3px solid currentColor; border-radius: var(--radius);
+  opacity: 0; transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+.dish-card__stamp.is-on { opacity: 1; }
+.dish-card__stamp--want { left: 16px; color: var(--green-strong); transform: rotate(-12deg); }
+.dish-card__stamp--pass { right: 16px; color: var(--danger); transform: rotate(12deg); }
+
+.dish-swipe__actions { display: flex; gap: 10px; margin-top: 14px; }
+.dish-swipe__btn {
+  flex: 1; padding: 14px 10px;
+  font-size: 15px; font-weight: 700;
+  border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink-body); cursor: pointer;
+}
+.dish-swipe__btn--pass:hover { border-color: var(--danger-line); color: var(--danger-ink); background: var(--danger-tint); }
+.dish-swipe__btn--want {
+  border-color: transparent; background: var(--green-strong); color: #fff;
+}
+.dish-swipe__btn--want:hover { background: var(--green); }
+
+.dish-swipe__hint { margin: 10px 0 0; font-size: 12px; color: var(--muted); text-align: center; }
+.dish-swipe__early {
+  margin-left: auto; padding: 2px 0;
+  font-size: 12px; font-weight: 700; color: var(--green-strong);
+  background: none; border: 0; cursor: pointer; text-decoration: underline;
+}
+.dish-swipe__count { gap: 10px; }
+
+/* ── the map ─────────────────────────────────────────────────────────── */
+
+.taste-map { padding-top: 18px; }
+.taste-map__lede { margin: 0 0 16px; font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.35; }
+.taste-map__dishes {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin: 0 0 14px; padding: 0; list-style: none;
+}
+.taste-map__dish { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.taste-map__dish-photo {
+  width: 100%; aspect-ratio: 1; border-radius: var(--radius);
+  background: var(--fill);
+}
+.taste-map__dish-kr { font-size: 13px; font-weight: 700; color: var(--ink); }
+.taste-map__dish-rom { font-size: 10px; color: var(--muted); }
+.taste-map__kinds {
+  margin: 0 0 16px; padding: 10px 12px;
+  font-size: 13px; font-weight: 700; color: var(--green-strong);
+  background: var(--green-tint); border-radius: var(--radius); text-align: center;
+}
+.taste-map__cta {
+  display: block; width: 100%; padding: 15px;
+  font-size: 16px; font-weight: 700; color: #fff;
+  background: var(--orange-strong); border: 0;
+  border-radius: var(--radius); cursor: pointer;
+}
+.taste-map__cta:hover { background: var(--orange); }
+.taste-map__foot { display: flex; gap: 14px; justify-content: center; margin-top: 14px; }
+.taste-map__again {
+  padding: 6px 10px; font-size: 13px; color: var(--muted);
+  background: none; border: 0; cursor: pointer; text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dish-card, .dish-card.is-flying, .dish-swipe__progress-fill { transition: none; }
+}
+
+/* The way in, on Explore. A button and not a card: the whole block is the
+   target, because the thing being offered is one gesture and asking somebody
+   to find a link inside it would be the friction this replaces. */
+.taste-lead {
+  display: flex; flex-direction: column; gap: 4px;
+  width: 100%; padding: 16px; text-align: left;
+  background: var(--green-tint);
+  border: 1px solid var(--green-tint);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+.taste-lead:hover { border-color: var(--green); }
+.taste-lead__kr { font-size: 12px; font-weight: 700; color: var(--green-strong); letter-spacing: 0.02em; }
+.taste-lead__title { font-size: 18px; font-weight: 800; color: var(--ink); line-height: 1.3; }
+.taste-lead__sub { font-size: 13px; color: var(--ink-body); line-height: 1.45; }
+
+/* The ask, after the map. Quiet on purpose — it is an offer to keep
+   something, not a gate in front of it. */
+.taste-map__keep {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 12px; padding: 12px 14px;
+  background: var(--fill); border-radius: var(--radius);
+}
+.taste-map__keep-text { flex: 1; margin: 0; font-size: 12px; color: var(--muted-strong); line-height: 1.4; }
+.taste-map__keep-cta {
+  flex: none; padding: 9px 16px;
+  font-size: 13px; font-weight: 700; color: var(--surface);
+  background: var(--ink); border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.taste-map__keep-cta:hover { background: var(--ink-body); }
+
+/* The photograph. object-fit because the generated files are 396×354 (1.12)
+   and the slot is 4:3 — a deck whose cards are different shapes reads as
+   broken, so the slot keeps its ratio and the picture is cropped into it
+   rather than the other way round. */
+.dish-card__img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  user-select: none; -webkit-user-drag: none;
+}
+/* Said on the card. Small, and legible — a disclosure nobody can read is not
+   one. Bottom-left, over a scrim so it holds on a light photograph too. */
+.dish-card__ai {
+  position: absolute; left: 8px; bottom: 8px;
+  padding: 3px 7px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
+  color: #fff; background: rgba(16, 24, 40, 0.55);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(2px);
+}
+.taste-map__dish-photo { position: relative; overflow: hidden; display: block; }
+.taste-map__dish-photo img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+
+/* The two headings inside the table list. The break between "yours" and
+   "the rest" has to be visible or the reordering reads as an unexplained
+   ranking — and an unexplained ranking is the thing this app's own rules
+   about unsourced claims exist to prevent, in a smaller way. */
+.table-list__head {
+  margin: 4px 0 -2px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--green-strong);
+}
+.table-list__head + .table-card { margin-top: 0; }
+.table-list__head:not(:first-child) { margin-top: 18px; color: var(--muted); }
+
+/* ── 내 입맛 지도에서 · the reader's own dishes, above the picker ────────── */
+.taste-tables { margin: 6px 0 18px; }
+.taste-tables__head { display: flex; align-items: baseline; gap: 8px; margin: 0 0 10px; }
+.taste-tables__kr { font-size: 15px; font-weight: 800; color: var(--ink); }
+.taste-tables__en { font-size: 12px; font-weight: 600; color: var(--green-strong); }
+
+/* The empty case, which is the one that matters: somebody has just answered
+   fourteen questions and there is nothing open for any of it. */
+.taste-tables__none {
+  padding: 16px;
+  background: var(--green-tint);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+.taste-tables__none-text { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.4; }
+.taste-tables__host {
+  display: inline-block; padding: 12px 22px;
+  font-size: 15px; font-weight: 700; color: #fff;
+  background: var(--green-strong); border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.taste-tables__host:hover { background: var(--green); }
+.taste-tables__none-why { margin: 10px 0 0; font-size: 12px; color: var(--muted-strong); line-height: 1.45; }
+
+/* The badge in the top-left. Round-masked because the file is a square JPEG
+   of a circular seal with a blurred backdrop in its corners — the mask is
+   what makes it a logo rather than a photograph of one. */
+.app-chrome__logo {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  margin-right: 2px;
+}
+
+/* ── 인스타그램 카드 · Explore ──────────────────────────────────────────
+   The whole row is the link. A card with a small "visit" button inside it
+   asks the reader to find the target twice. */
+.insta-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+}
+.insta-card:hover { border-color: var(--line-hover); background: var(--surface-hover); }
+.insta-card__qr {
+  width: 72px; height: 72px; flex: none;
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+.insta-card__body { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.insta-card__kr { font-size: 11px; font-weight: 700; color: var(--orange-ink); letter-spacing: 0.02em; }
+.insta-card__title { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.35; }
+.insta-card__handle { font-size: 12px; color: var(--muted); }
+.insta-card__go { flex: none; font-size: 16px; color: var(--muted); }
