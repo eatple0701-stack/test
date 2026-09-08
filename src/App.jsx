@@ -1250,6 +1250,7 @@ export default function App() {
             keeping the record is what needs an account. */}
         {!openThemeId && activeTab === 'journal' && (
           <JournalPanel
+            taste={taste}
             onRequireAuth={(door) => setAuthDoor(door)}
             bookmarks={bookmarks}
             companions={companions}

@@ -190,3 +190,97 @@ export function rankByTaste(tables = [], preferred = []) {
   }
   return { tables: [...mine, ...rest], preferredCount: mine.length };
 }
+
+// ── The type ────────────────────────────────────────────────────────────
+//
+// Three axes, asked for on 2026-09-07 as 음식 MBTI. Every one of them is read
+// off data that already exists; none of the three is a property invented for
+// this.
+//
+// A fourth axis was measured and dropped. `contains` looked like the material
+// for 뭍/바다 until it was run over the deck: 해물찜 came out 뭍 with an empty
+// list, and 보쌈 came out 바다 because oysters are served beside it. It is an
+// allergen declaration, not a recipe, and a type that told somebody who chose
+// 해물찜 that they prefer the land would have been wrong in the one way nobody
+// would report — it sounds like an opinion.
+//
+// So the third axis is about the answering rather than the dish. It is also
+// the most MBTI-shaped of the three: the other two say what somebody eats,
+// this one says how widely they say yes.
+
+/** The poles, as one letter each, in the order they are written. */
+export const TASTE_AXES = {
+  heat: { hot: 'H', mild: 'M' },
+  made: { table: 'T', served: 'S' },
+  breadth: { open: 'O', picky: 'P' },
+};
+
+/** Dishes that finish cooking in front of the people eating them. */
+const COOKED_AT_TABLE = new Set(['grill', 'stew']);
+const cookedAtTable = (dish) => COOKED_AT_TABLE.has(dish?.category);
+const carriesHeat = (dish) => (dish?.spice ?? 0) >= 1;
+
+/**
+ * The share of a list that answers true, or null for an empty list.
+ *
+ * Null rather than 0 so that "nothing to measure" and "none of them" stay
+ * different things — the deck is never empty in practice, but a caller that
+ * passes one should not be told its reader likes mild food.
+ */
+const shareOf = (list, predicate) =>
+  list.length ? list.filter(predicate).length / list.length : null;
+
+/**
+ * Which pole a set of choices leans to, against what the deck offered.
+ *
+ * Not a plain majority. The deck is 8 dishes with heat to 6 without, so
+ * somebody choosing at random lands on "likes it hot" more often than not,
+ * and a type that most people get is not a type. Measured against the deck's
+ * own balance, the answer means what it says: more of these than were going
+ * around.
+ *
+ * A reader who lands exactly on the deck's balance has shown no lean, and
+ * gets the quieter of the two labels rather than a coin toss.
+ */
+function leans(chosen, deck, predicate) {
+  const mine = shareOf(chosen, predicate);
+  const theirs = shareOf(deck, predicate);
+  if (mine === null || theirs === null) return false;
+  return mine > theirs;
+}
+
+/**
+ * How widely somebody says yes, from their own answers.
+ *
+ * Half is the line: a deck of fourteen dishes that all need a second person
+ * is not a menu to pick a favourite from, so saying yes to more than half of
+ * what was offered is the open answer.
+ */
+export const OPEN_SHARE = 0.5;
+
+/**
+ * The type, or null while there is not enough to call one.
+ *
+ * Null below MAP_MINIMUM for the same reason the map is: three yeses is the
+ * smallest number that is a taste rather than a tap, and naming somebody from
+ * one card is a party trick, not a reading.
+ */
+export function tasteType(taste, dishes = []) {
+  if (!canDrawMap(taste)) return null;
+  const byId = new Map((dishes ?? []).filter(d => d && d.id).map(d => [d.id, d]));
+  const chosen = (taste?.want ?? []).map(id => byId.get(id)).filter(Boolean);
+  if (chosen.length < MAP_MINIMUM) return null;
+  const deck = (dishes ?? []).filter(Boolean);
+
+  const answered = answeredIds(taste).length;
+  const heat = leans(chosen, deck, carriesHeat) ? 'hot' : 'mild';
+  const made = leans(chosen, deck, cookedAtTable) ? 'table' : 'served';
+  const breadth = answered > 0 && chosen.length / answered > OPEN_SHARE ? 'open' : 'picky';
+
+  return {
+    heat,
+    made,
+    breadth,
+    code: TASTE_AXES.heat[heat] + TASTE_AXES.made[made] + TASTE_AXES.breadth[breadth],
+  };
+}

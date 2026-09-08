@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
 import { traditionalMarkets } from '../data/experiences';
-import { menuById } from '../domain/catalog/menus.js';
+import { menuById, sharedOnlyMenus } from '../domain/catalog/menus.js';
+import { tasteMap, tasteType } from '../domain/policy/taste.js';
+import { tasteTypeLabel, tastePoleLabel } from '../domain/policy/dishLabels.js';
 import { isPast, didHappen } from '../domain/policy/table.js';
 import { isAccepted, isPending, hasLapsed } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
@@ -40,7 +42,7 @@ export default function JournalPanel({
   // companions, mapCenter and onOpenTables were declared here and never read.
   // App.jsx still passes companions, and journeyFromLegacy still reads it, so
   // the value is not dead everywhere — it is just dead on this screen.
-  bookmarks, onRestaurantClick, onNavigate, journey,
+  bookmarks, onRestaurantClick, onNavigate, journey, taste,
   attestations = [], visitedMarkets = [], profile, onProfileChange,
   onOpenSummary, onOpenTheme, domainJourney, auth, onSignOut, onRequireAuth,
   // What the app is allowed to claim about the last profile change.
@@ -48,6 +50,12 @@ export default function JournalPanel({
 }) {
   const say = useText();
   const locale = useLocale();
+  // Read over the deck people actually swipe, not the whole catalogue: the
+  // type measures a lean against what was offered, and offering it dishes
+  // nobody was shown would move the answer.
+  const tasteDeck = useMemo(() => sharedOnlyMenus(), []);
+  const myTaste = useMemo(() => tasteMap(taste, tasteDeck), [taste, tasteDeck]);
+  const myType = useMemo(() => tasteType(taste, tasteDeck), [taste, tasteDeck]);
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
@@ -551,6 +559,72 @@ export default function JournalPanel({
           </button>
         </div>
       )}
+
+      {/* 내 입맛, under the person and above the tools, because it is the
+          person: it is the only thing on this screen the holder made rather
+          than was given. Asked for on 2026-09-07 — the deck writes it on
+          메인 and 문화 and it was readable nowhere else, which meant a
+          traveller who wanted to see it again had to answer fourteen cards
+          again to find out.
+
+          Read-only here on purpose. The deck is where it is answered, and a
+          second place to change it is a second place for the two to disagree.
+
+          data/taste.js is localStorage, so a signed-in traveller on another
+          phone sees the empty half of this. Said in that line rather than
+          hidden, because a passport that quietly forgets is worse than one
+          that says where it keeps things. */}
+      <div className="journal-section">
+        <div className="journal-section-header">
+          <h3>{say('My taste', '내 입맛', 'Mi gusto', 'Mon goût', 'ذوقي', '我的口味', '私の好み')}</h3>
+        </div>
+
+        {myType ? (
+          <>
+            <p className="taste-type">
+              <span className="taste-type__code" translate="no">{myType.code}</span>
+              <span className="taste-type__name">{tasteTypeLabel(myType.code, locale)}</span>
+              <span className="taste-type__axes">
+                {[myType.heat, myType.made, myType.breadth]
+                  .map(pole => tastePoleLabel(pole, locale)).filter(Boolean).join(' · ')}
+              </span>
+            </p>
+            <ul className="taste-recap">
+              {myTaste.dishes.map(d => (
+                <li key={d.id} className="taste-recap__dish">
+                  <span className="taste-recap__kr" translate="no">{d.nameKo}</span>
+                  <span className="taste-recap__rom" translate="no">{d.romanization}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="taste-recap__where">
+              {say('Kept in this browser only — answering again on another phone starts a new one.',
+                '이 브라우저에만 저장됩니다. 다른 기기에서는 처음부터 다시 답하게 됩니다.',
+                'Se guarda solo en este navegador: en otro teléfono empieza de cero.',
+                'Conservé dans ce navigateur seulement : sur un autre téléphone, tout recommence.',
+                'يُحفظ في هذا المتصفّح وحده: على هاتف آخر يبدأ من جديد.',
+                '只存在这个浏览器里——换一部手机就要重新答。',
+                'このブラウザにだけ保存されます。別の端末では最初から答えることになります。')}
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="taste-recap__none">
+              {say('Fourteen cards, and the tables you would actually sit at come first afterwards.',
+                '카드 열네 장이면, 그다음부터 밥상 목록이 당신이 앉을 만한 것부터 나옵니다.',
+                'Catorce cartas, y después las mesas donde de verdad te sentarías van primero.',
+                'Quatorze cartes, et ensuite les tables où vous vous assiériez vraiment passent en premier.',
+                'أربع عشرة بطاقة، وبعدها تتقدّم الموائد التي قد تجلس إليها فعلًا.',
+                '十四张卡片，之后你真会去坐的饭桌会排在前面。',
+                'カードは十四枚。そのあとは、あなたが実際に座る食卓が先に並びます。')}
+            </p>
+            <button className="taste-recap__cta" type="button" onClick={() => onNavigate('main')}>
+              {say('Build my taste map', '입맛 지도 만들기', 'Crear mi mapa de sabores',
+                'Composer ma carte des goûts', 'اصنع خريطة ذوقي', '做我的口味地图', '好みの地図をつくる')}
+            </button>
+          </>
+        )}
+      </div>
 
       {/* The two tools, under the person they belong to. Both still work
           signed out — a guest sees the gate above and these below it, so the

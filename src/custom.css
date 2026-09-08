@@ -420,6 +420,53 @@ body {
 
 .taste-map { padding-top: 18px; }
 .taste-map__lede { margin: 0 0 16px; font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.35; }
+/* ── the type ─────────────────────────────────────────────────────────
+   The name is the result; the code is the shorthand somebody can carry
+   around, and the three chips under it say what was measured rather than
+   what it means. Nothing here asserts anything about the reader that the
+   fourteen cards did not. */
+.taste-type {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  margin: 0 0 16px; padding: 16px 14px;
+  background: var(--orange-tint); border: 1px solid var(--orange-line);
+  border-radius: var(--radius-lg); text-align: center;
+}
+.taste-type__code {
+  font-size: 12px; font-weight: 800; letter-spacing: 0.22em;
+  color: var(--orange-strong);
+}
+.taste-type__name {
+  font-size: 17px; font-weight: 800; line-height: 1.3; color: var(--ink-title);
+  text-wrap: balance;
+}
+.taste-type__axes { font-size: 12px; color: var(--muted-strong); }
+
+/* The same type card in the passport, plus the short recap under it. The
+   card is deliberately the one class in both places: a reader who met their
+   type on 메인 has to recognise it here, and two drawings of one result is
+   how somebody ends up wondering whether they are the same thing. */
+.taste-recap {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin: 0 0 10px; padding: 0; list-style: none;
+}
+.taste-recap__dish {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 7px 11px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.taste-recap__kr { font-size: 13px; font-weight: 700; color: var(--ink); }
+.taste-recap__rom { font-size: 10px; color: var(--muted); }
+.taste-recap__where, .taste-recap__none {
+  margin: 0; font-size: 12px; line-height: 1.5; color: var(--muted-strong);
+}
+.taste-recap__cta {
+  margin-top: 10px; min-height: 44px; padding: 12px 22px;
+  font-size: 15px; font-weight: 700; color: #fff;
+  background: var(--accent-strong); border: 0;
+  border-radius: var(--radius); cursor: pointer;
+}
+
 .taste-map__dishes {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
   margin: 0 0 14px; padding: 0; list-style: none;
@@ -577,3 +624,13 @@ body {
 .insta-card__title { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.35; }
 .insta-card__handle { font-size: 12px; color: var(--muted); }
 .insta-card__go { flex: none; font-size: 16px; color: var(--muted); }
+
+/* The same card, on the screen that has room for it. The rail gives every
+   slide the hero’s height, so this one had 600px of air around a 109px card.
+   A bigger code is the honest way to spend it: the card’s own note says the
+   QR is for a laptop and for holding the phone out to somebody else, and both
+   of those want it larger than a thumbnail. There is no feed screenshot to
+   show instead — instagram_eatple_project.jpg turned out to be this same code
+   at a larger size, which is worth writing down so nobody looks twice. */
+.main-band--insta .insta-card { padding: 18px; }
+.main-band--insta .insta-card__qr { width: 120px; height: 120px; }

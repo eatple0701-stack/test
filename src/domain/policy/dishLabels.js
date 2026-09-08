@@ -22,6 +22,7 @@
 
 import { CATEGORY_LABEL, CONTAINS_LABEL } from '../catalog/menus.js';
 import { LOCALE } from './locale.js';
+import { TASTE_TYPES, TASTE_POLES } from '../../content/tasteTypes.js';
 
 const pick = (locale, t) => {
   if (locale === LOCALE.KO) return t.ko ?? t.kr ?? t.en;
@@ -185,4 +186,23 @@ export function conflictLine(conflicts, locale) {
     zh: `你说过你不吃${items}——你还是可以摆这张桌子，只是不会全都吃。`,
     ja: `${items}は食べないとおっしゃっていました——それでもこの食卓は開けます。ただ、全部は召し上がらないというだけです。`,
   });
+}
+
+
+/**
+ * The name of a taste type, in the reader’s language.
+ *
+ * Through the same pick() as every other label here, so a type is read the
+ * way a category chip is read and there is one place that knows what a
+ * missing translation falls back to.
+ */
+export function tasteTypeLabel(code, locale) {
+  const t = TASTE_TYPES[code];
+  return t ? pick(locale, t) ?? '' : '';
+}
+
+/** One pole of one axis — the chips shown beside the name. */
+export function tastePoleLabel(pole, locale) {
+  const t = TASTE_POLES[pole];
+  return t ? pick(locale, t) ?? '' : '';
 }

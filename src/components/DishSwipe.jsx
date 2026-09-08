@@ -2,10 +2,11 @@ import React, { useMemo, useRef, useState } from 'react';
 import { menus, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import {
   VERDICT, swipeVerdict, buildDeck, emptyTaste, recordVerdict,
-  deckProgress, nextCard, tasteMap, canDrawMap,
+  deckProgress, nextCard, tasteMap, canDrawMap, tasteType,
 } from '../domain/policy/taste.js';
+import { tasteTypeLabel, tastePoleLabel } from '../domain/policy/dishLabels.js';
 import { getStoredTaste, storeTaste, clearTaste } from '../data/taste.js';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
 
 // 입맛 지도 — one dish at a time, and a yes or a no.
 //
@@ -43,6 +44,7 @@ export default function DishSwipe({
   inline = false, sharedOnly = true,
 }) {
   const say = useText();
+  const locale = useLocale();
   const deck = useMemo(() => buildDeck(menus, { sharedOnly }), [sharedOnly]);
   // Starts from what is stored, so leaving the deck and coming back is not
   // starting over — and so the Tables screen has something to read. Written
@@ -67,6 +69,10 @@ export default function DishSwipe({
   const progress = deckProgress(taste, deck.length);
   const done = showMap || !card;
   const map = useMemo(() => tasteMap(taste, menus), [taste]);
+  // The type is read from the same answers the map is, over the same deck the
+  // cards came from — sharedOnlyMenus, not the whole catalogue, or the shares
+  // it measures against would be taken from dishes nobody was ever shown.
+  const type = useMemo(() => tasteType(taste, deck), [taste, deck]);
 
   // The verdict the current drag would land on, for the two hints over the
   // card. Reading it from the same function the release reads is the point:
@@ -288,6 +294,21 @@ export default function DishSwipe({
                   'Los has pasado todos, y eso también es una respuesta.', 'Vous les avez tous passés — c’est une réponse aussi.',
                   'تجاوزتها كلّها — وهذا جواب أيضًا.', '你全都跳过了——这也是一种答案。', 'すべて見送りましたね。それもひとつの答えです。')}
             </p>
+
+            {/* The type, before the dishes, because it is what the fourteen
+                answers came to. The three chips beside it are the axes it was
+                read from and not a description of it — they say what was
+                measured, which is the only thing this screen knows. */}
+            {type && (
+              <p className="taste-type">
+                <span className="taste-type__code" translate="no">{type.code}</span>
+                <span className="taste-type__name">{tasteTypeLabel(type.code, locale)}</span>
+                <span className="taste-type__axes">
+                  {[type.heat, type.made, type.breadth]
+                    .map(pole => tastePoleLabel(pole, locale)).filter(Boolean).join(' · ')}
+                </span>
+              </p>
+            )}
 
             {map.count > 0 && (
               <>

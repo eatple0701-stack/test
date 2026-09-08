@@ -84,8 +84,11 @@ test('the front page says every hero word in both languages', () => {
   // would have set 33px section type on a block that is deliberately quieter
   // than the bands below it. The dish tiles' band went on 2026-09-04, merged
   // into the group cards, which open onto those same dishes now.
-  assert.equal(main.split('main-band__title-kr').length - 1, 2);
-  assert.equal(main.split('main-band__title-en').length - 1, 2);
+  // Three from 2026-09-07: the rail took a fourth screen, for the Instagram
+  // account, and a screen on the rail carries a section heading like the two
+  // already on it.
+  assert.equal(main.split('main-band__title-kr').length - 1, 3);
+  assert.equal(main.split('main-band__title-en').length - 1, 3);
 
   // The merged section's subtitle — the dish band's old heading, kept as the
   // line under the six cards. Asserted here so a heading that changed class

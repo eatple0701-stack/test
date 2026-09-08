@@ -55,13 +55,13 @@ const SLIDE_MS = 5000;
 
 // Three screens at the top: the hero, the six categories, and what keeps a
 // table safe. Named in deckLabels, which is also the rail’s controls.
-const DECK_COUNT = 3;
+const DECK_COUNT = 4;
 
 // Four children, not three. The last is a second copy of the hero, so that
 // coming back to the first screen is a step forward onto something identical
 // rather than a slide back across the middle one. railLoopStep in rail.js is
 // what knows to put the rail quietly back on the real one afterwards.
-const DECK_SLIDES = 4;
+const DECK_SLIDES = 5;
 
 // The centimetre asked for on 2026-09-07, added under the first slide so the
 // hero has room to breathe — 1cm is 37.8 CSS pixels at the 96dpi the unit is
@@ -392,6 +392,7 @@ export default function MainTab({
     say('About', '소개', 'Qué es', 'À propos', 'نبذة', '介绍', '紹介'),
     say('Korean food', '한식', 'Comida coreana', 'Cuisine coréenne', 'الطعام الكوري', '韩餐', '韓国料理'),
     say('Safety', '안전', 'Seguridad', 'Sécurité', 'الأمان', '安全', '安全'),
+    say('Instagram', '인스타그램', 'Instagram', 'Instagram', 'إنستغرام', 'Instagram', 'Instagram'),
   ];
 
   // Drawn twice: once at the top for real, and once as the last child of the
@@ -830,6 +831,58 @@ export default function MainTab({
                 '饭桌列表里还有一个筛选，只看已经有其他女性参加的饭桌。',
                 '食卓の一覧には、ほかの女性がすでに参加している食卓だけを見る絞り込みもあります。')}
             </p>
+          </div>
+        </div>
+        <div
+          className="main-deck__slide"
+          role="group"
+          aria-label={deckLabels[3]}
+        >
+          {/* ---- Where the rest of it is ----
+
+                  Asked for on 2026-09-07: bring people to the curation. The
+                  same card already ends Explore's reading, and it stays
+                  there — that one is offered to somebody who has just
+                  finished a story and wants another, which is a different
+                  moment from this one and a better one for the ask. This is
+                  for the reader who never got that far, which on a page
+                  measured at eight screens is most of them.
+
+                  Link first and QR second, for the reason the Explore card
+                  gives: nobody can scan a code on the phone they are holding.
+                  The code is for a laptop, and for holding the phone out to
+                  somebody else — which is the point of a project about
+                  eating together. ---- */}
+          <div className="main-band main-band--insta">
+            <h2 className="main-band__title">
+              <span className="main-band__title-kr" translate="no">더 있습니다, 인스타그램에</span>
+              <span className="main-band__title-en">
+                {say('There is more of it on Instagram', null,
+                  'Hay más en Instagram', 'Il y en a plus sur Instagram',
+                  'هناك المزيد على إنستغرام', '更多在 Instagram 上', 'つづきは Instagram に')}
+              </span>
+            </h2>
+            <a
+              className="insta-card"
+              href="https://instagram.com/eat.ple_project"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img className="insta-card__qr" src="/images/eatple-instagram-qr.jpg" alt="" width="72" height="72" loading="lazy" />
+              <span className="insta-card__body">
+                <span className="insta-card__kr" translate="no">인스타그램</span>
+                <span className="insta-card__title">
+                  {say('The dishes, the places, and what we found out about them',
+                    '요리와 장소, 그리고 그것들에 대해 알아낸 것들',
+                    'Los platos, los sitios y lo que averiguamos sobre ellos',
+                    'Les plats, les adresses, et ce que nous avons appris sur eux',
+                    'الأطباق والأماكن وما عرفناه عنها',
+                    '菜、地方，以及我们打听到的事',
+                    '料理と場所、そしてそれについて分かったこと')}
+                </span>
+                <span className="insta-card__handle" translate="no" data-no-locale>@eat.ple_project</span>
+              </span>
+            </a>
           </div>
         </div>
         {/* The copy. aria-hidden and inert together, so the whole of it —
