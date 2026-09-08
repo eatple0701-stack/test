@@ -3,8 +3,11 @@ import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
 import { traditionalMarkets } from '../data/experiences';
 import { menuById, sharedOnlyMenus } from '../domain/catalog/menus.js';
-import { tasteMap, tasteType } from '../domain/policy/taste.js';
-import { tasteTypeLabel, tastePoleLabel } from '../domain/policy/dishLabels.js';
+import { tasteMap } from '../domain/policy/taste.js';
+import { mbtiType } from '../domain/policy/foodMbti.js';
+import { getStoredMbti } from '../data/foodMbti.js';
+import { MBTI_AXES } from '../content/foodMbti.js';
+import { mbtiTypeLabel, mbtiPoleLabel, mbtiAxisLabel } from '../domain/policy/dishLabels.js';
 import { isPast, didHappen } from '../domain/policy/table.js';
 import { isAccepted, isPending, hasLapsed } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
@@ -55,7 +58,10 @@ export default function JournalPanel({
   // nobody was shown would move the answer.
   const tasteDeck = useMemo(() => sharedOnlyMenus(), []);
   const myTaste = useMemo(() => tasteMap(taste, tasteDeck), [taste, tasteDeck]);
-  const myType = useMemo(() => tasteType(taste, tasteDeck), [taste, tasteDeck]);
+  // Read on mount rather than handed down: the test writes to localStorage
+  // from a sheet three components away, and this screen is re-rendered from
+  // scratch every time somebody opens the tab.
+  const myType = useMemo(() => mbtiType(getStoredMbti()), []);
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
@@ -583,10 +589,11 @@ export default function JournalPanel({
           <>
             <p className="taste-type">
               <span className="taste-type__code" translate="no">{myType.code}</span>
-              <span className="taste-type__name">{tasteTypeLabel(myType.code, locale)}</span>
+              <span className="taste-type__name">{mbtiTypeLabel(myType.code, locale)}</span>
               <span className="taste-type__axes">
-                {[myType.heat, myType.made, myType.breadth]
-                  .map(pole => tastePoleLabel(pole, locale)).filter(Boolean).join(' · ')}
+                {MBTI_AXES.map(axis =>
+                  `${mbtiAxisLabel(axis.id, locale)}: ${mbtiPoleLabel(axis.id, myType.axes[axis.id], locale)}`)
+                  .filter(Boolean).join(' · ')}
               </span>
             </p>
             <ul className="taste-recap">
@@ -611,14 +618,14 @@ export default function JournalPanel({
           <>
             <p className="taste-recap__none">
               {say('Fourteen cards, and the tables you would actually sit at come first afterwards.',
-                '카드 열네 장이면, 그다음부터 밥상 목록이 당신이 앉을 만한 것부터 나옵니다.',
+                '카드 열네 장을 넘기면 지도가, 거기서 검사를 받으면 유형이 나옵니다.',
                 'Catorce cartas, y después las mesas donde de verdad te sentarías van primero.',
                 'Quatorze cartes, et ensuite les tables où vous vous assiériez vraiment passent en premier.',
                 'أربع عشرة بطاقة، وبعدها تتقدّم الموائد التي قد تجلس إليها فعلًا.',
                 '十四张卡片，之后你真会去坐的饭桌会排在前面。',
                 'カードは十四枚。そのあとは、あなたが実際に座る食卓が先に並びます。')}
             </p>
-            <button className="taste-recap__cta" type="button" onClick={() => onNavigate('main')}>
+            <button className="taste-recap__cta" type="button" onClick={() => onNavigate('match')}>
               {say('Build my taste map', '입맛 지도 만들기', 'Crear mi mapa de sabores',
                 'Composer ma carte des goûts', 'اصنع خريطة ذوقي', '做我的口味地图', '好みの地図をつくる')}
             </button>

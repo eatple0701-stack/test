@@ -2,11 +2,11 @@ import React, { useMemo, useRef, useState } from 'react';
 import { menus, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import {
   VERDICT, swipeVerdict, buildDeck, emptyTaste, recordVerdict,
-  deckProgress, nextCard, tasteMap, canDrawMap, tasteType,
+  deckProgress, nextCard, tasteMap, canDrawMap,
 } from '../domain/policy/taste.js';
-import { tasteTypeLabel, tastePoleLabel } from '../domain/policy/dishLabels.js';
+import FoodMbti from './FoodMbti';
 import { getStoredTaste, storeTaste, clearTaste } from '../data/taste.js';
-import { useText, useLocale } from './localeText.js';
+import { useText } from './localeText.js';
 
 // 입맛 지도 — one dish at a time, and a yes or a no.
 //
@@ -44,7 +44,6 @@ export default function DishSwipe({
   inline = false, sharedOnly = true,
 }) {
   const say = useText();
-  const locale = useLocale();
   const deck = useMemo(() => buildDeck(menus, { sharedOnly }), [sharedOnly]);
   // Starts from what is stored, so leaving the deck and coming back is not
   // starting over — and so the Tables screen has something to read. Written
@@ -69,10 +68,11 @@ export default function DishSwipe({
   const progress = deckProgress(taste, deck.length);
   const done = showMap || !card;
   const map = useMemo(() => tasteMap(taste, menus), [taste]);
-  // The type is read from the same answers the map is, over the same deck the
-  // cards came from — sharedOnlyMenus, not the whole catalogue, or the shares
-  // it measures against would be taken from dishes nobody was ever shown.
-  const type = useMemo(() => tasteType(taste, deck), [taste, deck]);
+  // The test is a door off this screen rather than a panel inside it: twelve
+  // more questions under a result somebody has just been given is a second
+  // form, and the point of showing the map first is that there is now
+  // something worth adding to.
+  const [mbtiOpen, setMbtiOpen] = useState(false);
 
   // The verdict the current drag would land on, for the two hints over the
   // card. Reading it from the same function the release reads is the point:
@@ -295,21 +295,6 @@ export default function DishSwipe({
                   'تجاوزتها كلّها — وهذا جواب أيضًا.', '你全都跳过了——这也是一种答案。', 'すべて見送りましたね。それもひとつの答えです。')}
             </p>
 
-            {/* The type, before the dishes, because it is what the fourteen
-                answers came to. The three chips beside it are the axes it was
-                read from and not a description of it — they say what was
-                measured, which is the only thing this screen knows. */}
-            {type && (
-              <p className="taste-type">
-                <span className="taste-type__code" translate="no">{type.code}</span>
-                <span className="taste-type__name">{tasteTypeLabel(type.code, locale)}</span>
-                <span className="taste-type__axes">
-                  {[type.heat, type.made, type.breadth]
-                    .map(pole => tastePoleLabel(pole, locale)).filter(Boolean).join(' · ')}
-                </span>
-              </p>
-            )}
-
             {map.count > 0 && (
               <>
                 <ul className="taste-map__dishes">
@@ -336,6 +321,16 @@ export default function DishSwipe({
                   {say('See the tables open for these', '이 음식들로 열려 있는 밥상 보기',
                     'Ver las mesas abiertas para esto', 'Voir les tables ouvertes pour ces plats',
                     'شاهد الموائد المفتوحة لهذه الأطباق', '看看为这些菜开着的饭桌', 'これらで開いている食卓を見る')}
+                </button>
+
+                {/* Where the type lives in this build. The map says what
+                    somebody picked; the test asks who they are at a table,
+                    and the two are different questions with different
+                    answers. Offered after the map and never before it. */}
+                <button type="button" className="taste-map__mbti" onClick={() => setMbtiOpen(true)}>
+                  {say('Take the food MBTI', '음식 MBTI 검사하기', 'Haz el MBTI gastronómico',
+                    'Faire le MBTI culinaire', 'أجرِ اختبار إم بي تي آي للطعام',
+                    '做饮食 MBTI 测试', 'フード MBTI をやってみる')}
                 </button>
 
                 {/* The ask, and it is here rather than on the way in.
@@ -382,11 +377,18 @@ export default function DishSwipe({
   // Inline on Main, where it is the first thing on the page and there is
   // nothing to dismiss. The overlay is kept for Explore's entry, which opens
   // over a page somebody was already reading.
-  if (inline) return <section className="dish-swipe-inline-wrap" aria-label={label}>{body}</section>;
+  const withSheet = (
+    <>
+      {body}
+      {mbtiOpen && <FoodMbti onClose={() => setMbtiOpen(false)} />}
+    </>
+  );
+
+  if (inline) return <section className="dish-swipe-inline-wrap" aria-label={label}>{withSheet}</section>;
 
   return (
     <div className="match-modal-backdrop dish-swipe-backdrop" role="dialog" aria-label={label} onClick={onClose}>
-      {body}
+      {withSheet}
     </div>
   );
 }

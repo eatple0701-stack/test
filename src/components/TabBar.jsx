@@ -66,7 +66,11 @@ const tabs = [
   // Meetup landing the team studied. English by default, like its four
   // siblings: the audience reads English, and the calendar already taught us
   // what one Korean-only label does to the person it matters most to.
-  { id: 'main', label: 'Main', kr: '메인', es: 'Inicio', fr: 'Accueil', ar: 'الرئيسية', zh: '首页', ja: 'ホーム' },
+  // Renamed from 메인 on 2026-09-07, when the deck moved to 밥상 and '/'
+  // with it. A tab called Main that is not what the app opens on is a
+  // label arguing with the address bar; what is left on it is the pitch,
+  // how a table happens, what keeps one safe, and where the rest of it is.
+  { id: 'main', label: 'About', kr: '소개', es: 'Acerca de', fr: 'À propos', ar: 'نبذة', zh: '关于', ja: '紹介' },
   { id: 'home', label: 'Explore', kr: '문화', es: 'Cultura', fr: 'Culture', ar: 'ثقافة', zh: '文化', ja: '文化' },
   { id: 'match', label: 'Tables', kr: '밥상', es: 'Mesas', fr: 'Tables', ar: 'موائد', zh: '饭桌', ja: '食卓' },
   { id: 'places', label: 'Places', kr: '장소', es: 'Sitios', fr: 'Lieux', ar: 'أماكن', zh: '地点', ja: '場所' },

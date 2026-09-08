@@ -15,15 +15,21 @@ const screen = (over = {}) => ({
 });
 
 test('every screen has an address', () => {
-  // '/' belongs to the Main page now (2026-08-06) — the front door built on
-  // the Meetup landing the team studied. It held the table list for two days
-  // before that, so '/tables' is no longer an alias but the list's own
-  // address, and old links to either keep landing where they meant to.
+  // '/' has changed hands twice. It was the table list, then the Main page
+  // from 2026-08-06, and the list again from 2026-09-07 — the deck that asks
+  // what somebody wants to eat sits on that screen now, so the objection that
+  // sent it away ("a list is not a pitch") no longer describes it.
+  //
+  // Every path either side of those moves still parses. That is the point of
+  // this test: '/tables' and '/main' were canonical once and are shared in
+  // messages that outlive a rename.
   assert.equal(pathFor(screen()), '/explore');
-  assert.equal(pathFor(screen({ activeTab: 'main' })), '/');
-  assert.equal(stateFromPath('/').activeTab, 'main');
-  assert.equal(pathFor(screen({ activeTab: 'match' })), '/tables');
+  assert.equal(pathFor(screen({ activeTab: 'match' })), '/');
+  assert.equal(stateFromPath('/').activeTab, 'match');
   assert.equal(stateFromPath('/tables').activeTab, 'match');
+  assert.equal(pathFor(screen({ activeTab: 'main' })), '/about');
+  assert.equal(stateFromPath('/about').activeTab, 'main');
+  assert.equal(stateFromPath('/main').activeTab, 'main');
   assert.equal(pathFor(screen({ activeTab: 'places' })), '/places');
   assert.equal(pathFor(screen({ activeTab: 'journal' })), '/passport');
   assert.equal(pathFor(screen({ activeTab: 'settings' })), '/settings');

@@ -10,7 +10,6 @@ import { MAIN_PHOTOS } from '../content/mainPhotos.js';
 import { SAFETY_POINTS } from '../content/safetyPromise.js';
 import TablesLead from './TablesLead';
 import DishSheet from './DishSheet';
-import DishSwipe from './DishSwipe';
 import { ChevronRightIcon, XIcon, PauseIcon, PlayIcon } from './Icons';
 import { useText, useLocale } from './localeText.js';
 
@@ -116,7 +115,7 @@ const Squiggle = ({ className }) => (
 
 export default function MainTab({
   auth, profile, onNavigate, onOpenTable, onCreateTable, onOpenAuth, onPickGroup, onPickDish,
-  onRequestTable, onTasteChange,
+  onRequestTable,
 }) {
   const say = useText();
   const locale = useLocale();
@@ -389,7 +388,9 @@ export default function MainTab({
     return () => clearInterval(id);
   }, [deckTurning]);   // eslint-disable-line react-hooks/exhaustive-deps
   const deckLabels = [
-    say('About', '소개', 'Qué es', 'À propos', 'نبذة', '介绍', '紹介'),
+    // Was 소개 until the tab took that name on 2026-09-07. This screen is
+    // the brand and the promise, so it carries the name.
+    say('Eatple', '밥친구', 'Eatple', 'Eatple', 'Eatple', 'Eatple', 'Eatple'),
     say('Korean food', '한식', 'Comida coreana', 'Cuisine coréenne', 'الطعام الكوري', '韩餐', '韓国料理'),
     say('Safety', '안전', 'Seguridad', 'Sécurité', 'الأمان', '安全', '安全'),
     say('Instagram', '인스타그램', 'Instagram', 'Instagram', 'إنستغرام', 'Instagram', 'Instagram'),
@@ -563,25 +564,6 @@ export default function MainTab({
       aria-label={say('Eatple home', '밥친구 메인', 'Inicio de Eatple', "Accueil d'Eatple", 'الصفحة الرئيسية لـ Eatple', 'Eatple 首页', 'Eatple のホーム')}
     >
 
-      {/* ---- 입맛 지도, above everything ----
-
-              Asked for on 2026-09-07: no second tap to reach it, and the
-              login prompt after it rather than before. So it opens the page.
-
-              Above the rail and not inside it. The rail gives all three of
-              its slides one height taken from the hero (domain/policy/rail.js,
-              railTallest), so a 550px deck dropped into slide one would have
-              added 550px of blank to the six categories and to the safety
-              screen as well. Outside it, the rail's arithmetic is untouched
-              and the three screens keep the heights they were measured at.
-              ---- */}
-      <DishSwipe
-        inline
-        auth={auth}
-        onOpenAuth={onOpenAuth}
-        onTasteChange={onTasteChange}
-        onOpenTables={() => onNavigate('match')}
-      />
 
       {/* ---- The three screens at the top, on one rail ----
 

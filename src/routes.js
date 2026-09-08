@@ -29,7 +29,9 @@ export function pathFor({ activeTab, tableView, openThemeId, restaurantId }) {
       if (tableView?.screen === 'detail' && tableView.tableId) return `/tables/${tableView.tableId}`;
       if (tableView?.screen === 'create') return '/tables/new';
       if (tableView?.screen === 'request') return '/tables/find';
-      return '/tables';
+      // The landing again, from 2026-09-07. '/tables' still parses, so every
+      // link shared while that was the canonical path still opens the list.
+      return '/';
     // The landing. On 2026-08-04 '/' was given to the table list, against
     // Meetup's logged-out splash, on the grounds that the meals make the
     // pitch better than a sentence about them. On 2026-08-06 the owner
@@ -37,7 +39,7 @@ export function pathFor({ activeTab, tableView, openThemeId, restaurantId }) {
     // and the front door became a Main page that shows the tables *and* the
     // dishes, the steps and the ways in. '/tables' keeps parsing, so every
     // link shared under the old rule still lands on the list it named.
-    case 'main': return '/';
+    case 'main': return '/about';
     case 'places': return '/places';
     case 'journal': return '/passport';
     case 'settings': return '/settings';
@@ -59,10 +61,18 @@ export function stateFromPath(pathname) {
   };
 
   switch (head) {
-    // The landing. '' is what splitting '/' produces, so a bare visit lands
-    // on the Main page — see pathFor for the 8/6 reversal that put it there.
+    // The landing, and it has moved twice. '/' was the table list until
+    // 2026-08-06, when the owner took it back for the Main page on the
+    // grounds that with one real table a list is not a pitch. It returns to
+    // the tables on 2026-09-07 because that objection is answered: the deck
+    // that asks what somebody wants to eat lives on that screen now, so a
+    // visitor arriving at '/' is asked a question rather than handed a short
+    // list. What used to be Main is 소개, and it keeps a path of its own.
     case '':
+      return { ...base, activeTab: 'match' };
+    // '/main' keeps parsing, for links shared before the rename.
     case 'main':
+    case 'about':
       return { ...base, activeTab: 'main' };
     case 'explore':
       return base;

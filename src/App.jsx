@@ -1086,7 +1086,6 @@ export default function App() {
             onOpenAuth={(mode) => setAuthMode(mode)}
             /* The deck writes straight to localStorage; this is how the rest
                of the app hears about it without polling storage. */
-            onTasteChange={() => setTaste(getStoredTaste())}
             /* The matching flow: a category card on the front page opens the
                tables screen already filtered to that category. */
             onPickGroup={(gid) => {
@@ -1157,6 +1156,7 @@ export default function App() {
                tables is an empty screen, and the answer to "I want 감자탕" has
                to be able to be "not this week, but here is what there is". */
             preferredMenus={preferredMenus}
+            onTasteChange={() => setTaste(getStoredTaste())}
             profile={profile}
             auth={auth}
             onOpenAuth={(mode) => setAuthMode(mode)}

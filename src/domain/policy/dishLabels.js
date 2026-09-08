@@ -23,6 +23,8 @@
 import { CATEGORY_LABEL, CONTAINS_LABEL } from '../catalog/menus.js';
 import { LOCALE } from './locale.js';
 import { TASTE_TYPES, TASTE_POLES } from '../../content/tasteTypes.js';
+import { MBTI_TYPES } from '../../content/foodMbtiTypes.js';
+import { MBTI_AXES } from '../../content/foodMbti.js';
 
 const pick = (locale, t) => {
   if (locale === LOCALE.KO) return t.ko ?? t.kr ?? t.en;
@@ -205,4 +207,28 @@ export function tasteTypeLabel(code, locale) {
 export function tastePoleLabel(pole, locale) {
   const t = TASTE_POLES[pole];
   return t ? pick(locale, t) ?? '' : '';
+}
+
+/**
+ * The name of a 음식 MBTI type, in the reader's language.
+ *
+ * Same pick() as every other label in this file, so one place decides what a
+ * missing translation falls back to.
+ */
+export function mbtiTypeLabel(code, locale) {
+  const t = MBTI_TYPES[code];
+  return t ? pick(locale, t) ?? '' : '';
+}
+
+/** One pole of one axis — the chips shown under the name. */
+export function mbtiPoleLabel(axisId, pole, locale) {
+  const axis = MBTI_AXES.find(a => a.id === axisId);
+  const t = axis?.poleLabel?.[pole];
+  return t ? pick(locale, t) ?? '' : '';
+}
+
+/** An axis's own name, for the line above its chip. */
+export function mbtiAxisLabel(axisId, locale) {
+  const axis = MBTI_AXES.find(a => a.id === axisId);
+  return axis ? pick(locale, axis.label) ?? '' : '';
 }

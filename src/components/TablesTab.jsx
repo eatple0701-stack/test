@@ -8,6 +8,7 @@ import {
   listTables, listAllSignups, listBlocks, seedSampleTables, tablesWithWoman,
 } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
+import DishSwipe from './DishSwipe';
 import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
 import { languageLine } from '../domain/catalog/languages.js';
 import { visibleTables } from '../domain/policy/blocking.js';
@@ -56,7 +57,7 @@ const dayLabel = (date) => {
 // onOpenPassport is gone with the top bar it served: the way to your own
 // Passport is the chip in the app chrome now, on every screen rather than
 // this one.
-export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, initialGroup = null, initialMenu = null, preferredMenus = [] }) {
+export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, onTasteChange, initialGroup = null, initialMenu = null, preferredMenus = [] }) {
   const say = useText();
   const locale = useLocale();
   const [tables, setTables] = useState(null);
@@ -569,6 +570,26 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           </>
         )}
       </header>
+
+      {/* ---- 입맛 지도, moved here from 소개 on 2026-09-07 ----
+
+              '/' opens on this screen now, so this is the first thing a
+              visitor meets: a question rather than a list. That is the whole
+              argument for the move — the front page had grown past what one
+              screen can ask, and the deck's answer is read on this screen
+              anyway, further down, where the tables it names are.
+
+              Its CTA scrolls rather than navigates. On 소개 it sent the reader
+              to the tables; here they are already underneath it, and a button
+              that navigates to the screen you are on does nothing a reader
+              can see. ---- */}
+      <DishSwipe
+        inline
+        auth={auth}
+        onOpenAuth={onOpenAuth}
+        onTasteChange={onTasteChange}
+        onOpenTables={() => document.querySelector('.table-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+      />
 
       {/* The explaining used to stand here, between the hero and the tables,
           and it cost a guest 1.7 screens of scrolling before they saw a
