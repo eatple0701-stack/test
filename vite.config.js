@@ -18,6 +18,12 @@ export default defineConfig({
     // than opened with `true`, so this allows the three services that hand
     // out throwaway hostnames and nothing else. Dev server only — nothing
     // here is in the built bundle.
-    allowedHosts: [".lhr.life", ".trycloudflare.com", ".loca.lt", ".serveo.net"],
+    allowedHosts: [
+      ".lhr.life", ".trycloudflare.com", ".loca.lt",
+      // serveo hands out hostnames under serveousercontent.com, not under
+      // its own domain — named on 2026-09-08 after a tunnel came back 403
+      // with Vite naming the exact host it wanted added.
+      ".serveo.net", ".serveousercontent.com",
+    ],
   },
 })
