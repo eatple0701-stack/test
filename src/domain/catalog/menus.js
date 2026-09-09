@@ -240,7 +240,7 @@ export const menus = [
     // 'the first round of a 회식 — the after-work dinner', in its culture note.
     eatenAt: ['evening'],
     spice: 0,
-    zones: ['Jongno, Seoul', 'Mapo, Seoul', 'Gangnam, Seoul'],
+    zones: ['종로', '마포', '강남'],
   },
   {
     id: 'dakgalbi',
@@ -295,6 +295,14 @@ export const menus = [
       "腌好的鸡肉、卷心菜和年糕在你面前下锅。肉吃完之后，用锅里剩下的料炒饭——常客真正冲着来的就是这第二道。",
     howItWorksJa:
       "下味をつけた鶏肉とキャベツとトッポキ餅が目の前で炒められます。肉がなくなったら、残った汁でご飯を炒める——常連が目当てにしているのはこの二皿目のほうです。",
+    storySources: ['encykorea-dakgalbi'],
+    story: 'It was a tavern dish in Chuncheon at the end of the 1960s: a man named Kim Yeong-seok, who had been grilling pork, marinated chicken instead and sold it as 닭불고기. A portion cost about a hundred won, which is why the nicknames stuck — 대학생갈비, student\'s ribs, and 서민갈비, ordinary people\'s ribs. Through the 1970s it filled the back lanes behind Chuncheon\'s Myeongdong, feeding soldiers on leave and students who wanted to eat a lot for very little. Chuncheon already had the poultry farms and the slaughterhouses; the dish grew where the chickens were.',
+    storyKo: '1960년대 말 춘천의 한 선술집에서 시작됐습니다. 돼지구이를 팔던 김영석이라는 사람이 대신 닭을 양념에 재워 \'닭불고기\'로 내놓은 것이 처음이었어요. 한 대에 100원쯤 했고, 그래서 별명이 붙었습니다 — \'대학생갈비\', 그리고 \'서민갈비\'. 1970년대에는 춘천 명동 뒷골목을 가득 채우며 휴가 나온 군인과 대학생들을 먹였습니다. 적은 돈으로 배불리 먹을 수 있는 음식이었으니까요. 춘천에는 이미 양계장과 도계장이 많았습니다. 이 음식은 닭이 있는 곳에서 자랐습니다.',
+    storyEs: 'Fue un plato de taberna en Chuncheon a finales de los años sesenta: un hombre llamado Kim Yeong-seok, que asaba cerdo, adobó pollo en su lugar y lo vendió como 닭불고기. Una ración costaba unos cien wones, y de ahí los apodos: 대학생갈비, costillas de estudiante, y 서민갈비, costillas de la gente corriente. En los setenta llenó los callejones detrás del Myeongdong de Chuncheon, alimentando a soldados de permiso y a estudiantes que querían comer mucho por muy poco. Chuncheon ya tenía las granjas avícolas y los mataderos: el plato creció donde estaban los pollos.',
+    storyFr: 'C\'était un plat de taverne à Chuncheon à la fin des années 1960 : un certain Kim Yeong-seok, qui grillait du porc, a mariné du poulet à la place et l\'a vendu sous le nom de 닭불고기. Une portion coûtait une centaine de wons, d\'où les surnoms : 대학생갈비, les côtes de l\'étudiant, et 서민갈비, les côtes du petit peuple. Dans les années 1970, il a rempli les ruelles derrière le Myeongdong de Chuncheon, nourrissant les soldats en permission et les étudiants qui voulaient manger beaucoup pour presque rien. Chuncheon avait déjà les élevages et les abattoirs : le plat a poussé là où étaient les poulets.',
+    storyAr: 'بدأ طبقًا في حانة بمدينة تشوncheon أواخر الستينيات: رجل اسمه كيم يونغ-سوك، كان يشوي لحم الخنزير، فتبّل الدجاج بدلًا منه وباعه باسم 닭불고기. كانت الحصة بنحو مئة وون، ومن هنا لصقت به الألقاب — 대학생갈비 أي أضلاع الطالب، و서민갈비 أي أضلاع عامّة الناس. وفي السبعينيات ملأ الأزقّة خلف ميونغ-دونغ في تشونتشون، يُطعم الجنود في إجازاتهم والطلبة الذين أرادوا أن يشبعوا بأقلّ ما يمكن. كانت تشونتشون تملك أصلًا مزارع الدواجن والمسالخ؛ نبت الطبق حيث كان الدجاج.',
+    storyZh: '1960年代末，它是春川一家小酒馆的菜：一个叫金英锡的人本来烤猪肉，改用调料腌了鸡肉，起名 닭불고기 卖。一份约一百韩元，外号就是这么来的——대학생갈비（大学生排骨）、서민갈비（平民排骨）。到了七十年代，它挤满春川明洞背后的小巷，喂饱休假的士兵和想花很少钱吃很饱的学生。春川本来就有养鸡场和屠宰场：这道菜是在鸡的旁边长起来的。',
+    storyJa: '1960年代の終わり、春川の居酒屋の一品でした。豚を焼いて売っていた金英錫という人が、代わりに鶏をタレに漬けて「닭불고기」として出したのが始まりです。一人前が百ウォンほどで、だからあだ名がついた——대학생갈비（大学生カルビ）、そして 서민갈비（庶民カルビ）。1970年代には春川の明洞の裏通りを埋め、休暇の兵士と、わずかな金で腹いっぱい食べたい学生たちを養いました。春川にはすでに養鶏場と食鳥処理場がありました。この料理は、鶏のいる場所で育ったのです。',
     themeId: null,
     culture:
       "It comes from Chuncheon, where it started in the bars in the late 1960s and filled the back alleys through the 1970s — cheap enough by then that students called it 대학생갈비, student ribs. When the meat is gone the staff fry rice in what is left in the pan, and leaving before that second course is considered a waste of a good dinner.",
@@ -314,7 +322,7 @@ export const menus = [
     // 'a waste of a good dinner', in its own culture note.
     eatenAt: ['evening'],
     spice: 3,
-    zones: ['Sinchon, Seoul', 'Hongdae, Seoul'],
+    zones: ['춘천 명동 닭갈비골목', '신촌·신림동 대학가', '용산'],
   },
   {
     id: 'gamjatang',
@@ -356,9 +364,9 @@ export const menus = [
     whySharedJa:
       "鍋はテーブル中央のコンロに置かれ、いちばん近い人がよそいます。店は鍋の大きさで値をつけていて、小でも二人分です。",
     howItWorks:
-      'Pork spine simmered with potato and perilla leaf. You pull the meat off the bone with chopsticks; it is expected to be slow and messy.',
+      'Pork spine simmered with potato and perilla leaf. You work the meat off the bone with chopsticks, and it is meant to take a while — the slowness is the meal, not an inconvenience.',
     howItWorksKo:
-      '돼지 등뼈를 감자와 깻잎을 넣고 오래 끓입니다. 젓가락으로 뼈에서 살을 발라 먹고, 원래 느리고 지저분하게 먹는 음식이에요.',
+      '돼지 등뼈를 감자와 깻잎을 넣고 오래 끓입니다. 젓가락으로 뼈에서 살을 발라 먹는데, 원래 시간이 걸리는 음식이에요. 그 느긋함이 곧 이 식사입니다.',
     howItWorksEs:
       "Espinazo de cerdo cocido largo rato con patata y hoja de perilla. La carne se separa del hueso con los palillos; se da por hecho que será lento y algo sucio.",
     howItWorksFr:
@@ -369,6 +377,14 @@ export const menus = [
       "猪脊骨与土豆、紫苏叶同炖。你用筷子把肉从骨头上剔下来；这本来就该是慢的、有点狼狈的。",
     howItWorksJa:
       "豚の背骨をじゃがいもとエゴマの葉と煮込みます。箸で骨から肉を外していく——ゆっくりで、多少行儀が悪くなるのが前提の料理です。",
+    storySources: ['wikipedia-gamjatang-ko'],
+    story: 'Koreans argue about the potato. One account says the 감자 in the name is not the vegetable but the marrow inside the pig\'s spine; the encyclopaedia prints it and then answers it — no cut of pork is actually called 감자뼈, and the word is something some butchers use to explain what a bone is for. Several other explanations compete beside it and none has won. What is not in dispute: the dish is traced to Jeolla, reached Incheon with the labourers who built the Gyeongin railway in the 1890s, and is eaten as readily at two in the morning after drinking as at dinner.',
+    storyKo: '감자를 두고 한국인들끼리도 의견이 갈립니다. 이름의 \'감자\'가 채소가 아니라 돼지 등뼈 속 척수를 가리킨다는 설이 있는데, 백과사전은 그 설을 싣고 곧바로 반박합니다 — \'감자뼈\'라는 이름의 돼지뼈는 실제로 없고, 그건 일부 정육점에서 용도를 설명하려고 쓰는 말일 뿐이라고요. 다른 설도 여럿이고 아직 어느 것도 이기지 못했습니다. 다투지 않는 사실은 이것입니다. 전라도에서 비롯됐고, 1890년대 경인선 철도를 놓던 노동자들을 따라 인천으로 퍼졌으며, 저녁으로도 새벽 두 시 해장으로도 똑같이 먹습니다.',
+    storyEs: 'Los coreanos discuten sobre la patata. Una versión dice que el 감자 del nombre no es la verdura sino el tuétano del espinazo del cerdo; la enciclopedia la recoge y acto seguido la refuta: no existe ningún corte de cerdo que se llame 감자뼈, y la palabra solo la usan algunas carnicerías para explicar para qué sirve un hueso. Compiten varias explicaciones más y ninguna ha ganado. Lo que nadie discute: el plato viene de Jeolla, llegó a Incheon con los obreros que construyeron el ferrocarril de Gyeongin en la década de 1890, y se come igual a las dos de la madrugada tras beber que en la cena.',
+    storyFr: 'Les Coréens ne s\'entendent pas sur la pomme de terre. Une version veut que le 감자 du nom ne soit pas le légume mais la moelle de l\'échine du porc ; l\'encyclopédie la rapporte puis la réfute — aucune découpe de porc ne s\'appelle réellement 감자뼈, et le mot n\'est employé que par certains bouchers pour expliquer à quoi sert un os. Plusieurs autres explications se disputent la place et aucune ne l\'a emporté. Ce que personne ne conteste : le plat vient du Jeolla, il a gagné Incheon avec les ouvriers du chemin de fer de Gyeongin dans les années 1890, et il se mange aussi bien à deux heures du matin après avoir bu qu\'au dîner.',
+    storyAr: 'يختلف الكوريون أنفسهم على البطاطا. يقول رأيٌ إنّ كلمة 감자 في الاسم ليست الخضار بل نخاع العمود الفقري للخنزير؛ تنقل الموسوعة هذا الرأي ثم تردّ عليه — فلا وجود لقطعة لحم خنزير اسمها 감자뼈، والكلمة إنما يستعملها بعض الجزّارين لشرح فائدة العظم. وتتنازع تفسيراتٌ أخرى معه ولم يحسمه أحد. أمّا ما لا خلاف عليه: أصل الطبق من جولّا، وبلغ إنتشون مع عمّال سكة حديد كيونغين في تسعينيات القرن التاسع عشر، ويُؤكل في الثانية فجرًا بعد الشرب كما يُؤكل على العشاء.',
+    storyZh: '连韩国人自己也为“土豆”争论不休。有一种说法是，名字里的 감자 不是那种蔬菜，而是猪脊骨里的骨髓；百科全书把这个说法写了出来，随即又反驳它——猪肉根本没有哪一块叫 감자뼈，这个词只是某些肉铺用来说明一根骨头是做什么用的。旁边还有好几种解释在竞争，谁也没有胜出。没有争议的是：这道菜源自全罗道，1890年代随着修建京仁铁路的工人传到仁川，晚饭吃得，凌晨两点喝完酒也吃得。',
+    storyJa: 'じつは韓国人どうしでも「じゃがいも」で意見が割れます。名前の 감자 は野菜ではなく豚の背骨の中の骨髄を指す、という説があり、百科事典はそれを載せたうえで、すぐに反論します——감자뼈という名の豚の骨は実際には存在せず、それは一部の精肉店が骨の使い道を説明するために使っている言葉にすぎない、と。ほかにも説がいくつも並び、まだどれも勝っていません。争いのない事実はこうです。全羅道に始まり、1890年代に京仁線を敷いた労働者たちとともに仁川へ広がり、夕食にも、飲んだあとの午前二時にも同じように食べられます。',
     themeId: 'seoul-after-dark',
     culture:
       "Long a night-shift and market-worker meal, eaten late and slowly because the meat has to be worked off the bone by hand. It doubles as 해장 — the food Koreans eat the morning after drinking, which is its own recognised category here.",
@@ -389,7 +405,7 @@ export const menus = [
     // 'doubles as 해장 — the food Koreans eat the morning after drinking'.
     eatenAt: ['late', 'morning'],
     spice: 3,
-    zones: ['Jongno, Seoul', 'Dongdaemun, Seoul'],
+    zones: ['응암동 감자국거리'],
   },
   {
     id: 'budae-jjigae',
@@ -444,6 +460,14 @@ export const menus = [
       "朝鲜战争后用美军基地富余的东西搭起来的一锅——午餐肉、香肠、焗豆——底下是韩式高汤。方便面在最后才下。",
     howItWorksJa:
       "朝鮮戦争のあと、米軍基地の余りものから組み立てられた鍋——スパム、ソーセージ、ベイクドビーンズ——を韓国の出汁で。インスタントラーメンは最後のほうで入ります。",
+    storySources: ['encykorea-budae'],
+    story: 'The name is literally \'army-base stew\', and it means what it says: after the Korean War the food that could be had near an American base — ham, sausage, bacon, tinned beans — went into a Korean pot with kimchi and chilli. For a while it was also called 존슨탕, Johnson soup, after the American president of the day. Uijeongbu is where it settled: a woman named Heo Gi-suk was selling it from a street cart there from 1960 and registered the shop as 오뎅식당 in 1968, and the street around her is now the 부대찌개 거리. A dish made of what one country had spare, cooked the way another country cooks.',
+    storyKo: '이름 그대로 \'부대(部隊)찌개\'입니다. 한국전쟁 뒤 미군 부대 근처에서 구할 수 있던 것들 — 햄, 소시지, 베이컨, 통조림 콩 — 이 김치와 고춧가루가 든 한국 냄비로 들어갔습니다. 한동안은 \'존슨탕\'이라고도 불렸어요. 당시 미국 대통령의 성을 딴 이름입니다. 자리를 잡은 곳은 의정부였습니다. 허기숙이라는 분이 1960년부터 그곳에서 포장마차로 팔았고 1968년에 \'오뎅식당\'으로 상호를 냈는데, 그 일대가 지금의 부대찌개 거리입니다. 한 나라에 남아돌던 것으로 만들어, 다른 나라의 방식으로 끓인 음식입니다.',
+    storyEs: 'El nombre significa literalmente \'guiso de base militar\', y quiere decir exactamente eso: tras la Guerra de Corea, lo que se conseguía cerca de una base estadounidense —jamón, salchicha, bacon, alubias de lata— fue a parar a una olla coreana con kimchi y guindilla. Durante un tiempo se llamó también 존슨탕, sopa Johnson, por el presidente estadounidense de entonces. Se asentó en Uijeongbu: una mujer llamada Heo Gi-suk lo vendía allí desde un carrito desde 1960 y registró el local como 오뎅식당 en 1968; la calle a su alrededor es hoy la 부대찌개 거리. Un plato hecho con lo que a un país le sobraba, cocinado como cocina otro.',
+    storyFr: 'Le nom signifie littéralement « ragoût de base militaire », et c\'est exactement cela : après la guerre de Corée, ce qu\'on trouvait près d\'une base américaine — jambon, saucisse, bacon, haricots en conserve — est allé dans une marmite coréenne avec du kimchi et du piment. On l\'a un temps appelé aussi 존슨탕, la soupe Johnson, du nom du président américain de l\'époque. Il s\'est fixé à Uijeongbu : une femme nommée Heo Gi-suk le vendait d\'une carriole dès 1960 et a enregistré son établissement sous le nom de 오뎅식당 en 1968 ; la rue autour d\'elle est aujourd\'hui la 부대찌개 거리. Un plat fait de ce qu\'un pays avait en trop, cuisiné à la manière d\'un autre.',
+    storyAr: 'الاسم حرفيًّا «يخنة القاعدة العسكرية»، ويعني ما يقوله: بعد الحرب الكورية، ما كان يمكن الحصول عليه قرب قاعدة أمريكية — لحم مقدَّد ونقانق وبيكون وفاصولياء معلّبة — دخل قِدرًا كوريّة مع الكيمتشي والفلفل. وسُمّي زمنًا 존슨탕، «حساء جونسون»، نسبةً إلى الرئيس الأمريكي آنذاك. واستقرّ في أويجونغبو: امرأة اسمها هُو غي-سوك كانت تبيعه هناك من عربة منذ 1960 وسجّلت المحلّ باسم 오뎅식당 سنة 1968، والشارع حولها هو اليوم 부대찌개 거리. طبقٌ صُنع ممّا فاض عن بلد، وطُبخ على طريقة بلد آخر.',
+    storyZh: '名字直译就是“部队汤”，意思也正是如此：朝鲜战争之后，在美军基地附近能弄到的东西——火腿、香肠、培根、罐头豆子——被放进了加了泡菜和辣椒的韩国锅里。有一阵子它还叫 존슨탕（约翰逊汤），取自当时的美国总统。它落脚在议政府：一位叫许基淑的women从1960年起在那里推车卖，1968年把店注册为 오뎅식당，她周围的那条街如今就是 부대찌개 거리。用一个国家多出来的东西做成，按另一个国家的方式煮出来的一道菜。',
+    storyJa: '名前はそのまま「部隊チゲ」。意味も文字どおりです。朝鮮戦争のあと、米軍基地の近くで手に入るもの——ハム、ソーセージ、ベーコン、豆の缶詰——が、キムチと唐辛子の入った韓国の鍋に入りました。一時期は「존슨탕（ジョンソン湯）」とも呼ばれました。当時のアメリカ大統領の名前です。根を下ろしたのは議政府でした。ホ・ギスクという人が1960年からそこで屋台で売り、1968年に「오뎅식당」として店を登録します。その一帯が、いまの 부대찌개 거리 です。ある国で余っていたもので作り、別の国のやり方で煮た料理です。',
     themeId: null,
     culture:
       "Built after the Korean War around Uijeongbu, from surplus the American bases had and Korean kitchens did not: spam, sausage, baked beans. A dish assembled out of scarcity became one the country now eats by choice, which is roughly the shape of post-war Korea in a single pan.",
@@ -461,7 +485,7 @@ export const menus = [
       "朝鮮戦争のあと議政府のあたりで、米軍基地にはあって韓国の台所にはなかったものから組み立てられました。スパム、ソーセージ、ベイクドビーンズ。欠乏から寄せ集められた料理を、いま国じゅうが自分から選んで食べている——戦後の韓国の形が、ひとつの鍋にそのまま入っています。",
     contains: ['pork', 'beef'],
     spice: 3,
-    zones: ['Itaewon, Seoul', 'Uijeongbu'],
+    zones: ['의정부 부대찌개거리', '남영동 먹자골목'],
   },
   {
     id: 'bossam',
@@ -516,6 +540,14 @@ export const menus = [
       "水煮五花肉，放凉了上桌，你自己用大白菜叶包起来，加上萝卜丝和虾酱。",
     howItWorksJa:
       "茹でた豚バラを冷まして出し、白菜に大根の和えものとアミの塩辛と一緒に自分で包みます。",
+    storySources: ['wikipedia-bossam-ko'],
+    story: 'The 보 in the name is 보자기, the cloth Koreans wrap things in — and that is the instruction. Nothing arrives wrapped; you do the wrapping, leaf by leaf, one piece at a time. It belongs to 김장, the late-autumn making of a winter\'s kimchi: households provided pork for the people who came to help, and it was eaten with the kimchi they had just made, still unfermented. That is why the version with raw oysters beside it is the one people queue for — it is the dish still keeping the season it came from.',
+    storyKo: '이름의 \'보\'는 보자기입니다. 그리고 그게 곧 먹는 방법이에요. 싸여서 나오는 건 없고, 한 장씩 직접 쌉니다. 이 음식은 김장에 속합니다. 겨울 김치를 담그러 온 사람들에게 집에서 돼지고기를 내주었고, 그날 갓 담근 아직 익지 않은 김치와 함께 먹었어요. 굴을 곁들인 굴보쌈에 줄을 서는 이유가 여기 있습니다. 이 음식은 여전히 자기가 나온 계절을 지키고 있습니다.',
+    storyEs: 'El 보 del nombre es 보자기, el paño con el que los coreanos envuelven las cosas, y eso mismo es la instrucción. Nada llega envuelto: envuelves tú, hoja a hoja, trozo a trozo. Pertenece al 김장, la elaboración otoñal del kimchi de invierno: las casas ponían el cerdo para quienes venían a ayudar, y se comía con el kimchi recién hecho, todavía sin fermentar. Por eso la versión con ostras crudas al lado es por la que se hace cola: el plato sigue guardando la estación de la que viene.',
+    storyFr: 'Le 보 du nom, c\'est 보자기, le tissu dans lequel les Coréens enveloppent les choses — et c\'est là le mode d\'emploi. Rien n\'arrive enveloppé : c\'est vous qui enveloppez, feuille après feuille, morceau après morceau. Le plat appartient au 김장, la confection automnale du kimchi d\'hiver : les maisons fournissaient le porc à ceux qui venaient aider, et on le mangeait avec le kimchi tout juste fait, pas encore fermenté. D\'où la file d\'attente pour la version aux huîtres crues : le plat garde encore la saison dont il vient.',
+    storyAr: 'حرف 보 في الاسم هو 보자기، القماشة التي يلفّ بها الكوريون الأشياء — وهي نفسها التعليمات. لا شيء يصل ملفوفًا؛ أنت من يلفّ، ورقةً ورقة، وقطعةً قطعة. الطبق ينتمي إلى 김장، صناعة كيمتشي الشتاء في أواخر الخريف: كانت البيوت تقدّم لحم الخنزير لمن يأتي للمساعدة، ويُؤكل مع الكيمتشي الذي صُنع لتوّه ولم يختمر بعد. ولهذا يقف الناس في الصفّ من أجل النسخة التي يُقدَّم معها المحار النيّئ — الطبق ما زال يحفظ الموسم الذي جاء منه.',
+    storyZh: '名字里的 보 就是 보자기，韩国人用来包东西的那块布——这也正是吃法。没有什么是包好端上来的；包是你自己做的，一片叶子一次，一块肉一次。它属于 김장，深秋腌一冬天的泡菜：人家把猪肉拿出来给来帮忙的人，配着当天刚腌好、还没发酵的泡菜一起吃。所以配生蚝的那一版才要排队——这道菜到今天还守着它出生的那个季节。',
+    storyJa: '名前の 보 は 보자기、韓国で物を包むあの布のことです。そしてそれが、そのまま食べ方でもあります。包まれて出てくるものは何もなく、包むのは自分。葉を一枚ずつ、肉を一切れずつ。この料理は 김장 に属します。冬の分のキムチを漬ける晩秋、手伝いに来た人たちのために家が豚肉を出し、その日に漬けたばかりの、まだ発酵していないキムチと一緒に食べました。生牡蠣を添えた一皿に行列ができるのは、そのためです。この料理は、いまも生まれた季節を手放していません。',
     themeId: null,
     culture:
       "Traditionally eaten on 김장 day, when families gather to make a winter's worth of kimchi together — UNESCO lists that gathering as intangible cultural heritage. The pork is what the household eats standing up, wrapped in leaves, while the work is still going on.",
@@ -533,7 +565,7 @@ export const menus = [
       "伝統的には김장の日に食べます。一家が集まってひと冬分のキムチを漬ける日で、その集まりはユネスコの無形文化遺産に登録されています。豚肉は、まだ作業が続いているあいだに、立ったまま葉に包んで食べるものです。",
     contains: ['pork', 'shellfish'],
     spice: 1,
-    zones: ['Jongno, Seoul', 'Mapo, Seoul'],
+    zones: ['종로3가 보쌈골목'],
   },
   {
     id: 'jokbal',
@@ -588,6 +620,14 @@ export const menus = [
       "猪蹄用酱油、桂皮和姜卤到皮变成胶质，然后切片，用菜叶包着吃。",
     howItWorksJa:
       "豚足を醤油とシナモンと生姜で、皮がゼラチンになるまで煮てからスライスし、葉に包んで食べます。",
+    storySources: ['encykorea-jokbal'],
+    story: 'Jangchung-dong has a jokbal street because people who could not go home settled there. Refugees from the North came to that part of Seoul during the Korean War, and in 1961 two of them — Jeon Seung-suk and Kim Jeong-yeon — opened a shop together and called it 평안도집, the Pyeongan Province house, after the province they had left. Six years later they parted and each kept her own: 뚱뚱이할머니집 and 평남할머니집. The trotter is boiled soft with garlic, ginger, rice wine and doenjang, then simmered again in soy. Front foot and back foot are not the same: one is chewier, one softer, and regulars have a side.',
+    storyKo: '장충동에 족발 골목이 있는 것은, 고향에 돌아갈 수 없던 사람들이 그곳에 자리 잡았기 때문입니다. 한국전쟁 때 이북에서 내려온 실향민들이 서울 그 일대에 정착했고, 1961년 그중 두 분 — 전승숙과 김정연 — 이 함께 가게를 열어 \'평안도집\'이라 이름 붙였습니다. 떠나온 도(道)의 이름이었어요. 6년 뒤 두 분은 갈라서 각자의 가게를 지켰습니다. 뚱뚱이할머니집과 평남할머니집입니다. 족발은 마늘·생강·청주·된장을 넣고 살이 무르도록 푹 삶은 뒤, 간장에 다시 조립니다. 앞발과 뒷발은 다릅니다. 하나는 쫀득하고 하나는 부드러워서, 단골들은 저마다 편이 있습니다.',
+    storyEs: 'Jangchung-dong tiene una calle de jokbal porque allí se instalaron personas que no podían volver a casa. Refugiados del Norte llegaron a esa parte de Seúl durante la Guerra de Corea, y en 1961 dos de ellas —Jeon Seung-suk y Kim Jeong-yeon— abrieron juntas un local y lo llamaron 평안도집, la casa de la provincia de Pyeongan, por la provincia que habían dejado. Seis años después se separaron y cada una conservó el suyo: 뚱뚱이할머니집 y 평남할머니집. La pata se cuece hasta ablandarse con ajo, jengibre, vino de arroz y doenjang, y luego se glasea en salsa de soja. La delantera y la trasera no son iguales: una es más gomosa, la otra más tierna, y los clientes habituales tienen su bando.',
+    storyFr: 'Jangchung-dong a une rue du jokbal parce que des gens qui ne pouvaient plus rentrer chez eux s\'y sont installés. Des réfugiés du Nord sont arrivés dans ce quartier de Séoul pendant la guerre de Corée, et en 1961 deux d\'entre elles — Jeon Seung-suk et Kim Jeong-yeon — ont ouvert ensemble une boutique qu\'elles ont appelée 평안도집, la maison de la province de Pyeongan, du nom de la province qu\'elles avaient quittée. Six ans plus tard, elles se sont séparées et chacune a gardé la sienne : 뚱뚱이할머니집 et 평남할머니집. Le pied est bouilli jusqu\'à tendreté avec ail, gingembre, alcool de riz et doenjang, puis laqué à la sauce soja. Avant et arrière ne se valent pas : l\'un est plus élastique, l\'autre plus fondant, et les habitués ont leur camp.',
+    storyAr: 'في جانغتشونغ-دونغ شارعٌ لأقدام الخنزير لأنّ من لم يستطيعوا العودة إلى ديارهم استقرّوا هناك. جاء لاجئون من الشمال إلى ذلك الحيّ من سول أثناء الحرب الكورية، وفي 1961 فتحت اثنتان منهم — جون سونغ-سوك وكيم جونغ-يون — محلًّا معًا وسمّتاه 평안도집، «بيت مقاطعة بيونغان»، باسم المقاطعة التي تركتاها. وبعد ستّ سنوات افترقتا واحتفظت كلٌّ بمحلّها: 뚱뚱이할머니집 و평남할머니집. تُسلق القدم حتى تلين مع الثوم والزنجبيل ونبيذ الأرز والدوينجانغ، ثم تُطهى ثانيةً في الصويا. والقدم الأمامية غير الخلفية: إحداهما أشدّ مضغًا والأخرى أطرى، ولروّاد المحلّ في ذلك رأي.',
+    storyZh: '奖忠洞有一条猪脚街，是因为回不了家的人在那里落了脚。朝鲜战争期间，从北方南下的失乡民在首尔那一带定居下来，1961年，其中两位——全承淑和金贞연——合开了一家店，取名 평안도집（平安道家），用的是她们离开的那个道的名字。六年后两人分开，各自守着自己的店：뚱뚱이할머니집 和 평남할머니집。猪脚要加蒜、姜、料酒和大酱煮到软烂，再用酱油卤一次。前蹄和后蹄不一样：一个更弹牙，一个更软，常客各有各的偏爱。',
+    storyJa: '奨忠洞にチョッパルの路地があるのは、故郷に帰れなかった人たちがそこに落ち着いたからです。朝鮮戦争のとき北から南へ来た失郷民がソウルのその一帯に住みつき、1961年、そのうちの二人——チョン・スンスクとキム・ジョンヨン——が一緒に店を開き、「평안도집（平安道の家）」と名づけました。離れてきた道の名です。六年後に二人は分かれ、それぞれの店を守りました。뚱뚱이할머니집 と 평남할머니집 です。豚足はニンニク、生姜、清酒、テンジャンを入れて柔らかくなるまで茹で、それから醤油で煮つめます。前足と後足は同じではありません。片方は歯ごたえがあり、片方は柔らかく、常連にはそれぞれ贔屓があります。',
     themeId: 'seoul-after-dark',
     culture:
       "The Jangchung-dong alley that made it famous was built by families displaced by the Korean War. It is 야식 food — the late meal ordered to a home or an office after everything else has closed, and almost never eaten by one person.",
@@ -605,7 +645,7 @@ export const menus = [
       "これを有名にした奨忠洞の路地は、朝鮮戦争で家を失った人たちがつくったものです。야식——ほかの店が閉まったあとに家や職場へ届けてもらう遅い食事で、一人で食べることはまずありません。",
     contains: ['pork'],
     spice: 0,
-    zones: ['Jangchung, Seoul', 'Gongdeok, Seoul'],
+    zones: ['장충동 족발골목', '공덕동 족발골목'],
   },
   {
     id: 'ganjang-gejang',
@@ -617,7 +657,7 @@ export const menus = [
     // written fresh, so the short name and the long one cannot drift apart.
     gloss: "Raw crab cured in soy sauce",
     glossKo:
-      '간장에 담근 생 게',
+      '간장게장',
     glossEs:
       "Cangrejo crudo curado en salsa de soja",
     glossFr:
@@ -647,9 +687,9 @@ export const menus = [
     whySharedJa:
       "ご飯とおかず一式のセットで、カニ一杯いくらの値づけ。たいてい二人前からの表示です。",
     howItWorks:
-      'Raw crab cured in soy sauce. You eat it with your hands, and the shell is meant to be filled with rice at the end — that last mouthful is the point of the dish.',
+      'Ganjang-gejang is crab cured in soy sauce, never cooked. It is eaten by hand, and the shell is meant to be filled with rice at the end — that last mouthful is the point of the dish.',
     howItWorksKo:
-      '생 게를 간장에 담가 삭힙니다. 손으로 먹고, 마지막에 등딱지에 밥을 비벼 먹으라고 남겨 두는데 — 그 마지막 한 입이 이 음식의 핵심이에요.',
+      '간장게장은 게를 간장에 담가 삭힌 것으로, 익히지 않습니다. 손으로 먹고, 마지막에 등딱지에 밥을 비벼 먹으라고 남겨 두는데 — 그 마지막 한 입이 이 음식의 핵심이에요.',
     howItWorksEs:
       "Cangrejo crudo curado en salsa de soja. Se come con las manos, y el caparazón está pensado para llenarlo de arroz al final: ese último bocado es el sentido del plato.",
     howItWorksFr:
@@ -660,6 +700,14 @@ export const menus = [
       "生蟹用酱油腌制。你用手吃，最后蟹壳是要拿来盛米饭的——那最后一口才是这道菜的意思所在。",
     howItWorksJa:
       "生のカニを醤油に漬けたもの。手で食べ、最後に甲羅にご飯を入れるのが前提です——その最後のひと口がこの料理の眼目です。",
+    storySources: ['wikipedia-gejang-ko'],
+    story: 'A wooden slip reading 게젓 — crab pickle — was raised from a ship that sank off Mado in 1208, which puts soy-cured crab in Korea before most of what is now called Korean food. Joseon cookbooks carry it too. The nickname the language gave it is 밥도둑, the rice thief: not that it is good, but that it will make you eat far more rice than you meant to. Nothing is cooked. The crab is cured raw in soy, and which crab depends on where you are.',
+    storyKo: '1208년 마도 앞바다에 가라앉은 배에서 \'게젓\'이라 적힌 죽간이 나왔습니다. 지금 한식이라 부르는 것 대부분보다 간장게장이 앞선다는 뜻입니다. 조선의 조리서에도 실려 있고요. 한국어가 이 음식에 붙여준 별명은 \'밥도둑\'입니다. 맛있다는 말이 아니라, 먹으려던 것보다 밥을 훨씬 많이 먹게 만든다는 뜻이에요. 익히지 않습니다. 게를 날로 간장에 담가 삭히고, 어떤 게를 쓰는지는 지역마다 다릅니다.',
+    storyEs: 'Una tablilla de madera con la palabra 게젓 —cangrejo en salazón— se recuperó de un barco hundido frente a Mado en 1208, lo que sitúa el cangrejo curado en soja en Corea antes que casi todo lo que hoy llamamos comida coreana. Los recetarios de Joseon también lo recogen. El apodo que le puso la lengua es 밥도둑, el ladrón de arroz: no que esté bueno, sino que te hará comer mucho más arroz del que pensabas. No se cocina nada. El cangrejo se cura crudo en salsa de soja, y qué cangrejo depende de dónde estés.',
+    storyFr: 'Une tablette de bois portant le mot 게젓 — crabe en saumure — a été remontée d\'un navire coulé au large de Mado en 1208, ce qui place le crabe mariné au soja en Corée avant presque tout ce qu\'on appelle aujourd\'hui cuisine coréenne. Les livres de cuisine de Joseon le mentionnent aussi. Le surnom que la langue lui a donné est 밥도둑, le voleur de riz : non pas que ce soit bon, mais que cela vous fera manger bien plus de riz que prévu. Rien n\'est cuit. Le crabe est mariné cru dans la sauce soja, et lequel dépend de l\'endroit.',
+    storyAr: 'انتُشلت من سفينة غرقت قبالة مادو سنة 1208 لوحةٌ خشبية كُتب عليها 게젓، أي الكابوريا المخلَّلة — وهذا يضع كابوريا الصويا في كوريا قبل معظم ما يُسمّى اليوم طعامًا كوريًّا. وتذكره كتب الطبخ في عهد جوسون أيضًا. واللقب الذي منحته إياه اللغة هو 밥도둑، سارق الأرز: لا بمعنى أنه لذيذ، بل أنه سيجعلك تأكل من الأرز أكثر بكثير ممّا نويت. لا شيء يُطهى. تُخلَّل الكابوريا نيئة في الصويا، وأيّ كابوريا يعتمد على المكان.',
+    storyZh: '1208年沉没在马岛外海的一艘船上，打捞出一枚写着 게젓（蟹酱）的木简——这说明酱蟹在朝鲜半岛的年头，比今天大多数被称作“韩餐”的东西都长。朝鲜时代的食谱里也有它。语言给它起的外号是 밥도둑，偷饭贼：不是说它好吃，而是说它会让你比原本打算的多吃好多饭。什么都不煮。螃蟹是生的，泡在酱油里腌熟，用哪种蟹则看你在什么地方。',
+    storyJa: '1208年に馬島沖で沈んだ船から、게젓（カニの塩辛）と書かれた木簡が引き揚げられました。醤油漬けのカニが、いま韓国料理と呼ばれているものの大半より古いということです。朝鮮時代の料理書にも載っています。この料理に韓国語がつけた渾名は 밥도둑、ご飯泥棒。おいしいという意味ではなく、そのつもりだった量よりずっと多くご飯を食べさせてしまう、という意味です。火は通しません。カニは生のまま醤油に漬け、どのカニを使うかは土地によって変わります。',
     themeId: null,
     culture:
       "Koreans call it 밥도둑, the rice thief, because the salt in it makes you eat more rice than you meant to. The last step is filling the empty shell with rice and mixing it in — the dish is built around that final mouthful rather than the crab itself.",
@@ -677,7 +725,7 @@ export const menus = [
       "韓国の人は밥도둑、ご飯泥棒と呼びます。塩気のせいで思っていたよりご飯が進むからです。最後は空いた甲羅にご飯を入れて混ぜる——この料理はカニそのものより、その最後のひと口を中心に組み立てられています。",
     contains: ['shellfish'],
     spice: 0,
-    zones: ['Sinsa, Seoul', 'Mapo, Seoul'],
+    zones: ['신사동 간장게장골목', '장안동 게장골목'],
   },
   {
     id: 'hanjeongsik',
@@ -732,6 +780,14 @@ export const menus = [
       "一桌正式的排场——汤、烤鱼、煎饼、十几样甚至更多小菜——一次铺满桌面，而不是一道道上。中间的一切都是大家的。",
     howItWorksJa:
       "正式な膳——汁物、焼き魚、チヂミ、十二品以上のおかず——がコースではなく一度にテーブルに広がります。真ん中のものはすべて全員のものです。",
+    storySources: ['wikipedia-hanjeongsik-ko', 'encykorea-bansang', 'encykorea-surasang'],
+    story: 'It looks like the oldest thing on any Korean menu and it is one of the youngest. The word came after the Korean War, when restaurants serving a set meal multiplied under shortage. What it borrows is much older: the 반상, the household table, which was counted in 첩 — the dishes beyond rice, soup and kimchi — and ran from three to twelve. Twelve was the king\'s number. So a spread arriving all at once rather than in courses is not a restaurant\'s flourish; it is how a Korean table has always been set, and hanjeongsik is that table given a price.',
+    storyKo: '한식 차림 중 가장 오래돼 보이지만, 사실은 가장 젊은 축입니다. \'한정식\'이라는 말은 한국전쟁 뒤에 생겼습니다. 물자가 부족하던 시절 정식을 내는 음식점이 늘면서요. 다만 빌려온 형식은 훨씬 오래됐습니다. 집안의 밥상인 반상은 \'첩\'으로 셈했는데 — 밥·국·김치를 뺀 나머지 반찬 수입니다 — 3첩부터 12첩까지 있었습니다. 12첩은 임금의 수였고요. 그러니 코스가 아니라 한꺼번에 깔리는 상은 음식점의 멋 부림이 아닙니다. 한국의 상은 원래 그렇게 차려졌고, 한정식은 그 상에 값을 매긴 것입니다.',
+    storyEs: 'Parece lo más antiguo de cualquier carta coreana y es de lo más reciente. La palabra nació después de la Guerra de Corea, cuando se multiplicaron los restaurantes de menú fijo bajo la escasez. Lo que toma prestado es mucho más viejo: el 반상, la mesa doméstica, que se contaba en 첩 —los platos aparte del arroz, la sopa y el kimchi— y iba de tres a doce. Doce era el número del rey. Así que una mesa que llega entera de golpe, y no por platos, no es una floritura de restaurante: es como siempre se ha puesto una mesa coreana, y el hanjeongsik es esa mesa con un precio.',
+    storyFr: 'Cela a l\'air de la chose la plus ancienne d\'une carte coréenne, et c\'est l\'une des plus récentes. Le mot est né après la guerre de Corée, quand les restaurants à menu fixe se sont multipliés dans la pénurie. Ce qu\'il emprunte est bien plus ancien : le 반상, la table de la maison, qui se comptait en 첩 — les plats au-delà du riz, de la soupe et du kimchi — et allait de trois à douze. Douze était le chiffre du roi. Une table qui arrive d\'un coup plutôt qu\'en services n\'est donc pas une coquetterie de restaurant : c\'est ainsi qu\'on dresse une table coréenne depuis toujours, et le hanjeongsik est cette table avec un prix.',
+    storyAr: 'يبدو أقدم ما في أيّ قائمة طعام كورية، وهو من أحدثها. وُلدت الكلمة بعد الحرب الكورية، حين تكاثرت المطاعم التي تقدّم وجبةً محدَّدة في زمن الشُّحّ. أمّا ما تستعيره فأقدم بكثير: 반상، مائدة البيت، التي كانت تُعدّ بـ첩 — أي الأطباق ما عدا الأرز والحساء والكيمتشي — وتتراوح من ثلاثة إلى اثني عشر. والاثنا عشر كان رقم الملك. فمائدةٌ تصل كاملةً دفعةً واحدة لا على أطباق متعاقبة ليست زخرفة مطعم؛ هكذا تُفرش المائدة الكورية منذ القدم، والهانجونغسيك هو تلك المائدة وقد وُضع لها سعر.',
+    storyZh: '它看着像韩国菜单上最古老的东西，其实是最年轻的之一。“韩定食”这个词是朝鲜战争之后才有的，物资短缺的年月里，供应套餐的饭馆多了起来。但它借来的形式要老得多：반상，也就是家里的饭桌，是按 첩 来数的——除米饭、汤和泡菜之外的菜数——从三첩到十二첩。十二是国王的数。所以整桌一次性摆上来、而不是一道一道上，并不是饭馆的花样：韩国的饭桌本来就是这么摆的，韩定食不过是给这张桌子标了个价。',
+    storyJa: '韓国の品書きの中でいちばん古そうに見えて、じつはいちばん新しい部類です。「韓定食」という言葉は朝鮮戦争のあとに生まれました。物が足りない時代に、定食を出す食堂が増えたのです。ただ、借りてきた形はずっと古い。家の膳である 반상 は「첩」で数えました——ご飯、汁、キムチを除いたおかずの数です——三첩から十二첩まであり、十二は王の数でした。だから、コースではなく一度に並ぶ膳は食堂の演出ではありません。韓国の膳はもともとそう据えられてきたのであり、韓定食はその膳に値をつけたものです。',
     themeId: null,
     culture:
       "It descends from the 반상, the formally counted Korean table: dishes were served in sets of three, five, seven or nine, and the number marked the household. Everything arrives at once rather than in courses, so nothing is anybody's alone.",
@@ -756,7 +812,7 @@ export const menus = [
     // top of this file.
     varies: true,
     spice: 1,
-    zones: ['Insadong, Seoul', 'Jongno, Seoul'],
+    zones: ['인사동 골목', '세종마을 음식문화거리'],
   },
   {
     id: 'baekban',
@@ -891,6 +947,14 @@ export const menus = [
       "牛或猪的肠子在炭火上烤到里面的油脂化开。常客最后会用同一口锅炒饭。",
     howItWorksJa:
       "牛か豚の腸を、中の脂が落ちるまで炭火で焼きます。常連は最後に同じ鉄板でご飯を炒めて締めます。",
+    storySources: ['wikipedia-gopchang-ko', 'namu-gopchang'],
+    story: 'The 곱 is the part nobody translates: the fat and digestive matter inside the intestine, which is what melts over the charcoal and is the entire point. It was a cut people threw away, or that the ones who did the butchering ate themselves, because without refrigeration nothing else was possible with it. Better cold chains and better cleaning turned it into a delicacy — and then, having become one, it stopped being cheap. It is an expensive cut now. The order of that is worth knowing: this is not peasant food that stayed poor.',
+    storyKo: '\'곱\'은 아무도 번역하지 않는 부분입니다. 창자 안쪽의 지방과 소화액이 엉긴 것인데, 숯불 위에서 녹아 나오는 바로 그것이고 이 음식의 전부입니다. 원래는 버리던 부위였습니다. 아니면 도축하는 사람들이 직접 먹던 부위였고요. 냉장 시설이 없으면 달리 방법이 없었으니까요. 냉장 유통과 손질 기술이 좋아지면서 별미가 되었고 — 별미가 되고 나자 더는 싸지 않게 됐습니다. 지금은 비싼 부위입니다. 순서를 알아두면 좋습니다. 가난한 채로 남은 서민 음식이 아닙니다.',
+    storyEs: 'El 곱 es la parte que nadie traduce: la grasa y la materia digestiva del interior del intestino, que es lo que se derrite sobre las brasas y es justamente de lo que se trata. Era un corte que se tiraba, o que se comían los propios matarifes, porque sin refrigeración no cabía otra cosa. Mejores cadenas de frío y mejor limpieza lo convirtieron en un manjar, y una vez convertido dejó de ser barato. Hoy es un corte caro. Ese orden conviene saberlo: no es comida humilde que se quedó humilde.',
+    storyFr: 'Le 곱 est la partie que personne ne traduit : la graisse et la matière digestive à l\'intérieur de l\'intestin, ce qui fond sur la braise et fait tout l\'intérêt de la chose. C\'était un morceau qu\'on jetait, ou que mangeaient ceux qui abattaient les bêtes, faute de froid pour en faire autre chose. De meilleures chaînes du froid et un meilleur nettoyage en ont fait un mets recherché — et, une fois recherché, il a cessé d\'être bon marché. C\'est aujourd\'hui un morceau cher. L\'ordre des choses mérite d\'être connu : ce n\'est pas une nourriture pauvre restée pauvre.',
+    storyAr: 'أمّا 곱 فهو الجزء الذي لا يترجمه أحد: الدهن وما في داخل المِعى من موادّ الهضم، وهو ما يذوب فوق الفحم وهو المقصود كلّه. كانت قطعةً تُرمى، أو يأكلها من يتولّون الذبح، إذ لم يكن ممكنًا غير ذلك بلا تبريد. ثم حسّنت سلاسل التبريد وطرق التنظيف شأنها فصارت طَرَفًا نفيسًا — وحين صارت كذلك، لم تعد رخيصة. هي اليوم قطعة غالية. ويجدر معرفة هذا الترتيب: ليست طعام فقراء بقي فقيرًا.',
+    storyZh: '곱 是没人翻译的那个部分：肠子里面的脂肪和消化物，正是它在炭火上化开，也正是这道菜的全部所在。这原本是丢掉的部位，或者由屠宰的人自己吃掉，因为没有冷藏就别无办法。冷链和清洗技术变好之后，它成了美味——而一旦成了美味，就不再便宜了。如今它是贵的部位。这个先后顺序值得记住：它不是一直穷下去的穷人食物。',
+    storyJa: '곱 は誰も訳さない部分です。腸の内側の脂と消化液が固まったもので、炭火の上で溶け出すのがそれ、そしてそれがこの料理のすべてです。もとは捨てていた部位でした。あるいは、と畜にたずさわる人たちが自分で食べる部位でした。冷蔵がなければ、ほかにやりようがなかったからです。冷蔵流通と下処理の技術が良くなって珍味になり——珍味になったとたん、安くはなくなりました。いまでは高い部位です。この順番は知っておく値打ちがあります。貧しいまま残った庶民の food ではないのです。',
     themeId: 'seoul-after-dark',
     culture:
       "Offal was poverty food within living memory and is now among the more expensive things on a Korean grill — a change most people eating it can remember happening. It is drinking food, cooked slowly, and the table it belongs to is one nobody is in a hurry to leave.",
@@ -908,7 +972,7 @@ export const menus = [
       "ホルモンは、いま生きている人の記憶のなかでは貧しさの食べものでした。それがいまや韓国の焼き物のなかでは高いほうに入る——その変化を、食べている人の多くが自分で見てきています。酒の肴で、ゆっくり焼くもので、それが属する食卓は誰も急いで立たない食卓です。",
     contains: ['beef', 'pork'],
     spice: 1,
-    zones: ['Wangsimni, Seoul', 'Euljiro, Seoul'],
+    zones: ['왕십리 곱창골목', '종로5가 곱창골목', '황학동 곱창골목'],
   },
 
   // ── The fourteen added 2026-09-02 ─────────────────────────────────────
@@ -1448,8 +1512,16 @@ export const menus = [
     // Potato, rice cake, dumplings, the 다대기 — what goes in beside the bird
     // differs by shop.
     varies: true,
+    storySources: ['wikipedia-dakhanmari-ko'],
+    story: 'The name is an order, not a description: \'one chicken\'. It came out of Dongdaemun market in Seoul in the 1960s, and the encyclopaedia gives two accounts of the name without choosing — that customers in a hurry shouted for one whole chicken, or that it says you will be eating the whole thing. Both are about the same fact: nothing is portioned. A whole bird goes into the pot with potato, spring onion and garlic; you pull it apart at the table, dip it in soy, vinegar and mustard, and when the meat is gone noodles go into what is left.',
+    storyKo: '이름은 설명이 아니라 주문입니다. \'닭 한 마리\'. 1960년대 서울 동대문시장에서 나왔고, 백과사전은 이름의 유래를 두 가지로 전하면서 어느 쪽도 고르지 않습니다 — 바쁜 손님들이 \'닭 한 마리 빨리 달라\'고 외쳤다는 설, 그리고 한 마리를 통째로 먹는 방식을 가리킨다는 설입니다. 둘 다 같은 사실을 말합니다. 나눠서 담아 나오는 게 없다는 것. 닭 한 마리가 통째로 감자·대파·마늘과 함께 냄비에 들어가고, 식탁에서 직접 뜯어 간장·식초·겨자에 찍어 먹습니다. 고기가 없어지면 남은 국물에 국수를 넣습니다.',
+    storyEs: 'El nombre es un pedido, no una descripción: \'un pollo\'. Salió del mercado de Dongdaemun, en Seúl, en los años sesenta, y la enciclopedia da dos versiones del nombre sin decidirse: que los clientes con prisa pedían a gritos un pollo entero, o que indica que te lo vas a comer entero. Ambas dicen lo mismo: no se raciona nada. Un ave entera va a la olla con patata, cebolleta y ajo; la deshaces en la mesa, la mojas en soja, vinagre y mostaza, y cuando se acaba la carne se echan fideos a lo que queda.',
+    storyFr: 'Le nom est une commande, pas une description : « un poulet ». Il est sorti du marché de Dongdaemun, à Séoul, dans les années 1960, et l\'encyclopédie donne deux versions du nom sans trancher : des clients pressés réclamant un poulet entier, ou l\'idée que vous allez le manger en entier. Les deux disent la même chose : rien n\'est portionné. Une volaille entière va dans la marmite avec pomme de terre, ciboule et ail ; on la défait à table, on la trempe dans soja, vinaigre et moutarde, et quand la viande a disparu on met des nouilles dans ce qui reste.',
+    storyAr: 'الاسم طلبٌ لا وصف: «دجاجة واحدة». خرج من سوق دونغدايمون في سول في الستينيات، وتنقل الموسوعة روايتين للاسم دون أن ترجّح إحداهما — أنّ الزبائن المستعجلين كانوا ينادون بدجاجة كاملة، أو أنّه يشير إلى أنّك ستأكلها كلّها. وكلتاهما تقولان الشيء نفسه: لا شيء يُقسَّم إلى حصص. تدخل الدجاجة كاملةً القِدر مع البطاطا والبصل الأخضر والثوم؛ تفكّكها على المائدة وتغمسها في الصويا والخلّ والخردل، وحين ينفد اللحم تُوضع المعكرونة فيما بقي.',
+    storyZh: '这个名字是一句点单，不是描述：“一只鸡”。它出自1960年代首尔的东大门市场，百科全书给了两种说法却不作取舍——赶时间的客人喊“来一只鸡”，或者说它指的是你会把整只吃掉。两种说法讲的是同一件事：什么都不分份。整只鸡连同土豆、大葱、蒜下锅；你在桌上自己撕开，蘸酱油、醋和芥末，肉吃完了，再把面下进剩下的汤里。',
+    storyJa: '名前は説明ではなく注文です。「鶏一羽」。1960年代、ソウルの東大門市場から出てきました。百科事典は名前の由来を二つ挙げて、どちらとも決めていません——急いでいる客が「鶏一羽、早く」と叫んだという説と、一羽まるごと食べる食べ方を指すという説です。どちらも同じ事実を言っています。取り分けられて出てくるものが何もない、ということ。鶏が一羽そのまま、じゃがいも、長ねぎ、にんにくと鍋に入り、食卓で自分でほぐし、醤油と酢とからしにつけて食べます。肉がなくなったら、残った汁に麺を入れます。',
     themeId: null,
-    zones: [],
+    zones: ['동대문 닭한마리골목'],
   },
   {
     id: 'jeongol',
@@ -1513,8 +1585,16 @@ export const menus = [
     contains: [],
     spice: 0,
     varies: true,
+    storySources: ['wikipedia-jeongol-ko'],
+    story: 'What makes it a 전골 and not a 찌개 is that it does not turn on one thing. A stew is built around an ingredient; this is built around several, laid raw in the pan by colour before the broth goes over them — the arranging is part of the dish, which is why it arrives before it is food and finishes in front of you. The encyclopaedia records an origin story worth repeating even as a story: that soldiers of Goguryeo, Baekje and Silla, short of pots on campaign, cooked in their helmets. Whatever the truth of it, the shape survives — a shallow wide pan in the middle of a table, and everybody\'s chopsticks in it.',
+    storyKo: '전골이 찌개가 아닌 이유는, 한 가지 재료를 중심으로 돌지 않기 때문입니다. 찌개는 주재료 하나를 두고 끓이지만, 전골은 여러 재료를 색을 맞춰 전골틀에 날것으로 담고 그 위에 육수를 붓습니다. 담는 일 자체가 요리의 일부라서, 음식이 되기 전에 상에 오고 눈앞에서 완성됩니다. 백과사전에는 이야기로만이라도 옮길 만한 유래담이 실려 있습니다. 고구려·백제·신라의 군사들이 전장에서 조리기구가 부족해 철모에 끓여 먹었다는 것입니다. 사실 여부와 무관하게 그 형태는 남았습니다. 상 한가운데 놓인 넓고 얕은 판, 그리고 거기 함께 들어가는 모두의 젓가락.',
+    storyEs: 'Lo que lo hace 전골 y no 찌개 es que no gira sobre una sola cosa. Un guiso se construye alrededor de un ingrediente; esto se construye alrededor de varios, colocados crudos en la sartén por colores antes de verter el caldo: la colocación es parte del plato, por eso llega antes de ser comida y se termina delante de ti. La enciclopedia recoge un relato de origen que merece repetirse aunque sea como relato: que los soldados de Goguryeo, Baekje y Silla, sin ollas en campaña, cocinaban en sus cascos. Sea cierto o no, la forma ha sobrevivido: una sartén ancha y baja en medio de la mesa, y en ella los palillos de todos.',
+    storyFr: 'Ce qui en fait un 전골 et non un 찌개, c\'est qu\'il ne tourne pas autour d\'une seule chose. Un ragoût se construit autour d\'un ingrédient ; celui-ci se construit autour de plusieurs, disposés crus dans la poêle par couleurs avant qu\'on verse le bouillon — la disposition fait partie du plat, c\'est pourquoi il arrive avant d\'être un plat et s\'achève devant vous. L\'encyclopédie rapporte un récit d\'origine qui mérite d\'être répété ne serait-ce que comme récit : les soldats de Goguryeo, Baekje et Silla, à court de marmites en campagne, cuisinaient dans leurs casques. Vrai ou non, la forme a survécu : une poêle large et basse au milieu de la table, et les baguettes de tout le monde dedans.',
+    storyAr: 'ما يجعله 전골 لا 찌개 أنّه لا يدور حول شيء واحد. اليخنة تُبنى حول مكوّنٍ واحد؛ وهذا يُبنى حول عدّة مكوّنات تُرصّ نيّئةً في المقلاة بحسب الألوان قبل أن يُصبّ فوقها المرق — والترتيب نفسه جزء من الطبق، ولذلك يصل قبل أن يكون طعامًا ويكتمل أمامك. وتنقل الموسوعة روايةً عن أصله تستحقّ أن تُروى ولو بوصفها رواية: أنّ جنود غوغوريو وبيكجي وشيلا، حين أعوزتهم القدور في الحملات، طبخوا في خوذهم. وسواء صحّ ذلك أم لا، فالشكل بقي: مقلاة عريضة ضحلة في وسط المائدة، وفيها عيدان الجميع.',
+    storyZh: '它之所以是 전골 而不是 찌개，是因为它不围着某一样东西转。찌개 是围绕一种主料煮出来的；这个是围绕好几种，生的按颜色码在锅里，然后浇上高汤——摆盘本身就是这道菜的一部分，所以它是在还不算食物的时候就端上桌，在你面前完成的。百科全书记着一个哪怕当故事听也值得转述的来历：高句丽、百济、新罗的士兵在行军中缺锅，就用头盔煮饭。不论真假，那个形状留下来了——桌子中间一口又宽又浅的锅，还有所有人伸进去的筷子。',
+    storyJa: 'これが 찌개 ではなく 전골 であるのは、ひとつの素材を軸に回らないからです。찌개 はひとつの主材を中心に組み立てますが、こちらは何種類もを、生のまま色を合わせて鍋に並べ、その上から出汁を注ぎます。並べること自体が料理の一部なので、まだ食べ物になる前に膳に上がり、目の前で仕上がるのです。百科事典には、物語としてでも伝える値打ちのある由来が載っています。高句麗・百済・新羅の兵士たちが、遠征で鍋が足りず兜で煮炊きしたというもの。真偽はともかく、その形は残りました。食卓の真ん中の、浅くて広い鍋。そこに集まる全員の箸。',
     themeId: null,
-    zones: [],
+    zones: ['삼각지 대구탕골목', '종로3가 순대골목'],
   },
 
   // 나눠 먹는 상 — two things that arrive once, in the middle, finished.
@@ -1578,8 +1658,16 @@ export const menus = [
     // A few dried chillies in the soy braise: present, mild. 매운찜닭 is
     // another order.
     spice: 1,
+    storySources: ['wikipedia-jjimdak-ko'],
+    story: 'It was made in one alley, in one market, in one city. Andong\'s old market had a 통닭골목 — a whole-chicken alley — that turned into a 찜닭골목 through the 1970s and 80s, moving from fried chicken to garlic chicken to this. Three accounts of the name compete and the encyclopaedia keeps all three, one of them simply that the alley needed an answer to fried chicken spreading everywhere. It reached Seoul in the 2000s, and a television programme in 2001 did the rest. The glass noodles at the bottom are not a side: they are where the sauce ends up, and they are the reason the dish is ordered for a table.',
+    storyKo: '한 도시의, 한 시장의, 한 골목에서 만들어졌습니다. 안동 구시장에는 \'통닭골목\'이 있었는데, 1970~80년대를 지나며 튀김통닭에서 마늘통닭으로, 다시 찜닭으로 옮겨가 \'찜닭골목\'이 되었습니다. 이름의 유래는 세 가지 설이 경쟁하고 백과사전은 셋 다 그대로 둡니다. 그중 하나는 그저 프라이드 치킨이 퍼져나가는 데 대한 골목의 대답이 필요했다는 것이고요. 서울에 올라온 것은 2000년대, 2001년 방송이 나머지를 했습니다. 바닥의 당면은 곁들이가 아닙니다. 양념이 결국 모이는 자리이고, 이 음식을 여럿이 시키는 이유입니다.',
+    storyEs: 'Se hizo en un callejón, en un mercado, en una ciudad. El mercado viejo de Andong tenía un 통닭골목 —el callejón del pollo entero— que se convirtió en 찜닭골목 a lo largo de los setenta y ochenta, pasando del pollo frito al pollo al ajo y de ahí a esto. Compiten tres versiones del nombre y la enciclopedia conserva las tres; una de ellas es sencillamente que el callejón necesitaba una respuesta a la expansión del pollo frito. Llegó a Seúl en los 2000, y un programa de televisión en 2001 hizo el resto. Los fideos de batata del fondo no son un acompañamiento: son donde acaba la salsa, y la razón por la que se pide para una mesa.',
+    storyFr: 'Il a été inventé dans une ruelle, d\'un marché, d\'une ville. Le vieux marché d\'Andong avait un 통닭골목 — la ruelle du poulet entier — devenue 찜닭골목 au fil des années 1970 et 1980, en passant du poulet frit au poulet à l\'ail puis à ceci. Trois versions du nom se disputent et l\'encyclopédie les garde toutes les trois ; l\'une d\'elles est simplement que la ruelle avait besoin d\'une réponse à la diffusion du poulet frit. Il a gagné Séoul dans les années 2000, et une émission de télévision en 2001 a fait le reste. Les vermicelles au fond ne sont pas un accompagnement : c\'est là que la sauce finit, et c\'est pour cela qu\'on le commande pour une tablée.',
+    storyAr: 'صُنع في زقاقٍ واحد، في سوقٍ واحد، في مدينةٍ واحدة. كان في السوق القديم بمدينة أندونغ 통닭골목، أي زقاق الدجاج الكامل، فصار 찜닭골목 عبر السبعينيات والثمانينيات، منتقلًا من الدجاج المقلي إلى دجاج الثوم إلى هذا. تتنازع ثلاث روايات على الاسم وتحتفظ الموسوعة بالثلاث؛ إحداها ببساطة أنّ الزقاق احتاج جوابًا على انتشار الدجاج المقلي. وبلغ سول في العقد الأول من الألفية، وأتمّ برنامجٌ تلفزيوني سنة 2001 ما تبقّى. أمّا الشعيرية في القاع فليست طبقًا جانبيًّا: هناك تنتهي الصلصة، ولذلك يُطلب هذا الطبق لمائدة.',
+    storyZh: '它是在一座城、一个市场、一条巷子里做出来的。安东旧市场原本有一条 통닭골목（整鸡巷），在七八十年代一路变成了 찜닭골목，从炸鸡到蒜香鸡，再到这个。关于名字有三种说法在竞争，百科全书三种都留着；其中一种不过是说，那条巷子需要一个应对炸鸡到处开花的答案。它2000年代进了首尔，2001年的一档电视节目做完了剩下的事。底下那层粉条不是配菜：那是酱汁最后落脚的地方，也是这道菜要一桌人一起点的理由。',
+    storyJa: 'ひとつの都市の、ひとつの市場の、ひとつの路地で生まれました。安東の旧市場には「통닭골목（丸鶏の路地）」があり、1970〜80年代を通じて、フライドチキンからにんにく鶏へ、そしてこれへと移って「찜닭골목」になりました。名前の由来は三つの説が競い、百科事典は三つとも残しています。そのひとつは、フライドチキンが広がっていくのに対して路地なりの答えが要った、というだけのものです。ソウルに上がってきたのは2000年代、2001年のテレビ番組が残りを済ませました。底の春雨は付け合わせではありません。タレが最後にたどり着く場所であり、この料理を大勢で頼む理由です。',
     themeId: null,
-    zones: [],
+    zones: ['안동 구시장 찜닭골목'],
   },
   {
     id: 'haemuljjim',
@@ -1643,8 +1731,16 @@ export const menus = [
     contains: [],
     spice: 3,
     varies: true,
+    storySources: ['wikipedia-agujjim-ko'],
+    story: 'Its closest documented relative is 아귀찜, and that one has a beginning: fishermen in Masan brought what they had landed to a tavern and asked for it to be made into something to drink over. Monkfish was widely discarded until about thirty years ago — it went into the pot because nobody else wanted it. The method is the part that carries over: bean sprouts and 미더덕 and 미나리 steamed under a chilli paste thick enough to coat rather than pour. What arrives under it changes with the day\'s catch, which is why nobody can tell you in advance exactly what you are ordering.',
+    storyKo: '기록으로 확인되는 가장 가까운 친척은 아귀찜이고, 그쪽에는 시작이 있습니다. 마산의 어부들이 잡아 온 것을 선술집에 가져가 술안주로 만들어 달라고 부탁한 데서 나왔습니다. 아귀는 30여 년 전까지도 버려지는 경우가 많았습니다. 아무도 원하지 않아서 냄비에 들어간 생선이었어요. 이어진 것은 방식입니다. 콩나물과 미더덕과 미나리를, 부어지는 게 아니라 입혀지는 정도로 되직한 고춧양념 아래에서 함께 찌는 것. 그 밑에 무엇이 들어 있는지는 그날 잡힌 것에 따라 달라집니다. 그래서 무엇을 시키는 것인지 아무도 미리 정확히 말해줄 수 없습니다.',
+    storyEs: 'Su pariente documentado más cercano es el 아귀찜, y ese sí tiene un comienzo: los pescadores de Masan llevaban lo que habían capturado a una taberna y pedían que se lo prepararan para acompañar la bebida. El rape se desechaba con frecuencia hasta hace unos treinta años: fue a la olla porque nadie más lo quería. Lo que se hereda es el método: brotes de soja, 미더덕 y 미나리 al vapor bajo una pasta de guindilla lo bastante espesa para cubrir en vez de verterse. Lo que hay debajo cambia con la pesca del día, y por eso nadie puede decirte de antemano qué estás pidiendo exactamente.',
+    storyFr: 'Son parent documenté le plus proche est l\'아귀찜, et celui-là a un commencement : les pêcheurs de Masan apportaient leur prise à une taverne et demandaient qu\'on en fasse de quoi accompagner à boire. La baudroie était largement jetée il y a encore une trentaine d\'années — elle est allée dans la marmite parce que personne n\'en voulait. Ce qui se transmet, c\'est la méthode : germes de soja, 미더덕 et 미나리 cuits à la vapeur sous une pâte de piment assez épaisse pour napper plutôt que couler. Ce qu\'il y a dessous change avec la pêche du jour, et c\'est pourquoi personne ne peut vous dire à l\'avance ce que vous commandez exactement.',
+    storyAr: 'أقرب قريبٍ موثَّق له هو 아귀찜، ولذاك بداية: كان صيّادو ماسان يحملون ما اصطادوه إلى حانة ويطلبون أن يُصنع منه ما يُشرب عليه. وكان سمك المنك يُرمى كثيرًا حتى قبل نحو ثلاثين سنة — دخل القِدر لأنّ لا أحد أراده. أمّا ما انتقل فهو الطريقة: براعم الفول و미더덕 و미나리 تُطهى بالبخار تحت معجون فلفل كثيف يكسو ولا يُسكب. وما تحته يتغيّر بحسب صيد اليوم، ولذلك لا يستطيع أحد أن يخبرك سلفًا بما تطلبه بالضبط.',
+    storyZh: '有据可查的最近的亲戚是 아귀찜，而那一道是有开头的：马山的渔民把打上来的鱼拿到小酒馆，请人做成下酒的菜。安康鱼直到三十来年前还常常被扔掉——它进锅，是因为没有别人要它。传下来的是做法：豆芽、미더덕 和 미나리 一起蒸，上面盖着稠到能挂住而不是浇下去的辣酱。底下是什么，随当天的渔获而变，所以没有人能事先告诉你，你点的到底是什么。',
+    storyJa: '記録でたどれるいちばん近い親戚は 아귀찜 で、そちらには始まりがあります。馬山の漁師たちが獲ってきたものを居酒屋に持ち込み、酒の肴に仕立ててくれと頼んだ——そこから出てきました。アンコウは三十年ほど前まで、捨てられることの多い魚でした。誰も欲しがらなかったから鍋に入ったのです。受け継がれたのはやり方のほうです。豆もやしと 미더덕 と 미나리 を、かけるというより纏わせるほど濃い唐辛子だれの下で一緒に蒸すこと。その下に何が入っているかは、その日に揚がったもので変わります。だから、自分が何を頼んでいるのか、誰も前もって正確には言えません。',
     themeId: null,
-    zones: [],
+    zones: ['낙원동 아구찜골목'],
   },
 
   // 한 상 — a spread you build yourself, and the one bowl you do not share.
@@ -1845,8 +1941,16 @@ export const menus = [
       '祝いの肉です。サムギョプサルがふつうの平日の夜なら、カルビは誰かがおごる夕食で——昇進、訪ねてきた親戚、両家の初めての顔合わせ——それを出す店の多くはそのために作られていて、テーブルのほかに個室があります。水原には市の名を冠したカルビの流儀がまるごとあります。韓国の主人がカルビを提案したら、それはこの夜が大事だと言っているのです。',
     contains: ['beef'],
     spice: 0,
+    storySources: ['hansik-galbi'],
+    story: 'Until recently this was a cut you tasted at a holiday or a wedding and not otherwise — cattle were scarce under Joseon slaughter bans, and ribs were the part a family saved an occasion for. The older word is 가리, which meant beef ribs until liberation; 시의전서, 임원십육지 and 조선무쌍신식요리제법 all record the cut. Selling ribs by the piece began at a Pyongyang-naengmyeon house in Seoul\'s Nagwon-dong around 1939, and the word 갈비 dates from about then. The regional versions are arguments about seasoning: Suwon\'s are 10 to 13cm and salted only, on the grounds that a rib this good needs nothing; Haeundae\'s are marinated in soy; Pocheon\'s 이동갈비 came up in the 1950s and 60s.',
+    storyKo: '얼마 전까지도 갈비는 명절이나 잔치가 아니면 맛보기 어려운 부위였습니다. 조선의 도축 금지령 아래 소는 귀했고, 갈비는 집안이 날을 잡아 두는 자리였어요. 옛말은 \'가리\'인데, 해방 전까지는 소갈비를 뜻했습니다. 《시의전서》, 《임원십육지》, 《조선무쌍신식요리제법》에 모두 이 부위가 실려 있고요. 갈비를 낱개로 팔기 시작한 것은 1939년 무렵 서울 낙원동의 평양냉면집이었고, \'갈비\'라는 이름도 그때부터입니다. 지역마다 다른 갈비는 결국 양념을 두고 벌이는 논쟁입니다. 수원은 10~13cm에 소금만 씁니다. 이만한 갈비면 다른 것이 필요 없다는 뜻이죠. 해운대는 간장 양념이고, 포천의 이동갈비는 1950~60년대에 자리 잡았습니다.',
+    storyEs: 'Hasta hace poco era un corte que se probaba en una fiesta o una boda y no en otro momento: el ganado escaseaba bajo las prohibiciones de sacrificio de Joseon, y las costillas eran la parte para la que una familia guardaba una ocasión. La palabra antigua es 가리, que significó costilla de vacuno hasta la liberación; 시의전서, 임원십육지 y 조선무쌍신식요리제법 registran el corte. Venderlas por pieza empezó en una casa de naengmyeon de Pyongyang en Nagwon-dong, Seúl, hacia 1939, y de entonces data la palabra 갈비. Las versiones regionales son discusiones sobre el adobo: las de Suwon miden de 10 a 13 cm y solo llevan sal, porque una costilla así no necesita nada más; las de Haeundae se marinan en soja; el 이동갈비 de Pocheon surgió en los años cincuenta y sesenta.',
+    storyFr: 'Jusqu\'à récemment, c\'était un morceau qu\'on goûtait lors d\'une fête ou d\'un mariage et pas autrement : le bétail était rare sous les interdictions d\'abattage de Joseon, et les côtes étaient la part pour laquelle une famille gardait une occasion. Le mot ancien est 가리, qui désignait les côtes de bœuf jusqu\'à la libération ; 시의전서, 임원십육지 et 조선무쌍신식요리제법 consignent tous ce morceau. La vente à la pièce a commencé dans une maison de naengmyeon de Pyongyang à Nagwon-dong, Séoul, vers 1939, et le mot 갈비 date de là. Les versions régionales sont des querelles de marinade : celles de Suwon font 10 à 13 cm et ne reçoivent que du sel, au motif qu\'une côte pareille n\'a besoin de rien ; celles de Haeundae marinent dans le soja ; le 이동갈비 de Pocheon s\'est formé dans les années 1950 et 1960.',
+    storyAr: 'حتى وقت قريب كانت هذه قطعةً تُذاق في عيد أو عُرس لا في غيرهما — فقد كانت الأبقار نادرة في ظلّ مناهي الذبح في عهد جوسون، وكانت الأضلاع الجزء الذي تدّخر له العائلة مناسبة. الكلمة الأقدم هي 가리، وقد عنت أضلاع البقر حتى التحرير؛ وتذكر 시의전서 و임원십육지 و조선무쌍신식요리제법 هذه القطعة جميعًا. وبدأ بيع الأضلاع بالقطعة في بيتٍ لنينغميون البيونغيانغي في حيّ ناغوون-دونغ بسول نحو سنة 1939، ومن ذلك الحين كلمة 갈비. أمّا النسخ المحلّية فهي خلافٌ على التتبيلة: أضلاع سوون من 10 إلى 13 سنتيمترًا وبالملح وحده، بحجّة أنّ ضلعًا بهذه الجودة لا يحتاج شيئًا؛ وأضلاع هيونداي تُنقع في الصويا؛ و이동갈비 في بوتشون تكوّن في الخمسينيات والستينيات.',
+    storyZh: '直到不久以前，这还是只有过节或办喜事才尝得到的部位——朝鲜时代有禁屠令，牛稀罕，排骨是一家人特意留着等日子的那一块。旧称是 가리，光复以前指的就是牛排骨；《是议全书》《林园十六志》《朝鲜无双新式料理制法》都记着这个部位。按块卖排骨，是1939年前后从首尔乐园洞一家平壤冷面馆开始的，“갈비”这个叫法也是从那时起。各地的做法，说到底是在为调味争论：水原的长10到13厘米，只用盐，理由是这么好的排骨不需要别的；海云台的用酱油腌；抱川的移动排骨是1950、60年代成的形。',
+    storyJa: 'つい最近まで、これは祝日か婚礼でなければ口にしにくい部位でした。朝鮮時代の屠畜禁止令のもとで牛は貴重で、カルビは家が日を選んで取っておく場所だったのです。古い言い方は「가리」で、解放前までは牛カルビを指しました。《是議全書》《林園十六志》《朝鮮無雙新式料理製法》のいずれにもこの部位が載っています。カルビを一枚ずつ売りはじめたのは1939年ごろ、ソウル楽園洞の平壌冷麺店でのことで、「갈비」という名もそのころからです。地方ごとの違いは、つまるところ味つけをめぐる議論です。水原は10〜13センチ、塩だけ——これだけのカルビに他は要らない、という理屈です。海雲台は醤油だれ、抱川の李東カルビは1950〜60年代に形になりました。',
     themeId: null,
-    zones: [],
+    zones: ['수원 왕갈비', '성수동 갈비골목', '마포 돼지갈비'],
   },
 ];
 

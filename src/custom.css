@@ -325,7 +325,7 @@ body {
 }
 .dish-swipe--inline .dish-swipe__stage { flex: none; min-height: 420px; }
 
-.dish-card {
+.swipe-card {
   position: relative;
   display: flex; flex-direction: column;
   background: var(--surface);
@@ -337,11 +337,11 @@ body {
   cursor: grab;
   user-select: none;
 }
-.dish-card:active { cursor: grabbing; }
-.dish-card.is-flying { transition: transform 0.24s ease-out; }
+.swipe-card:active { cursor: grabbing; }
+.swipe-card.is-flying { transition: transform 0.24s ease-out; }
 
 /* The card behind, so finishing one visibly uncovers the next. */
-.dish-card--behind {
+.swipe-card--behind {
   position: absolute; inset: 0;
   transform: scale(0.96) translateY(10px);
   opacity: 0.55;
@@ -351,28 +351,28 @@ body {
 /* The photograph slot: sized and positioned, deliberately empty. Dropping
    images in should be this one rule and nothing else. --fill is the token
    whose own comment reads "inset fields, image placeholders". */
-.dish-card__photo {
+.swipe-card__photo {
   position: relative;
   aspect-ratio: 4 / 3;
   background: var(--fill);
   display: grid; place-items: center;
 }
-.dish-card__photo-mark {
+.swipe-card__photo-mark {
   font-size: 64px; font-weight: 800;
   color: var(--line-hover); opacity: 0.6;
 }
 
-.dish-card__body { padding: 14px 16px 18px; }
-.dish-card__kind {
+.swipe-card__body { padding: 14px 16px 18px; }
+.swipe-card__kind {
   display: inline-block; margin-bottom: 8px;
   padding: 3px 9px; font-size: 11px; font-weight: 700;
   color: var(--green-strong); background: var(--green-tint);
   border-radius: var(--radius-sm);
 }
-.dish-card__name { margin: 0; font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1.15; }
-.dish-card__roman { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
-.dish-card__gloss { margin: 8px 0 0; font-size: 15px; color: var(--ink-body); }
-.dish-card__why {
+.swipe-card__name { margin: 0; font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1.15; }
+.swipe-card__roman { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.swipe-card__gloss { margin: 8px 0 0; font-size: 15px; color: var(--ink-body); }
+.swipe-card__why {
   margin: 10px 0 0; font-size: 14px; line-height: 1.55; color: var(--ink-body);
   /* Clamped so fourteen cards are the same height. whyShared runs to three
      lines in Korean and six in French, and a deck whose cards jump height as
@@ -380,7 +380,7 @@ body {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
   line-clamp: 3; overflow: hidden;
 }
-.dish-card__min {
+.swipe-card__min {
   margin: 12px 0 0; padding-top: 10px;
   border-top: 1px solid var(--line);
   font-size: 12px; font-weight: 700; color: var(--orange-ink);
@@ -389,7 +389,7 @@ body {
 /* The two stamps, which appear only while a drag is past the threshold —
    read from the same function the release reads, so a card can never say
    YES and record a pass. */
-.dish-card__stamp {
+.swipe-card__stamp {
   position: absolute; top: 16px;
   padding: 6px 12px;
   font-size: 15px; font-weight: 800; letter-spacing: 0.04em;
@@ -397,9 +397,9 @@ body {
   opacity: 0; transition: opacity 0.12s ease;
   pointer-events: none;
 }
-.dish-card__stamp.is-on { opacity: 1; }
-.dish-card__stamp--want { left: 16px; color: var(--green-strong); transform: rotate(-12deg); }
-.dish-card__stamp--pass { right: 16px; color: var(--danger); transform: rotate(12deg); }
+.swipe-card__stamp.is-on { opacity: 1; }
+.swipe-card__stamp--want { left: 16px; color: var(--green-strong); transform: rotate(-12deg); }
+.swipe-card__stamp--pass { right: 16px; color: var(--danger); transform: rotate(12deg); }
 
 .dish-swipe__actions { display: flex; gap: 10px; margin-top: 14px; }
 .dish-swipe__btn {
@@ -554,7 +554,7 @@ body {
    and the slot is 4:3 — a deck whose cards are different shapes reads as
    broken, so the slot keeps its ratio and the picture is cropped into it
    rather than the other way round. */
-.dish-card__img {
+.swipe-card__img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
@@ -562,7 +562,7 @@ body {
 }
 /* Said on the card. Small, and legible — a disclosure nobody can read is not
    one. Bottom-left, over a scrim so it holds on a light photograph too. */
-.dish-card__ai {
+.swipe-card__ai {
   position: absolute; left: 8px; bottom: 8px;
   padding: 3px 7px;
   font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
@@ -625,14 +625,34 @@ body {
    The whole row is the link. A card with a small "visit" button inside it
    asks the reader to find the target twice. */
 .insta-card {
+  position: relative;
   display: flex; align-items: center; gap: 14px;
-  padding: 14px;
+  padding: 16px 14px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   text-decoration: none;
+  overflow: hidden;
+}
+/* The mark, behind the card rather than in the row. At this opacity it is a
+   watermark and not a logo: it gives the block the brand without competing
+   with the QR for the same glance, and every word above it still meets
+   contrast because the ground under the text is --surface, not the image.
+   Pinned to the right so it sits opposite the code and behind the arrow,
+   where there is no type over it at all. */
+.insta-card::before {
+  content: '';
+  position: absolute; right: -18px; top: 50%;
+  width: 132px; height: 132px; transform: translateY(-50%);
+  background: url('/images/eatple-logo.jpg') center / cover no-repeat;
+  border-radius: 50%;
+  opacity: 0.13;
+  pointer-events: none;
 }
 .insta-card:hover { border-color: var(--line-hover); background: var(--surface-hover); }
+.insta-card:hover::before { opacity: 0.18; }
+/* Everything real sits above the watermark. */
+.insta-card__qr, .insta-card__body, .insta-card__go { position: relative; z-index: 1; }
 .insta-card__qr {
   width: 72px; height: 72px; flex: none;
   border-radius: var(--radius-sm);
@@ -1178,3 +1198,193 @@ body {
   .insta-panel__lede { max-width: 32ch; font-size: 15px; }
   .insta-panel__qr { width: 160px; }
 }
+/* ── 요리에 담긴 이야기 · the story rail on 문화 ────────────────────────
+   A rail and not a list. Native overflow with scroll-snap: the browser
+   already does momentum, the keyboard and the mirrored layout correctly,
+   and a hand-rolled carousel gets the last of those wrong. */
+.dish-stories { margin: 4px 0 26px; }
+
+.dish-stories__rail {
+  display: flex; gap: 12px;
+  margin: 12px 0 0; padding: 2px 16px 10px; list-style: none;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.dish-stories__rail::-webkit-scrollbar { display: none; }
+/* The rail bleeds to both edges of the screen while the text above it keeps
+   the page's margin — a card cut off at the edge is what says "there is more
+   this way" without a word. */
+.dish-stories__rail { margin-left: -16px; margin-right: -16px; }
+
+/* Narrower, so more than two are visible and the rail reads as a rail.
+   A card is a picture with a name under it now — the writing moved behind
+   the tap on 2026-09-09, when a three-line hook made each card taller than
+   the photograph it was under. */
+.dish-stories__slide { flex: 0 0 44%; max-width: 168px; scroll-snap-align: start; }
+.dish-stories__hint { margin: 2px 0 0; font-size: 11px; color: var(--muted); text-align: center; }
+
+.dish-story {
+  display: flex; flex-direction: column;
+  width: 100%; padding: 0; text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden; cursor: pointer;
+}
+.dish-story:hover { border-color: var(--line-hover); }
+
+.dish-story__photo {
+  position: relative; display: block;
+  aspect-ratio: 1; background: var(--fill);
+}
+.dish-story__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dish-story__ai {
+  position: absolute; left: 6px; bottom: 6px;
+  padding: 2px 5px; font-size: 9px; font-weight: 600;
+  color: #fff; background: rgba(16, 24, 40, 0.55);
+  border-radius: var(--radius-sm);
+}
+.dish-story__mine {
+  position: absolute; right: 6px; top: 6px;
+  padding: 3px 7px; font-size: 10px; font-weight: 700;
+  color: #fff; background: var(--green-strong);
+  border-radius: var(--radius-sm);
+}
+.dish-story__body { display: flex; flex-direction: column; gap: 1px; padding: 9px 10px 11px; }
+.dish-story__kr { font-size: 15px; font-weight: 800; color: var(--ink); }
+.dish-story__rom { font-size: 10px; color: var(--muted); }
+
+/* ── the dish sheet, read top to bottom ─────────────────────────────── */
+.dish-sheet__photo { position: relative; margin: 0 0 4px; aspect-ratio: 4 / 3; background: var(--fill); }
+.dish-sheet__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dish-sheet__ai {
+  position: absolute; left: 12px; bottom: 12px;
+  padding: 3px 8px; font-size: 10px; font-weight: 600;
+  color: #fff; background: rgba(16, 24, 40, 0.55); border-radius: var(--radius-sm);
+}
+
+.dish-read { padding: 4px 16px 8px; }
+.dish-read p { margin: 0 0 14px; font-size: 15px; line-height: 1.62; color: var(--ink-body); }
+.dish-read__lead { font-size: 17px !important; font-weight: 700; color: var(--ink) !important; }
+.dish-read__zones { font-size: 13px !important; font-weight: 700; color: var(--green-strong) !important; }
+.dish-read__caveat { font-size: 13px !important; color: var(--muted-strong) !important; }
+.dish-read__contains { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.dish-read__label { margin: 0 0 10px; font-size: 13px; font-weight: 800; color: var(--ink); }
+.dish-read__sources { margin-top: 18px !important; font-size: 12px !important; }
+.dish-read__sources-label { margin-right: 8px; font-weight: 700; color: var(--muted); }
+
+/* ── the two ways to end up at a table ──────────────────────────────── */
+.dish-do { display: flex; flex-direction: column; gap: 10px; padding: 4px 16px 28px; }
+.dish-do__join {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 15px; border: 0; border-radius: var(--radius);
+  background: var(--green-strong); color: #fff; cursor: pointer;
+}
+.dish-do__join:hover { background: var(--green); }
+.dish-do__join-kr { font-size: 16px; font-weight: 700; }
+.dish-do__join-en { font-size: 12px; opacity: 0.85; }
+.dish-do__host {
+  padding: 15px; font-size: 15px; font-weight: 700;
+  color: #fff; background: var(--orange-strong);
+  border: 0; border-radius: var(--radius); cursor: pointer;
+}
+.dish-do__host:hover { background: var(--orange); }
+/* Second choice when there is something to join: hosting is the hardest
+   request this app makes, and it is the right one only when the easy one
+   does not exist. */
+.dish-do__host.is-second {
+  background: none; color: var(--orange-ink);
+  border: 1px solid var(--orange-line);
+}
+.dish-do__host.is-second:hover { background: var(--orange-tint); }
+
+/* 가볼 만한 곳, in the 장소 panel. Folded to start: eleven shelves measured
+   1.5 screens on a 375px phone, and the panel above it already holds a list
+   somebody came here to read. */
+.map-places { border-top: 1px solid var(--line); }
+.map-places__toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; padding: 15px 16px;
+  background: none; border: 0; cursor: pointer; text-align: left;
+}
+.map-places__label { display: flex; flex-direction: column; gap: 2px; }
+.map-places__label-kr { font-size: 15px; font-weight: 800; color: var(--ink); }
+.map-places__label-en { font-size: 12px; color: var(--muted); }
+.map-places__caret { font-size: 13px; color: var(--muted); transition: transform 0.2s ease; }
+.map-places__toggle.is-open .map-places__caret { transform: rotate(180deg); }
+
+/* ── 문화 카드 · the eight, as a deck you turn ──────────────────────────
+   Same rail mechanics as the dish stories, order reversed: the name is a
+   heading and the picture is what the heading is about. */
+.culture-backdrop { align-items: center; padding: 16px; }
+
+.culture-deck {
+  display: flex; flex-direction: column;
+  width: 100%; max-width: 420px; max-height: 100%;
+  padding: 14px 0 16px;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+.culture-deck__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px 10px;
+}
+.culture-deck__kr { font-size: 13px; font-weight: 800; color: var(--green-strong); letter-spacing: 0.02em; }
+.culture-deck__close {
+  width: 32px; height: 32px; padding: 0;
+  font-size: 22px; line-height: 1; color: var(--muted);
+  background: var(--fill); border: 0; border-radius: 50%; cursor: pointer;
+}
+.culture-deck__close:hover { color: var(--ink); background: var(--line); }
+
+.culture-deck__rail {
+  display: flex;
+  flex: 1 1 auto; min-height: 0;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.culture-deck__rail::-webkit-scrollbar { display: none; }
+
+.culture-card {
+  flex: 0 0 100%; scroll-snap-align: start;
+  display: flex; flex-direction: column;
+  padding: 0 16px;
+  overflow-y: auto;
+}
+.culture-card__title { margin: 0 0 12px; display: flex; flex-direction: column; gap: 2px; }
+.culture-card__title-kr { font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+.culture-card__title-en { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+.culture-card__photo {
+  position: relative; flex: none;
+  aspect-ratio: 4 / 3;
+  background: var(--fill);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.culture-card__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.culture-card__ai {
+  position: absolute; left: 8px; bottom: 8px;
+  padding: 3px 7px; font-size: 10px; font-weight: 600;
+  color: #fff; background: rgba(16, 24, 40, 0.55); border-radius: var(--radius-sm);
+}
+.culture-card__desc {
+  margin: 14px 0 4px;
+  font-size: 15px; line-height: 1.6; color: var(--ink-body);
+}
+
+.culture-deck__dots { display: flex; gap: 6px; justify-content: center; padding: 12px 16px 0; }
+.culture-deck__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line-hover); }
+.culture-deck__dot.is-on { background: var(--green-strong); }
+.culture-deck__count { margin: 8px 0 0; font-size: 11px; color: var(--muted); text-align: center; }
+/* The rail takes the drag, so a press must not start a text selection. */
+.culture-deck__rail { cursor: grab; user-select: none; }
+.culture-deck__rail:active { cursor: grabbing; }
+.culture-deck__rail:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.culture-deck__hint { margin: 10px 0 0; font-size: 11px; color: var(--muted); text-align: center; }

@@ -1147,6 +1147,19 @@ export default function App() {
         {!openThemeId && activeTab === 'home' && (
           <HomeTab
             onNavigate={goToTab}
+            /* The dish sheet's two endings. Join opens the tables list
+               filtered to that dish; host opens the create form already on
+               it, which is the same prefill a restaurant page carries in. */
+            onPickDish={(menuId) => {
+              setActiveTab('match');
+              setTableView({ screen: 'list', menu: menuId });
+            }}
+            onHostDish={(menuId) => {
+              if (!requireMember('open-table')) return;
+              setTablePrefill({ menuId });
+              setActiveTab('match');
+              setTableView({ screen: 'create' });
+            }}
             onOpenRestaurant={openDetail}
             onOpenStory={openStory}
             onExploreZone={goExplore}
@@ -1261,6 +1274,11 @@ export default function App() {
           <MapOverlay
             asTab
             open
+            /* The eleven curated shelves, which 문화 handed over on
+               2026-09-09. Same handlers 문화 was passing them. */
+            onExploreZone={goExplore}
+            visitedMarkets={visitedMarkets}
+            onToggleMarket={handleToggleMarket}
             railsOpen={mapRails}
             onToggleRail={toggleRail}
             restaurants={filteredRestaurants}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MapComponent from './MapComponent';
 import FilterBar from './FilterBar';
 import BottomSheetList from './BottomSheetList';
+import PlacesTab from './PlacesTab';
 import { XIcon, ChevronDownIcon, ChevronUpIcon } from './Icons';
 import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
 import { groupFilterId, isGroupOn, swatchColor } from '../domain/policy/mapLegend.js';
@@ -28,6 +29,7 @@ import { useText } from './localeText.js';
 // experience, a zone — so the map always answers a question the user asked
 // rather than being the question itself.
 export default function MapOverlay({
+  onExploreZone, visitedMarkets, onToggleMarket, onOpenMapTab,
   open,
   onClose,
   // The map as the 장소 tab rather than as something summoned over a
@@ -75,6 +77,7 @@ export default function MapOverlay({
   // just named — a theme, a zone, a search — so the answer is the list. The
   // tab is the map itself; opening it onto a half-height strip would be the
   // keyhole above, chosen on purpose.
+  const [shelvesOpen, setShelvesOpen] = useState(false);
   const [listOpen, setListOpen] = useState(!asTab);
   const leftOpen = railsOpen?.left !== false;
   const rightOpen = railsOpen?.right !== false;
@@ -292,6 +295,47 @@ export default function MapOverlay({
             onResetFilters={onResetFilters}
           />
         </section>
+
+        {/* 가볼 만한 곳, moved from 문화 on 2026-09-09. It belongs beside the
+            map for the reason it left: it answers "where could I go", and
+            everything on 문화 answers "what is this food". Folded to start —
+            eleven shelves measured 1.5 screens on a 375px phone, and this
+            panel already holds a list somebody came here to read.
+
+            Under the list rather than under the legend: 혼자보다 같이 먹고
+            싶은 음식 sits in .map-legend, which is a 30px horizontal chip row
+            and cannot hold shelves. This is the same side of the same screen,
+            in the only part of it with room. */}
+        <div className="map-places">
+          <button
+            type="button"
+            className={`map-places__toggle${shelvesOpen ? ' is-open' : ''}`}
+            aria-expanded={shelvesOpen}
+            aria-controls="map-places-panel"
+            onClick={() => setShelvesOpen(v => !v)}
+          >
+            <span className="map-places__label">
+              <span className="map-places__label-kr" translate="no">가볼 만한 곳</span>
+              <span className="map-places__label-en">
+                {say('Places, markets and neighbourhoods', null, 'Sitios, mercados y barrios', 'Adresses, marchés et quartiers', 'أماكن وأسواق وأحياء', '地点、市场和街区', '店と市場と街')}
+              </span>
+            </span>
+            <span className="map-places__caret" aria-hidden="true">▾</span>
+          </button>
+          <div id="map-places-panel" hidden={!shelvesOpen}>
+            <PlacesTab
+              onOpenRestaurant={onRestaurantClick}
+              onOpenStory={onReadStory}
+              onExploreZone={onExploreZone}
+              bookmarkedIds={bookmarkedIds}
+              onToggleBookmark={onToggleBookmark}
+              visitedMarkets={visitedMarkets}
+              onToggleMarket={onToggleMarket}
+              onOpenMap={onRestaurantClick}
+              onOpenMapTab={onOpenMapTab}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
