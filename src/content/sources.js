@@ -225,6 +225,74 @@ export const SOURCES = {
     // 등을 한 상에 차려놓은 음식을 의미하기도 한다."
     supports: 'Baekban (白飯) literally means plain white rice, and the word has broadened to also name the whole rice-soup-banchan set meal served under that name.',
   },
+  // ── Read 2026-09-09, for the fourteen dishes the deck asks about ──────
+  // Each was opened and read; `supports` is what the page actually says, and
+  // where a page disputes a popular claim that is recorded here too — the
+  // dispute is the fact, not the claim.
+
+  'wikipedia-bossam-ko': {
+    title: '보쌈',
+    publisher: '위키백과 (Korean Wikipedia)',
+    url: 'https://ko.wikipedia.org/wiki/보쌈',
+    retrieved: '2026-09-09',
+    supports: 'The 보 of 보쌈 is 보자기, a cloth for wrapping. Boiled pork belly, sliced thin, wrapped by the eater in lettuce or salted cabbage leaf. Tied to 김장: Joseon-era households provided pork for the workers, eaten with the kimchi just made. 굴보쌈 serves it with fresh raw oysters.',
+  },
+  'wikipedia-dakhanmari-ko': {
+    title: '닭한마리',
+    publisher: '위키백과 (Korean Wikipedia)',
+    url: 'https://ko.wikipedia.org/wiki/닭한마리',
+    retrieved: '2026-09-09',
+    supports: 'A whole chicken simmered in a pot with potato, spring onion and garlic, dipped in a soy-vinegar-mustard sauce, with noodles cooked in what is left. Originated in Seoul\'s 동대문시장 in the 1960s. The name has two accounts and the page settles neither.',
+  },
+  'wikipedia-jjimdak-ko': {
+    title: '안동찜닭',
+    publisher: '위키백과 (Korean Wikipedia)',
+    url: 'https://ko.wikipedia.org/wiki/안동찜닭',
+    retrieved: '2026-09-09',
+    supports: 'Made in the 통닭골목 — later 찜닭골목 — of Andong\'s 구시장, developing through the 1970s-80s. Three accounts of the name compete, one of them a response to the spread of fried chicken. Reached Seoul in the 2000s and spread nationally after a 2001 television programme. Braised with 당면, potato, carrot, spring onion, garlic and dried chilli in soy and 물엿.',
+  },
+  'wikipedia-jeongol-ko': {
+    title: '전골',
+    publisher: '위키백과 (Korean Wikipedia)',
+    url: 'https://ko.wikipedia.org/wiki/전골',
+    retrieved: '2026-09-09',
+    supports: 'Cooked beside the table rather than in a kitchen, and distinguished from 찌개 by holding many ingredients rather than turning on one. Arranged raw in a 전골틀 by colour before seasoned broth is poured over. The page records an origin story in which soldiers of Goguryeo, Baekje and Silla cooked in their helmets for want of pots.',
+  },
+  'wikipedia-agujjim-ko': {
+    title: '아귀찜',
+    publisher: '위키백과 (Korean Wikipedia)',
+    url: 'https://ko.wikipedia.org/wiki/아귀찜',
+    retrieved: '2026-09-09',
+    // Names 아귀찜, not 해물찜. What it supports is the dish's method and the
+    // Masan account — not any claim about 해물찜 as a category.
+    supports: 'Aguijjim was made in Masan when fishermen brought their catch to a tavern to be cooked as drinking food; monkfish was widely discarded until about thirty years ago. Steamed with 미더덕, 콩나물 and 미나리 under chilli.',
+  },
+  'wikipedia-hanjeongsik-ko': {
+    title: '한정식',
+    publisher: '위키백과 (Korean Wikipedia)',
+    url: 'https://ko.wikipedia.org/wiki/한정식',
+    retrieved: '2026-09-09',
+    supports: 'Hanjeongsik arose after the Korean War, as restaurants serving a set meal multiplied under shortage; the Korean set meal came as soup, rice, kimchi and banchan.',
+  },
+  'namu-gopchang': {
+    title: '곱창',
+    publisher: '나무위키',
+    url: 'https://namu.wiki/w/곱창',
+    retrieved: '2026-09-09',
+    // A wiki anybody may edit, and used here only for two plain facts the
+    // Korean Wikipedia article does not carry. Not used for anything a
+    // reader would act on.
+    supports: '곱 is the fat and digestive matter inside the intestine. The cut was once discarded or eaten by those who did the butchering, and became a delicacy as refrigeration and cleaning improved — it is now an expensive cut rather than a cheap one.',
+  },
+
+  'hansik-galbi': {
+    title: 'Vol 60. 구워 먹는 즐거움을 맛보다 — 수원 왕갈비에서 LA갈비까지 \'가리구이\'의 맛깔스러운 여정',
+    publisher: '한식진흥원 · 한식 읽기 좋은 날',
+    url: 'https://www.hansik.or.kr/magazines/list/magazineDetail/71/3515?menuSn=',
+    retrieved: '2026-09-09',
+    supports: '가리 is the older word for 갈비 and meant beef ribs until liberation; the cut appears in 시의전서, 임원십육지 and 조선무쌍신식요리제법. Ribs began to be sold by the piece at a Pyongyang-naengmyeon house in Seoul\'s Nagwon-dong around 1939, and the word 갈비 dates from then. Until recently it was a cut tasted at holidays and feasts rather than ordinarily, scarce under Joseon slaughter bans. Suwon 왕갈비 is 10-13cm and seasoned with salt alone, from 화춘옥 in the 1940s; 포천 이동갈비 formed in the 1950s-60s; 해운대갈비, soy-marinated, was known by the early 1960s; LA갈비, cut across the bone, spread from the 1990s.',
+  },
+
 };
 
 export const sourceById = (id) => SOURCES[id] ?? null;

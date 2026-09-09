@@ -274,3 +274,40 @@ test('an empty list, and a broken row, are survivable', () => {
   assert.deepEqual(rankByTaste(undefined, ['x']).tables, []);
   assert.equal(rankByTaste([null, T('a', 'x')], ['x']).preferredCount, 1);
 });
+
+// ── The story index, in the reader's own order ────────────────────────────
+
+import { storiesForTaste } from '../policy/taste.js';
+
+const D = (id) => ({ id });
+
+test('the dishes somebody picked are read first, and none are hidden', () => {
+  const all = [D('a'), D('b'), D('c'), D('d')];
+  const { dishes, pickedCount } = storiesForTaste(all, ['c', 'a']);
+  assert.deepEqual(dishes.map(d => d.id), ['a', 'c', 'b', 'd']);
+  assert.equal(pickedCount, 2);
+  // A story index that dropped eleven dishes would be a filter applied to
+  // culture, which is the opposite of what the tab is for.
+  assert.equal(dishes.length, all.length, 'a dish was hidden from the reading');
+});
+
+test('no taste map leaves the reading in catalogue order', () => {
+  const all = [D('a'), D('b')];
+  for (const empty of [[], null, undefined]) {
+    const { dishes, pickedCount } = storiesForTaste(all, empty);
+    assert.deepEqual(dishes.map(d => d.id), ['a', 'b']);
+    assert.equal(pickedCount, 0);
+  }
+});
+
+test('picking everything changes nothing, and picking nothing open does too', () => {
+  const all = [D('a'), D('b')];
+  assert.deepEqual(storiesForTaste(all, ['a', 'b']).dishes.map(d => d.id), ['a', 'b']);
+  assert.equal(storiesForTaste(all, ['gone']).pickedCount, 0);
+});
+
+test('it does not reorder the caller’s array', () => {
+  const all = [D('a'), D('b')];
+  storiesForTaste(all, ['b']);
+  assert.deepEqual(all.map(d => d.id), ['a', 'b']);
+});

@@ -9,6 +9,7 @@ import {
 } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import DishSwipe from './DishSwipe';
+import TodayTable from './TodayTable';
 import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
 import { languageLine } from '../domain/catalog/languages.js';
 import { visibleTables } from '../domain/policy/blocking.js';
@@ -467,6 +468,14 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
 
   return (
     <section className="tables-tab" aria-label={say('Eatple tables', '밥친구 밥상', 'Mesas de Eatple', 'Les tables Eatple', 'موائد Eatple', 'Eatple 的饭桌', 'Eatple の食卓')}>
+      {/* 오늘의 밥상, moved here from 문화 on 2026-09-09. Without push
+          notifications the only reminder this app can give is being
+          unmissable when opened, and on 9/8 the screen somebody opens
+          stopped being 문화 and became this one — so the reminder was two
+          taps from where it had to be. Above the waiting strip: a host owes
+          an answer, but a meal in three hours is the reader's own evening. */}
+      <TodayTable profile={profile} onOpenTable={onOpenTable} />
+
       {/* Before anything else on the screen, because it is the only thing
           here with a clock on it. A host who misses this has not lost a
           feature — somebody who asked to eat with them is sitting unanswered

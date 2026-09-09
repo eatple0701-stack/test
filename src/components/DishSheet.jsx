@@ -1,38 +1,34 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronLeftIcon } from './Icons';
 import { useText, useLocale } from './localeText.js';
 import { ingredientLabels, containsLine, variesLine } from '../domain/policy/dishLabels.js';
 import { sourcesFor } from '../content/sources.js';
 import PhraseSheet from './PhraseSheet';
+import { listTables } from '../data/tableRepository.js';
+import { bookable } from '../domain/policy/cancellation.js';
+import { isPast } from '../domain/policy/table.js';
 
-// A dish, read on its own.
+// A dish, read on its own — one page, top to bottom.
 //
-// The catalogue carries real writing for every dish — why it is shared,
-// what happens at the table, what the dish means at home — and until now every
-// word of it was reachable only through a table's detail page. That is fine
-// while tables exist. On a week with none it means every dish's worth of the
-// only cultural content this app has is unreachable, on exactly the screen
-// with nothing else on it.
+// It was a deck of five to seven snapped cards behind a row of tabs until
+// 2026-09-09: 어떤 요리 / 왜 나눠 먹나 / 식탁에서 / 들어가는 것 / 왜 같이 먹나
+// / 이야기. The tab row was added so nobody had to discover the swipe, and it
+// worked — but a table of contents on top of six labels is the screen telling
+// a first-time reader that there are six things to read here before they have
+// read one, and the team's word for what that produced was 복잡하다.
 //
-// 당근 opens with seventeen 인기 검색어 chips and 여기어때 with twenty 인기
-// 여행지; both exist because a blank screen asks "what do I even look for"
-// and a chip answers it. Ours answer it with the thing we actually have.
+// So it reads the way Airbnb's listing page reads: the picture, the name, and
+// then one run of prose that does not ask which part you want. Nothing was
+// cut to get there — every card's text is in the run, in the order somebody
+// would want it: what it is, where it came from, what happens at the table,
+// why anybody brings a person to it, and what is in it. The parts that are
+// not prose keep their own blocks under it, because they are not reading:
+// the sentence to say out loud, and the two ways to end up at a table.
 //
-// ── Why this is a deck of cards rather than one long page ──────────────────
-//
-// The review asked for a window that opens on the dish and reads sideways.
-// One card per screen, snapped, is that — but a raw sideways river of text is
-// the version that fails on a phone, because nothing tells you there is more
-// to the right and text you have to swipe through is text people stop
-// reading. So the deck carries a row of labels above it. The labels are the
-// table of contents *and* the controls: you can see there are five parts, see
-// which one you are on, and jump. Swiping still works; discovering it is no
-// longer required.
-//
-// Nothing here invents prose. Every card is a field the catalogue already
-// held, except `story`, which exists only where somebody on this team read a
-// source — see src/content/sources.js. A dish with no source gets no story
-// card rather than a borrowed one.
+// Nothing here invents prose. Every paragraph is a field the catalogue
+// already held, except `story`, which exists only where somebody on this
+// team read a source — see src/content/sources.js. A dish with no source
+// gets no history rather than a borrowed one.
 
 /**
  * What the dish contains, and the one honest thing to do about it.
@@ -85,129 +81,33 @@ function ContainsCard({ menu, onAsk }) {
   );
 }
 
-export default function DishSheet({ menu, onClose, onOpenTable }) {
+export default function DishSheet({ menu, onClose, onOpenTable, onJoinTable }) {
   const say = useText();
   const locale = useLocale();
-  const deck = useRef(null);
-  const [at, setAt] = useState(0);
   const [asking, setAsking] = useState(false);
+  // How many tables are open for this dish right now. Read here rather than
+  // passed in: every screen that opens this sheet would otherwise have to
+  // fetch and thread a number none of them use for anything else.
+  const [openHere, setOpenHere] = useState(null);
 
-  // Built before the early return so the hook order never changes.
-  const cards = useMemo(() => {
-    if (!menu) return [];
-    const out = [
-      {
-        id: 'what',
-        tab: say('What it is', '어떤 요리', 'Qué es', "Ce que c'est", 'ما هو', '这是什么', 'どんな料理'),
-        body: (
-          <>
-            <p className="dish-card__lead">{say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr, menu.glossZh, menu.glossJa)}</p>
-            {menu.zones?.length > 0 && (
-              <p className="dish-card__aside">
-                {say(`Eaten around ${menu.zones.join(' · ')}`, `${menu.zones.join(' · ')} 근처에서 먹어요`,
-                  `Se come por ${menu.zones.join(' · ')}`, `On le mange du côté de ${menu.zones.join(' · ')}`,
-                  `يُؤكل في نواحي ${menu.zones.join(' · ')}`, `在${menu.zones.join('、')}一带吃`,
-                  `${menu.zones.join('・')}のあたりで食べます`)}
-              </p>
-            )}
-          </>
-        ),
-      },
-      {
-        id: 'why',
-        tab: say('Why shared', '왜 나눠 먹나', 'Por qué se comparte', 'Pourquoi partagé', 'لماذا يُشارَك', '为什么分着吃', 'なぜ分け合う'),
-        body: <p>{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs, menu.whySharedFr, menu.whySharedAr, menu.whySharedZh, menu.whySharedJa)}</p>,
-      },
-      {
-        id: 'table',
-        tab: say('At the table', '식탁에서', 'En la mesa', 'À table', 'على المائدة', '在桌上', '食卓で'),
-        body: (
-          <>
-            <p>{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr, menu.howItWorksZh, menu.howItWorksJa)}</p>
-            {/* Not a warning about this reader — nobody has told us anything
-                here — but about what the catalogue can and cannot check. */}
-            {menu.varies && (
-              // Said "the side dishes change" until 2026-09-02, which was
-              // right for 백반 and wrong for 전골, where the pot itself is
-              // what differs. The sentence now matches the field's one
-              // definition: what comes with it, or what it is, is the house's.
-              <p className="dish-card__caveat">{variesLine(locale)}</p>
-            )}
-          </>
-        ),
-      },
-      {
-        id: 'contains',
-        tab: say("What's in it", '들어가는 것', 'Qué lleva', 'Ce qu’il contient', 'ما فيه', '里面有什么', '入っているもの'),
-        body: <ContainsCard menu={menu} onAsk={() => setAsking(true)} />,
-      },
-    ];
+  useEffect(() => {
+    if (!menu) return undefined;
+    let alive = true;
+    (async () => {
+      try {
+        const tables = await listTables();
+        const n = bookable(tables).filter(t => t.menuId === menu.id && !isPast(t)).length;
+        if (alive) setOpenHere(n);
+      } catch { if (alive) setOpenHere(0); }
+    })();
+    return () => { alive = false; };
+  }, [menu]);
 
-    if (menu.culture) {
-      out.push({
-        id: 'culture',
-        tab: say('Together', '왜 같이 먹나', 'En compañía', 'Ensemble', 'مع الناس', '为什么一起吃', 'なぜ一緒に'),
-        body: <p>{say(menu.culture, menu.cultureKo, menu.cultureEs, menu.cultureFr, menu.cultureAr, menu.cultureZh, menu.cultureJa)}</p>,
-      });
-    }
-
-    // Only where somebody read a source. No source, no card — the absence is
-    // the honest state, not a hole to fill with something that sounds right.
-    const srcs = sourcesFor(menu.storySources ?? []);
-    if (menu.story && srcs.length > 0) {
-      out.push({
-        id: 'story',
-        tab: say('Its story', '이야기', 'Su historia', 'Son histoire', 'حكايته', '它的来历', 'その物語'),
-        body: (
-          <>
-            <p>{say(menu.story, menu.storyKo, menu.storyEs, menu.storyFr, menu.storyAr, menu.storyZh, menu.storyJa)}</p>
-            {/* Shown, not filed away — the same rule the quiz follows. */}
-            {srcs.map(src => (
-              <a key={src.url} className="dish-card__source" href={src.url} target="_blank" rel="noreferrer">
-                {src.publisher}
-              </a>
-            ))}
-          </>
-        ),
-      });
-    }
-    return out;
-  }, [menu, say]);
+  const srcs = useMemo(() => sourcesFor(menu?.storySources ?? []), [menu]);
+  const story = menu && say(menu.story, menu.storyKo, menu.storyEs, menu.storyFr, menu.storyAr, menu.storyZh, menu.storyJa);
+  const hasStory = Boolean(menu?.story && srcs.length > 0);
 
   if (!menu) return null;
-
-  // Which card is under the reader. `scrollLeft` runs negative in a mirrored
-  // layout, so the distance is what counts, not the sign.
-  const onScroll = () => {
-    const el = deck.current;
-    if (!el || !el.clientWidth) return;
-    const i = Math.round(Math.abs(el.scrollLeft) / el.clientWidth);
-    if (i !== at) setAt(Math.min(i, cards.length - 1));
-  };
-
-  // Ask the browser to bring the card into view rather than computing an
-  // offset for it. `inline: 'start'` means the start of the reading
-  // direction, so the mirrored layout needs no special case here; `block:
-  // 'nearest'` keeps it from scrolling the page vertically on the way.
-  //
-  // Deliberately not animated. Both ways of asking for easing — the behavior
-  // option and the CSS property — turned out to be a *no-op* in the browser
-  // this was verified in, not a jump: the tab lit up, the count changed, and
-  // the deck stayed where it was. A control that silently does nothing on
-  // some engines is worse than one that always arrives instantly, and the
-  // tab row already says which card you are on. The swipe is still animated,
-  // because that one is the user's own gesture and scroll-snap handles it.
-  const goTo = (i) => {
-    const el = deck.current;
-    const card = el?.children?.[i];
-    if (!card) return;
-    setAt(i);
-    if (typeof card.scrollIntoView === 'function') {
-      card.scrollIntoView({ block: 'nearest', inline: 'start' });
-    } else {
-      el.scrollLeft = i * el.clientWidth;
-    }
-  };
 
   return (
     <div className="dish-sheet sheet-page" role="dialog" aria-label={`${menu.name}`}>
@@ -215,52 +115,117 @@ export default function DishSheet({ menu, onClose, onOpenTable }) {
         <button className="sheet-page__back" onClick={onClose} aria-label="Close">
           <ChevronLeftIcon size={20} />
         </button>
-        {/* Both names, in every language setting. Cards and tiles follow the
-            setting; this is the screen you open to learn the dish, so it is
-            where the Korean name is kept for somebody who will point at it on
-            a menu — data-no-locale is that exemption, stated in one place
-            rather than scattered across seven card classes. */}
+        {/* Both names, in every language setting. This is the screen you open
+            to learn the dish, so it is where the Korean name is kept for
+            somebody who will point at it on a menu. */}
         <h1 className="dish-sheet__title" translate="no" data-no-locale>{menu.nameKo} · {menu.name}</h1>
       </header>
 
-      {/* Said once, above the deck, because it is the answer to "how do I even
-          pronounce this" and that question does not belong to any one card. */}
+      {/* The picture, where a picture is what a reader wants first. Hidden
+          rather than broken for a dish with no file yet — ten of the
+          twenty-four have none, and an empty grey box above a title reads as
+          a failure where nothing reads as nothing. */}
+      <div className="dish-sheet__photo">
+        <img
+          src={`/images/dishes/${menu.id}.jpg`}
+          alt=""
+          onError={e => { e.currentTarget.closest('.dish-sheet__photo')?.remove(); }}
+        />
+        <span className="dish-sheet__ai">
+          {say('AI illustration', 'AI 생성 이미지', 'Ilustración con IA', 'Illustration IA', 'رسم بالذكاء الاصطناعي', 'AI 生成图', 'AI生成画像')}
+        </span>
+      </div>
+
       <p className="dish-sheet__roman" translate="no" data-no-locale>{menu.romanization}</p>
 
-      <div className="dish-tabs" role="tablist">
-        {cards.map((c, i) => (
-          <button
-            key={c.id}
-            role="tab"
-            aria-selected={i === at}
-            className={`dish-tab${i === at ? ' is-on' : ''}`}
-            onClick={() => goTo(i)}
-          >
-            {c.tab}
+      {/* ── the one run of prose ─────────────────────────────────────── */}
+      <div className="dish-read">
+        <p className="dish-read__lead">
+          {say(menu.gloss, menu.glossKo, menu.glossEs, menu.glossFr, menu.glossAr, menu.glossZh, menu.glossJa)}
+        </p>
+
+        {/* 특화골목, named. Before the history because it is the line that
+            turns the history into somewhere a reader can walk to.
+
+            The names are given as Koreans give them — 왕십리 곱창골목, not
+            "around Wangsimni" — asked for on 2026-09-09 in those words. A
+            street's name is something a traveller says out loud to a driver
+            or shows on a screen, so it stays in Korean under the rule in
+            CLAUDE.md: 입 밖에 낼 말은 로마자, 설명하는 말은 풀어쓴다. The
+            sentence around it is what gets translated. */}
+        {menu.zones?.length > 0 && (
+          <p className="dish-read__zones">
+            <span translate="no" data-no-locale>{menu.zones.join(' · ')}</span>
+            {' '}
+            {say('are the streets known for it.', '등이 유명해요.',
+              'son las calles conocidas por este plato.', 'sont les rues connues pour ce plat.',
+              'هي الشوارع المعروفة به.', '等地最有名。',
+              'あたりが、この料理で知られています。')}
+          </p>
+        )}
+
+        {hasStory && <p>{story}</p>}
+
+        <p>{say(menu.howItWorks, menu.howItWorksKo, menu.howItWorksEs, menu.howItWorksFr, menu.howItWorksAr, menu.howItWorksZh, menu.howItWorksJa)}</p>
+        {menu.varies && <p className="dish-read__caveat">{variesLine(locale)}</p>}
+
+        <p>{say(menu.whyShared, menu.whySharedKo, menu.whySharedEs, menu.whySharedFr, menu.whySharedAr, menu.whySharedZh, menu.whySharedJa)}</p>
+
+        {menu.culture && (
+          <p>{say(menu.culture, menu.cultureKo, menu.cultureEs, menu.cultureFr, menu.cultureAr, menu.cultureZh, menu.cultureJa)}</p>
+        )}
+
+        {/* Kept, and kept last of the reading. It is the one part that is not
+            a story — rule 4 lives here, and a list of six coarse values is
+            not an allergen tool however plainly it is written. */}
+        <div className="dish-read__contains">
+          <h2 className="dish-read__label">
+            {say("What's in it", '들어가는 것', 'Qué lleva', 'Ce qu’il contient', 'ما فيه', '里面有什么', '入っているもの')}
+          </h2>
+          <ContainsCard menu={menu} onAsk={() => setAsking(true)} />
+        </div>
+
+        {/* Shown, not filed away — the same rule the quiz follows. */}
+        {hasStory && (
+          <p className="dish-read__sources">
+            <span className="dish-read__sources-label">
+              {say('Sources', '출처', 'Fuentes', 'Sources', 'المصادر', '出处', '出典')}
+            </span>
+            {srcs.map(src => (
+              <a key={src.url} className="dish-card__source" href={src.url} target="_blank" rel="noreferrer">
+                {src.publisher}
+              </a>
+            ))}
+          </p>
+        )}
+      </div>
+
+      {/* ── the two ways to end up at a table ─────────────────────────
+          Joining first and hosting second, and only in that order when there
+          is something to join. Asking a traveller who landed yesterday to
+          host is the hardest request this app makes; it is the right one only
+          when the easy one does not exist. */}
+      <div className="dish-do">
+        {openHere > 0 && (
+          <button className="dish-do__join" onClick={() => onJoinTable?.(menu.id)}>
+            <span className="dish-do__join-kr" translate="no">이미 차려진 상에 합류하기</span>
+            <span className="dish-do__join-en">
+              {say(`${openHere} table${openHere === 1 ? '' : 's'} open for this`, null,
+                `${openHere} mesa${openHere === 1 ? '' : 's'} abierta${openHere === 1 ? '' : 's'}`,
+                `${openHere} table${openHere === 1 ? '' : 's'} ouverte${openHere === 1 ? '' : 's'}`,
+                `${openHere} ${openHere === 1 ? 'مائدة مفتوحة' : 'موائد مفتوحة'}`,
+                `有 ${openHere} 张开着的饭桌`, `開いている食卓が${openHere}つ`)}
+            </span>
           </button>
-        ))}
+        )}
+        <button
+          className={`dish-do__host${openHere > 0 ? ' is-second' : ''}`}
+          translate="no"
+          onClick={() => onOpenTable?.(menu.id)}
+        >
+          {say('이 요리로 상 차리기 · Open a table for this', '이 요리로 상 차리기', 'Abrir una mesa con este plato', 'Ouvrir une table pour ce plat', 'افتح مائدة لهذا الطبق', '用这道菜开一张饭桌', 'この料理で食卓を開く')}
+        </button>
       </div>
-
-      <div className="dish-deck" ref={deck} onScroll={onScroll}>
-        {cards.map(c => (
-          <article key={c.id} className="dish-card">
-            <h2 className="dish-card__label">{c.tab}</h2>
-            {c.body}
-          </article>
-        ))}
-      </div>
-
-      <p className="dish-deck__count" aria-live="polite">
-        {say(`${at + 1} of ${cards.length}`, `${cards.length}장 중 ${at + 1}`, `${at + 1} de ${cards.length}`,
-          `${at + 1} sur ${cards.length}`, `${at + 1} من ${cards.length}`, `第 ${at + 1} / ${cards.length} 张`,
-          `${cards.length}枚中 ${at + 1}枚目`)}
-      </p>
-
-      {/* The way out of reading and into doing. Reading was always free;
-          this is the one thing on the screen that is not. */}
-      <button className="dish-sheet__cta" translate="no" onClick={() => onOpenTable?.(menu.id)}>
-        {say('이 요리로 상 차리기 · Open a table for this', '이 요리로 상 차리기', 'Abrir una mesa con este plato', 'Ouvrir une table pour ce plat', 'افتح مائدة لهذا الطبق', '用这道菜开一张饭桌', 'この料理で食卓を開く')}
-      </button>
 
       {asking && <PhraseSheet menuId={menu.id} dish={menu.name} onClose={() => setAsking(false)} />}
     </div>

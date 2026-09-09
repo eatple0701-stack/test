@@ -3,13 +3,11 @@ import { themes as domainThemes } from '../domain/catalog/index.js';
 import { isSurfaceableEntity } from '../domain/policy/visibility.js';
 import JourneyLead from './JourneyLead';
 import ExploreCover from './ExploreCover';
+import DishStories from './DishStories';
+import DishSheet from './DishSheet';
 import ThemeStoryCard from './ThemeStoryCard';
-import TablesLead from './TablesLead';
-import TodayTable from './TodayTable';
 import FoodRoulette from './FoodRoulette';
-import DishSwipe from './DishSwipe';
 import CultureCards from './CultureCards';
-import PlacesTab from './PlacesTab';
 import { useText } from './localeText.js';
 
 // Eight props were declared here and unread after Explore was rebuilt around
@@ -28,15 +26,13 @@ export default function HomeTab({
   journey, onOpenSummary,
   onOpenTheme, continueTheme, nextExperience, suggestedTheme, suggestedReason,
   themeProgress, profile, onOpenTodayTable, onOpenTable,
-  onOpenRestaurant, onOpenStory, onExploreZone,
+  onOpenRestaurant, onOpenStory, onExploreZone, onPickDish, onHostDish,
   bookmarkedIds, onToggleBookmark, visitedMarkets, onToggleMarket, onOpenMap,
 }) {
   const say = useText();
   const [showRoulette, setShowRoulette] = useState(false);
-  const [showSwipe, setShowSwipe] = useState(false);
+  const [storyDish, setStoryDish] = useState(null);
   const [showCulture, setShowCulture] = useState(false);
-  // The merged 장소 shelves, shut until asked for. See the note at the mount.
-  const [placesOpen, setPlacesOpen] = useState(false);
   const [cultureStart, setCultureStart] = useState(0);
 
   // The Phase 0 catalog, filtered through the same visibility policy the
@@ -52,20 +48,6 @@ export default function HomeTab({
   );
   const progressOf = (themeId) => (themeId ? progressById[themeId] ?? null : null);
 
-  // Nobody yet: no name on file, no culture walked, nothing underway. The
-  // prologue's button says 밥친구 찾기 — Find a table — and pressing it landed
-  // on an editorial cover about a fish market in Busan. The app broke its own
-  // promise on the first tap, and the one thing it exists to do was the second
-  // thing on the page.
-  //
-  // For this traveller only, the order flips: what you can do tonight, then
-  // what there is to read. Everybody else keeps the cover, because somebody
-  // three cultures in does not need to be sold the product again.
-  const newHere =
-    !profile?.name?.trim() &&
-    (journey?.experienceCount ?? 0) === 0 &&
-    !continueTheme;
-
   const cover = (
     /* The cover. Today's pick at full size, with the reason it was picked set
        as a note rather than a caption. This is the app's recommendation —
@@ -79,68 +61,88 @@ export default function HomeTab({
     />
   );
 
-  const tables = (
-    /* The tables. Explore described seven cultures without ever saying the app
-       can seat you at one — the product's whole point lived behind a tab
-       nobody had a reason to press. */
-    <TablesLead
-      onOpenTables={() => onNavigate('match')}
-      onOpenTable={onOpenTable}
-      profile={profile}
-    />
-  );
-
   return (
     <section className="home-tab" aria-label="Home">
-      {/* Above the cover, and above everything, when a meal is today. There
-          are no push notifications and will not be before the pilot, so the
-          only reminder the app can give is being unmissable when opened. */}
-      <TodayTable profile={profile} onOpenTable={onOpenTodayTable} />
 
-      {/* 입맛 지도. First thing under today's meal, because it is the only
-          part of this tab that works for somebody who reads none of it —
-          and this tab measures 8.0 screens of reading on a 375px phone.
-          Fourteen cards, a yes or a no, and the app knows what to seat them
-          at. See DishSwipe.jsx for why the deck is what it is. */}
+      {/* 입맛 지도 stood here from 2026-09-07 and is gone from this tab on
+          2026-09-09. Not removed — moved, on 9/8, to 밥상, which is the
+          screen the app opens on now and where the tables its answers name
+          already are. A second door to it here was the same deck twice.
+
+          [이번 주 밥상] went with it, at the team's word: "explore 탭이
+          문화·공공외교 느낌을 살리는 탭인데 저 밥상 정보가 있는 게 결이 다른
+          느낌 — 어차피 바로 옆 tables 탭에서 볼 수 있으니." TablesLead is
+          untouched and is what 밥상 renders.
+
+          오늘의 밥상 moved to 밥상 as well. It is the one reminder this app
+          can give without push notifications, and it has to be on the screen
+          somebody opens — which stopped being this one on 9/8. */}
+
+      {/* ---- 요리에 담긴 이야기 ----
+
+              First on the tab, asked for in those words on 2026-09-09. This
+              is what the tab is for: 문화·공공외교, and a dish's history is
+              the most concrete form either takes. It sits above the editorial
+              cover because the cover recommends one theme and this offers
+              fourteen doors — the wider one goes first when the reader has
+              not told the app anything yet.
+
+              A list here and the reading in DishSheet, which already draws
+              왜 함께 먹나 / 먹는 법 / 문화 / 이야기 and gates the last on a
+              source somebody read. Nothing about that is rebuilt.  ---- */}
+      <DishStories onOpenDish={setStoryDish} />
+
+      {/* The cover. Today's pick at full size. */}
+      <div className="home-section home-section--tight">{cover}</div>
+
+      {/* 인스타그램, moved here on 2026-09-09 to sit directly under the
+          editor's pick. Both are the app recommending something, and putting
+          the account where the recommending happens is a smaller ask than
+          putting it after seven cultures somebody may never scroll to.
+
+          The logo is behind it rather than beside it: a mark at low opacity
+          is a background, and a mark at full size in a row is a second thing
+          competing with the QR for the same glance. */}
       <div className="home-section home-section--tight">
-        <button type="button" className="taste-lead" onClick={() => setShowSwipe(true)}>
-          <span className="taste-lead__kr" translate="no">입맛 지도</span>
-          <span className="taste-lead__title">
-            {say('Fourteen dishes. Which are yours?', '요리 열네 가지, 어느 쪽이 당겨요?',
-              'Catorce platos. ¿Cuáles son los tuyos?', 'Quatorze plats. Lesquels sont les vôtres ?',
-              'أربعة عشر طبقًا. أيّها لك؟', '十四道菜，哪些是你的？', '十四の料理。どれがあなたのですか？')}
+        <a
+          className="insta-card"
+          href="https://instagram.com/eat.ple_project"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img className="insta-card__qr" src="/images/eatple-instagram-qr.jpg" alt="" width="72" height="72" loading="lazy" />
+          <span className="insta-card__body">
+            <span className="insta-card__kr" translate="no">인스타그램</span>
+            <span className="insta-card__title">
+              {say('More of these stories, as we find them', '이런 이야기들을 더 찾는 대로 올립니다',
+                'Más historias como estas, según las encontramos', 'D’autres récits comme ceux-ci, au fil de nos trouvailles',
+                'مزيد من هذه الحكايات، كلّما وجدناها', '这样的故事，我们找到就发', 'こうした話を、見つけしだい載せています')}
+            </span>
+            <span className="insta-card__handle" translate="no" data-no-locale>@eat.ple_project</span>
           </span>
-          <span className="taste-lead__sub">
-            {say('Swipe once each. Not one of them is served for one.',
-              '한 장씩 넘겨 보세요. 그중 1인분으로 나오는 건 하나도 없어요.',
-              'Desliza una por una. Ninguno se sirve para una sola persona.',
-              'Glissez une par une. Aucun ne se sert pour une personne.',
-              'اسحب واحدًا تلو الآخر. ما منها طبق يُقدَّم لشخص واحد.',
-              '一张张滑过去。没有一道是给一个人上的。',
-              '一枚ずつめくってください。ひとり分で出てくるものは、ひとつもありません。')}
-          </span>
-        </button>
+          <span className="insta-card__go" aria-hidden="true">↗</span>
+        </a>
       </div>
 
-      {/* FirstRun used to stand here, teaching three steps that were not the
-          three steps the landing page taught — two answers to "what happens
-          here?", depending on which tab somebody opened first. The steps are
-          now in content/howItWorks.js, said once, on the landing where a
-          first visit actually begins. Its best line came with them: 밥친구
-          handles no money, which is the fact that removes the hesitation and
-          was missing from the landing entirely. Explore keeps its own job,
-          which is the culture, and still leads with tables. */}
-      {newHere ? (
-        <>
-          {tables}
-          {cover}
-        </>
-      ) : (
-        <>
-          {cover}
-          {tables}
-        </>
-      )}
+
+
+      {/* 문화 카드 · 오늘 뭐 먹지, moved under 인스타그램 on 2026-09-09.
+          They were the end of the reading; they are the two lightest ways in
+          now, and they follow the two blocks that recommend rather than the
+          seven that explain. */}
+      <div className="home-section home-section--tight">
+        <div className="surprise-row">
+          <button className="surprise-btn" onClick={() => { setCultureStart(0); setShowCulture(true); }}>
+            <span className="surprise-btn__kr">문화</span>
+            <span className="surprise-btn__label">{say('Culture Cards', '문화 카드', 'Fichas de cultura', 'Fiches de culture', 'بطاقات ثقافية', '文化卡片', '文化カード')}</span>
+          </button>
+          <button className="surprise-btn" onClick={() => setShowRoulette(true)}>
+            <span className="surprise-btn__kr">오늘 뭐 먹지</span>
+            <span className="surprise-btn__label">{say('Pick a dish for me', '골라주세요', 'Elige un plato por mí', 'Choisis un plat pour moi', 'اختر لي طبقًا', '替我挑一道菜', '料理を選んでもらう')}</span>
+          </button>
+        </div>
+      </div>
+
 
       {/* 3. Resume, for a traveller already mid-culture. Below the cover, not
              above it: someone who is partway through does not need to be sold
@@ -184,55 +186,6 @@ export default function HomeTab({
         </div>
       </div>
 
-      {/* ---- 인스타그램 ----
-
-              Placed after the seven cultures and not before them: this asks
-              somebody to leave the app, and the moment to ask that is when
-              they have just finished reading and want more — not while they
-              still have the reading in front of them.
-
-              The link is the thing and the QR is the extra. A code on the
-              screen somebody is holding cannot be scanned by that same
-              person, so a QR-first card would be an offer most readers
-              cannot take. Tapping opens the account; the code is there for
-              a laptop, and for showing the phone to somebody else — which
-              is the whole point of a project about eating together. ---- */}
-      <div className="home-section home-section--tight">
-        <a
-          className="insta-card"
-          href="https://instagram.com/eat.ple_project"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img className="insta-card__qr" src="/images/eatple-instagram-qr.jpg" alt="" width="72" height="72" loading="lazy" />
-          <span className="insta-card__body">
-            <span className="insta-card__kr" translate="no">인스타그램</span>
-            <span className="insta-card__title">
-              {say('More of these stories, as we find them', '이런 이야기들을 더 찾는 대로 올립니다',
-                'Más historias como estas, según las encontramos', 'D’autres récits comme ceux-ci, au fil de nos trouvailles',
-                'مزيد من هذه الحكايات، كلّما وجدناها', '这样的故事，我们找到就发', 'こうした話を、見つけしだい載せています')}
-            </span>
-            <span className="insta-card__handle" translate="no" data-no-locale>@eat.ple_project</span>
-          </span>
-          <span className="insta-card__go" aria-hidden="true">↗</span>
-        </a>
-      </div>
-
-      {/* 4. The two ways to be surprised, kept — moved off the opening, where
-             they were competing with the cover, to the end of the reading. */}
-      <div className="home-section home-section--tight">
-        <div className="surprise-row">
-          <button className="surprise-btn" onClick={() => { setCultureStart(0); setShowCulture(true); }}>
-            <span className="surprise-btn__kr">문화</span>
-            <span className="surprise-btn__label">{say('Culture Cards', '문화 카드', 'Fichas de cultura', 'Fiches de culture', 'بطاقات ثقافية', '文化卡片', '文化カード')}</span>
-          </button>
-          <button className="surprise-btn" onClick={() => setShowRoulette(true)}>
-            <span className="surprise-btn__kr">오늘 뭐 먹지</span>
-            <span className="surprise-btn__label">{say('Pick a dish for me', '골라주세요', 'Elige un plato por mí', 'Choisis un plat pour moi', 'اختر لي طبقًا', '替我挑一道菜', '料理を選んでもらう')}</span>
-          </button>
-        </div>
-      </div>
-
       {/* The index used to continue here for another thirteen shelves —
           restaurants, courses, neighbourhoods, seasonal notes. It is a real
           directory and travellers want it, but it answers "where could I go"
@@ -244,49 +197,11 @@ export default function HomeTab({
           dashboard and the challenge row were already on the Passport, in
           the same words, and printing progress twice does not double it. */}
 
-      {/* The places, markets and neighbourhoods that had their own tab until
-          2026-09-04. Last, after the cultures and the two surprises, because
-          this answers "where could I go" and everything above answers "what
-          should I do today" — the order the split was originally made to
-          protect, kept without needing two tabs to keep it. */}
-      {/* Folded to start. Merging 장소 in here answered "two tracks of
-          curation" and created "one very long tab" — measured at 8.0 screens
-          on a 375px phone, when the complaint that started this was that
-          there was too much to read. Nothing was cut to fix that: which of
-          eleven shelves is worth less than the others is the team's call and
-          not a thing to decide by deleting. So it is one press instead, and
-          the reading above it — the cultures, the two surprises — reaches
-          the end of the page again. */}
-      <div className="home-section home-places">
-        <button
-          type="button"
-          className={`home-places__toggle${placesOpen ? ' is-open' : ''}`}
-          aria-expanded={placesOpen}
-          aria-controls="home-places-panel"
-          onClick={() => setPlacesOpen(v => !v)}
-        >
-          <span className="home-places__label">
-            <span className="home-places__label-kr" translate="no">가볼 만한 곳</span>
-            <span className="home-places__label-en">
-              {say('Places, markets and neighbourhoods', null, 'Sitios, mercados y barrios', 'Adresses, marchés et quartiers', 'أماكن وأسواق وأحياء', '地点、市场和街区', '店と市場と街')}
-            </span>
-          </span>
-          <span className="home-places__caret" aria-hidden="true">▾</span>
-        </button>
-        <div id="home-places-panel" hidden={!placesOpen}>
-          <PlacesTab
-            onOpenRestaurant={onOpenRestaurant}
-            onOpenStory={onOpenStory}
-            onExploreZone={onExploreZone}
-            bookmarkedIds={bookmarkedIds}
-            onToggleBookmark={onToggleBookmark}
-            visitedMarkets={visitedMarkets}
-            onToggleMarket={onToggleMarket}
-            onOpenMap={onOpenMap}
-            onOpenMapTab={() => onNavigate('places')}
-          />
-        </div>
-      </div>
+      {/* 가볼 만한 곳 — the eleven curated shelves — stood here folded and
+          moved to 장소 on 2026-09-09. It answered "where could I go", which
+          is the map tab's question, and it was the last 1.5 screens of a tab
+          that is otherwise one subject. PlacesTab is untouched; only which
+          screen mounts it changed. */}
 
       {showRoulette && (
         <FoodRoulette
@@ -296,11 +211,16 @@ export default function HomeTab({
         />
       )}
       {showCulture && <CultureCards onClose={() => setShowCulture(false)} startIndex={cultureStart} />}
-      {showSwipe && (
-        <DishSwipe
-          onClose={() => setShowSwipe(false)}
-          /* A map with nowhere to go is where the roulette used to stop. */
-          onOpenTables={() => onNavigate('match')}
+      {storyDish && (
+        <DishSheet
+          menu={storyDish}
+          onClose={() => setStoryDish(null)}
+          /* A dish with nowhere to go is where the roulette used to stop. */
+          /* Host: the create form, on this dish. Join: the tables list,
+             filtered to it. Two different screens, and the sheet asks for
+             whichever the reader pressed. */
+          onOpenTable={(id) => { setStoryDish(null); onHostDish?.(id); }}
+          onJoinTable={(id) => { setStoryDish(null); onPickDish?.(id); }}
         />
       )}
     </section>

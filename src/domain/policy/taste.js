@@ -284,3 +284,28 @@ export function tasteType(taste, dishes = []) {
     code: TASTE_AXES.heat[heat] + TASTE_AXES.made[made] + TASTE_AXES.breadth[breadth],
   };
 }
+
+
+/**
+ * The deck, reordered so somebody's own picks come first.
+ *
+ * The same partition `rankByTaste` makes for tables, made for the reading:
+ * both halves keep the order they were in, and nothing is dropped. A reader
+ * who chose 삼겹살, 감자탕 and 간장게장 meets those three first and still has
+ * the other eleven under them — a story index that hid eleven dishes because
+ * somebody swiped left on them would be a filter applied to culture, which is
+ * the opposite of what this tab is for.
+ *
+ * `pickedCount` is what lets the screen say why the order is what it is. An
+ * order nobody explains is an order nobody trusts.
+ */
+export function storiesForTaste(dishes = [], preferred = []) {
+  const wanted = new Set((preferred ?? []).filter(Boolean));
+  if (!wanted.size) return { dishes: [...(dishes ?? [])], pickedCount: 0 };
+  const mine = [];
+  const rest = [];
+  for (const dish of dishes ?? []) {
+    (dish && wanted.has(dish.id) ? mine : rest).push(dish);
+  }
+  return { dishes: [...mine, ...rest], pickedCount: mine.length };
+}

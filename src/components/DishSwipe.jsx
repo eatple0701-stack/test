@@ -186,13 +186,13 @@ export default function DishSwipe({
               {/* The card behind, so the deck reads as a deck and finishing
                   one card visibly uncovers the next. */}
               {behind && (
-                <article className="dish-card dish-card--behind" aria-hidden="true">
-                  <div className="dish-card__photo">
-                    <img className="dish-card__img" src={photoFor(behind.id)} alt="" loading="lazy"
+                <article className="swipe-card swipe-card--behind" aria-hidden="true">
+                  <div className="swipe-card__photo">
+                    <img className="swipe-card__img" src={photoFor(behind.id)} alt="" loading="lazy"
                       onError={e => { e.currentTarget.style.display = 'none'; }} />
                   </div>
-                  <div className="dish-card__body">
-                    <h3 className="dish-card__name" translate="no">{behind.nameKo}</h3>
+                  <div className="swipe-card__body">
+                    <h3 className="swipe-card__name" translate="no">{behind.nameKo}</h3>
                   </div>
                 </article>
               )}
@@ -200,7 +200,7 @@ export default function DishSwipe({
               {card && (
                 <article
                   ref={cardRef}
-                  className={`dish-card${flying ? ' is-flying' : ''}`}
+                  className={`swipe-card${flying ? ' is-flying' : ''}`}
                   style={{ transform: `translateX(${dx}px) rotate(${dx * DRAG_ROTATE}deg)` }}
                   onPointerDown={onPointerDown}
                   onPointerMove={onPointerMove}
@@ -209,9 +209,9 @@ export default function DishSwipe({
                 >
                   {/* The photograph goes here. Empty on purpose — see the note
                       at the top of this file. */}
-                  <div className="dish-card__photo">
+                  <div className="swipe-card__photo">
                     <img
-                      className="dish-card__img"
+                      className="swipe-card__img"
                       src={photoFor(card.id)}
                       alt=""
                       draggable="false"
@@ -223,29 +223,29 @@ export default function DishSwipe({
                     {/* The letter stays under the photograph as the fallback
                         for a dish whose file is missing — onError hides the
                         image rather than leaving a broken-image glyph. */}
-                    <span className="dish-card__photo-mark" translate="no" aria-hidden="true">{card.nameKo.slice(0, 1)}</span>
+                    <span className="swipe-card__photo-mark" translate="no" aria-hidden="true">{card.nameKo.slice(0, 1)}</span>
                     {/* Said on the card, not hidden in a corner of the app.
                         These are generated illustrations standing in until the
                         team's own photographs exist, and this project does not
                         put something on screen as a fact it cannot stand
                         behind — rules 1 and 2, in a smaller font. */}
-                    <span className="dish-card__ai">
+                    <span className="swipe-card__ai">
                       {say('AI illustration', 'AI 생성 이미지', 'Ilustración con IA', 'Illustration IA', 'رسم بالذكاء الاصطناعي', 'AI 生成图', 'AI生成画像')}
                     </span>
                   </div>
 
-                  <div className="dish-card__body">
-                    <span className="dish-card__kind">{categoryText(card.category)}</span>
-                    <h3 className="dish-card__name" translate="no">{card.nameKo}</h3>
-                    <p className="dish-card__roman" translate="no">{card.romanization}</p>
-                    <p className="dish-card__gloss">{dishText(card, 'gloss')}</p>
+                  <div className="swipe-card__body">
+                    <span className="swipe-card__kind">{categoryText(card.category)}</span>
+                    <h3 className="swipe-card__name" translate="no">{card.nameKo}</h3>
+                    <p className="swipe-card__roman" translate="no">{card.romanization}</p>
+                    <p className="swipe-card__gloss">{dishText(card, 'gloss')}</p>
 
                     {/* The reason it is shared. This is the public-diplomacy
                         payload of the whole screen: not "this is tasty" but
                         "this is why somebody has to be across the table". */}
-                    <p className="dish-card__why">{dishText(card, 'whyShared')}</p>
+                    <p className="swipe-card__why">{dishText(card, 'whyShared')}</p>
 
-                    <p className="dish-card__min">
+                    <p className="swipe-card__min">
                       {say(`Served from ${card.minPeople} people up`, `${card.minPeople}인분부터 나옵니다`,
                         `Se sirve a partir de ${card.minPeople} personas`, `Servi à partir de ${card.minPeople} personnes`,
                         `يُقدَّم ابتداءً من ${card.minPeople} أشخاص`, `${card.minPeople} 人份起`,
@@ -253,10 +253,10 @@ export default function DishSwipe({
                     </p>
                   </div>
 
-                  <span className={`dish-card__stamp dish-card__stamp--want${leaning === VERDICT.WANT ? ' is-on' : ''}`} aria-hidden="true">
+                  <span className={`swipe-card__stamp dish-card__stamp--want${leaning === VERDICT.WANT ? ' is-on' : ''}`} aria-hidden="true">
                     {say('WANT', '먹고 싶다', 'ME APETECE', 'ENVIE', 'أريده', '想吃', '食べたい')}
                   </span>
-                  <span className={`dish-card__stamp dish-card__stamp--pass${leaning === VERDICT.PASS ? ' is-on' : ''}`} aria-hidden="true">
+                  <span className={`swipe-card__stamp dish-card__stamp--pass${leaning === VERDICT.PASS ? ' is-on' : ''}`} aria-hidden="true">
                     {say('NOT NOW', '아니요', 'AHORA NO', 'PAS ÇA', 'ليس الآن', '不用', 'いまはいい')}
                   </span>
                 </article>
