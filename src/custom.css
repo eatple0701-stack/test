@@ -1388,3 +1388,23 @@ body {
 .culture-deck__rail:active { cursor: grabbing; }
 .culture-deck__rail:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
 .culture-deck__hint { margin: 10px 0 0; font-size: 11px; color: var(--muted); text-align: center; }
+
+/* ── one mark on the map ──────────────────────────────────────────────
+   The eighteen curated places were teardrops and the register was dots, and
+   the difference moved to a category with a colour on 2026-09-09 at 강민's
+   word — "점 표시도 같은 모양, 크기로". So both are the same 14px dot and
+   colour is the only thing that varies.
+
+   The teardrop carried an invisible 44px hit area, because a mark narrower
+   than a thumb is a mark nobody can tap. That comes with it: on the eighteen
+   only, since eight thousand overlapping 44px targets would make the map
+   ambiguous to tap and impossible to pan cleanly. */
+.k-dot--wide { position: relative; }
+.k-dot--wide::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 50%; inset-block-start: 50%;
+  width: 44px; height: 44px;
+  translate: -50% -50%;
+}
+.k-dot--wide:hover { filter: drop-shadow(0 2px 5px rgba(16, 24, 40, 0.35)); }

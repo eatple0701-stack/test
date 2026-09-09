@@ -69,3 +69,33 @@ export function dotGroup(groups = [], activeGroupIds = []) {
 /** The kinds currently filtering the map, read out of selectedFilters. */
 export const groupsBeingFiltered = (selectedFilters = []) =>
   (selectedFilters ?? []).map(groupIdOfFilter).filter(Boolean);
+
+// ── 직접 가본 곳, as a category of its own ──────────────────────────────
+//
+// 2026-09-09: "얘네 화살표 큰놈들 카테고리 하나 만들어서 분류하자, 점 표시도
+// 같은 모양 크기로."
+//
+// The eighteen curated places were teardrops and the register was dots, and
+// MapComponent's own comment says why: "A teardrop says 'we chose this'; a dot
+// says 'this is here'." That distinction is not being dropped — it is moving
+// from the shape of the mark to a category with a colour and a chip, which is
+// where the other six already live. One mark, one variable: colour.
+//
+// It is not a dish group. The six say what a place serves; this says who put
+// it on the map, which is a different question — hence its own prefix. A
+// curated place answers no dish-group chip at all (servesGroup needs menu
+// evidence the register has and the curation does not), so the two never
+// overlap and asking for both at once is honestly empty.
+
+export const VISITED_FILTER = 'source:visited';
+
+/** The eighteen, as a category: an id, a colour, and the filter it writes. */
+export const VISITED = {
+  id: 'visited',
+  tint: '#0E9F6E',
+  filter: VISITED_FILTER,
+};
+
+/** Is the map showing only the places the team has been to? */
+export const isVisitedOn = (selectedFilters = []) =>
+  (selectedFilters ?? []).includes(VISITED_FILTER);

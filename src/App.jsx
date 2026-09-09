@@ -2,8 +2,8 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { restaurants } from './data/restaurants';
 import { menuById } from './domain/catalog/menus.js';
 import { menuIdOfDish } from './domain/catalog/dishGroups.js';
-import { loadRegistryPlaces, servesGroup } from './data/seoulRegistry.js';
-import { groupIdOfFilter } from './domain/policy/mapLegend.js';
+import { loadRegistryPlaces, servesGroup, isRegistryPlace } from './data/seoulRegistry.js';
+import { groupIdOfFilter, VISITED_FILTER } from './domain/policy/mapLegend.js';
 import { matchesPlaceQuery } from './domain/policy/placeSearch.js';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
@@ -866,6 +866,10 @@ export default function App() {
         if (DIETARY_CHIPS.includes(f)) return matchesDietary(r, f);
         // A dish-group chip ("group:kbbq") answers from the register's menu
         // evidence — see servesGroup for why curated places sit this one out.
+        // 직접 가본 곳 — who put the place on the map, not what it serves.
+        // A curated place answers no dish-group chip (servesGroup needs menu
+        // evidence the curation does not have), so the two never overlap.
+        if (f === VISITED_FILTER) return !isRegistryPlace(r);
         const groupId = groupIdOfFilter(f);
         if (groupId) return servesGroup(r, groupId);
         const traits = r.traits ?? [];

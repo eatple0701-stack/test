@@ -5,7 +5,7 @@ import { MAP_CENTER, coordsOf, kakaoMapUrl } from '../utils';
 import { loadAllPlaces, placesInView, placesMatching, asPlace } from '../data/nearbyPlaces.js';
 import { isRegistryPlace, placeFromRegistry, displayName } from '../data/seoulRegistry.js';
 import { DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
-import { dotGroup } from '../domain/policy/mapLegend.js';
+import { dotGroup, VISITED } from '../domain/policy/mapLegend.js';
 import { useText, useLocale } from './localeText.js';
 import { tilesFor } from '../domain/policy/mapTiles.js';
 
@@ -35,33 +35,29 @@ function ResizeSync() {
   return null;
 }
 
-// Teardrop pin: white body with green outline, solid green when selected
-const pinIcon = (selected) => L.divIcon({
-  className: `k-pin${selected ? ' k-pin--active' : ''}`,
-  html: `<svg width="34" height="44" viewBox="0 0 34 44" xmlns="http://www.w3.org/2000/svg">
-    <path d="M17 42.5C17 42.5 31.5 26.4 31.5 15.6C31.5 7.6 25 1.5 17 1.5C9 1.5 2.5 7.6 2.5 15.6C2.5 26.4 17 42.5 17 42.5Z"
-      fill="${selected ? '#0E9F6E' : '#FFFFFF'}" stroke="${selected ? '#087F5B' : '#0E9F6E'}" stroke-width="2.5"/>
-    <circle cx="17" cy="15.8" r="5" fill="${selected ? '#FFFFFF' : '#0E9F6E'}"/>
-  </svg>`,
-  iconSize: [34, 44],
-  iconAnchor: [17, 42],
-});
-
-// Places from the 서울관광재단 registry: a smaller, quieter mark, because
-// the difference between these and the twenty curated pins is the whole
-// point. A teardrop says "we chose this"; a dot says "this is here".
+// One mark for every place on this map, and colour is the only thing that
+// varies. The eighteen curated places were teardrops until 2026-09-09 — this
+// file's own note said "A teardrop says 'we chose this'; a dot says 'this is
+// here'" — and that difference did not go away, it moved: 직접 가본 곳 is a
+// category with a colour and a chip beside the other six, which is where a
+// difference somebody has to be told about belongs.
+//
+// Selection is a thicker ring rather than a bigger mark, because the ask was
+// for one shape at one size.
 const dotCache = new Map();
-const dotIcon = (tint) => {
-  if (!dotCache.has(tint)) {
-    dotCache.set(tint, L.divIcon({
-      className: 'k-dot',
+const dotIcon = (tint, selected = false, wide = false) => {
+  const key = `${tint}|${selected ? 'on' : 'off'}|${wide ? 'wide' : 'thin'}`;
+  if (!dotCache.has(key)) {
+    dotCache.set(key, L.divIcon({
+      className: `k-dot${selected ? ' k-dot--active' : ''}${wide ? ' k-dot--wide' : ''}`,
       html: '<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">'
-        + `<circle cx="7" cy="7" r="5" fill="${tint}" fill-opacity="0.9" stroke="#FFFFFF" stroke-width="2"/></svg>`,
+        + `<circle cx="7" cy="7" r="5" fill="${tint}" fill-opacity="${selected ? 1 : 0.9}"`
+        + ` stroke="${selected ? '#191F28' : '#FFFFFF'}" stroke-width="2"/></svg>`,
       iconSize: [14, 14],
       iconAnchor: [7, 7],
     }));
   }
-  return dotCache.get(tint);
+  return dotCache.get(key);
 };
 
 /**
@@ -203,7 +199,7 @@ function NearbyCard({ place, onClose, onDetails }) {
   );
 }
 
-export default function MapComponent({ restaurants, onMarkerClick, selectedId, onCenterChange, showNearby = false, query = '', activeGroups = [] }) {
+export default function MapComponent({ restaurants, onMarkerClick, selectedId, onCenterChange, showNearby = false, query = '', activeGroups = [], visitedOnly = false }) {
   // Which register dot is open, if any. Held here rather than in the layer
   // because the card is drawn outside the map, over it.
   const [nearbySelected, setNearbySelected] = useState(null);
@@ -218,7 +214,13 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
         {onCenterChange && <CenterReporter onCenterChange={onCenterChange} />}
         <ResizeSync />
         <TileLayer attribution={tiles.attribution} url={tiles.url} />
-        {showNearby && <NearbyLayer onSelect={setNearbySelected} query={query} activeGroups={activeGroups} />}
+        {/* 직접 가본 곳 means the eighteen and nothing else, so the register
+            layer is not part of that answer. Without this the chip took the
+            list to 18 and left 8,118 dots on the map — the same shape of bug
+            the dish kinds had this morning, one filter later. */}
+        {showNearby && !visitedOnly && (
+          <NearbyLayer onSelect={setNearbySelected} query={query} activeGroups={activeGroups} />
+        )}
         {/* The teardrop layer is the twenty curated places and nothing else.
             Since the register joined the same pool, this list arrives holding
             every one of its 167,659 rows too — and drawing them as teardrops
@@ -234,7 +236,8 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
           <Marker
             key={r.id}
             position={[coordsOf(r).lat, coordsOf(r).lng]}
-            icon={pinIcon(selectedId === r.id)}
+            icon={dotIcon(VISITED.tint, selectedId === r.id, true)}
+            zIndexOffset={500}
             eventHandlers={{
               click: () => onMarkerClick(r),
             }}

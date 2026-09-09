@@ -5,7 +5,7 @@ import BottomSheetList from './BottomSheetList';
 import PlacesTab from './PlacesTab';
 import { XIcon, ChevronDownIcon, ChevronUpIcon } from './Icons';
 import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
-import { groupFilterId, isGroupOn, swatchColor, groupsBeingFiltered } from '../domain/policy/mapLegend.js';
+import { groupFilterId, isGroupOn, swatchColor, groupsBeingFiltered, VISITED, isVisitedOn } from '../domain/policy/mapLegend.js';
 import { REGISTRY_TOTAL } from '../data/nearbyPlaces.js';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
@@ -81,6 +81,7 @@ export default function MapOverlay({
   const [listOpen, setListOpen] = useState(!asTab);
   // The kinds the chips have on, for the dot layer as well as the list.
   const activeKinds = useMemo(() => groupsBeingFiltered(selectedFilters), [selectedFilters]);
+  const visitedOn = isVisitedOn(selectedFilters);
   const leftOpen = railsOpen?.left !== false;
   const rightOpen = railsOpen?.right !== false;
   useEffect(() => {
@@ -142,16 +143,35 @@ export default function MapOverlay({
             First, because it is the difference between a place this app
             vouches for and one it merely lists. */}
         <span className="map-legend__kinds">
-          <span className="map-legend__kind">
-            <span className="map-legend__pin" aria-hidden="true" />
-            {say(`${CURATED_COUNT} we went to and wrote up`,
-              `직접 가보고 기록한 ${CURATED_COUNT}곳`,
-              `${CURATED_COUNT} que visitamos y describimos`,
-              `${CURATED_COUNT} où nous sommes allés et que nous avons décrites`,
-              `${CURATED_COUNT} مكانًا زرناها وكتبنا عنها`,
-              `我们亲自去过并写下来的 ${CURATED_COUNT} 处`,
-              `実際に行って書いた${CURATED_COUNT}か所`)}
-          </span>
+          {/* The eighteen are a category now, not a caption: same chip, same
+              colour swatch, and it filters. 2026-09-09 — "카테고리 하나
+              만들어서 분류하자". The mark on the map stopped being a teardrop
+              in the same change, so the difference this row explains is a
+              colour, which is what the other six explain too. */}
+          <button
+            type="button"
+            className={`map-legend__item map-legend__item--filter${visitedOn ? ' is-on' : ''}`}
+            style={visitedOn ? { background: VISITED.tint, borderColor: VISITED.tint } : undefined}
+            aria-pressed={visitedOn}
+            onClick={() => onToggleFilter?.(VISITED.filter)}
+          >
+            <span className="map-legend__head">
+              <span className="map-legend__dot" style={{ background: swatchColor(VISITED, visitedOn) }} aria-hidden="true" />
+              <span className="map-legend__name">
+                {say('We went to these', '직접 가본 곳', 'Estuvimos aquí',
+                  'Nous y sommes allés', 'زرناها بأنفسنا', '我们亲自去过', '実際に行った店')}
+              </span>
+            </span>
+            <span className="map-legend__dishes">
+              {say(`${CURATED_COUNT} we went to and wrote up`,
+                `직접 가보고 기록한 ${CURATED_COUNT}곳`,
+                `${CURATED_COUNT} que visitamos y describimos`,
+                `${CURATED_COUNT} où nous sommes allés et que nous avons décrites`,
+                `${CURATED_COUNT} مكانًا زرناها وكتبنا عنها`,
+                `我们亲自去过并写下来的 ${CURATED_COUNT} 处`,
+                `実際に行って書いた${CURATED_COUNT}か所`)}
+            </span>
+          </button>
           <span className="map-legend__kind">
             <span className="map-legend__dot map-legend__dot--any" aria-hidden="true" />
             {say(`${REGISTRY_TOTAL.toLocaleString('en-US')} from Seoul's public register — nobody here has been to those`,
@@ -254,6 +274,7 @@ export default function MapOverlay({
              too. Until 2026-09-09 only the list did, and a filter that moves
              a foldable list and leaves the map alone reads as broken. */
           activeGroups={activeKinds}
+          visitedOnly={visitedOn}
           restaurants={restaurants}
           onMarkerClick={onRestaurantClick}
           selectedId={selectedId}

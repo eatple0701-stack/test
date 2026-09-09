@@ -12102,6 +12102,7 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
    the dot should read as a recommendation, so it is smaller, flatter and
    sits below the pins in the stacking order. */
 .k-dot { background: none; border: none; }
+.k-dot svg { display: block; }
 /* The card a register dot opens.
    Not a Leaflet popup: measured on a 375x812 phone, a popup opened 149px
    above the top edge of a 325px-tall map and overflow:hidden ate the
@@ -13065,15 +13066,6 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 .map-legend__kind { display: flex; align-items: flex-start; gap: 7px; text-align: start; }
 /* A teardrop, at the size a legend can carry: the marker's silhouette rather
    than a scaled copy of it. */
-.map-legend__pin {
-  flex: 0 0 auto;
-  width: 11px;
-  height: 15px;
-  margin-top: 1px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  background: var(--ex-pine, #0E9F6E);
-}
 /* The register dot, in no group's colour — the six below say what the
    colours mean, and this row is about which kind of thing it is. */
 .map-legend__dot--any {
