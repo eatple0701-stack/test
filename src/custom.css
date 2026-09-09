@@ -753,21 +753,66 @@ body {
 }
 .first-run__skip:hover { background: var(--fill); }
 
+/* The name arrives rather than appears. Three beats — mark, wordmark, line —
+   each rising a little as it fades in, and a warm wash behind them that
+   opens with the mark. Nothing here moves more than 12px: the point is that
+   the first thing the app does looks deliberate, not that it is animated. */
 .first-run__logo-screen {
+  position: relative; isolation: isolate;
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 14px;
   padding: 32px 28px; text-align: center;
   background: none; border: 0; cursor: pointer;
-  animation: fadeIn 0.4s ease;
+  transition: opacity 0.32s ease, transform 0.32s ease;
 }
-.first-run__logo { border-radius: 24px; object-fit: cover; }
-.first-run__wordmark { font-size: 20px; font-weight: 800; color: var(--ink-title); }
+/* Behind the three, and only as wide as they are. Sized in vmax so it is the
+   same shape of light on a phone and on a desktop window. */
+.first-run__logo-screen::before {
+  content: ''; position: absolute; z-index: -1;
+  inset-inline-start: 50%; inset-block-start: 50%;
+  width: 78vmax; height: 78vmax; translate: -50% -50%;
+  background: radial-gradient(closest-side, var(--accent-tint), transparent 70%);
+  animation: firstRunGlow 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.first-run__logo-screen > * {
+  animation: firstRunRise 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.first-run__logo { border-radius: 24px; object-fit: cover; box-shadow: var(--shadow-2); }
+.first-run__wordmark {
+  font-size: 20px; font-weight: 800; color: var(--ink-title);
+  animation-delay: 0.18s;
+}
 .first-run__tagline {
   max-width: 22ch; font-size: 15px; line-height: 1.5; color: var(--muted-strong);
   text-wrap: balance;
+  animation-delay: 0.34s;
+}
+/* Leaving overlaps the deck arriving, so the two are a dissolve rather than
+   a cut. Driven by a class and not by unmounting, because an element that is
+   gone cannot fade. */
+.first-run__logo-screen.is-leaving { opacity: 0; transform: scale(1.015); }
+
+@keyframes firstRunRise {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes firstRunGlow {
+  from { opacity: 0; scale: 0.88; }
+  to { opacity: 1; scale: 1; }
 }
 
-.first-run__taste { width: 100%; max-width: 560px; margin: 0 auto; padding: 52px 0 28px; }
+.first-run__taste {
+  width: 100%; max-width: 560px; margin: 0 auto; padding: 52px 0 28px;
+  animation: fadeIn 0.5s ease both;
+}
+
+/* Somebody who asked for less motion gets the same three beats as plain
+   fades, and no wash opening behind them. */
+@media (prefers-reduced-motion: reduce) {
+  .first-run__logo-screen > *,
+  .first-run__logo-screen::before { animation-name: fadeIn; animation-duration: 0.3s; }
+  .first-run__logo-screen.is-leaving { transform: none; }
+}
 
 /* A sample table's pin says so. The card and the detail screen already carry
    샘플; the map used to be the one surface where a fixture looked like

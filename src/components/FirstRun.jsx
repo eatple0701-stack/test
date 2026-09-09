@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import DishSwipe from './DishSwipe';
 import FoodMbti from './FoodMbti';
 import { FIRST_RUN, FIRST_RUN_EXIT, stepAfter } from '../domain/policy/firstRun.js';
@@ -23,12 +23,30 @@ import { useText } from './localeText.js';
 // whether real dinners exist is one tap from them at all times; that is the
 // condition under which putting anything at all in front of the tables is
 // allowed.
-const LOGO_MS = 1800;
+// How long the name is on screen, and how long it takes to leave. The
+// entrance is staggered in CSS and settles at about 1.1s, so 2200 is roughly
+// a second of actually looking at it; the fade out overlaps the deck coming
+// in rather than cutting to it.
+const LOGO_MS = 2200;
+const LEAVE_MS = 320;
 
 export default function FirstRun({ onDone }) {
   const say = useText();
   const [step, setStep] = useState(FIRST_RUN.logo);
+  const [leaving, setLeaving] = useState(false);
   const [exit, setExit] = useState(null);
+
+  // Leaving the logo is two beats: it fades, and then the step changes. One
+  // path for the timer and for a tap, so leaving early looks like waiting
+  // did — and a ref rather than the state, so a second tap during the fade
+  // does nothing instead of stacking another timer behind the first.
+  const leavingNow = useRef(false);
+  const leaveLogo = useCallback(() => {
+    if (leavingNow.current) return;
+    leavingNow.current = true;
+    setLeaving(true);
+    window.setTimeout(() => setStep(s => stepAfter(s) ?? s), LEAVE_MS);
+  }, []);
 
   // The logo screen plays rather than waits. There is nothing to decide on
   // it, and a screen with no question should not need a tap to leave — but it
@@ -36,9 +54,9 @@ export default function FirstRun({ onDone }) {
   // never the only way out.
   useEffect(() => {
     if (step !== FIRST_RUN.logo) return undefined;
-    const t = window.setTimeout(() => setStep(s => stepAfter(s) ?? s), LOGO_MS);
+    const t = window.setTimeout(leaveLogo, LOGO_MS);
     return () => window.clearTimeout(t);
-  }, [step]);
+  }, [step, leaveLogo]);
 
   // The test opens over the sequence rather than after it: closing the test
   // is what ends the whole thing, so there is no moment where somebody has
@@ -56,8 +74,8 @@ export default function FirstRun({ onDone }) {
       </button>
 
       {step === FIRST_RUN.logo && (
-        <button type="button" className="first-run__logo-screen"
-          onClick={() => setStep(s => stepAfter(s) ?? s)}>
+        <button type="button" className={`first-run__logo-screen${leaving ? ' is-leaving' : ''}`}
+          onClick={leaveLogo}>
           <img className="first-run__logo" src="/images/eatple-logo.jpg" alt="" width="96" height="96" />
           <span className="first-run__wordmark" translate="no">밥친구 잇플 · Eatple</span>
           <span className="first-run__tagline">
