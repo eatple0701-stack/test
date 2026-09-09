@@ -160,13 +160,62 @@ export const MIN_ZOOM = 12;
  * What to draw for this viewport.
  *
  * Leaflet draws every marker it is handed and keeps a DOM node per marker, so
- * a viewport is capped. Over the cap the survivors are taken at an even
- * stride through the list rather than as the first N: the rows are ordered by
- * district and then by id, so "the first 160" at city zoom is 160 dots in
- * 강남구 and an empty map everywhere else — which reads as a claim about
- * where the food is, and it is not one this data supports.
+ * a viewport is capped. Over the cap the survivors are taken across the whole
+ * list rather than as the first N: the rows are ordered by district and then
+ * by id, so "the first 160" at city zoom is 160 dots in 강남구 and an empty map
+ * everywhere else — which reads as a claim about where the food is, and it is
+ * not one this data supports.
+ *
+ * ── why it is a rank and not a stride ──────────────────────────────────
+ *
+ * "지도를 확대했다가 축소를 하면 위치가 이상하게 뜨고, 자꾸 위치가 달라져",
+ * 2026-09-09. An even stride through whatever is currently in view is a
+ * different set of places every time the view changes: pan a block, and the
+ * 160 that survive are 160 different restaurants. Nothing moved and no dot is
+ * wrong, but the map is reshuffled under somebody who was looking at it, which
+ * is worse than either.
+ *
+ * Each row gets a rank instead — a number derived from its own id, so it never
+ * changes — and a viewport keeps the lowest `limit` of them. That makes the
+ * thinning monotone: zooming in shrinks the set in view, the survivors keep
+ * the ranks they had, and dots can only appear, never swap. A dot you were
+ * looking at is still there after the zoom.
  */
 export const VIEW_LIMIT = 160;
+
+// A stable rank per row, 0..1, derived from its id and nothing else.
+//
+// The first version ran FNV-1a over String(id) and clumped: ids are sequential
+// integers, rows in one part of the city share their leading digits, and FNV
+// over a three-character string keeps enough of that to correlate. The spread
+// test caught it at 14 of 30 columns.
+//
+// This is the usual 32-bit avalanche instead, which is what mixes sequential
+// integers apart. Strings still get folded in first, for ids that are not
+// numbers.
+const rankCache = new Map();
+function rankOf(id) {
+  if (rankCache.has(id)) return rankCache.get(id);
+  let x = id;
+  if (typeof x !== 'number') {
+    const s = String(id);
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i += 1) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    x = h;
+  }
+  x >>>= 0;
+  x ^= x >>> 16;
+  x = Math.imul(x, 0x7feb352d);
+  x ^= x >>> 15;
+  x = Math.imul(x, 0x846ca68b);
+  x ^= x >>> 16;
+  const r = (x >>> 0) / 4294967295;
+  rankCache.set(id, r);
+  return r;
+}
 
 export function placesInView(layer, bounds, zoom, limit = VIEW_LIMIT) {
   if (!layer?.rows || !bounds || zoom < MIN_ZOOM) return [];
@@ -179,10 +228,10 @@ export function placesInView(layer, bounds, zoom, limit = VIEW_LIMIT) {
     inside.push(p);
   }
   if (inside.length <= limit) return inside;
-  const stride = inside.length / limit;
-  const out = [];
-  for (let i = 0; i < limit; i += 1) out.push(inside[Math.floor(i * stride)]);
-  return out;
+  // inside is built here, so sorting it touches nothing the caller holds.
+  return inside
+    .sort((a, b) => rankOf(a.i) - rankOf(b.i))
+    .slice(0, limit);
 }
 
 /**

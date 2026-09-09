@@ -104,3 +104,13 @@ test('the dots do not read the visited filter as a kind', () => {
   const groups = [{ id: 'kbbq' }];
   assert.deepEqual(dotGroup(groups, groupsBeingFiltered([VISITED.filter])), { id: 'kbbq' });
 });
+
+test('no two categories on the map are the same colour', () => {
+  // 직접 가본 곳 shipped in 나눠 먹는 상's green for one deploy. Colour is the
+  // only thing that varies between marks now, so two categories sharing one
+  // is two categories nobody can tell apart — on the map and in the legend
+  // that explains it.
+  const tints = [...DISH_GROUPS.map(g => g.tint), VISITED.tint].map(t => t.toUpperCase());
+  assert.equal(new Set(tints).size, tints.length,
+    `two categories share a colour: ${tints.join(', ')}`);
+});

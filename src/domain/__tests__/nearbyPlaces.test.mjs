@@ -230,3 +230,71 @@ test('a one-letter query is capped the way a viewport is', () => {
   // empty map everywhere else.
   assert.ok(shown[shown.length - 1].i > VIEW_LIMIT, 'the survivors are the first N, not a spread');
 });
+
+// A grid wide enough that a box can be genuinely tighter than the whole of
+// it, and dense enough that both boxes are over the cap. The first fixture
+// written for these tests had every row inside both boxes, so "the tight view
+// keeps them" was true of any implementation — the even stride it was meant
+// to catch passed it.
+const GRID = (() => {
+  const rows = [];
+  for (let i = 0; i < 900; i += 1) {
+    rows.push({
+      i,
+      n: `p${i}`,
+      y: 37.40 + (i % 30) * 0.0069,          // 37.40 .. 37.60
+      x: 126.80 + Math.floor(i / 30) * 0.0103, // 126.80 .. 127.10
+    });
+  }
+  return rows;
+})();
+const WIDE = { north: 37.61, south: 37.39, east: 127.11, west: 126.79 };
+const TIGHT = { north: 37.52, south: 37.39, east: 126.95, west: 126.79 };
+const within = (p, b) => p.y >= b.south && p.y <= b.north && p.x >= b.west && p.x <= b.east;
+
+test('the fixture is one a stride could fail', () => {
+  // Both views over the cap, and the tight one a real subset of the wide.
+  const inWide = GRID.filter(p => within(p, WIDE)).length;
+  const inTight = GRID.filter(p => within(p, TIGHT)).length;
+  assert.ok(inWide > VIEW_LIMIT, `wide holds ${inWide}`);
+  assert.ok(inTight > VIEW_LIMIT, `tight holds ${inTight}`);
+  assert.ok(inTight < inWide, 'the tight box is not tighter');
+});
+
+test('zooming in only adds dots — it never swaps the ones already there', () => {
+  // "지도를 확대했다가 축소를 하면 위치가 이상하게 뜨고, 자꾸 위치가 달라져",
+  // 2026-09-09. An even stride through whatever is in view returns a different
+  // set every time the view changes, so a map somebody was reading reshuffles
+  // itself under them.
+  const layer = { rows: GRID };
+  const atWide = placesInView(layer, WIDE, MIN_ZOOM);
+  const atTight = new Set(placesInView(layer, TIGHT, MIN_ZOOM).map(p => p.i));
+  const survivors = atWide.filter(p => within(p, TIGHT));
+  assert.ok(survivors.length > 0, 'the two views must overlap, or this proves nothing');
+  for (const p of survivors) {
+    assert.ok(atTight.has(p.i), `dot ${p.i} was on screen and vanished on zooming in`);
+  }
+});
+
+test('the same viewport draws the same dots every time it is asked', () => {
+  const layer = { rows: GRID };
+  const a = placesInView(layer, WIDE, MIN_ZOOM).map(p => p.i);
+  const b = placesInView(layer, WIDE, MIN_ZOOM).map(p => p.i);
+  assert.deepEqual(a, b);
+  assert.equal(a.length, VIEW_LIMIT);
+});
+
+test('the dots are spread over the view, not clumped in one corner of it', () => {
+  // The reason the cap never took "the first 160": the rows are ordered by
+  // district, so that was 160 dots in 강남구 and an empty map everywhere else,
+  // which reads as a claim about where the food is. A rank keyed to the row
+  // spreads them; any rule keyed to position — the lowest 160 latitudes, say —
+  // brings the clump back under a different name.
+  const shown = placesInView({ rows: GRID }, WIDE, MIN_ZOOM);
+  const columns = new Set(shown.map(p => Math.round((p.x - 126.80) / 0.0103)));
+  const rowsHit = new Set(shown.map(p => Math.round((p.y - 37.40) / 0.0069)));
+  // 30 columns and 30 rows in the fixture; 160 of 900 taken evenly should
+  // touch most of both. Half is a floor with room to spare, not a target.
+  assert.ok(columns.size >= 24, `only ${columns.size} of 30 columns have a dot`);
+  assert.ok(rowsHit.size >= 24, `only ${rowsHit.size} of 30 rows have a dot`);
+});

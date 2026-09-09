@@ -89,10 +89,18 @@ export const groupsBeingFiltered = (selectedFilters = []) =>
 
 export const VISITED_FILTER = 'source:visited';
 
-/** The eighteen, as a category: an id, a colour, and the filter it writes. */
+/**
+ * The eighteen, as a category: an id, a colour, and the filter it writes.
+ *
+ * The colour was #0E9F6E for one deploy, which is 나눠 먹는 상's own tint — the
+ * green the teardrop used to be, carried over without checking it against the
+ * six it was joining. Two categories, one colour, on a map where colour had
+ * just become the only thing that varies. Rose instead: no dish kind is near
+ * it, and it holds up on a pale tile.
+ */
 export const VISITED = {
   id: 'visited',
-  tint: '#0E9F6E',
+  tint: '#DB2777',
   filter: VISITED_FILTER,
 };
 
