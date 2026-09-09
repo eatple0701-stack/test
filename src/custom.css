@@ -644,15 +644,124 @@ body {
 .insta-card__handle { font-size: 12px; color: var(--muted); }
 .insta-card__go { flex: none; font-size: 16px; color: var(--muted); }
 
-/* The same card, on the screen that has room for it. The rail gives every
-   slide the hero’s height, so this one had 600px of air around a 109px card.
-   A bigger code is the honest way to spend it: the card’s own note says the
-   QR is for a laptop and for holding the phone out to somebody else, and both
-   of those want it larger than a thumbnail. There is no feed screenshot to
-   show instead — instagram_eatple_project.jpg turned out to be this same code
-   at a larger size, which is worth writing down so nobody looks twice. */
-.main-band--insta .insta-card { padding: 18px; }
-.main-band--insta .insta-card__qr { width: 120px; height: 120px; }
+/* ── 인스타그램 · the slide in 소개's rail ─────────────────────────────
+   Redrawn 2026-09-09. What stood here was Explore's row-shaped card dropped
+   into a slide the rail gives 714px to: a 158px white box, the same white as
+   every other card in the app, with 500px of nothing under it.
+
+   The direction is the mark's. logo_eatple_project.jpg is a seal — terracotta
+   pressed into cream, a spoon curling into a city gate — so this is the one
+   surface in the app that is not white, and the code is a stamp rather than a
+   thumbnail. The app's own record is a 여권; a stamp is what goes in one.
+
+   Panel-local tokens rather than new global ones: cream is right for this
+   slide and nowhere else, and a --cream in :root would be found and used. */
+.main-band--insta {
+  --insta-ground: #F6EFE3;
+  --insta-ink: #45291A;
+  --insta-seal: #B0522A;
+  --insta-line: rgba(176, 82, 42, 0.24);
+  --insta-paper: #FFFFFF;
+  padding: 0;
+  height: 100%;
+}
+:root[data-theme="dark"] .main-band--insta {
+  --insta-ground: #241A14;
+  --insta-ink: #F2E6D9;
+  --insta-seal: #E08655;
+  --insta-line: rgba(224, 134, 85, 0.3);
+  --insta-paper: #F6EFE3;   /* the code stays on paper — a QR needs the white */
+}
+
+.insta-panel {
+  display: flex; flex-direction: column; align-items: center;
+  /* Centred rather than stretched. Every slide in this rail is the hero's
+     height, which is taller than the region the reader can see — so the
+     block sits in the middle of the slide, where the middle of the screen
+     is, instead of running under the tab bar. */
+  justify-content: center;
+  gap: 0; height: 100%;
+  padding: 26px 26px 24px;
+  background: var(--insta-ground);
+  color: var(--insta-ink);
+  text-align: center;
+  text-decoration: none;
+}
+.insta-panel__eyebrow {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--insta-seal);
+}
+.insta-panel__title {
+  display: flex; flex-direction: column; gap: 6px;
+  margin: 10px 0 0;
+  font-size: 27px; font-weight: 800; line-height: 1.16; letter-spacing: -0.02em;
+  color: var(--insta-ink);
+  text-wrap: balance;
+}
+.insta-panel__en { font-size: 15px; font-weight: 600; opacity: 0.72; }
+/* With the Korean line gone, the English one is the heading — the same
+   correction .main-band__title carries, for the same reason. */
+[data-locale="en"] .insta-panel__en { font-size: 27px; font-weight: 800; opacity: 1; }
+
+/* A hairline under the headline, in the seal's colour, as wide as a stamp's
+   own rule. Structure, not decoration: it separates the invitation from what
+   is being invited to. */
+.insta-panel__lede {
+  position: relative;
+  margin-top: 14px; padding-top: 14px;
+  max-width: 21ch;
+  /* Korean breaks between syllables unless told otherwise, which left 들
+     alone on its own line. */
+  word-break: keep-all;
+  font-size: 14px; line-height: 1.6; opacity: 0.8;
+}
+.insta-panel__lede::before {
+  content: ''; position: absolute; inset-block-start: 0;
+  inset-inline-start: 50%; translate: -50% 0;
+  width: 40px; height: 2px; background: var(--insta-seal); opacity: 0.55;
+}
+
+/* The stamp. Pressed rather than laid on: a hairline outer frame, a second
+   inset one, and two degrees off square. */
+.insta-panel__stamp {
+  position: relative;
+  margin: 22px 0 0;
+  padding: 10px;
+  background: var(--insta-paper);
+  border: 1px solid var(--insta-line);
+  border-radius: 4px;
+  rotate: -2deg;
+  box-shadow: 0 10px 24px rgba(69, 41, 26, 0.13);
+}
+.insta-panel__stamp::after {
+  content: ''; position: absolute; inset: 5px;
+  border: 1px dashed var(--insta-line);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.insta-panel__qr {
+  display: block; width: 132px; height: auto;
+  -webkit-user-drag: none; user-select: none;
+}
+.insta-panel__scan { margin-top: 10px; font-size: 12px; opacity: 0.62; }
+
+.insta-panel__go {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 16px; padding: 13px 22px;
+  font-size: 15px; font-weight: 800;
+  color: var(--insta-ground); background: var(--insta-seal);
+  border-radius: 999px;
+  transition: transform 140ms ease;
+}
+.insta-panel__arrow { transition: translate 140ms ease; }
+.insta-panel:hover .insta-panel__go { transform: translateY(-1px); }
+.insta-panel:hover .insta-panel__arrow { translate: 3px 0; }
+.insta-panel:focus-visible { outline: 3px solid var(--insta-seal); outline-offset: -3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .insta-panel__go, .insta-panel__arrow { transition: none; }
+  .insta-panel:hover .insta-panel__arrow { translate: 0; }
+}
 
 /* ── 음식 MBTI ────────────────────────────────────────────────────────
    A sheet rather than a panel under the map: twelve more questions stacked
@@ -1059,3 +1168,13 @@ body {
   font-size: 12px; color: var(--muted-strong);
 }
 .taste-recap__swipe { font-weight: 700; white-space: nowrap; }
+
+/* From 768px the slide is a cream field a metre wide with a phone-sized
+   column in the middle of it. The composition is right — a stamp centred on
+   paper — so it is scaled rather than rearranged. */
+@media (min-width: 768px) {
+  .insta-panel__title { font-size: 34px; }
+  [data-locale="en"] .insta-panel__en { font-size: 34px; }
+  .insta-panel__lede { max-width: 32ch; font-size: 15px; }
+  .insta-panel__qr { width: 160px; }
+}

@@ -823,46 +823,88 @@ export default function MainTab({
           {/* ---- Where the rest of it is ----
 
                   Asked for on 2026-09-07: bring people to the curation. The
-                  same card already ends Explore's reading, and it stays
-                  there — that one is offered to somebody who has just
+                  same ask ends Explore's reading, as a row-shaped card, and
+                  that one stays — it is offered to somebody who has just
                   finished a story and wants another, which is a different
-                  moment from this one and a better one for the ask. This is
-                  for the reader who never got that far, which on a page
-                  measured at eight screens is most of them.
+                  moment from this one. This is for the reader who never got
+                  that far, which on a page measured at eight screens is most
+                  of them.
 
-                  Link first and QR second, for the reason the Explore card
-                  gives: nobody can scan a code on the phone they are holding.
+                  Redrawn on 2026-09-09 ("디자인이 별로인 수준이 아니고 그냥
+                  디자인이 없던데"), and the note is worth keeping: it was the
+                  Explore card dropped into a slide the rail gives 714px to,
+                  so it was a 158px white box with 500px of nothing under it —
+                  the same white as every other card in the app, on a screen
+                  whose only job is to make somebody want to leave for a
+                  better one.
+
+                  The direction comes from the mark. logo_eatple_project.jpg
+                  is a seal: terracotta pressed into cream, a spoon curling
+                  into a city gate. So this slide is the one place in the app
+                  that is not white, and the code is presented as a stamp
+                  rather than a thumbnail — which is also what the app's own
+                  passport metaphor is made of.
+
+                  Link first and code second, for the reason the Explore card
+                  gives: nobody scans a code on the phone they are holding.
                   The code is for a laptop, and for holding the phone out to
-                  somebody else — which is the point of a project about
-                  eating together. ---- */}
+                  somebody else, which is the point of a project about eating
+                  together. The handle is printed inside Instagram's own code
+                  image, so it is not set a second time in text. ---- */}
           <div className="main-band main-band--insta">
-            <h2 className="main-band__title">
-              <span className="main-band__title-kr" translate="no">더 있습니다, 인스타그램에</span>
-              <span className="main-band__title-en">
-                {say('There is more of it on Instagram', null,
-                  'Hay más en Instagram', 'Il y en a plus sur Instagram',
-                  'هناك المزيد على إنستغرام', '更多在 Instagram 上', 'つづきは Instagram に')}
-              </span>
-            </h2>
             <a
-              className="insta-card"
+              className="insta-panel"
               href="https://instagram.com/eat.ple_project"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img className="insta-card__qr" src="/images/eatple-instagram-qr.jpg" alt="" width="72" height="72" loading="lazy" />
-              <span className="insta-card__body">
-                <span className="insta-card__kr" translate="no">인스타그램</span>
-                <span className="insta-card__title">
-                  {say('The dishes, the places, and what we found out about them',
-                    '요리와 장소, 그리고 그것들에 대해 알아낸 것들',
-                    'Los platos, los sitios y lo que averiguamos sobre ellos',
-                    'Les plats, les adresses, et ce que nous avons appris sur eux',
-                    'الأطباق والأماكن وما عرفناه عنها',
-                    '菜、地方，以及我们打听到的事',
-                    '料理と場所、そしてそれについて分かったこと')}
+              <span className="insta-panel__eyebrow" translate="no">Instagram</span>
+              <h2 className="insta-panel__title">
+                <span className="insta-panel__kr" translate="no">더 있습니다,<br />인스타그램에</span>
+                <span className="insta-panel__en">
+                  {say('There is more of it on Instagram', null,
+                    'Hay más en Instagram', 'Il y en a plus sur Instagram',
+                    'هناك المزيد على إنستغرام', '更多在 Instagram 上', 'つづきは Instagram に')}
                 </span>
-                <span className="insta-card__handle" translate="no" data-no-locale>@eat.ple_project</span>
+              </h2>
+
+              <span className="insta-panel__lede">
+                {say('The dishes, the places, and what we found out about them',
+                  '요리와 장소, 그리고 그것들에 대해 알아낸 것들',
+                  'Los platos, los sitios y lo que averiguamos sobre ellos',
+                  'Les plats, les adresses, et ce que nous avons appris sur eux',
+                  'الأطباق والأماكن وما عرفناه عنها',
+                  '菜、地方，以及我们打听到的事',
+                  '料理と場所、そしてそれについて分かったこと')}
+              </span>
+
+              {/* The one flourish, and it is the mark's own idea: pressed
+                  into the page rather than laid on it. */}
+              <span className="insta-panel__stamp">
+                <img
+                  className="insta-panel__qr"
+                  src="/images/eatple-instagram-qr.jpg"
+                  alt="@eat.ple_project"
+                  width="406"
+                  height="420"
+                  loading="lazy"
+                  draggable={false}
+                />
+              </span>
+              <span className="insta-panel__scan">
+                {say('Point another phone at it and it opens.',
+                  '다른 폰으로 찍으면 바로 열려요.',
+                  'Apunta con otro móvil y se abre.',
+                  'Visez-le avec un autre téléphone et ça s’ouvre.',
+                  'وجّه هاتفًا آخر نحوه فيفتح.',
+                  '用另一部手机扫一下就打开。',
+                  '別のスマホで読み取ると開きます。')}
+              </span>
+
+              <span className="insta-panel__go">
+                {say('Open Instagram', '인스타그램 열기', 'Abrir Instagram',
+                  'Ouvrir Instagram', 'افتح إنستغرام', '打开 Instagram', 'Instagram を開く')}
+                <span className="insta-panel__arrow" aria-hidden="true">→</span>
               </span>
             </a>
           </div>

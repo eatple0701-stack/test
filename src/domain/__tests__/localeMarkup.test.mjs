@@ -87,8 +87,16 @@ test('the front page says every hero word in both languages', () => {
   // Three from 2026-09-07: the rail took a fourth screen, for the Instagram
   // account, and a screen on the rail carries a section heading like the two
   // already on it.
-  assert.equal(main.split('main-band__title-kr').length - 1, 3);
-  assert.equal(main.split('main-band__title-en').length - 1, 3);
+  //
+  // Two again from 2026-09-09 — the Instagram screen stopped being a card in
+  // a band and became a panel of its own, so its heading moved to
+  // .insta-panel__. Same rule, different class, and the rule is the point: a
+  // Korean heading with no English element beside it is a bare Korean word at
+  // 30px to an English reader, whatever it is called.
+  assert.equal(main.split('main-band__title-kr').length - 1, 2);
+  assert.equal(main.split('main-band__title-en').length - 1, 2);
+  assert.match(main, /insta-panel__kr/, 'the Instagram heading has no Korean element');
+  assert.match(main, /insta-panel__en/, 'the Instagram heading has no English element');
 
   // The merged section's subtitle — the dish band's old heading, kept as the
   // line under the six cards. Asserted here so a heading that changed class
