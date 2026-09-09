@@ -55,10 +55,13 @@ const dayLabel = (date) => {
 // render, and src/domain/policy/week.js, which owns the date arithmetic they
 // used to duplicate.
 
-// onOpenPassport is gone with the top bar it served: the way to your own
-// Passport is the chip in the app chrome now, on every screen rather than
-// this one.
-export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, onTasteChange, initialGroup = null, initialMenu = null, preferredMenus = [] }) {
+// onOpenPassport came back on 2026-09-09, and for a different reason than it
+// left. It went when the top bar it served did — the way to your own Passport
+// is the chip in the app chrome, on every screen rather than this one. It is
+// here again because the deck's result no longer holds the dishes somebody
+// picked; those moved to the Passport, and the screen that used to show them
+// owes a way to where they went.
+export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, profile, auth, onOpenAuth, onTasteChange, onOpenPassport, initialGroup = null, initialMenu = null, preferredMenus = [] }) {
   const say = useText();
   const locale = useLocale();
   const [tables, setTables] = useState(null);
@@ -594,6 +597,7 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         onOpenAuth={onOpenAuth}
         onTasteChange={onTasteChange}
         onOpenTables={() => document.querySelector('.table-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        onOpenPassport={onOpenPassport}
       />
 
       {/* The explaining used to stand here, between the hero and the tables,

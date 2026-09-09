@@ -1187,6 +1187,9 @@ export default function App() {
                to be able to be "not this week, but here is what there is". */
             preferredMenus={preferredMenus}
             onTasteChange={() => setTaste(getStoredTaste())}
+            /* The dishes somebody picked live in the passport now, so the
+               deck's result needs a way there. */
+            onOpenPassport={() => goToTab('journal')}
             profile={profile}
             auth={auth}
             onOpenAuth={(mode) => setAuthMode(mode)}

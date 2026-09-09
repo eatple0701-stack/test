@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { menus, CATEGORY_LABEL } from '../domain/catalog/menus.js';
+import { menus, CATEGORY_LABEL, dishPhoto } from '../domain/catalog/menus.js';
 import {
   VERDICT, swipeVerdict, buildDeck, recordVerdict,
   deckProgress, nextCard, tasteMap, canDrawMap,
@@ -11,6 +11,7 @@ import { getStoredMbti } from '../data/foodMbti.js';
 import { mbtiType } from '../domain/policy/foodMbti.js';
 import { mbtiTypeLabel } from '../domain/policy/dishLabels.js';
 import { tasteRecordState, showsType, testIsNew } from '../domain/policy/tasteRecord.js';
+import { pickedGroups } from '../domain/policy/tasteGroups.js';
 
 // 입맛 지도 — one dish at a time, and a yes or a no.
 //
@@ -38,13 +39,13 @@ import { tasteRecordState, showsType, testIsNew } from '../domain/policy/tasteRe
  * Vite serves `public/` from the root, so this path is what the browser asks
  * for in dev and in the built bundle alike.
  */
-const photoFor = (id) => `/images/dishes/${id}.jpg`;
+const photoFor = dishPhoto;
 
 const DRAG_ROTATE = 0.05;   // degrees per pixel — a card tilts as it leaves
 const FLY_MS = 240;
 
 export default function DishSwipe({
-  onClose, onOpenTables, onOpenAuth, onTasteChange, onOpenMbti, auth,
+  onClose, onOpenTables, onOpenAuth, onTasteChange, onOpenMbti, onOpenPassport, auth,
   inline = false, sharedOnly = true,
 }) {
   const say = useText();
@@ -84,6 +85,8 @@ export default function DishSwipe({
   // 2026-09-09 asked for: 입맛지도만 한 사람과 둘 다 한 사람.
   const [myType, setMyType] = useState(() => mbtiType(getStoredMbti()));
   const record = tasteRecordState({ mapCount: map.count, type: myType });
+  // The sign-up ask, which only a guest has a reason to see.
+  const showKeep = !auth?.user && Boolean(onOpenAuth);
 
   // The verdict the current drag would land on, for the two hints over the
   // card. Reading it from the same function the release reads is the point:
@@ -321,15 +324,30 @@ export default function DishSwipe({
                   </p>
                 )}
 
-                <ul className="taste-map__dishes">
-                  {map.dishes.map(d => (
-                    <li key={d.id} className="taste-map__dish">
-                      <span className="taste-map__dish-photo" aria-hidden="true">
-                        <img src={photoFor(d.id)} alt="" loading="lazy"
-                          onError={e => { e.currentTarget.style.display = 'none'; }} />
+                {/* What was picked, under the six kinds — the same cards 소개
+                    draws the catalogue with, holding this reader's own
+                    choices instead of everything the app has.
+                    The photographs moved to the passport on 2026-09-09: this
+                    screen is where somebody decides what to do next, and a
+                    rail of their own dinners is a keepsake, which is what a
+                    passport is for. */}
+                <ul className="taste-groups">
+                  {pickedGroups(map.dishes).map(({ group, dishes }) => (
+                    <li key={group.id} className="taste-group" style={{ '--tint': group.tint }}>
+                      <span className="taste-group__emoji" aria-hidden="true">{group.emoji}</span>
+                      <span className="taste-group__name">
+                        {say(group.en, group.ko, group.es, group.fr, group.ar, group.zh, group.ja)}
                       </span>
-                      <span className="taste-map__dish-kr" translate="no">{d.nameKo}</span>
-                      <span className="taste-map__dish-rom" translate="no">{d.romanization}</span>
+                      {/* Korean always — it is what the sign says and what a
+                          traveller points at — with the romanisation beside
+                          it for everybody not reading in Korean. Same pair
+                          the 소개 cards use. */}
+                      <span className="taste-group__dishes" translate="no" data-no-locale>
+                        {dishes.map(d => d.nameKo).join(' · ')}
+                      </span>
+                      <span className="taste-group__rom l-en-only" translate="no">
+                        {dishes.map(d => d.romanization).join(' · ')}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -342,9 +360,11 @@ export default function DishSwipe({
                     were already open, and saying so is the difference between
                     a dating app's result screen and this one. */}
                 <button type="button" className="taste-map__cta" onClick={() => { onOpenTables?.(); onClose?.(); }}>
-                  {say('See the tables open for these', '이 음식들로 열려 있는 밥상 보기',
-                    'Ver las mesas abiertas para esto', 'Voir les tables ouvertes pour ces plats',
-                    'شاهد الموائد المفتوحة لهذه الأطباق', '看看为这些菜开着的饭桌', 'これらで開いている食卓を見る')}
+                  {say('Find the tables open for what I picked', '내가 고른 음식들로 열려 있는 밥상 찾아보기',
+                    'Buscar las mesas abiertas para lo que elegí',
+                    'Chercher les tables ouvertes pour ce que j’ai choisi',
+                    'ابحث عن الموائد المفتوحة لما اخترته', '找找为我挑的菜开着的饭桌',
+                    '選んだ料理で開いている食卓を探す')}
                 </button>
 
                 {/* Where the type lives in this build. The map says what
@@ -374,17 +394,30 @@ export default function DishSwipe({
 
                     Shown only to somebody not signed in, and never before
                     the map exists — the map IS the reason to answer. */}
-                {!auth?.user && onOpenAuth && (
+                {(showKeep || onOpenPassport) && (
                   <div className="taste-map__keep">
-                    <p className="taste-map__keep-text">
-                      {say('This map lives in this browser only.', '이 지도는 이 브라우저에만 저장돼요.',
-                        'Este mapa solo vive en este navegador.', 'Cette carte n’existe que dans ce navigateur.',
-                        'هذه الخريطة محفوظة في هذا المتصفّح وحده.', '这张地图只存在这个浏览器里。',
-                        'この地図はこのブラウザーの中だけにあります。')}
-                    </p>
-                    <button type="button" className="taste-map__keep-cta" onClick={() => onOpenAuth('signup')}>
-                      {say('Keep it', '저장해두기', 'Guardarlo', 'La garder', 'احتفظ بها', '保存下来', '保存しておく')}
-                    </button>
+                    {showKeep && (
+                      <p className="taste-map__keep-text">
+                        {say('This map lives in this browser only.', '이 지도는 이 브라우저에만 저장돼요.',
+                          'Este mapa solo vive en este navegador.', 'Cette carte n’existe que dans ce navigateur.',
+                          'هذه الخريطة محفوظة في هذا المتصفّح وحده.', '这张地图只存在这个浏览器里。',
+                          'この地図はこのブラウザーの中だけにあります。')}
+                      </p>
+                    )}
+                    {/* The dishes themselves are in the passport now, so this
+                        is the way to them. Left of 저장해두기 rather than
+                        right: signing up is the ask, and an ask stays last. */}
+                    {onOpenPassport && (
+                      <button type="button" className="taste-map__passport" onClick={onOpenPassport}>
+                        {say('Find what I picked', '내가 고른 음식 찾기', 'Ver lo que elegí',
+                          'Voir ce que j’ai choisi', 'اعرض ما اخترته', '看看我挑的菜', '選んだ料理を見る')}
+                      </button>
+                    )}
+                    {showKeep && (
+                      <button type="button" className="taste-map__keep-cta" onClick={() => onOpenAuth('signup')}>
+                        {say('Keep it', '저장해두기', 'Guardarlo', 'La garder', 'احتفظ بها', '保存下来', '保存しておく')}
+                      </button>
+                    )}
                   </div>
                 )}
               </>

@@ -1887,3 +1887,12 @@ export const CATEGORY_LABEL = {
   [MENU_CATEGORY.PLATTER]: { en: 'One platter', ko: '접시', kr: '접시', es: 'Una fuente', fr: 'Un grand plat', ar: 'صحن واحد', zh: '一大盘', ja: '大皿ひとつ' },
   [MENU_CATEGORY.BOWL]: { en: 'One bowl', ko: '한 그릇', kr: '한 그릇', es: 'Un cuenco', fr: 'Un bol', ar: 'وعاء واحد', zh: '一碗', ja: 'ひと碗' },
 };
+
+/**
+ * Where a dish's photograph is.
+ *
+ * One line, but two screens draw the same rail now — the deck's result moved
+ * to the passport on 2026-09-09 — and a second copy of the path is how they
+ * quietly end up pointing at different folders.
+ */
+export const dishPhoto = (id) => `/images/dishes/${id}.jpg`;

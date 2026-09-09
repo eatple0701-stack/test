@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
 import { traditionalMarkets } from '../data/experiences';
-import { menuById, sharedOnlyMenus } from '../domain/catalog/menus.js';
+import { menuById, sharedOnlyMenus, dishPhoto } from '../domain/catalog/menus.js';
 import { tasteMap } from '../domain/policy/taste.js';
 import { mbtiType } from '../domain/policy/foodMbti.js';
 import { getStoredMbti } from '../data/foodMbti.js';
@@ -637,12 +637,21 @@ export default function JournalPanel({
           </p>
         )}
 
+        {/* The rail itself, moved here from the deck's result on 2026-09-09.
+            It is a keepsake — the dinners this traveller said yes to — and a
+            keepsake belongs in the passport rather than on the screen where
+            somebody is deciding what to do next. Same classes as the deck
+            drew it with, so there is one rail and not two. */}
         {showsDishes(record) && (
-          <ul className="taste-recap">
+          <ul className="taste-map__dishes taste-recap-rail">
             {myTaste.dishes.map(d => (
-              <li key={d.id} className="taste-recap__dish">
-                <span className="taste-recap__kr" translate="no">{d.nameKo}</span>
-                <span className="taste-recap__rom" translate="no">{d.romanization}</span>
+              <li key={d.id} className="taste-map__dish">
+                <span className="taste-map__dish-photo" aria-hidden="true">
+                  <img src={dishPhoto(d.id)} alt="" loading="lazy"
+                    onError={e => { e.currentTarget.style.display = 'none'; }} />
+                </span>
+                <span className="taste-map__dish-kr" translate="no">{d.nameKo}</span>
+                <span className="taste-map__dish-rom" translate="no">{d.romanization}</span>
               </li>
             ))}
           </ul>
