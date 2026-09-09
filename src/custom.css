@@ -967,3 +967,40 @@ body {
    section around it is a record rather than a result. */
 .taste-recap-rail { margin-top: 4px; }
 .taste-recap-rail .taste-map__dish { flex-basis: 92px; }
+
+/* ── the map's kinds are a filter ─────────────────────────────────────
+   They were a legend and read as chips, which is what two testers tapped
+   on 2026-09-09. As a <button> they need what a button needs — a pointer,
+   a hover, a pressed state — and the filled state has to keep the swatch
+   and the dish line readable against the category's own colour. */
+.map-legend__item--filter {
+  cursor: pointer;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: start;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.map-legend__item--filter:hover { border-color: var(--ink-title); }
+.map-legend__item--filter.is-on { color: #FFFFFF; }
+.map-legend__item--filter.is-on .map-legend__dishes { color: rgba(255, 255, 255, 0.86); }
+.map-legend__item--filter.is-on .map-legend__dot { box-shadow: none; }
+
+/* ── the list, when somebody has asked for the list ───────────────────
+   목록 펼치기 opened 132px of list on a 375x812 phone — about a card and a
+   half, under a 374px map and a 74px legend. Reported 2026-09-09: "스크롤은
+   어찌저찌 되는데 음식점 이름을 확인할 만한 공간이 부족함".
+
+   The map's 46vh was set against the folded state, where the map is the
+   screen and 40vh read as a strip. Open, the reader has just said which of
+   the two they want. So the map keeps its size until the list is asked for,
+   and then gives some of it back — 30vh, 244px on that phone, which is still
+   a map rather than a band, and the list roughly triples.
+
+   Phones only. From 768px there is room for both, and from 1024px the tab is
+   a three-column grid where the list has a column of its own. */
+@media (max-width: 767px) {
+  .map-overlay--tab:not(.is-folded) .map-overlay__map {
+    flex: 0 0 clamp(180px, 30vh, 320px);
+  }
+}

@@ -81,14 +81,29 @@ test('the map draws the register without being asked to', () => {
   );
 });
 
-test('the map says what its colours mean', () => {
+test('the map says what its colours mean, and the key is the filter', () => {
   // Six tints of dot and no key is decoration. The legend is built from the
   // same DISH_GROUPS the dots take their colour from, so a seventh group
   // cannot appear on the map without appearing in the legend.
+  //
+  // The swatch colour used to be asserted by matching `background: g.tint`
+  // within eighty characters of the class name, which went red the moment the
+  // row became a button and the colour became a call. The rule lives in
+  // domain/policy/mapLegend.js now and is checked there by calling it; what is
+  // left here is that this component is the thing that uses it.
   const src = fs.readFileSync(new URL('../../components/MapOverlay.jsx', import.meta.url), 'utf8');
   assert.match(src, /from '\.\.\/domain\/catalog\/dishGroups\.js'/, 'the legend is not built from the groups');
-  assert.match(src, /map-legend__dot[\s\S]{0,80}background: g\.tint/, 'the swatch is not the group tint');
+  assert.match(src, /swatchColor\(g, on\)/, 'the swatch is not the group tint');
   assert.match(src, /className="map-legend"/);
+});
+
+test('the kinds on the map are a control, not a caption', () => {
+  // Two testers tapped them on 2026-09-09 expecting the map to narrow. A
+  // <span> cannot be pressed, and nothing said so.
+  const src = fs.readFileSync(new URL('../../components/MapOverlay.jsx', import.meta.url), 'utf8');
+  assert.match(src, /map-legend__item--filter/, 'the kinds are not drawn as a filter');
+  assert.match(src, /onClick=\{\(\) => onToggleFilter\?\.\(id\)\}/, 'tapping a kind does not filter');
+  assert.match(src, /aria-pressed=\{on\}/, 'the pressed state is not announced');
 });
 
 test('folding the list names only classes the overlay actually renders', () => {

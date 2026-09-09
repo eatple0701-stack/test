@@ -3,6 +3,7 @@ import { restaurants } from './data/restaurants';
 import { menuById } from './domain/catalog/menus.js';
 import { menuIdOfDish } from './domain/catalog/dishGroups.js';
 import { loadRegistryPlaces, servesGroup } from './data/seoulRegistry.js';
+import { groupIdOfFilter } from './domain/policy/mapLegend.js';
 import { matchesPlaceQuery } from './domain/policy/placeSearch.js';
 import MapOverlay from './components/MapOverlay';
 import RestaurantDetail from './components/RestaurantDetail';
@@ -865,7 +866,8 @@ export default function App() {
         if (DIETARY_CHIPS.includes(f)) return matchesDietary(r, f);
         // A dish-group chip ("group:kbbq") answers from the register's menu
         // evidence — see servesGroup for why curated places sit this one out.
-        if (f.startsWith('group:')) return servesGroup(r, f.slice('group:'.length));
+        const groupId = groupIdOfFilter(f);
+        if (groupId) return servesGroup(r, groupId);
         const traits = r.traits ?? [];
         const group = TRAIT_GROUPS[f];
         return group ? traits.some(t => group.includes(t)) : traits.includes(f);

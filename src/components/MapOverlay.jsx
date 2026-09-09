@@ -4,6 +4,7 @@ import FilterBar from './FilterBar';
 import BottomSheetList from './BottomSheetList';
 import { XIcon, ChevronDownIcon, ChevronUpIcon } from './Icons';
 import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
+import { groupFilterId, isGroupOn, swatchColor } from '../domain/policy/mapLegend.js';
 import { REGISTRY_TOTAL } from '../data/nearbyPlaces.js';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
@@ -164,21 +165,49 @@ export default function MapOverlay({
         >
           {say("Dishes you'd rather not eat alone", '혼자보다 같이 먹고 싶은 음식', 'Platos que prefieres no comer solo', 'Les plats que vous préférez ne pas manger seul', 'أطباق تفضّل ألّا تأكلها وحدك', '你不太想一个人吃的菜', 'ひとりでは食べたくない料理')}
         </button>
-        {nearby && DISH_GROUPS.map(g => (
-          <span key={g.id} className="map-legend__item">
-            {/* The group on its own line and its four dishes under it. The name
-                used to be a bare text node between the swatch and the dishes,
-                which is why it could not be given a line of its own — one row
-                of dot, emoji, name and four dish names wrapped wherever it ran
-                out of room, and 전골·탕 broke across two lines with 골 alone on
-                the second. */}
-            <span className="map-legend__head">
-              <span className="map-legend__dot" style={{ background: g.tint }} aria-hidden="true" />
-              <span className="map-legend__name">{g.emoji} {say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja)}</span>
-            </span>
-            <span className="map-legend__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
-          </span>
-        ))}
+        {/* The six kinds, and they filter. They were a legend — a <span> per
+            kind, explaining what the dots meant — and two testers on
+            2026-09-09 tapped them expecting the map to narrow to that kind,
+            one of them asking whether it was broken on mobile. It was not
+            broken and it was not mobile: it had never been a button anywhere.
+
+            The filter itself already existed and was already wired: App reads
+            `group:<id>` out of selectedFilters and answers it with
+            servesGroup(). What was missing was any way to turn it on from
+            this tab — FilterBar's chip row is behind `showChips={!asTab}`,
+            so 장소 rendered the search box and nothing else.
+
+            Rather than a second row of the same six, the legend became the
+            control. The dot is still beside the name, so it still says what
+            the colour means; it just does the thing it looked like it did.
+
+            Register places only, which is what the row under the name is
+            for: a curated place has no menu evidence matched against the
+            twenty-four dishes, so it sits a group filter out rather than
+            being guessed about. See servesGroup(). */}
+        {nearby && DISH_GROUPS.map(g => {
+          const id = groupFilterId(g.id);
+          const on = isGroupOn(selectedFilters, g.id);
+          const name = say(g.en, g.ko, g.es, g.fr, g.ar, g.zh, g.ja);
+          return (
+            <button
+              key={g.id}
+              type="button"
+              className={`map-legend__item map-legend__item--filter${on ? ' is-on' : ''}`}
+              style={on ? { background: g.tint, borderColor: g.tint } : undefined}
+              aria-pressed={on}
+              onClick={() => onToggleFilter?.(id)}
+            >
+              <span className="map-legend__head">
+                {/* White while the chip is filled, so the swatch stays a
+                    swatch instead of disappearing into its own colour. */}
+                <span className="map-legend__dot" style={{ background: swatchColor(g, on) }} aria-hidden="true" />
+                <span className="map-legend__name">{g.emoji} {name}</span>
+              </span>
+              <span className="map-legend__dishes" translate="no" data-no-locale>{g.ko_dishes}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* One handle per rail, sitting on the seam between that rail and the
