@@ -37,3 +37,35 @@ export const isGroupOn = (selectedFilters, groupId) =>
  * became a button.
  */
 export const swatchColor = (group, on = false) => (on ? '#FFFFFF' : group?.tint ?? null);
+
+/**
+ * The group a register dot takes its colour from, or null if the filter has
+ * ruled the place out.
+ *
+ * Reported 2026-09-09, twice, as "카테고리가 작동 안 한다": pressing K-BBQ took
+ * the list from 8,136 to 3,916 and left the map exactly as it was — every
+ * colour of dot still on it — so the filter looked dead on the surface that
+ * fills most of the screen.
+ *
+ * The dots never saw the filter. NearbyLayer loads the register itself and
+ * draws whatever is in view, cut only by the search box. The comment in that
+ * file records the same bug being fixed for search on 2026-09-04, in the same
+ * words the team used this time: a list that can be folded away narrowed while
+ * the map stayed identical.
+ *
+ * One function does both halves. With a filter on, the dot takes the colour of
+ * the kind that was asked for — so a 고깃집 that also does 백반 is orange while
+ * K-BBQ is the question, rather than keeping whichever colour its first dish
+ * happened to give it — and a place that matches nothing comes back null for
+ * the caller to drop. With no filter on it is the old rule, the first group the
+ * place has, unchanged.
+ */
+export function dotGroup(groups = [], activeGroupIds = []) {
+  const active = (activeGroupIds ?? []).filter(Boolean);
+  if (!active.length) return (groups ?? [])[0] ?? null;
+  return (groups ?? []).find(g => active.includes(g?.id)) ?? null;
+}
+
+/** The kinds currently filtering the map, read out of selectedFilters. */
+export const groupsBeingFiltered = (selectedFilters = []) =>
+  (selectedFilters ?? []).map(groupIdOfFilter).filter(Boolean);

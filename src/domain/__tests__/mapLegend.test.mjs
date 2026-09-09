@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  GROUP_FILTER, groupFilterId, groupIdOfFilter, isGroupOn, swatchColor,
+  GROUP_FILTER, groupFilterId, groupIdOfFilter, isGroupOn, swatchColor, dotGroup, groupsBeingFiltered,
 } from '../policy/mapLegend.js';
 import { DISH_GROUPS } from '../catalog/dishGroups.js';
 
@@ -42,4 +42,40 @@ test('every kind on the map has a colour to be a swatch', () => {
   for (const g of DISH_GROUPS) {
     assert.match(swatchColor(g, false), /^#[0-9A-Fa-f]{6}$/, `${g.id} has no tint`);
   }
+});
+
+test('with no filter on, a dot keeps the colour it always had', () => {
+  // groupsOf returns them in the place's own dish order, and primaryGroup —
+  // the rule since the register layer was drawn — is the first of those.
+  const groups = [{ id: 'table' }, { id: 'kbbq' }];
+  assert.deepEqual(dotGroup(groups, []), { id: 'table' });
+  assert.deepEqual(dotGroup(groups), { id: 'table' });
+  assert.equal(dotGroup([], []), null);
+});
+
+test('with a filter on, a dot takes the colour of the kind that was asked for', () => {
+  // A 고깃집 that also does 백반 was blue while K-BBQ was the question, because
+  // 백반 happened to be first in its dish list. Reported as the filter doing
+  // nothing to the map.
+  const groups = [{ id: 'table' }, { id: 'kbbq' }];
+  assert.deepEqual(dotGroup(groups, ['kbbq']), { id: 'kbbq' });
+});
+
+test('a place the filter rules out comes back null, for the caller to drop', () => {
+  const groups = [{ id: 'table' }, { id: 'street' }];
+  assert.equal(dotGroup(groups, ['kbbq']), null);
+  assert.equal(dotGroup([], ['kbbq']), null);
+});
+
+test('with two kinds on, the dot takes the first of them the place has', () => {
+  const groups = [{ id: 'street' }, { id: 'kbbq' }];
+  assert.deepEqual(dotGroup(groups, ['kbbq', 'street']), { id: 'street' });
+});
+
+test('the kinds are read out of the filters the chips write', () => {
+  assert.deepEqual(groupsBeingFiltered([groupFilterId('kbbq'), 'Vegan', groupFilterId('table')]),
+    ['kbbq', 'table']);
+  assert.deepEqual(groupsBeingFiltered(['Vegan', 'Halal']), []);
+  assert.deepEqual(groupsBeingFiltered([]), []);
+  assert.deepEqual(groupsBeingFiltered(), []);
 });

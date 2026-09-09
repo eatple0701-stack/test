@@ -5,6 +5,7 @@ import { MAP_CENTER, coordsOf, kakaoMapUrl } from '../utils';
 import { loadAllPlaces, placesInView, placesMatching, asPlace } from '../data/nearbyPlaces.js';
 import { isRegistryPlace, placeFromRegistry, displayName } from '../data/seoulRegistry.js';
 import { DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
+import { dotGroup } from '../domain/policy/mapLegend.js';
 import { useText, useLocale } from './localeText.js';
 import { tilesFor } from '../domain/policy/mapTiles.js';
 
@@ -75,7 +76,7 @@ const dotIcon = (tint) => {
  * the cap samples across the visible rows rather than taking the first ones,
  * so a city-wide view is a spread over Seoul and not a clump in 강남구.
  */
-function NearbyLayer({ onSelect, query }) {
+function NearbyLayer({ onSelect, query, activeGroups = [] }) {
   const [layer, setLayer] = useState(null);
   const [view, setView] = useState(null);
 
@@ -113,15 +114,22 @@ function NearbyLayer({ onSelect, query }) {
     }, view.zoom);
   }, [layer, view, query]);
 
-  return shown.map((p) => (
-    <Marker
-      key={p.i}
-      position={[p.y, p.x]}
-      icon={dotIcon(primaryGroup(p.d)?.tint ?? '#F97316')}
-      zIndexOffset={-500}
-      eventHandlers={{ click: () => onSelect({ row: p, builtAt: layer?.builtAt ?? null }) }}
-    />
-  ));
+  // The kinds, if any are on. A dot the filter rules out is not drawn, and
+  // one it keeps takes that kind's colour — see dotGroup for the report this
+  // answers. With nothing on, primaryGroup is still what paints it.
+  return shown.map((p) => {
+    const g = dotGroup(groupsOf(p.d), activeGroups);
+    if (activeGroups.length > 0 && !g) return null;
+    return (
+      <Marker
+        key={p.i}
+        position={[p.y, p.x]}
+        icon={dotIcon(g?.tint ?? primaryGroup(p.d)?.tint ?? '#F97316')}
+        zIndexOffset={-500}
+        eventHandlers={{ click: () => onSelect({ row: p, builtAt: layer?.builtAt ?? null }) }}
+      />
+    );
+  });
 }
 
 /**
@@ -195,7 +203,7 @@ function NearbyCard({ place, onClose, onDetails }) {
   );
 }
 
-export default function MapComponent({ restaurants, onMarkerClick, selectedId, onCenterChange, showNearby = false, query = '' }) {
+export default function MapComponent({ restaurants, onMarkerClick, selectedId, onCenterChange, showNearby = false, query = '', activeGroups = [] }) {
   // Which register dot is open, if any. Held here rather than in the layer
   // because the card is drawn outside the map, over it.
   const [nearbySelected, setNearbySelected] = useState(null);
@@ -210,7 +218,7 @@ export default function MapComponent({ restaurants, onMarkerClick, selectedId, o
         {onCenterChange && <CenterReporter onCenterChange={onCenterChange} />}
         <ResizeSync />
         <TileLayer attribution={tiles.attribution} url={tiles.url} />
-        {showNearby && <NearbyLayer onSelect={setNearbySelected} query={query} />}
+        {showNearby && <NearbyLayer onSelect={setNearbySelected} query={query} activeGroups={activeGroups} />}
         {/* The teardrop layer is the twenty curated places and nothing else.
             Since the register joined the same pool, this list arrives holding
             every one of its 167,659 rows too — and drawing them as teardrops

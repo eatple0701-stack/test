@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import MapComponent from './MapComponent';
 import FilterBar from './FilterBar';
 import BottomSheetList from './BottomSheetList';
 import PlacesTab from './PlacesTab';
 import { XIcon, ChevronDownIcon, ChevronUpIcon } from './Icons';
 import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
-import { groupFilterId, isGroupOn, swatchColor } from '../domain/policy/mapLegend.js';
+import { groupFilterId, isGroupOn, swatchColor, groupsBeingFiltered } from '../domain/policy/mapLegend.js';
 import { REGISTRY_TOTAL } from '../data/nearbyPlaces.js';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
@@ -79,6 +79,8 @@ export default function MapOverlay({
   // keyhole above, chosen on purpose.
   const [shelvesOpen, setShelvesOpen] = useState(false);
   const [listOpen, setListOpen] = useState(!asTab);
+  // The kinds the chips have on, for the dot layer as well as the list.
+  const activeKinds = useMemo(() => groupsBeingFiltered(selectedFilters), [selectedFilters]);
   const leftOpen = railsOpen?.left !== false;
   const rightOpen = railsOpen?.right !== false;
   useEffect(() => {
@@ -248,6 +250,10 @@ export default function MapOverlay({
 
       <div className="map-overlay__map">
         <MapComponent
+          /* The kinds the chips have on, so the register dots answer them
+             too. Until 2026-09-09 only the list did, and a filter that moves
+             a foldable list and leaves the map alone reads as broken. */
+          activeGroups={activeKinds}
           restaurants={restaurants}
           onMarkerClick={onRestaurantClick}
           selectedId={selectedId}
