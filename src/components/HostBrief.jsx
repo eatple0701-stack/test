@@ -20,14 +20,22 @@ import { useText } from './localeText.js';
 // has been misled by omission, and finding out here costs us a table while
 // finding out later costs somebody a wasted evening in a city they do not
 // live in. Every line below is checked against what the code actually does:
-// the join form collects a name and a country, no screen in the app moves
-// money, and the cancel dialog already apologises for the same silence.
+// no screen in the app moves money, and the cancel dialog already apologises
+// for the same silence.
+//
+// The first line said "승인 절차는 아직 없습니다" until 2026-09-09, and it had
+// stopped being true: createSignup writes status 'pending' on both backends,
+// and the host accepts or declines it on the table page. A teammate read this
+// screen and asked whether the matching had been removed — it had not, this
+// sentence had just outlived the code. It also said the form collects a name
+// and a country, which was true when it was written; a request now carries
+// languages, diets and an allergy note as well.
 const POINTS = [
   {
     kr: '누가 오나요',
     en: 'Who turns up',
-    ko: '여행자가 이름과 나라만 남기고 자리를 요청합니다. 승인 절차는 아직 없습니다.',
-    body: 'A traveller asks for a seat with a name and a country. There is no approval step yet.',
+    ko: '여행자가 이름·나라와 프로필에 적어둔 것(언어, 식사 제한)을 남기고 자리를 요청하면, 호스트가 수락하거나 거절합니다. 수락하기 전까지 자리는 확정되지 않습니다.',
+    body: 'A traveller asks for a seat, with their name, country and whatever their profile carries — languages, how they eat. You accept or decline it; nothing is settled until you do.',
   },
   {
     kr: '밥값은',
