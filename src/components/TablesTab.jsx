@@ -629,7 +629,28 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           what 장소 renders", was false the day it was written. 장소 renders
           MapOverlay, which draws restaurants; TablesMap draws the tables and
           nothing imported it, so the tables came off every map in the app
-          for two days. It is back under the list — see below. */}
+          for two days. It is back, just below this. */}
+
+      {/* 부장님's 모임 장소 표시, back on 밥상 — asked for again on
+          2026-09-09 with the distinction that settles where it belongs:
+          장소's map is the restaurant directory, and this one is the open
+          tables. Two maps that answer two questions, not one map drawn twice.
+
+          Above 이번 주의 밥상 rather than under the list. It went under the
+          list first, on the 2026-09-07 reason that a map at the top of this
+          tab pushed the tables below the fold — and it landed at 2392px on a
+          375x812 phone, which is three screens down and not somewhere
+          anybody finds a map. Moved up the same day at 강민's word. The
+          tables are still what the week strip and the list are; the map is
+          the line above them that says where. */}
+      {tables !== null && shown.length > 0 && (
+        <TablesMap
+          variant="preview"
+          tables={shown}
+          signupsFor={signupsFor}
+          onOpen={() => setMapOpen(true)}
+        />
+      )}
 
       {/* The strip had no label, so the list never said what window it was
           showing or where. Meetup heads its own list "Incheon, KR 근처의
@@ -992,25 +1013,6 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
       <div className="table-list">
         {rest.map(renderTableCard)}
       </div>
-
-      {/* 부장님's 모임 장소 표시, back on 밥상 — asked for again on
-          2026-09-09 with the distinction that settles where it belongs:
-          장소's map is the restaurant directory, and this one is the open
-          tables. Two maps that answer two questions, not one map drawn twice.
-
-          Under the list rather than over it. It was taken out of the top of
-          this screen on 2026-09-07 because it pushed the tables — the thing
-          the tab is for — below the fold, and that reason has not changed;
-          the deck sits up there now as well. Reading order instead: what is
-          on this week, then where those are. */}
-      {tables !== null && shown.length > 0 && (
-        <TablesMap
-          variant="preview"
-          tables={shown}
-          signupsFor={signupsFor}
-          onOpen={() => setMapOpen(true)}
-        />
-      )}
 
       {/* The explaining, now that the tables have made their case.
           Meetup's order: events, then "how it works", then why any of it is

@@ -473,11 +473,24 @@ body {
   border-radius: var(--radius); cursor: pointer;
 }
 
+/* One line, swiped, rather than a grid three wide.
+   Eight yeses drew three rows and about 900px of photographs — a result that
+   has to be scrolled past to reach what the result is for. Asked for on
+   2026-09-09; the same shape the app already uses for its other rails.
+   104px so that just under three fit across a 335px deck: the third card is
+   cut by the edge, which is what says there are more. */
 .taste-map__dishes {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-  margin: 0 0 14px; padding: 0; list-style: none;
+  display: flex; gap: 10px;
+  margin: 0 0 14px; padding: 0 0 2px; list-style: none;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
 }
-.taste-map__dish { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.taste-map__dishes::-webkit-scrollbar { display: none; }
+.taste-map__dish {
+  flex: 0 0 104px; scroll-snap-align: start;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
 .taste-map__dish-photo {
   width: 100%; aspect-ratio: 1; border-radius: var(--radius);
   background: var(--fill);
@@ -834,4 +847,26 @@ body {
     width: calc(100% - 40px);
     margin-inline: 20px;
   }
+}
+
+/* The type over the map, on 밥상. Small and quiet — it is a second record
+   sitting above the first, not a headline: the map is what this screen is
+   for, and the type is the line that says the test has been taken. */
+.taste-map__type {
+  display: flex; align-items: baseline; gap: 8px;
+  margin: 0 0 12px; padding: 10px 12px;
+  background: var(--accent-tint); border-radius: var(--radius);
+}
+.taste-map__type-code {
+  font-size: 13px; font-weight: 800; letter-spacing: 0.08em;
+  color: var(--accent-strong);
+}
+.taste-map__type-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+
+/* The line for somebody who has the map and not the type. Said, not offered:
+   the passport is read-only about both records, and a second button to take
+   the test is a second place for the two to disagree. */
+.taste-recap__next {
+  margin: 0 0 10px;
+  font-size: 13px; line-height: 1.5; color: var(--muted-strong);
 }

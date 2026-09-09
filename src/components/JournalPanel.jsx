@@ -8,6 +8,7 @@ import { mbtiType } from '../domain/policy/foodMbti.js';
 import { getStoredMbti } from '../data/foodMbti.js';
 import { MBTI_AXES } from '../content/foodMbti.js';
 import { mbtiTypeLabel, mbtiPoleLabel, mbtiAxisLabel } from '../domain/policy/dishLabels.js';
+import { tasteRecordState, showsDishes, showsType, showsPrompt, testIsNew } from '../domain/policy/tasteRecord.js';
 import { isPast, didHappen } from '../domain/policy/table.js';
 import { isAccepted, isPending, hasLapsed } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
@@ -62,6 +63,8 @@ export default function JournalPanel({
   // from a sheet three components away, and this screen is re-rendered from
   // scratch every time somebody opens the tab.
   const myType = useMemo(() => mbtiType(getStoredMbti()), []);
+  // Which of the two this browser holds — see domain/policy/tasteRecord.js.
+  const record = tasteRecordState({ mapCount: myTaste.count, type: myType });
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
@@ -617,36 +620,51 @@ export default function JournalPanel({
           <h3>{say('My taste', '내 입맛', 'Mi gusto', 'Mon goût', 'ذوقي', '我的口味', '私の好み')}</h3>
         </div>
 
-        {myType ? (
-          <>
-            <p className="taste-type">
-              <span className="taste-type__code" translate="no">{myType.code}</span>
-              <span className="taste-type__name">{mbtiTypeLabel(myType.code, locale)}</span>
-              <span className="taste-type__axes">
-                {MBTI_AXES.map(axis =>
-                  `${mbtiAxisLabel(axis.id, locale)}: ${mbtiPoleLabel(axis.id, myType.axes[axis.id], locale)}`)
-                  .filter(Boolean).join(' · ')}
-              </span>
-            </p>
-            <ul className="taste-recap">
-              {myTaste.dishes.map(d => (
-                <li key={d.id} className="taste-recap__dish">
-                  <span className="taste-recap__kr" translate="no">{d.nameKo}</span>
-                  <span className="taste-recap__rom" translate="no">{d.romanization}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="taste-recap__where">
-              {say('Kept in this browser only — answering again on another phone starts a new one.',
-                '이 브라우저에만 저장됩니다. 다른 기기에서는 처음부터 다시 답하게 됩니다.',
-                'Se guarda solo en este navegador: en otro teléfono empieza de cero.',
-                'Conservé dans ce navigateur seulement : sur un autre téléphone, tout recommence.',
-                'يُحفظ في هذا المتصفّح وحده: على هاتف آخر يبدأ من جديد.',
-                '只存在这个浏览器里——换一部手机就要重新答。',
-                'このブラウザにだけ保存されます。別の端末では最初から答えることになります。')}
-            </p>
-          </>
-        ) : (
+        {/* Two records, shown one at a time rather than all-or-nothing. The
+            whole section used to sit behind `myType ?`, so somebody who had
+            swiped fourteen cards and skipped the test was told they had
+            answered nothing and offered the deck they had already finished.
+            Named and tested in domain/policy/tasteRecord.js. */}
+        {showsType(record) && (
+          <p className="taste-type">
+            <span className="taste-type__code" translate="no">{myType.code}</span>
+            <span className="taste-type__name">{mbtiTypeLabel(myType.code, locale)}</span>
+            <span className="taste-type__axes">
+              {MBTI_AXES.map(axis =>
+                `${mbtiAxisLabel(axis.id, locale)}: ${mbtiPoleLabel(axis.id, myType.axes[axis.id], locale)}`)
+                .filter(Boolean).join(' · ')}
+            </span>
+          </p>
+        )}
+
+        {showsDishes(record) && (
+          <ul className="taste-recap">
+            {myTaste.dishes.map(d => (
+              <li key={d.id} className="taste-recap__dish">
+                <span className="taste-recap__kr" translate="no">{d.nameKo}</span>
+                <span className="taste-recap__rom" translate="no">{d.romanization}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Said rather than offered: this screen is read-only about the two
+            records, and a button here would be a second place to answer them
+            and a second place for the two to disagree. The 밥상 tab is where
+            both are taken, and the line says so. */}
+        {showsDishes(record) && testIsNew(record) && (
+          <p className="taste-recap__next">
+            {say('The food MBTI is still ahead of you — it is on 밥상, under your map.',
+              '음식 MBTI는 아직입니다. 밥상 탭의 입맛 지도 아래에서 할 수 있어요.',
+              'El MBTI gastronómico aún te espera: está en 밥상, bajo tu mapa.',
+              'Le MBTI culinaire vous attend encore : il est sur 밥상, sous votre carte.',
+              'اختبار إم بي تي آي للطعام ما زال أمامك: تجده في 밥상 تحت خريطتك.',
+              '饮食 MBTI 还没做——在 밥상 里，你的地图下面。',
+              'フード MBTI はまだです。밥상 タブの好みの地図の下にあります。')}
+          </p>
+        )}
+
+        {showsPrompt(record) ? (
           <>
             <p className="taste-recap__none">
               {say('Fourteen cards, and the tables you would actually sit at come first afterwards.',
@@ -662,6 +680,16 @@ export default function JournalPanel({
                 'Composer ma carte des goûts', 'اصنع خريطة ذوقي', '做我的口味地图', '好みの地図をつくる')}
             </button>
           </>
+        ) : (
+          <p className="taste-recap__where">
+            {say('Kept in this browser only — answering again on another phone starts a new one.',
+              '이 브라우저에만 저장됩니다. 다른 기기에서는 처음부터 다시 답하게 됩니다.',
+              'Se guarda solo en este navegador: en otro teléfono empieza de cero.',
+              'Conservé dans ce navigateur seulement : sur un autre téléphone, tout recommence.',
+              'يُحفظ في هذا المتصفّح وحده: على هاتف آخر يبدأ من جديد.',
+              '只存在这个浏览器里——换一部手机就要重新答。',
+              'このブラウザにだけ保存されます。別の端末では最初から答えることになります。')}
+          </p>
         )}
       </div>
 

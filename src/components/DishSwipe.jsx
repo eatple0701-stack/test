@@ -6,7 +6,11 @@ import {
 } from '../domain/policy/taste.js';
 import FoodMbti from './FoodMbti';
 import { getStoredTaste, storeTaste, clearTaste } from '../data/taste.js';
-import { useText } from './localeText.js';
+import { useText, useLocale } from './localeText.js';
+import { getStoredMbti } from '../data/foodMbti.js';
+import { mbtiType } from '../domain/policy/foodMbti.js';
+import { mbtiTypeLabel } from '../domain/policy/dishLabels.js';
+import { tasteRecordState, showsType, testIsNew } from '../domain/policy/tasteRecord.js';
 
 // 입맛 지도 — one dish at a time, and a yes or a no.
 //
@@ -44,6 +48,7 @@ export default function DishSwipe({
   inline = false, sharedOnly = true,
 }) {
   const say = useText();
+  const locale = useLocale();
   const deck = useMemo(() => buildDeck(menus, { sharedOnly }), [sharedOnly]);
   // Starts from what is stored, so leaving the deck and coming back is not
   // starting over — and so the Tables screen has something to read. Written
@@ -73,6 +78,12 @@ export default function DishSwipe({
   // form, and the point of showing the map first is that there is now
   // something worth adding to.
   const [mbtiOpen, setMbtiOpen] = useState(false);
+  // The other record. Read on mount and again when the sheet closes, because
+  // the test writes to its own key from a component this one renders — and
+  // this screen has to look different afterwards, which is the whole of what
+  // 2026-09-09 asked for: 입맛지도만 한 사람과 둘 다 한 사람.
+  const [myType, setMyType] = useState(() => mbtiType(getStoredMbti()));
+  const record = tasteRecordState({ mapCount: map.count, type: myType });
 
   // The verdict the current drag would land on, for the two hints over the
   // card. Reading it from the same function the release reads is the point:
@@ -297,6 +308,19 @@ export default function DishSwipe({
 
             {map.count > 0 && (
               <>
+                {/* What the test said, when it has been taken. The map is
+                    what somebody picked and the type is who they are at a
+                    table; showing both is what makes this screen different
+                    for the two people 2026-09-09 asked about, and it is the
+                    honest difference — it shows what they did, rather than
+                    rearranging the screen to look like a reward. */}
+                {showsType(record) && (
+                  <p className="taste-map__type">
+                    <span className="taste-map__type-code" translate="no">{myType.code}</span>
+                    <span className="taste-map__type-name">{mbtiTypeLabel(myType.code, locale)}</span>
+                  </p>
+                )}
+
                 <ul className="taste-map__dishes">
                   {map.dishes.map(d => (
                     <li key={d.id} className="taste-map__dish">
@@ -331,9 +355,13 @@ export default function DishSwipe({
                     the sequence has to know, because closing the test there
                     is what ends it. One sheet either way. */}
                 <button type="button" className="taste-map__mbti" onClick={() => (onOpenMbti ? onOpenMbti() : setMbtiOpen(true))}>
-                  {say('Take the food MBTI', '음식 MBTI 검사하기', 'Haz el MBTI gastronómico',
-                    'Faire le MBTI culinaire', 'أجرِ اختبار إم بي تي آي للطعام',
-                    '做饮食 MBTI 测试', 'フード MBTI をやってみる')}
+                  {testIsNew(record)
+                    ? say('Take the food MBTI', '음식 MBTI 검사하기', 'Haz el MBTI gastronómico',
+                      'Faire le MBTI culinaire', 'أجرِ اختبار إم بي تي آي للطعام',
+                      '做饮食 MBTI 测试', 'フード MBTI をやってみる')
+                    : say('Take the food MBTI again', '음식 MBTI 다시 하기', 'Vuelve a hacer el MBTI gastronómico',
+                      'Refaire le MBTI culinaire', 'أعد اختبار إم بي تي آي للطعام',
+                      '再做一次饮食 MBTI', 'フード MBTI をもう一度')}
                 </button>
 
                 {/* The ask, and it is here rather than on the way in.
@@ -383,7 +411,9 @@ export default function DishSwipe({
   const withSheet = (
     <>
       {body}
-      {mbtiOpen && <FoodMbti onClose={() => setMbtiOpen(false)} />}
+      {mbtiOpen && (
+        <FoodMbti onClose={() => { setMbtiOpen(false); setMyType(mbtiType(getStoredMbti())); }} />
+      )}
     </>
   );
 
