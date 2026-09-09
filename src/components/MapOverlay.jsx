@@ -6,7 +6,6 @@ import PlacesTab from './PlacesTab';
 import { XIcon, ChevronDownIcon, ChevronUpIcon } from './Icons';
 import { DISH_GROUPS } from '../domain/catalog/dishGroups.js';
 import { groupFilterId, isGroupOn, swatchColor, groupsBeingFiltered, VISITED, isVisitedOn } from '../domain/policy/mapLegend.js';
-import { REGISTRY_TOTAL } from '../data/nearbyPlaces.js';
 import { restaurants } from '../data/restaurants';
 import { isQuarantined } from '../data/verification';
 
@@ -133,15 +132,15 @@ export default function MapOverlay({
           on screen and unreadable, which is the same as not being there.
           Hidden when the layer is off, because then they mean nothing. */}
       <div className="map-legend" aria-label={say('What the colours mean', '색깔이 뜻하는 것', 'Qué significan los colores', 'Ce que signifient les couleurs', 'معنى الألوان', '颜色的含义', '色の意味')}>
-        {/* What the two kinds of marker are.
-            The map draws teardrop pins for the eighteen places somebody went
-            to and wrote up, and coloured dots for the 8,118 the register
-            knows about — a difference anybody can see and nobody could read,
-            because the legend explained the dot colours and never mentioned
-            the pins at all. Reported as "너저분하다" on 2026-09-04, which is
-            what an unexplained distinction looks like from outside.
-            First, because it is the difference between a place this app
-            vouches for and one it merely lists. */}
+        {/* 직접 가본 곳, first, because it is the difference between a place
+            this app vouches for and one it merely lists.
+
+            It was a caption until 2026-09-09, sitting above a second caption
+            for the register — written when the eighteen were teardrops and
+            the register was dots, a difference anybody could see and nobody
+            could read ("너저분하다", 2026-09-04). Both of those are gone: the
+            marks are one shape now and this is a chip that filters, so the
+            row explains a colour, which is what the other six do. */}
         <span className="map-legend__kinds">
           {/* The eighteen are a category now, not a caption: same chip, same
               colour swatch, and it filters. 2026-09-09 — "카테고리 하나
@@ -172,16 +171,14 @@ export default function MapOverlay({
                 `実際に行って書いた${CURATED_COUNT}か所`)}
             </span>
           </button>
-          <span className="map-legend__kind">
-            <span className="map-legend__dot map-legend__dot--any" aria-hidden="true" />
-            {say(`${REGISTRY_TOTAL.toLocaleString('en-US')} from Seoul's public register — nobody here has been to those`,
-              `서울시 공공 등록부의 ${REGISTRY_TOTAL.toLocaleString('ko-KR')}곳 — 저희가 가본 곳은 아닙니다`,
-              `${REGISTRY_TOTAL.toLocaleString('es-ES')} del registro público de Seúl: a esos no hemos ido`,
-              `${REGISTRY_TOTAL.toLocaleString('fr-FR')} du registre public de Séoul : nous n'y sommes pas allés`,
-              `${REGISTRY_TOTAL.toLocaleString('en-US')} من السجل العام لمدينة سول — تلك لم نزرها`,
-              `来自首尔市公开登记册的 ${REGISTRY_TOTAL.toLocaleString('en-US')} 家——那些我们没有去过`,
-              `ソウル市の公開登録簿にある${REGISTRY_TOTAL.toLocaleString('ja-JP')}軒 — そちらには行っていません`)}
-          </span>
+          {/* The register's own line — "8,118곳, 저희가 가본 곳은 아닙니다" —
+              stood here until 2026-09-09. Taken out at 강민's word once 직접
+              가본 곳 became a chip: the row above says which places the team
+              went to, and the ones that are not those are the rest, which
+              does not need a second sentence under a filter.
+              The disclosure itself has not gone anywhere. PlacesTab's header
+              carries it where the register is actually listed, and
+              placesWiring.test.mjs holds it there. */}
         </span>
         <button
           className={`map-overlay__nearby${nearby ? ' is-on' : ''}`}
