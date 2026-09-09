@@ -19,6 +19,9 @@ import TablesTab from './components/TablesTab';
 import TableCreate from './components/TableCreate';
 import TableDetail from './components/TableDetail';
 import TableRequest from './components/TableRequest';
+import FirstRun from './components/FirstRun';
+import { getFirstRunSeen, markFirstRunSeen } from './data/firstRun.js';
+import { shouldRun, FIRST_RUN_EXIT } from './domain/policy/firstRun.js';
 import { getProfile, saveProfile } from './data/profile';
 import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 import { getStoredTaste, preferredMenuIds } from './data/taste.js';
@@ -208,6 +211,12 @@ export default function App() {
   // who they are. Held in App because two screens read it — the deck writes
   // it on Main, and the Tables list lifts the dishes it names to the top.
   const [taste, setTaste] = useState(getStoredTaste);
+
+  // The opening sequence, for a browser that has never been here. Read once
+  // at mount rather than watched: it is answered by this render or not at
+  // all, and re-reading storage mid-session would let a second tab reopen it
+  // over somebody who is already using the app.
+  const [firstRun, setFirstRun] = useState(() => shouldRun(getFirstRunSeen()));
   const preferredMenus = useMemo(() => preferredMenuIds(taste), [taste]);
   // Carried from a restaurant into the open-a-table form.
   const [tablePrefill, setTablePrefill] = useState(null);
@@ -889,6 +898,22 @@ export default function App() {
        write-ups — pick its Korean version where one exists. */
     <LocaleContext.Provider value={locale}>
     <div className="app-shell">
+      {/* Over everything, on a browser that has never been here. Inside the
+          shell rather than instead of it, so the app behind is already
+          mounted and laid out when the sequence ends — closing it reveals
+          밥상 rather than starting to build it. */}
+      {firstRun && (
+        <FirstRun
+          onDone={(how) => {
+            markFirstRunSeen();
+            setFirstRun(false);
+            // The deck wrote to storage while the sequence was up; this is
+            // what lifts those dishes to the top of the list underneath.
+            setTaste(getStoredTaste());
+            if (how === FIRST_RUN_EXIT.app) setTableView({ screen: 'list' });
+          }}
+        />
+      )}
       {/* App chrome: the name on the left, the tabs, and who you are on the
           right — one row, above the content, on every screen. The wordmark
           and the sign-in pair used to live inside the Tables tab, which made

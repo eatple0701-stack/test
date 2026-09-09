@@ -25,8 +25,8 @@ import { tilesFor } from '../domain/policy/mapTiles.js';
 // of being guessed onto it — see src/domain/policy/place.js for why a
 // geocoded pin would be worse than none.
 
-const tablePin = (menu, left) => L.divIcon({
-  className: 'table-pin',
+const tablePin = (menu, left, sample = false) => L.divIcon({
+  className: `table-pin${sample ? ' table-pin--sample' : ''}`,
   html: `<span class="table-pin__body${left === 0 ? ' is-full' : ''}">
     <span class="table-pin__word">${menu?.nameKo ?? '밥상'}</span>
     <span class="table-pin__seats">${left === 0 ? 'full' : left}</span>
@@ -102,7 +102,7 @@ export default function TablesMap({
           >
             <TileLayer url={tiles.url} />
             {pins.map(({ t, menu, p, left }) => (
-              <Marker key={t.id} position={[p.lat, p.lng]} icon={tablePin(menu, left)} interactive={false} />
+              <Marker key={t.id} position={[p.lat, p.lng]} icon={tablePin(menu, left, t.isSample)} interactive={false} />
             ))}
           </MapContainer>
         </span>
@@ -150,7 +150,7 @@ export default function TablesMap({
               <Marker
                 key={t.id}
                 position={[p.lat, p.lng]}
-                icon={tablePin(menu, left)}
+                icon={tablePin(menu, left, t.isSample)}
                 eventHandlers={{ click: () => onOpenTable?.(t.id) }}
               >
                 {/* A popup as well as the click, because on a phone a tap

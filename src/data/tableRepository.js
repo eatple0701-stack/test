@@ -383,20 +383,33 @@ async function local_seedSampleTables() {
   const day = 86400000;
   const dateIn = (n) => new Date(Date.now() + n * day).toISOString().slice(0, 10);
 
+  // The pins. Added 2026-09-09 when the map came back to 밥상: without them
+  // mappable() returned nothing and the map was an empty box on a pilot that
+  // has no real pins yet, which reads as "this app has no dinners".
+  //
+  // Not a geocode. place.js forbids turning a host's free text into a point
+  // precisely because a guessed pin looks as confident as a true one — but
+  // these three rows are a fixture, the neighbourhood is something this file
+  // wrote rather than read, and the card and the detail screen both say 샘플.
+  // The pin carries is-sample so the map says it too. Real tables get their
+  // point from the host's own PlacePicker or they get none.
   const samples = [
     {
       menuId: 'samgyeopsal', hostName: 'Minsu', hostNationality: 'Korea',
       date: dateIn(2), time: '19:00', place: 'Jongno 3-ga, Seoul', seats: 4,
+      lat: 37.5704, lng: 126.9920,
       note: 'First time grilling is fine — I will do the scissors.',
     },
     {
       menuId: 'gamjatang', hostName: 'Jiwon', hostNationality: 'Korea',
       date: dateIn(3), time: '18:30', place: 'Dongdaemun, Seoul', seats: 3,
+      lat: 37.5714, lng: 127.0095,
       note: 'Slow dinner, plenty of time to talk.',
     },
     {
       menuId: 'ganjang-gejang', hostName: 'Haeun', hostNationality: 'Korea',
       date: dateIn(5), time: '12:30', place: 'Sinsa, Seoul', seats: 2,
+      lat: 37.5163, lng: 127.0203,
       note: 'Lunch set. Bring an appetite for rice.',
     },
   ];

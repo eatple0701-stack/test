@@ -40,7 +40,7 @@ const DRAG_ROTATE = 0.05;   // degrees per pixel — a card tilts as it leaves
 const FLY_MS = 240;
 
 export default function DishSwipe({
-  onClose, onOpenTables, onOpenAuth, onTasteChange, auth,
+  onClose, onOpenTables, onOpenAuth, onTasteChange, onOpenMbti, auth,
   inline = false, sharedOnly = true,
 }) {
   const say = useText();
@@ -327,7 +327,10 @@ export default function DishSwipe({
                     somebody picked; the test asks who they are at a table,
                     and the two are different questions with different
                     answers. Offered after the map and never before it. */}
-                <button type="button" className="taste-map__mbti" onClick={() => setMbtiOpen(true)}>
+                {/* Opened here on 밥상, handed up in the opening sequence:
+                    the sequence has to know, because closing the test there
+                    is what ends it. One sheet either way. */}
+                <button type="button" className="taste-map__mbti" onClick={() => (onOpenMbti ? onOpenMbti() : setMbtiOpen(true))}>
                   {say('Take the food MBTI', '음식 MBTI 검사하기', 'Haz el MBTI gastronómico',
                     'Faire le MBTI culinaire', 'أجرِ اختبار إم بي تي آي للطعام',
                     '做饮食 MBTI 测试', 'フード MBTI をやってみる')}

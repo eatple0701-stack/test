@@ -1,0 +1,86 @@
+import React, { useEffect, useState } from 'react';
+import DishSwipe from './DishSwipe';
+import FoodMbti from './FoodMbti';
+import { FIRST_RUN, FIRST_RUN_EXIT, stepAfter } from '../domain/policy/firstRun.js';
+import { useText } from './localeText.js';
+
+// The opening sequence: the name, then the deck, then a choice.
+//
+// Why the deck and not a tour: a tour tells somebody what the app does, and
+// this hands them something instead — after three cards there is a map with
+// their own answers in it, and what comes next is a choice about that map
+// rather than about the app.
+//
+// The choice is the deck's own. A pair of buttons was written for this screen
+// first — 음식 MBTI 하러 가기 / 밥상 보러 가기 — and put back on 2026-09-09
+// after being looked at: the map already ends in 이 음식들로 열려 있는 밥상
+// 보기 and 음식 MBTI 검사하기, so the sequence was drawing seven buttons and
+// two pairs of them went to the same two places. Both of the deck's doors are
+// wired to end the sequence instead, which is all this screen ever needed to
+// add.
+//
+// 건너뛰기 is on every screen and never moves. Somebody who came to find out
+// whether real dinners exist is one tap from them at all times; that is the
+// condition under which putting anything at all in front of the tables is
+// allowed.
+const LOGO_MS = 1800;
+
+export default function FirstRun({ onDone }) {
+  const say = useText();
+  const [step, setStep] = useState(FIRST_RUN.logo);
+  const [exit, setExit] = useState(null);
+
+  // The logo screen plays rather than waits. There is nothing to decide on
+  // it, and a screen with no question should not need a tap to leave — but it
+  // can be left early by tapping it and skipped outright, so the timer is
+  // never the only way out.
+  useEffect(() => {
+    if (step !== FIRST_RUN.logo) return undefined;
+    const t = window.setTimeout(() => setStep(s => stepAfter(s) ?? s), LOGO_MS);
+    return () => window.clearTimeout(t);
+  }, [step]);
+
+  // The test opens over the sequence rather than after it: closing the test
+  // is what ends the whole thing, so there is no moment where somebody has
+  // finished the test and is looking at the splash again.
+  if (exit === FIRST_RUN_EXIT.mbti) {
+    return <FoodMbti onClose={() => onDone?.(FIRST_RUN_EXIT.mbti)} />;
+  }
+
+  return (
+    <div className="first-run" role="dialog" aria-modal="true"
+      aria-label={say('Welcome', '처음 오셨네요', 'Bienvenido', 'Bienvenue', 'أهلًا بك', '欢迎', 'ようこそ')}>
+
+      <button type="button" className="first-run__skip" onClick={() => onDone?.(FIRST_RUN_EXIT.app)}>
+        {say('Skip', '건너뛰기', 'Saltar', 'Passer', 'تخطٍّ', '跳过', 'スキップ')}
+      </button>
+
+      {step === FIRST_RUN.logo && (
+        <button type="button" className="first-run__logo-screen"
+          onClick={() => setStep(s => stepAfter(s) ?? s)}>
+          <img className="first-run__logo" src="/images/eatple-logo.jpg" alt="" width="96" height="96" />
+          <span className="first-run__wordmark" translate="no">밥친구 잇플 · Eatple</span>
+          <span className="first-run__tagline">
+            {say('Don\u2019t just visit Korea. Share a Korean table.',
+              '혼자 먹기 아쉬운 한 끼, 같이.',
+              'No solo visites Corea. Comparte una mesa coreana.',
+              'Ne visitez pas seulement la Corée. Partagez une table coréenne.',
+              'لا تزُر كوريا فحسب. شارك مائدة كورية.',
+              '不只是来韩国，还要一起吃顿饭。',
+              '韓国を訪れるだけでなく、食卓を囲む。')}
+          </span>
+        </button>
+      )}
+
+      {step === FIRST_RUN.taste && (
+        <div className="first-run__taste">
+          <DishSwipe
+            inline
+            onOpenTables={() => onDone?.(FIRST_RUN_EXIT.app)}
+            onOpenMbti={() => setExit(FIRST_RUN_EXIT.mbti)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}

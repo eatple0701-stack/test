@@ -9,6 +9,7 @@ import {
 } from '../data/tableRepository.js';
 import { conflictsFor } from '../data/profile';
 import DishSwipe from './DishSwipe';
+import TablesMap from './TablesMap';
 import { tableKind, tableKindLabel, guideSummary } from '../domain/catalog/hosts.js';
 import { languageLine } from '../domain/catalog/languages.js';
 import { visibleTables } from '../domain/policy/blocking.js';
@@ -88,6 +89,10 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // The dish being read, from the shelf that appears on a bare week — or
   // from a search that found the dish and no table for it.
   const [openDish, setOpenDish] = useState(null);
+  // The tables on a map, opened from the preview under the list. Local to
+  // this tab: it is a way of reading this list, not a screen of its own, and
+  // routing it would put a URL on a lens.
+  const [mapOpen, setMapOpen] = useState(false);
   // "떡볶이가 먹고 싶다". What the reader typed; the policy decides the rest.
   const [query, setQuery] = useState('');
 
@@ -618,7 +623,13 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
           team's word: 장소 is the map tab, and drawing a second one at the
           top of this screen pushed the tables — the only thing this tab is
           for — below the fold to answer a question another tab answers
-          better. Nothing was lost; TablesMap is still what 장소 renders. */}
+          better.
+
+          The sentence that followed, "Nothing was lost; TablesMap is still
+          what 장소 renders", was false the day it was written. 장소 renders
+          MapOverlay, which draws restaurants; TablesMap draws the tables and
+          nothing imported it, so the tables came off every map in the app
+          for two days. It is back under the list — see below. */}
 
       {/* The strip had no label, so the list never said what window it was
           showing or where. Meetup heads its own list "Incheon, KR 근처의
@@ -982,6 +993,25 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         {rest.map(renderTableCard)}
       </div>
 
+      {/* 부장님's 모임 장소 표시, back on 밥상 — asked for again on
+          2026-09-09 with the distinction that settles where it belongs:
+          장소's map is the restaurant directory, and this one is the open
+          tables. Two maps that answer two questions, not one map drawn twice.
+
+          Under the list rather than over it. It was taken out of the top of
+          this screen on 2026-09-07 because it pushed the tables — the thing
+          the tab is for — below the fold, and that reason has not changed;
+          the deck sits up there now as well. Reading order instead: what is
+          on this week, then where those are. */}
+      {tables !== null && shown.length > 0 && (
+        <TablesMap
+          variant="preview"
+          tables={shown}
+          signupsFor={signupsFor}
+          onOpen={() => setMapOpen(true)}
+        />
+      )}
+
       {/* The explaining, now that the tables have made their case.
           Meetup's order: events, then "how it works", then why any of it is
           worth doing. Both blocks are guests-only — a member has done all
@@ -1051,6 +1081,18 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
         </button>
       )}
 
+
+      {/* The real map, full screen. Its own pins are the way into a table,
+          so opening one closes the map behind it rather than leaving a
+          reader to find the close button first. */}
+      {mapOpen && (
+        <TablesMap
+          tables={shown}
+          signupsFor={signupsFor}
+          onOpenTable={(id) => { setMapOpen(false); onOpenTable?.(id); }}
+          onClose={() => setMapOpen(false)}
+        />
+      )}
     </section>
   );
 }
