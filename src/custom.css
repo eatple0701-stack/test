@@ -275,8 +275,14 @@ body {
   overflow: hidden;
 }
 
-/* On Main it is the page, not a dialog: no backdrop, no shadow, no cap. */
-.dish-swipe-inline-wrap { display: block; padding: 0 16px; margin-bottom: 20px; }
+/* On 밥상 it is the page, not a dialog: no backdrop, no shadow, and a cap
+   wide enough that it never binds on a phone.
+   20px of side padding rather than 16 because that is what .table-list uses,
+   so at 375 the deck is 335px — exactly the width of the cards under it.
+   The 520 cap only bites on a desktop window, and it stays: without it the
+   card grows with the column, and a 680px one is 692px tall in a 740px
+   window. Measured 2026-09-09 at 1333x740. */
+.dish-swipe-inline-wrap { display: block; padding: 0 20px; margin-bottom: 20px; }
 .dish-swipe--inline {
   max-width: 520px; max-height: none; padding: 0;
   background: none; box-shadow: none; border-radius: 0; overflow: visible;
@@ -638,14 +644,36 @@ body {
 /* ── 음식 MBTI ────────────────────────────────────────────────────────
    A sheet rather than a panel under the map: twelve more questions stacked
    beneath a result somebody has just been handed reads as a second form.
-   Opened from the map, never before it. */
-.mbti-backdrop { align-items: flex-end; }
+   Opened from the map, never before it.
+
+   A sheet on a phone and a card on a wider window. The backdrop this reuses
+   pads 24px on every side, and at flex-end that drew a sheet with rounded top
+   corners, a square bottom and 24px of blurred page underneath it — floating,
+   at both widths. Measured 2026-09-09: 24px of gap below and beside at 375,
+   the same at 1333.
+
+   The thumb is the only reason it is a sheet at all — twelve questions
+   answered from the bottom of the screen. A desktop window has no thumb, and
+   the bottom of a 740px one is a long way from where the reader is looking,
+   so there it is a card in the middle with four corners. Neither half is a
+   new pattern: flush-to-the-bottom is what .detail-sheet does, and a centred
+   card is what .match-modal does. */
+.mbti-backdrop { align-items: flex-end; padding: 0; }
 .mbti {
   width: 100%; max-width: 560px; margin: 0 auto;
   max-height: 88vh; overflow-y: auto;
-  padding: 18px 18px 26px;
+  padding: 18px 18px calc(26px + env(safe-area-inset-bottom));
   background: var(--surface);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+@media (min-width: 600px) {
+  .mbti-backdrop { align-items: center; padding: 24px; }
+  .mbti {
+    max-height: 82vh;
+    padding: 22px 24px 24px;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2);
+  }
 }
 .mbti__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .mbti__title { font-size: 13px; font-weight: 800; letter-spacing: 0.1em; color: var(--accent-strong); }

@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { menus, CATEGORY_LABEL } from '../domain/catalog/menus.js';
 import {
-  VERDICT, swipeVerdict, buildDeck, emptyTaste, recordVerdict,
+  VERDICT, swipeVerdict, buildDeck, recordVerdict,
   deckProgress, nextCard, tasteMap, canDrawMap,
 } from '../domain/policy/taste.js';
 import FoodMbti from './FoodMbti';
