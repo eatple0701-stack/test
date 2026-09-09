@@ -416,6 +416,12 @@ export default function JournalPanel({
   // them "your memories are waiting" underneath it would be the page arguing
   // with itself.
   const isEmpty = recordCount === 0 && upcomingTables.length === 0;
+  // Whether the four numbers have anything to say. Not isEmpty: that one asks
+  // about tables, and somebody can have walked a theme or saved a place
+  // without ever sitting at one — gating on it would hide counts that are
+  // real. This asks the narrower question the numbers themselves ask.
+  const hasCounts = eaten.length + metPeople.length
+    + journey.experienceCount + journey.foodCount > 0;
 
   return (
     <section className="journal-panel" aria-label={say('Journal', '여권', 'Pasaporte', 'Passeport', 'جواز السفر', '护照', 'パスポート')}>
@@ -566,12 +572,38 @@ export default function JournalPanel({
         </div>
       )}
 
-      {/* 내 입맛, under the person and above the tools, because it is the
-          person: it is the only thing on this screen the holder made rather
-          than was given. Asked for on 2026-09-07 — the deck writes it on
-          메인 and 문화 and it was readable nowhere else, which meant a
-          traveller who wanted to see it again had to answer fourteen cards
-          again to find out.
+      {/* The two tools, under the person they belong to. Both still work
+          signed out — a guest sees the gate above and these below it, so the
+          sentence somebody needs at a counter is never behind an account. */}
+      <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
+        <span className="journal-tool__kr" translate="no">식탁에서</span>
+        <span className="journal-tool__body">
+          {say('What to say — ordering, what you cannot eat, and something to ask the table. Works with or without a meal booked.',
+            '무슨 말을 할지 — 주문할 때, 못 먹는 것을 말할 때, 같이 앉은 사람에게 물어볼 때. 잡아 둔 밥상이 없어도 됩니다.', 'Qué decir: para pedir, para explicar lo que no puedes comer y para preguntar algo en la mesa. Funciona con o sin comida reservada.', "Quoi dire : pour commander, pour expliquer ce que vous ne pouvez pas manger, et pour poser une question à table. Fonctionne avec ou sans repas réservé.", 'ماذا تقول: للطلب، ولشرح ما لا تستطيع أكله، ولتسأل شيئًا على المائدة. يعمل مع وجبة محجوزة أو بدونها.', '该说什么：点菜时、说明自己不能吃什么时、还有想问桌上的人点什么时。有没有订到饭都能用。', '何を言えばいいか——注文するとき、食べられないものを伝えるとき、食卓で何かを尋ねるとき。食事の予約があってもなくても使えます。')}
+        </span>
+      </button>
+
+      {/* The emergency numbers, the leave-at-any-point line and the report
+          channel. No use behind a door you can only find while shopping for a
+          specific dinner — which is where they used to live. */}
+      <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
+        <span className="journal-tool__kr" translate="no">도움이 필요하면</span>
+        <span className="journal-tool__body">
+          {say('112, 119, the 24-hour travel helpline, and how to reach the Eatple team. You can leave any meal at any point.',
+            '112, 119, 24시간 관광통역안내, 그리고 밥친구 팀에 연락하는 방법. 어느 식사든 언제라도 자리를 뜨셔도 됩니다.', '112, 119, la línea de ayuda al viajero 24 horas y cómo contactar con el equipo de Eatple. Puedes irte de cualquier comida en cualquier momento.', "112, 119, la ligne d'assistance aux voyageurs 24h/24, et comment joindre l'équipe Eatple. Vous pouvez quitter n'importe quel repas à n'importe quel moment.", '112 و119 وخط مساعدة المسافرين على مدار الساعة، وكيف تصل إلى فريق Eatple. تستطيع مغادرة أي وجبة في أي لحظة.', '112、119、24小时旅游咨询热线，以及怎么联系 Eatple 团队。任何一顿饭，你随时都可以离席。', '112、119、24時間の旅行者向け案内、そして Eatple チームへの連絡方法。どの食事でも、いつでも席を立って構いません。')}
+        </span>
+      </button>
+
+      {/* 내 입맛, under the two tools rather than above them. It is the only
+          thing on this screen the holder made rather than was given, which is
+          the argument for putting it first, and it lost: the tools' position
+          was decided and measured on 2026-08-05, and a 359px section above
+          them moved 식탁에서 from 0.82 screens to 1.10 and the safety sheet
+          from 1.00 to 1.30. Emergency numbers a third of a screen further
+          down is a real cost; being fourth on the page instead of third is
+          not. Asked for on 2026-09-07 — the deck writes this on 밥상 and it
+          was readable nowhere else, which meant a traveller who wanted to see
+          it again had to answer fourteen cards again to find out.
 
           Read-only here on purpose. The deck is where it is answered, and a
           second place to change it is a second place for the two to disagree.
@@ -632,28 +664,6 @@ export default function JournalPanel({
           </>
         )}
       </div>
-
-      {/* The two tools, under the person they belong to. Both still work
-          signed out — a guest sees the gate above and these below it, so the
-          sentence somebody needs at a counter is never behind an account. */}
-      <button className="journal-tool" onClick={() => setPhrasesOpen(true)}>
-        <span className="journal-tool__kr" translate="no">식탁에서</span>
-        <span className="journal-tool__body">
-          {say('What to say — ordering, what you cannot eat, and something to ask the table. Works with or without a meal booked.',
-            '무슨 말을 할지 — 주문할 때, 못 먹는 것을 말할 때, 같이 앉은 사람에게 물어볼 때. 잡아 둔 밥상이 없어도 됩니다.', 'Qué decir: para pedir, para explicar lo que no puedes comer y para preguntar algo en la mesa. Funciona con o sin comida reservada.', "Quoi dire : pour commander, pour expliquer ce que vous ne pouvez pas manger, et pour poser une question à table. Fonctionne avec ou sans repas réservé.", 'ماذا تقول: للطلب، ولشرح ما لا تستطيع أكله، ولتسأل شيئًا على المائدة. يعمل مع وجبة محجوزة أو بدونها.', '该说什么：点菜时、说明自己不能吃什么时、还有想问桌上的人点什么时。有没有订到饭都能用。', '何を言えばいいか——注文するとき、食べられないものを伝えるとき、食卓で何かを尋ねるとき。食事の予約があってもなくても使えます。')}
-        </span>
-      </button>
-
-      {/* The emergency numbers, the leave-at-any-point line and the report
-          channel. No use behind a door you can only find while shopping for a
-          specific dinner — which is where they used to live. */}
-      <button className="journal-tool journal-tool--help" onClick={() => setSafetyOpen(true)}>
-        <span className="journal-tool__kr" translate="no">도움이 필요하면</span>
-        <span className="journal-tool__body">
-          {say('112, 119, the 24-hour travel helpline, and how to reach the Eatple team. You can leave any meal at any point.',
-            '112, 119, 24시간 관광통역안내, 그리고 밥친구 팀에 연락하는 방법. 어느 식사든 언제라도 자리를 뜨셔도 됩니다.', '112, 119, la línea de ayuda al viajero 24 horas y cómo contactar con el equipo de Eatple. Puedes irte de cualquier comida en cualquier momento.', "112, 119, la ligne d'assistance aux voyageurs 24h/24, et comment joindre l'équipe Eatple. Vous pouvez quitter n'importe quel repas à n'importe quel moment.", '112 و119 وخط مساعدة المسافرين على مدار الساعة، وكيف تصل إلى فريق Eatple. تستطيع مغادرة أي وجبة في أي لحظة.', '112、119、24小时旅游咨询热线，以及怎么联系 Eatple 团队。任何一顿饭，你随时都可以离席。', '112、119、24時間の旅行者向け案内、そして Eatple チームへの連絡方法。どの食事でも、いつでも席を立って構いません。')}
-        </span>
-      </button>
 
       {/* Above the record, because it has not happened yet. This is also the
           only place a traveller can check what they agreed to — a seat taken
@@ -806,7 +816,13 @@ export default function JournalPanel({
 
       {/* Four counts, and each one is something this app helped cause.
           "Areas" and "Saved" were here before — a district total is a tourist
-          statistic, and a wishlist is not an achievement. */}
+          statistic, and a wishlist is not an achievement.
+
+          Held back until one of them is above zero. It sat directly under
+          "아직 아무것도 없어요" and answered it with 0 · 0 · 0 · 0, which is
+          the same emptiness said twice in a row — the first time gently, with
+          somewhere to go next, and then again as a scoreboard. */}
+      {hasCounts && (
       <div className="journal-section passport-summary">
         <div className="journal-section-header">
           <h3>{say('This trip so far', '이번 여행, 지금까지', 'Este viaje hasta ahora', "Ce voyage jusqu'ici", 'هذه الرحلة حتى الآن', '这趟旅行到现在', 'この旅、ここまで')}</h3>
@@ -830,68 +846,7 @@ export default function JournalPanel({
           </div>
         </div>
       </div>
-
-      {/* Where the 저장 button actually puts things. It used to sit last on
-          a 2.7-screen page — measured 1804px down on 2026-08-04, after the
-          record, the stats, the goals and the people — and it was titled
-          "Saved for Later" while the button that fills it says 저장. Two
-          names for one thing, at opposite ends of a long scroll, is why the
-          8/4 review said "내가 추가한 리스트들이 어디있는지 안보인다". */}
-      {savedList.length > 0 && (
-        <div className="journal-section">
-          <div className="journal-section-header">
-            <h3>{say('저장한 곳 · Saved places', '저장한 곳', 'Sitios guardados', 'Lieux enregistrés', 'الأماكن المحفوظة', '保存的地点', '保存した場所')}</h3>
-          </div>
-          <p className="journal-settings__hint">
-            {say(
-              `${savedList.length} saved from a place page. Tap one to open it again.`,
-              `${savedList.length}곳을 패스포트에 저장했어요. 눌러서 다시 열 수 있어요.`,
-              `${savedList.length} guardados desde una página de sitio. Toca uno para abrirlo otra vez.`,
-              `${savedList.length} enregistrés depuis une fiche de lieu. Touchez pour rouvrir.`,
-              `${savedList.length} محفوظة من صفحات الأماكن. اضغط على أيّها لفتحه من جديد.`,
-              `从地点页保存了 ${savedList.length} 处。点一下就能再打开。`,
-              `場所のページから${savedList.length}件を保存しました。タップするともう一度開けます。`)}
-          </p>
-          <div className="journal-grid">
-            {savedList.map(({ place, savedAt }) => (
-              <button
-                key={place.id}
-                className="stamp stamp--saved"
-                onClick={() => onRestaurantClick(place)}
-              >
-                <span className="stamp-ring">
-                  <img src={place.image} alt="" />
-                </span>
-                <span className="stamp-name">{place.name.split('(')[0].trim()}</span>
-                <span className="stamp-zone">{place.zone}</span>
-                {savedAt && <span className="stamp-date">{formatStampDate(savedAt)}</span>}
-              </button>
-            ))}
-          </div>
-        </div>
       )}
-
-      <div className="journal-section">
-        <div className="journal-section-header">
-          <h3>{say('Worth doing', '해볼 만한 것', 'Merece la pena', 'À faire', 'يستحقّ الفعل', '值得做的', 'やってみる価値')}</h3>
-          <span className="journal-badge-count">{goalsDone}/{goals.length}</span>
-        </div>
-        <ul className="goal-list">
-          {goals.map(g => (
-            <li key={g.id} className={`goal${g.done ? ' is-done' : ''}`}>
-              <span className="goal__mark" aria-hidden="true">{g.done ? '✓' : ''}</span>
-              <span className="goal__body">
-                <span className="goal__name">{say(g.name, g.nameKo, g.nameEs, g.nameFr, g.nameAr, g.nameZh, g.nameJa)}</span>
-                <span className="goal__hint">
-                  {g.done
-                    ? say('Done.', '완료.', 'Hecho.', 'Fait.', 'تمّ.', '完成。', '完了。')
-                    : `${say(g.hint, g.hintKo, g.hintEs, g.hintFr, g.hintAr, g.hintZh, g.hintJa)} ${g.current}/${g.target}`}
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
 
       {metPeople.length > 0 && (
         <div className="journal-section">
@@ -980,6 +935,77 @@ export default function JournalPanel({
           </div>
         </div>
       )}
+
+      {/* 저장한 곳 and 해볼 만한 것 sat between the counts and the record on
+          2026-09-09, which split the record into two halves with a wishlist
+          and a to-do list wedged between them. The record reads in one run
+          now — counts, days, people, places, themes, saved — and what to do
+          next comes after it, where a suggestion belongs.
+
+          The 8/4 reason for lifting 저장한 곳 up ("내가 추가한 리스트들이
+          어디있는지 안보인다") is answered by it being inside the record
+          rather than 1804px below everything, which is where it was then. */}
+      {/* Where the 저장 button actually puts things. It used to sit last on
+          a 2.7-screen page — measured 1804px down on 2026-08-04, after the
+          record, the stats, the goals and the people — and it was titled
+          "Saved for Later" while the button that fills it says 저장. Two
+          names for one thing, at opposite ends of a long scroll, is why the
+          8/4 review said "내가 추가한 리스트들이 어디있는지 안보인다". */}
+      {savedList.length > 0 && (
+        <div className="journal-section">
+          <div className="journal-section-header">
+            <h3>{say('저장한 곳 · Saved places', '저장한 곳', 'Sitios guardados', 'Lieux enregistrés', 'الأماكن المحفوظة', '保存的地点', '保存した場所')}</h3>
+          </div>
+          <p className="journal-settings__hint">
+            {say(
+              `${savedList.length} saved from a place page. Tap one to open it again.`,
+              `${savedList.length}곳을 패스포트에 저장했어요. 눌러서 다시 열 수 있어요.`,
+              `${savedList.length} guardados desde una página de sitio. Toca uno para abrirlo otra vez.`,
+              `${savedList.length} enregistrés depuis une fiche de lieu. Touchez pour rouvrir.`,
+              `${savedList.length} محفوظة من صفحات الأماكن. اضغط على أيّها لفتحه من جديد.`,
+              `从地点页保存了 ${savedList.length} 处。点一下就能再打开。`,
+              `場所のページから${savedList.length}件を保存しました。タップするともう一度開けます。`)}
+          </p>
+          <div className="journal-grid">
+            {savedList.map(({ place, savedAt }) => (
+              <button
+                key={place.id}
+                className="stamp stamp--saved"
+                onClick={() => onRestaurantClick(place)}
+              >
+                <span className="stamp-ring">
+                  <img src={place.image} alt="" />
+                </span>
+                <span className="stamp-name">{place.name.split('(')[0].trim()}</span>
+                <span className="stamp-zone">{place.zone}</span>
+                {savedAt && <span className="stamp-date">{formatStampDate(savedAt)}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="journal-section">
+        <div className="journal-section-header">
+          <h3>{say('Worth doing', '해볼 만한 것', 'Merece la pena', 'À faire', 'يستحقّ الفعل', '值得做的', 'やってみる価値')}</h3>
+          <span className="journal-badge-count">{goalsDone}/{goals.length}</span>
+        </div>
+        <ul className="goal-list">
+          {goals.map(g => (
+            <li key={g.id} className={`goal${g.done ? ' is-done' : ''}`}>
+              <span className="goal__mark" aria-hidden="true">{g.done ? '✓' : ''}</span>
+              <span className="goal__body">
+                <span className="goal__name">{say(g.name, g.nameKo, g.nameEs, g.nameFr, g.nameAr, g.nameZh, g.nameJa)}</span>
+                <span className="goal__hint">
+                  {g.done
+                    ? say('Done.', '완료.', 'Hecho.', 'Fait.', 'تمّ.', '完成。', '完了。')
+                    : `${say(g.hint, g.hintKo, g.hintEs, g.hintFr, g.hintAr, g.hintZh, g.hintJa)} ${g.current}/${g.target}`}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* Only appears once there is something to undo — an empty "Blocked"
           section would be a screen explaining a feature nobody has used yet.
