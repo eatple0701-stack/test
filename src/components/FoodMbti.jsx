@@ -18,7 +18,7 @@ import { useText, useLocale } from './localeText.js';
 // picture, and these are sentences. Two buttons, stacked, both the same size
 // — neither answer is the recommended one, and a layout that makes one look
 // like the default would be answering the question for the reader.
-export default function FoodMbti({ onClose }) {
+export default function FoodMbti({ onClose, inline = false }) {
   const say = useText();
   const locale = useLocale();
   const [answers, setAnswers] = useState(getStoredMbti);
@@ -44,13 +44,21 @@ export default function FoodMbti({ onClose }) {
   const label = say('Food MBTI', '음식 MBTI', 'MBTI gastronómico', 'MBTI culinaire',
     'إم بي تي آي الطعام', '饮食 MBTI', 'フード MBTI');
 
-  return (
-    <div className="match-modal-backdrop mbti-backdrop" role="dialog" aria-label={label} onClick={onClose}>
-      <div className="mbti" onClick={e => e.stopPropagation()}>
+  // Two shapes, one component. As a sheet it is a dialog over whatever it
+  // was opened from; on 첫 화면 it is the screen itself, taking the place the
+  // deck was in — asked for on 2026-09-09, "따로 창으로 뜨는 게 아니고 기존
+  // 화면 창에서". Inline drops the backdrop, the sheet chrome, and its own
+  // close button: the sequence's 건너뛰기 is already in that corner and two
+  // of them is one too many.
+  const body = (
+      <div className={`mbti${inline ? ' mbti--inline' : ''}`}
+        onClick={inline ? undefined : (e => e.stopPropagation())}>
         <div className="mbti__head">
           <span className="mbti__title">{label}</span>
-          <button type="button" className="mbti__close" onClick={onClose}
-            aria-label={say('Close', '닫기', 'Cerrar', 'Fermer', 'إغلاق', '关闭', '閉じる')}>×</button>
+          {!inline && (
+            <button type="button" className="mbti__close" onClick={onClose}
+              aria-label={say('Close', '닫기', 'Cerrar', 'Fermer', 'إغلاق', '关闭', '閉じる')}>×</button>
+          )}
         </div>
 
         {card ? (
@@ -123,6 +131,13 @@ export default function FoodMbti({ onClose }) {
           </div>
         )}
       </div>
+  );
+
+  if (inline) return body;
+
+  return (
+    <div className="match-modal-backdrop mbti-backdrop" role="dialog" aria-label={label} onClick={onClose}>
+      {body}
     </div>
   );
 }

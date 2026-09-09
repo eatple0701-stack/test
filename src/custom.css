@@ -814,10 +814,6 @@ body {
   to { opacity: 1; scale: 1; }
 }
 
-.first-run__taste {
-  width: 100%; max-width: 560px; margin: 0 auto; padding: 52px 0 28px;
-  animation: fadeIn 0.5s ease both;
-}
 
 /* Somebody who asked for less motion gets the same three beats as plain
    fades, and no wash opening behind them. */
@@ -891,4 +887,36 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .mbti { animation-name: fadeIn; animation-duration: 0.2s; }
+}
+
+/* ── one screen at a time ─────────────────────────────────────────────
+   The opening is a sequence, so a screen leaving and a screen arriving is
+   the only transition it has. Two animations rather than an animation plus
+   a transition: an entrance with fill: both keeps asserting opacity 1 after
+   it ends, and would win against any transition trying to fade it out. */
+.first-run__taste, .first-run__mbti {
+  width: 100%; max-width: 560px; margin: 0 auto; padding: 52px 0 28px;
+  animation: firstRunRise 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.first-run__taste.is-leaving, .first-run__mbti.is-leaving {
+  animation: firstRunFade 0.3s ease both;
+}
+@keyframes firstRunFade {
+  from { opacity: 1; }
+  to { opacity: 0; transform: scale(1.01); }
+}
+
+/* The test as a screen rather than a sheet: no backdrop over it, so no
+   card under it either. The padding is the deck's, so the questions land
+   on the same left edge the dishes did. */
+.mbti--inline {
+  width: 100%; max-width: none; max-height: none; overflow: visible;
+  margin: 0; padding: 0 20px;
+  background: none; border-radius: 0; box-shadow: none;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .first-run__taste, .first-run__mbti { animation-name: fadeIn; animation-duration: 0.3s; }
+  .first-run__taste.is-leaving, .first-run__mbti.is-leaving { transform: none; }
 }

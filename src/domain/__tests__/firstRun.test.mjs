@@ -13,6 +13,14 @@ test('the logo comes before the deck, and nothing comes after it', () => {
   assert.equal(stepAfter(FIRST_RUN.taste), null);
 });
 
+test('the test is a branch off the deck, not a third step', () => {
+  // It is entered by choosing it on the map and it takes the deck's place in
+  // the same screen; nothing follows it, because closing it ends the opening.
+  // Walking to it would put it in front of somebody who never asked for it.
+  assert.equal(FIRST_RUN_STEPS.includes(FIRST_RUN.mbti), false);
+  assert.equal(stepAfter(FIRST_RUN.mbti), null);
+});
+
 test('a step nobody knows leads nowhere rather than to the first one', () => {
   // A stale value in state must not restart the sequence somebody is already
   // halfway through.

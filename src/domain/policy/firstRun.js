@@ -20,10 +20,19 @@
 // 2. It runs once. Dismissed is dismissed, finished or skipped — an
 //    onboarding that comes back is an error message.
 
-/** The two screens, in order. The fork is a state of the second, not a third. */
+/**
+ * The screens.
+ *
+ * logo and taste are the sequence and run in that order. mbti is a branch off
+ * taste rather than a third step: it is entered by choosing it on the map, it
+ * replaces the deck in the same screen rather than opening over it, and there
+ * is nothing after it — finishing or closing the test ends the whole opening.
+ * So it is a state the sequence can be in, and not a step stepAfter walks to.
+ */
 export const FIRST_RUN = {
   logo: 'logo',
   taste: 'taste',
+  mbti: 'mbti',
 };
 
 export const FIRST_RUN_STEPS = [FIRST_RUN.logo, FIRST_RUN.taste];

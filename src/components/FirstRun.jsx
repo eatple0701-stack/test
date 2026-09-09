@@ -19,14 +19,17 @@ import { useText } from './localeText.js';
 // wired to end the sequence instead, which is all this screen ever needed to
 // add.
 //
+// One screen throughout. The test used to open as a sheet over the map, and
+// before that it replaced the whole sequence; both were wrong for the same
+// reason — this is a sequence of screens, and a dialog on top of one is a
+// second surface where there should be a next screen. Choosing the test puts
+// the test where the deck was, and every handoff is the same two beats: what
+// is leaving fades, then what is arriving rises.
+//
 // 건너뛰기 is on every screen and never moves. Somebody who came to find out
 // whether real dinners exist is one tap from them at all times; that is the
 // condition under which putting anything at all in front of the tables is
 // allowed.
-// How long the name is on screen, and how long it takes to leave. The
-// entrance is staggered in CSS and settles at about 1.1s, so 2200 is roughly
-// a second of actually looking at it; the fade out overlaps the deck coming
-// in rather than cutting to it.
 const LOGO_MS = 2200;
 const LEAVE_MS = 320;
 
@@ -34,18 +37,21 @@ export default function FirstRun({ onDone }) {
   const say = useText();
   const [step, setStep] = useState(FIRST_RUN.logo);
   const [leaving, setLeaving] = useState(false);
-  const [exit, setExit] = useState(null);
-
-  // Leaving the logo is two beats: it fades, and then the step changes. One
-  // path for the timer and for a tap, so leaving early looks like waiting
-  // did — and a ref rather than the state, so a second tap during the fade
-  // does nothing instead of stacking another timer behind the first.
   const leavingNow = useRef(false);
-  const leaveLogo = useCallback(() => {
-    if (leavingNow.current) return;
+
+  // Every change of screen goes through here: the one leaving is marked, and
+  // the swap happens a beat later. A ref rather than the state guards it, so
+  // a second tap during a fade does nothing instead of stacking another
+  // timer behind the first.
+  const handoff = useCallback((next) => {
+    if (leavingNow.current || !next) return;
     leavingNow.current = true;
     setLeaving(true);
-    window.setTimeout(() => setStep(s => stepAfter(s) ?? s), LEAVE_MS);
+    window.setTimeout(() => {
+      setStep(next);
+      setLeaving(false);
+      leavingNow.current = false;
+    }, LEAVE_MS);
   }, []);
 
   // The logo screen plays rather than waits. There is nothing to decide on
@@ -54,9 +60,11 @@ export default function FirstRun({ onDone }) {
   // never the only way out.
   useEffect(() => {
     if (step !== FIRST_RUN.logo) return undefined;
-    const t = window.setTimeout(leaveLogo, LOGO_MS);
+    const t = window.setTimeout(() => handoff(stepAfter(FIRST_RUN.logo)), LOGO_MS);
     return () => window.clearTimeout(t);
-  }, [step, leaveLogo]);
+  }, [step, handoff]);
+
+  const flight = (name) => `first-run__${name}${leaving ? ' is-leaving' : ''}`;
 
   return (
     <div className="first-run" role="dialog" aria-modal="true"
@@ -67,8 +75,8 @@ export default function FirstRun({ onDone }) {
       </button>
 
       {step === FIRST_RUN.logo && (
-        <button type="button" className={`first-run__logo-screen${leaving ? ' is-leaving' : ''}`}
-          onClick={leaveLogo}>
+        <button type="button" className={flight('logo-screen')}
+          onClick={() => handoff(stepAfter(FIRST_RUN.logo))}>
           <img className="first-run__logo" src="/images/eatple-logo.jpg" alt="" width="96" height="96" />
           <span className="first-run__wordmark" translate="no">밥친구 잇플 · Eatple</span>
           <span className="first-run__tagline">
@@ -84,22 +92,19 @@ export default function FirstRun({ onDone }) {
       )}
 
       {step === FIRST_RUN.taste && (
-        <div className="first-run__taste">
+        <div className={flight('taste')}>
           <DishSwipe
             inline
             onOpenTables={() => onDone?.(FIRST_RUN_EXIT.app)}
-            onOpenMbti={() => setExit(FIRST_RUN_EXIT.mbti)}
+            onOpenMbti={() => handoff(FIRST_RUN.mbti)}
           />
         </div>
       )}
 
-      {/* Over the sequence, not instead of it. It used to replace the whole
-          screen, so choosing the test on the map dropped the map and revealed
-          whatever tab was behind — 설정, for anybody who got here from the
-          replay button. The map stays where it was and the sheet opens on top
-          of it. Closing the sheet is still what ends the sequence. */}
-      {exit === FIRST_RUN_EXIT.mbti && (
-        <FoodMbti onClose={() => onDone?.(FIRST_RUN_EXIT.mbti)} />
+      {step === FIRST_RUN.mbti && (
+        <div className={flight('mbti')}>
+          <FoodMbti inline onClose={() => onDone?.(FIRST_RUN_EXIT.mbti)} />
+        </div>
       )}
     </div>
   );
