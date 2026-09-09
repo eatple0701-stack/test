@@ -21,7 +21,7 @@ import TableDetail from './components/TableDetail';
 import TableRequest from './components/TableRequest';
 import FirstRun from './components/FirstRun';
 import { getFirstRunSeen, markFirstRunSeen } from './data/firstRun.js';
-import { shouldRun, FIRST_RUN_EXIT } from './domain/policy/firstRun.js';
+import { shouldRun } from './domain/policy/firstRun.js';
 import { getProfile, saveProfile } from './data/profile';
 import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 import { getStoredTaste, preferredMenuIds } from './data/taste.js';
@@ -904,13 +904,18 @@ export default function App() {
           밥상 rather than starting to build it. */}
       {firstRun && (
         <FirstRun
-          onDone={(how) => {
+          onDone={() => {
             markFirstRunSeen();
             setFirstRun(false);
             // The deck wrote to storage while the sequence was up; this is
             // what lifts those dishes to the top of the list underneath.
             setTaste(getStoredTaste());
-            if (how === FIRST_RUN_EXIT.app) setTableView({ screen: 'list' });
+            // Both exits land on 밥상, which is what the sequence has been
+            // promising since the first card. Only the replay from 설정 can
+            // arrive here on another tab, and it is the one case where
+            // closing the test would otherwise leave somebody on the screen
+            // they started the replay from.
+            goToTab('match');
           }}
         />
       )}

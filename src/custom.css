@@ -870,3 +870,25 @@ body {
   margin: 0 0 10px;
   font-size: 13px; line-height: 1.5; color: var(--muted-strong);
 }
+
+/* The sheet arrives. The backdrop already faded and blurred, but the sheet
+   itself was simply there on the next frame — asked for on 2026-09-09,
+   "기존 배경에서 부드럽게 열렸으면".
+   It rises from the edge it is anchored to on a phone and settles in place
+   on a wider window, which is the same distinction the sheet's own geometry
+   makes a hundred lines above. */
+.mbti { animation: mbtiRise 0.34s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes mbtiRise {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: none; }
+}
+@media (min-width: 600px) {
+  .mbti { animation-name: mbtiSettle; }
+}
+@keyframes mbtiSettle {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mbti { animation-name: fadeIn; animation-duration: 0.2s; }
+}

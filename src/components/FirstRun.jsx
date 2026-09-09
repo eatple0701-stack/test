@@ -58,13 +58,6 @@ export default function FirstRun({ onDone }) {
     return () => window.clearTimeout(t);
   }, [step, leaveLogo]);
 
-  // The test opens over the sequence rather than after it: closing the test
-  // is what ends the whole thing, so there is no moment where somebody has
-  // finished the test and is looking at the splash again.
-  if (exit === FIRST_RUN_EXIT.mbti) {
-    return <FoodMbti onClose={() => onDone?.(FIRST_RUN_EXIT.mbti)} />;
-  }
-
   return (
     <div className="first-run" role="dialog" aria-modal="true"
       aria-label={say('Welcome', '처음 오셨네요', 'Bienvenido', 'Bienvenue', 'أهلًا بك', '欢迎', 'ようこそ')}>
@@ -98,6 +91,15 @@ export default function FirstRun({ onDone }) {
             onOpenMbti={() => setExit(FIRST_RUN_EXIT.mbti)}
           />
         </div>
+      )}
+
+      {/* Over the sequence, not instead of it. It used to replace the whole
+          screen, so choosing the test on the map dropped the map and revealed
+          whatever tab was behind — 설정, for anybody who got here from the
+          replay button. The map stays where it was and the sheet opens on top
+          of it. Closing the sheet is still what ends the sequence. */}
+      {exit === FIRST_RUN_EXIT.mbti && (
+        <FoodMbti onClose={() => onDone?.(FIRST_RUN_EXIT.mbti)} />
       )}
     </div>
   );
