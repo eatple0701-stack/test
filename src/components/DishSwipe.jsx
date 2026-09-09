@@ -41,11 +41,24 @@ import { pickedGroups } from '../domain/policy/tasteGroups.js';
  */
 const photoFor = dishPhoto;
 
+/**
+ * What the result screen shows for "here is what you picked".
+ *
+ * 'dishes' is the rail of photographs; 'groups' is the six kinds. The screen
+ * this deck is on decides, because the answer depends on whether the pictures
+ * are somewhere else — on 밥상 they are in the passport, on 첫 화면 they are
+ * nowhere else yet. Named rather than a boolean prop so a third answer, if
+ * one is ever wanted, does not arrive as `summary={2}`.
+ */
+export const SUMMARY = { dishes: 'dishes', groups: 'groups' };
+
+
 const DRAG_ROTATE = 0.05;   // degrees per pixel — a card tilts as it leaves
 const FLY_MS = 240;
 
 export default function DishSwipe({
   onClose, onOpenTables, onOpenAuth, onTasteChange, onOpenMbti, onOpenPassport, auth,
+  summary = SUMMARY.groups,
   inline = false, sharedOnly = true,
 }) {
   const say = useText();
@@ -324,33 +337,55 @@ export default function DishSwipe({
                   </p>
                 )}
 
-                {/* What was picked, under the six kinds — the same cards 소개
-                    draws the catalogue with, holding this reader's own
-                    choices instead of everything the app has.
-                    The photographs moved to the passport on 2026-09-09: this
-                    screen is where somebody decides what to do next, and a
-                    rail of their own dinners is a keepsake, which is what a
-                    passport is for. */}
-                <ul className="taste-groups">
-                  {pickedGroups(map.dishes).map(({ group, dishes }) => (
-                    <li key={group.id} className="taste-group" style={{ '--tint': group.tint }}>
-                      <span className="taste-group__emoji" aria-hidden="true">{group.emoji}</span>
-                      <span className="taste-group__name">
-                        {say(group.en, group.ko, group.es, group.fr, group.ar, group.zh, group.ja)}
-                      </span>
-                      {/* Korean always — it is what the sign says and what a
-                          traveller points at — with the romanisation beside
-                          it for everybody not reading in Korean. Same pair
-                          the 소개 cards use. */}
-                      <span className="taste-group__dishes" translate="no" data-no-locale>
-                        {dishes.map(d => d.nameKo).join(' · ')}
-                      </span>
-                      <span className="taste-group__rom l-en-only" translate="no">
-                        {dishes.map(d => d.romanization).join(' · ')}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                {/* Two ways to show what was picked, and which one depends on
+                    where this screen is.
+
+                    On 첫 화면 it is the payoff of fourteen cards somebody has
+                    just answered, so it is the dishes themselves, photographs
+                    and all. Nothing has moved anywhere yet and there is no
+                    passport to send them to; taking the pictures away here
+                    left a stranger looking at category headings instead of
+                    the dinners they had just chosen.
+
+                    On 밥상 the photographs live in the passport now, and what
+                    stands in their place is the six kinds — the same cards
+                    소개 draws the catalogue with, holding this reader's own
+                    choices instead of everything the app has. */}
+                {summary === SUMMARY.dishes ? (
+                  <ul className="taste-map__dishes">
+                    {map.dishes.map(d => (
+                      <li key={d.id} className="taste-map__dish">
+                        <span className="taste-map__dish-photo" aria-hidden="true">
+                          <img src={photoFor(d.id)} alt="" loading="lazy"
+                            onError={e => { e.currentTarget.style.display = 'none'; }} />
+                        </span>
+                        <span className="taste-map__dish-kr" translate="no">{d.nameKo}</span>
+                        <span className="taste-map__dish-rom" translate="no">{d.romanization}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ul className="taste-groups">
+                    {pickedGroups(map.dishes).map(({ group, dishes }) => (
+                      <li key={group.id} className="taste-group" style={{ '--tint': group.tint }}>
+                        <span className="taste-group__emoji" aria-hidden="true">{group.emoji}</span>
+                        <span className="taste-group__name">
+                          {say(group.en, group.ko, group.es, group.fr, group.ar, group.zh, group.ja)}
+                        </span>
+                        {/* Korean always — it is what the sign says and what a
+                            traveller points at — with the romanisation beside
+                            it for everybody not reading in Korean. Same pair
+                            the 소개 cards use. */}
+                        <span className="taste-group__dishes" translate="no" data-no-locale>
+                          {dishes.map(d => d.nameKo).join(' · ')}
+                        </span>
+                        <span className="taste-group__rom l-en-only" translate="no">
+                          {dishes.map(d => d.romanization).join(' · ')}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
                 <p className="taste-map__kinds">
                   {map.categories.map(c => categoryText(c.category)).filter(Boolean).join(' · ')}

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import DishSwipe from './DishSwipe';
+import DishSwipe, { SUMMARY } from './DishSwipe';
 import FoodMbti from './FoodMbti';
 import { FIRST_RUN, FIRST_RUN_EXIT, stepAfter } from '../domain/policy/firstRun.js';
 import { useText } from './localeText.js';
@@ -95,6 +95,9 @@ export default function FirstRun({ onDone }) {
         <div className={flight('taste')}>
           <DishSwipe
             inline
+            /* The payoff of fourteen cards just answered, and there is no
+               passport to have sent the pictures to yet. */
+            summary={SUMMARY.dishes}
             onOpenTables={() => onDone?.(FIRST_RUN_EXIT.app)}
             onOpenMbti={() => handoff(FIRST_RUN.mbti)}
           />
