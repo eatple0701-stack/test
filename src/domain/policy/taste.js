@@ -179,16 +179,36 @@ export const canDrawMap = (taste) => (taste?.want?.length ?? 0) >= MAP_MINIMUM;
  * and reordering inside the two groups by how recently somebody swiped would
  * scatter the dates for no gain. Both halves keep the order they arrived in,
  * which is what makes this stable: the same list in gives the same list out.
+ *
+ * A table for one of their dishes that nobody can sit at any more is lifted
+ * nowhere. Reported by a teammate on 2026-09-09: the block is headed 내 입맛
+ * 지도에서 and is reached by a button that says 열려 있는 밥상 찾아보기, and a
+ * table with no seats left is neither of those. The same screen's category
+ * chips had it right the whole time — joinableCount has always required a
+ * seat — so the two halves of one screen disagreed.
+ *
+ * `canJoin` rather than seat arithmetic in here: the seat rules are
+ * seatsRemaining()'s, and a second copy of them is how the list and the
+ * detail page came to disagree on 2026-09-03. Defaulting to true keeps this
+ * a pure reordering for every caller that has no signups to hand.
+ *
+ * A full table is not hidden — it stays in the list below, in its own place
+ * in the week, saying 자리 없음 on its own card. `preferredFull` counts them,
+ * so the screen can tell "nobody has opened one" apart from "they are all
+ * taken", which are different sentences and only one of them is true.
  */
-export function rankByTaste(tables = [], preferred = []) {
+export function rankByTaste(tables = [], preferred = [], canJoin = () => true) {
   const wanted = new Set((preferred ?? []).filter(Boolean));
-  if (!wanted.size) return { tables: [...(tables ?? [])], preferredCount: 0 };
+  if (!wanted.size) return { tables: [...(tables ?? [])], preferredCount: 0, preferredFull: 0 };
   const mine = [];
   const rest = [];
+  let preferredFull = 0;
   for (const table of tables ?? []) {
-    (table && wanted.has(table.menuId) ? mine : rest).push(table);
+    const isMine = Boolean(table) && wanted.has(table.menuId);
+    if (isMine && !canJoin(table)) preferredFull += 1;
+    (isMine && canJoin(table) ? mine : rest).push(table);
   }
-  return { tables: [...mine, ...rest], preferredCount: mine.length };
+  return { tables: [...mine, ...rest], preferredCount: mine.length, preferredFull };
 }
 
 // ── The type ────────────────────────────────────────────────────────────

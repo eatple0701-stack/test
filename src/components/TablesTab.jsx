@@ -237,9 +237,13 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
   // rather than a filter.
   const narrowed = Boolean(menuFilter || groupFilter);
   const ranked = useMemo(
-    () => (narrowed ? { tables: outcome.tables, preferredCount: 0 }
-      : rankByTaste(outcome.tables, preferredMenus)),
-    [outcome.tables, preferredMenus, narrowed],
+    () => (narrowed ? { tables: outcome.tables, preferredCount: 0, preferredFull: 0 }
+      // Only tables somebody could still sit at are lifted. The block this
+      // feeds is headed 내 입맛 지도에서 and reached by a button promising
+      // 열려 있는 밥상; a table with every seat taken is neither.
+      : rankByTaste(outcome.tables, preferredMenus,
+        t => seatsRemaining(t, signupsFor[t.id] ?? []) > 0)),
+    [outcome.tables, preferredMenus, narrowed, signupsFor],
   );
   const shown = ranked.tables;
   // Split rather than headed. The two headings inside one list were still
@@ -737,6 +741,20 @@ export default function TablesTab({ onOpenTable, onCreateTable, onRequestTable, 
                 {(() => {
                   const top = menuById(preferredMenus[0]);
                   const name = top ? say(top.name, top.nameKo, top.name, top.name, top.name, top.nameKo, top.nameKo) : null;
+                  // Two different facts, and only one of them is ever true.
+                  // A table that exists with every seat taken is open — it is
+                  // just full — and telling somebody nobody has opened one
+                  // would be the same false sentence that put a full table in
+                  // this block in the first place.
+                  if (ranked.preferredFull > 0) {
+                    return say('The tables for what you picked are full — every seat is taken.',
+                      '고르신 음식의 밥상은 자리가 다 찼어요.',
+                      'Las mesas de lo que elegiste están llenas: no queda sitio.',
+                      'Les tables pour vos choix sont complètes — plus une place.',
+                      'موائد ما اخترته ممتلئة — لا مقعد شاغر.',
+                      '你选的菜，饭桌都坐满了。',
+                      '選んだ料理の食卓は満席です。');
+                  }
                   return name
                     ? say(`Nobody has opened a ${name} table yet.`, `아직 ${name} 밥상이 열려 있지 않아요.`,
                       `Todavía nadie ha abierto una mesa de ${name}.`, `Personne n’a encore ouvert de table pour ${name}.`,

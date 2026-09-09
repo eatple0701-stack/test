@@ -274,3 +274,43 @@ test('an empty list, and a broken row, are survivable', () => {
   assert.deepEqual(rankByTaste(undefined, ['x']).tables, []);
   assert.equal(rankByTaste([null, T('a', 'x')], ['x']).preferredCount, 1);
 });
+
+test('a table with no seats left is never lifted into 내 입맛 지도에서', () => {
+  // Reported by a teammate on 2026-09-09: the block promises 열려 있는 밥상
+  // and was handed a table nobody could sit at. The same screen's category
+  // chips had it right — joinableCount has always required a seat — so one
+  // screen said two different things about the same table.
+  const list = [T('a', 'gamjatang'), T('b', 'jeon'), T('c', 'gamjatang')];
+  const full = new Set(['a']);
+  const { tables, preferredCount, preferredFull } = rankByTaste(
+    list, ['gamjatang'], t => !full.has(t.id));
+  assert.equal(preferredCount, 1);
+  assert.equal(preferredFull, 1);
+  assert.deepEqual(tables.slice(0, preferredCount).map(t => t.id), ['c']);
+});
+
+test('a full table is not hidden, only not recommended', () => {
+  // It stays in the week below, on its own card, saying 자리 없음. Dropping
+  // it would be a filter, and this has never been a filter.
+  const list = [T('a', 'gamjatang'), T('b', 'jeon')];
+  const { tables, preferredCount } = rankByTaste(list, ['gamjatang'], () => false);
+  assert.equal(preferredCount, 0);
+  assert.deepEqual(tables.map(t => t.id), ['a', 'b']);
+});
+
+test('the full ones keep their place in the week', () => {
+  // rest is the schedule, and a table dropped out of the lifted half must
+  // fall back into it where it belongs rather than at the front.
+  const list = [T('a', 'jeon'), T('b', 'gamjatang'), T('c', 'jeon')];
+  const { tables } = rankByTaste(list, ['gamjatang'], () => false);
+  assert.deepEqual(tables.map(t => t.id), ['a', 'b', 'c']);
+});
+
+test('with no seat question asked, the ranking is what it always was', () => {
+  // Every caller that has no signups to hand gets a pure reordering.
+  const list = [T('a', 'jeon'), T('b', 'gamjatang')];
+  const { tables, preferredCount, preferredFull } = rankByTaste(list, ['gamjatang']);
+  assert.deepEqual(tables.map(t => t.id), ['b', 'a']);
+  assert.equal(preferredCount, 1);
+  assert.equal(preferredFull, 0);
+});
