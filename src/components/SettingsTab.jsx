@@ -5,6 +5,7 @@ import { deleteAccount } from '../data/tableRepository.js';
 import { authError } from '../domain/policy/authError.js';
 import { LOCALES, LOCALE_LABEL } from '../domain/policy/locale.js';
 import { useText } from './localeText.js';
+import { clearFirstRunSeen } from '../data/firstRun.js';
 
 // The fifth tab (2026-08-04). Appearance lived inside the profile form,
 // which put a device preference in the middle of fields a host actually
@@ -27,6 +28,9 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
   // 'system' value older devices stored back when three choices existed.
   const active = theme === 'dark' ? 'dark' : 'light';
   const [confirming, setConfirming] = useState(false);
+  // Whether the opening has been armed again this session, so the button can
+  // say what to do next instead of looking like it did nothing.
+  const [replay, setReplay] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
@@ -118,6 +122,35 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
         </div>
       </div>
 
+
+      {/* The opening sequence runs once and then never again, which is right
+          for a traveller and wrong for everybody who has to look at it — the
+          team, a reviewer, anybody demoing the app. Without this the only
+          way back to it is a private window or devtools.
+          It clears the "seen" mark and nothing else: the taste map and the
+          test are separate records and are not this button's business, so
+          somebody who replays the opening keeps what they answered. */}
+      <div className="journal-settings">
+        <div className="journal-section-header">
+          <h3>{say('First screen · 첫 화면', '첫 화면', 'Pantalla inicial', 'Écran d\u2019accueil', 'الشاشة الأولى', '开屏', '最初の画面')}</h3>
+        </div>
+        <p className="journal-settings__hint">
+          {say('The opening plays once per browser. This puts it back for the next time you open the app — what you answered stays.',
+            '첫 화면은 브라우저마다 한 번만 나옵니다. 다시 켜두면 다음에 앱을 열 때 처음부터 보여요. 답한 내용은 그대로 남습니다.',
+            'La apertura se reproduce una vez por navegador. Esto la devuelve para la próxima vez que abras la app; lo que respondiste se queda.',
+            "L'ouverture ne joue qu'une fois par navigateur. Ceci la remet pour la prochaine ouverture ; vos réponses restent.",
+            'يعمل الافتتاح مرّة واحدة لكل متصفّح. هذا يعيده في المرّة القادمة، وما أجبت عنه يبقى.',
+            '开屏每个浏览器只播一次。这会让它下次再出现，你答过的内容仍然保留。',
+            'オープニングはブラウザごとに一度だけです。これで次に開くときにまた流れます。答えた内容はそのまま残ります。')}
+        </p>
+        <button className="chip" type="button" onClick={() => { clearFirstRunSeen(); setReplay(true); }}>
+          {replay
+            ? say('Ready — reload to see it', '준비됐어요 — 새로고침하면 나옵니다', 'Listo: recarga para verlo',
+              'Prêt — rechargez pour le voir', 'جاهز — أعد التحميل لتراه', '好了——刷新就能看到', '準備できました — 再読み込みで出ます')
+            : say('Play the opening again', '첫 화면 다시 보기', 'Ver la apertura otra vez',
+              'Revoir l\u2019ouverture', 'شاهد الافتتاح مرّة أخرى', '再看一次开屏', 'オープニングをもう一度')}
+        </button>
+      </div>
       {/* The door out. Only a member has one to walk through, and it lives
           here rather than on the Passport because the Passport is a record
           somebody keeps — putting "delete everything" beside it invites the
