@@ -9,6 +9,7 @@ import { getStoredMbti } from '../data/foodMbti.js';
 import { MBTI_AXES } from '../content/foodMbti.js';
 import { mbtiTypeLabel, mbtiPoleLabel, mbtiAxisLabel } from '../domain/policy/dishLabels.js';
 import { tasteRecordState, showsDishes, showsType, showsPrompt, testIsNew } from '../domain/policy/tasteRecord.js';
+import { useDragScroll } from './useDragScroll.js';
 import { isPast, didHappen } from '../domain/policy/table.js';
 import { isAccepted, isPending, hasLapsed } from '../domain/policy/seatRequest.js';
 import { countsAsMet } from '../domain/policy/attendance.js';
@@ -65,6 +66,9 @@ export default function JournalPanel({
   const myType = useMemo(() => mbtiType(getStoredMbti()), []);
   // Which of the two this browser holds — see domain/policy/tasteRecord.js.
   const record = tasteRecordState({ mapCount: myTaste.count, type: myType });
+  // The rail of dishes is scrolled by dragging it as well as by swiping —
+  // see useDragScroll for why a mouse could not move it at all.
+  const dragRail = useDragScroll();
   // Tables live behind the async repository rather than in React state, so
   // they are fetched here the same way the Tables tab fetches them. When that
   // repository becomes Supabase this call does not change.
@@ -637,17 +641,37 @@ export default function JournalPanel({
           </p>
         )}
 
+        {/* The rail was eight photographs with nothing saying there were more
+            than three. The count says how many, and the second half says how
+            to see them — a scrollbar is a hint, and a sentence is not. */}
+        {showsDishes(record) && (
+          <p className="taste-recap__count">
+            <span>
+              {say(`${myTaste.count} dishes you said yes to`, `내가 고른 음식 ${myTaste.count}가지`,
+                `${myTaste.count} platos a los que dijiste que sí`,
+                `${myTaste.count} plats auxquels vous avez dit oui`,
+                `${myTaste.count} أطباق قلت لها نعم`,
+                `你说想吃的 ${myTaste.count} 道菜`,
+                `「食べたい」と答えた${myTaste.count}品`)}
+            </span>
+            <span className="taste-recap__swipe">
+              {say('swipe sideways', '옆으로 밀어서 보기', 'desliza de lado',
+                'faites glisser', 'اسحب جانبًا', '左右滑动', '横にスワイプ')}
+            </span>
+          </p>
+        )}
+
         {/* The rail itself, moved here from the deck's result on 2026-09-09.
             It is a keepsake — the dinners this traveller said yes to — and a
             keepsake belongs in the passport rather than on the screen where
             somebody is deciding what to do next. Same classes as the deck
             drew it with, so there is one rail and not two. */}
         {showsDishes(record) && (
-          <ul className="taste-map__dishes taste-recap-rail">
+          <ul className="taste-map__dishes taste-recap-rail" {...dragRail}>
             {myTaste.dishes.map(d => (
               <li key={d.id} className="taste-map__dish">
                 <span className="taste-map__dish-photo" aria-hidden="true">
-                  <img src={dishPhoto(d.id)} alt="" loading="lazy"
+                  <img src={dishPhoto(d.id)} alt="" loading="lazy" draggable={false}
                     onError={e => { e.currentTarget.style.display = 'none'; }} />
                 </span>
                 <span className="taste-map__dish-kr" translate="no">{d.nameKo}</span>

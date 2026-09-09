@@ -1004,3 +1004,58 @@ body {
     flex: 0 0 clamp(180px, 30vh, 320px);
   }
 }
+
+/* ── one box for fourteen dishes ──────────────────────────────────────
+   "음식 사진하고 음식 내용이 서로 달라서 박스 크기가 불규칙해", 2026-09-09.
+   Measured: 465px for 감자탕 and 443px for 부대찌개, one line of gloss
+   between them, so the deck stepped 22px every few cards as it turned.
+
+   whyShared was already clamped for exactly this reason; the gloss was not,
+   and neither was the card, which sized itself to whatever prose it held.
+   The card fills the stage now — the same box for every dish — and the
+   변하는 부분이 그 안에서 접힙니다. */
+.dish-card { position: absolute; inset: 0; }
+.dish-card__body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.dish-card__gloss {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  line-clamp: 2; overflow: hidden;
+}
+/* Pushed to the bottom of the card rather than trailing the prose, so the
+   line that matters most — 2인분부터 — is in the same place on all fourteen. */
+.dish-card__min { margin-top: auto; }
+/* The stage is the height now, since nothing in it is in flow any more.
+   470 is the tallest card that was measured, rounded up. */
+.dish-swipe--inline .dish-swipe__stage { min-height: 470px; }
+
+/* ── the rail says it is a rail ───────────────────────────────────────
+   "스와이프 기능이 있는지도 몰랐어", 2026-09-09. It hid its scrollbar like
+   the app's other rails, and the app's other rails sit under a heading that
+   says what they are; this one was eight photographs that looked like all
+   there was.
+
+   So it shows a scrollbar — the plainest statement a browser makes about a
+   box that scrolls — and it can be dragged, which is what anybody tries
+   first with a mouse. See useDragScroll for why dragging did nothing. */
+.taste-map__dishes {
+  cursor: grab;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.taste-map__dishes.is-dragging { cursor: grabbing; }
+.taste-map__dishes::-webkit-scrollbar { display: block; height: 6px; }
+.taste-map__dishes::-webkit-scrollbar-track { background: transparent; }
+.taste-map__dishes::-webkit-scrollbar-thumb {
+  background: var(--line); border-radius: 999px;
+}
+.taste-map__dishes:hover::-webkit-scrollbar-thumb { background: var(--muted); }
+/* A photograph under the cursor must not start a native image drag — that
+   ghost is what made the one gesture people try look broken. */
+.taste-map__dish img { -webkit-user-drag: none; user-select: none; }
+
+/* The line above it, because a scrollbar is a hint and a sentence is not. */
+.taste-recap__count {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  margin: 0 0 6px;
+  font-size: 12px; color: var(--muted-strong);
+}
+.taste-recap__swipe { font-weight: 700; white-space: nowrap; }

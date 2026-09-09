@@ -12,6 +12,7 @@ import { mbtiType } from '../domain/policy/foodMbti.js';
 import { mbtiTypeLabel } from '../domain/policy/dishLabels.js';
 import { tasteRecordState, showsType, testIsNew } from '../domain/policy/tasteRecord.js';
 import { pickedGroups } from '../domain/policy/tasteGroups.js';
+import { useDragScroll } from './useDragScroll.js';
 
 // 입맛 지도 — one dish at a time, and a yes or a no.
 //
@@ -100,6 +101,8 @@ export default function DishSwipe({
   const record = tasteRecordState({ mapCount: map.count, type: myType });
   // The sign-up ask, which only a guest has a reason to see.
   const showKeep = !auth?.user && Boolean(onOpenAuth);
+  // The result rail, draggable as well as swipeable — see useDragScroll.
+  const dragRail = useDragScroll();
 
   // The verdict the current drag would land on, for the two hints over the
   // card. Reading it from the same function the release reads is the point:
@@ -352,11 +355,11 @@ export default function DishSwipe({
                     소개 draws the catalogue with, holding this reader's own
                     choices instead of everything the app has. */}
                 {summary === SUMMARY.dishes ? (
-                  <ul className="taste-map__dishes">
+                  <ul className="taste-map__dishes" {...dragRail}>
                     {map.dishes.map(d => (
                       <li key={d.id} className="taste-map__dish">
                         <span className="taste-map__dish-photo" aria-hidden="true">
-                          <img src={photoFor(d.id)} alt="" loading="lazy"
+                          <img src={photoFor(d.id)} alt="" loading="lazy" draggable={false}
                             onError={e => { e.currentTarget.style.display = 'none'; }} />
                         </span>
                         <span className="taste-map__dish-kr" translate="no">{d.nameKo}</span>
