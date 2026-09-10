@@ -75,20 +75,51 @@ export const isLocale = (l) => LOCALES.includes(l);
 /** The default, and the one the reviewers have been reading all along. */
 export const DEFAULT_LOCALE = LOCALE.BOTH;
 
-/** What the picker calls each one — in both, always, since it is the control
- *  somebody uses when the current setting is the thing they cannot read. */
-export const LOCALE_LABEL = {
-  [LOCALE.BOTH]: { kr: '한국어 + 영어', en: 'Korean + English' },
-  [LOCALE.KO]: { kr: '한국어', en: 'Korean only' },
-  [LOCALE.EN]: { kr: '영어', en: 'English only' },
-  // Named in its own language as well, because somebody looking for Spanish
-  // in a list of options is scanning for the word "Español", not for its
-  // English name.
-  [LOCALE.ES]: { kr: '스페인어', en: 'Español' },
-  [LOCALE.FR]: { kr: '프랑스어', en: 'Français' },
-  [LOCALE.AR]: { kr: '아랍어', en: 'العربية' },
-  [LOCALE.ZH]: { kr: '중국어', en: '简体中文' },
-  [LOCALE.JA]: { kr: '일본어', en: '日本語' },
+/**
+ * What the picker calls each one: its own name, in its own language.
+ *
+ * Until 2026-09-10 every option carried a Korean name beside it — 스페인어 ·
+ * Español — on the theory that this is the control somebody reaches for when
+ * the current setting is the thing they cannot read, so it should be legible
+ * to everybody. 강민 took the Korean out ("한국말 쓰지 말고 각 언어만"), and
+ * the theory survives the change better than it did before: a Spanish speaker
+ * scans a list for "Español", and finds it faster without 스페인어 in front of
+ * it, which to them is four characters of noise. It is also the convention
+ * every picker they have used elsewhere follows.
+ *
+ * The only Hangul left is where Korean is what you get. 'both' is named the
+ * same way as the rest — each half in its own language — which is why it
+ * reads 한국어 + English and not 한국어 + 영어.
+ */
+export const LOCALE_NAME = {
+  [LOCALE.BOTH]: '한국어 + English',
+  [LOCALE.KO]: '한국어',
+  [LOCALE.EN]: 'English',
+  [LOCALE.ES]: 'Español',
+  [LOCALE.FR]: 'Français',
+  [LOCALE.AR]: 'العربية',
+  [LOCALE.ZH]: '简体中文',
+  [LOCALE.JA]: '日本語',
+};
+
+/**
+ * The language each name is written in, as a lang attribute.
+ *
+ * Han unification is why this is not decoration: 日本語 and 简体中文 share
+ * code points, and a browser that does not know which language an option is
+ * in draws both with whichever glyph forms the page defaults to — Japanese
+ * characters in Chinese shapes, or the reverse. A screen reader also uses it
+ * to read "Español" with a Spanish voice rather than spelling it out in a
+ * Korean one. 'both' has no single language and gets none.
+ */
+export const LOCALE_NAME_LANG = {
+  [LOCALE.KO]: 'ko',
+  [LOCALE.EN]: 'en',
+  [LOCALE.ES]: 'es',
+  [LOCALE.FR]: 'fr',
+  [LOCALE.AR]: 'ar',
+  [LOCALE.ZH]: 'zh-Hans',
+  [LOCALE.JA]: 'ja',
 };
 
 /**

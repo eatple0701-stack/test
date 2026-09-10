@@ -236,3 +236,57 @@ test('tapping a bubble goes in two levels, and stops at the map’s limit', () =
   // A map that does not say what its maximum is still zooms.
   assert.equal(zoomIntoCluster(12, undefined), 14);
 });
+
+test('no two bubbles on the map sit on top of each other', () => {
+  // 2026-09-10, on a 2000px desktop at zoom 11: two bubbles both reading 27,
+  // one drawn 15px into the other. "지도 왜 저지랄 났지?" Two neighbouring
+  // cells whose restaurants both crowd the edge they share put both centroids
+  // on that edge, and nothing in a pure grid stops that.
+  //
+  // Measured in cell pixels, which is screen pixels: the grid is square on a
+  // Mercator screen by construction (degLat = degLng · cos φ), so a position
+  // divided by the cell size and multiplied by CLUSTER_CELL_PX is where it is
+  // drawn, relative to any other.
+  for (const z of [11, 12, 13, 14, 15, 16]) {
+    const { degLat, degLng } = cellSizeAt(z);
+    const bubbles = clusterRows(ROWS, z)
+      .filter(c => c.count > 1)
+      .map(c => ({
+        x: (c.lng / degLng) * CLUSTER_CELL_PX,
+        y: (c.lat / degLat) * CLUSTER_CELL_PX,
+        r: clusterSize(c.count) / 2,
+        n: c.count,
+      }));
+    for (let i = 0; i < bubbles.length; i += 1) {
+      for (let j = i + 1; j < bubbles.length; j += 1) {
+        const a = bubbles[i];
+        const b = bubbles[j];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        assert.ok(
+          d >= a.r + b.r,
+          `zoom ${z}: a ${a.n} and a ${b.n} overlap by ${(a.r + b.r - d).toFixed(1)}px`,
+        );
+      }
+    }
+  }
+});
+
+test('a bubble is drawn inside its own cell, and a single place where it is', () => {
+  // Keeping bubbles apart is allowed to move one towards the middle of the
+  // cell its restaurants are in, and nowhere further: outside it, the bubble
+  // would be sitting on somebody else's restaurants.
+  for (const z of [12, 14]) {
+    const { degLat, degLng } = cellSizeAt(z);
+    for (const c of clusterRows(ROWS, z)) {
+      if (c.count === 1) {
+        // A restaurant's position is a fact, not a layout choice.
+        assert.equal(c.lat, c.row.y);
+        assert.equal(c.lng, c.row.x);
+        continue;
+      }
+      const [cy, cx] = c.key.split(':').map(Number);
+      assert.ok(c.lat >= cy * degLat && c.lat < (cy + 1) * degLat, `${c.key} drawn outside its row of cells`);
+      assert.ok(c.lng >= cx * degLng && c.lng < (cx + 1) * degLng, `${c.key} drawn outside its column of cells`);
+    }
+  }
+});

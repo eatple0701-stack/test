@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LOCALE, LOCALES, isLocale, DEFAULT_LOCALE, LOCALE_LABEL,
+  LOCALE, LOCALES, isLocale, DEFAULT_LOCALE, LOCALE_NAME, LOCALE_NAME_LANG,
   isKorean, localeText, localePair, fallsBackToEnglish,
 } from '../policy/locale.js';
 
@@ -133,13 +133,37 @@ test('a kr/en/es triple picks Spanish when Spanish exists', () => {
   assert.equal(localePair(p, LOCALE.BOTH), '밥상 찾기 · Find a table');
 });
 
-test('the picker names every option in both languages, whatever is selected', () => {
-  // It is the one control somebody reaches for when the current setting is
-  // the language they cannot read.
+test('the picker names every language in that language, and only Korean in Korean', () => {
+  // 2026-09-10: "한국말 쓰지 말고 각 언어만 남기기". The rule until then was
+  // the opposite — a Korean name beside every option — and this test held it.
+  // What it holds now is what a speaker of each language actually scans for.
   for (const l of LOCALES) {
-    const label = LOCALE_LABEL[l];
-    assert.ok(label, `${l} has no label`);
-    assert.ok(isKorean(label.kr), `${l} has no Korean label`);
-    assert.ok(!isKorean(label.en), `${l}'s English label is not English`);
+    const name = LOCALE_NAME[l];
+    assert.ok(name, `${l} has no name`);
+    // Hangul exactly where Korean is what you get, and nowhere else.
+    const wantsKorean = l === LOCALE.KO || l === LOCALE.BOTH;
+    assert.equal(isKorean(name), wantsKorean, `${l} is named "${name}"`);
   }
+  // Each in its own script — the point of naming it in its own language.
+  assert.match(LOCALE_NAME[LOCALE.AR], /[\u0600-\u06FF]/);
+  assert.match(LOCALE_NAME[LOCALE.ZH], /[\u4E00-\u9FFF]/);
+  assert.match(LOCALE_NAME[LOCALE.JA], /[\u4E00-\u9FFF\u3040-\u30FF]/);
+  assert.doesNotMatch(LOCALE_NAME[LOCALE.EN], /[^\x20-\x7E]/);
+  // 'both' is named the same way: each half in its own language.
+  assert.match(LOCALE_NAME[LOCALE.BOTH], /[A-Za-z]/);
+  // Eight different words, or two options would read as one.
+  assert.equal(new Set(LOCALES.map(l => LOCALE_NAME[l])).size, LOCALES.length);
+});
+
+test('every name that is in one language says which one', () => {
+  // Han unification: 日本語 and 简体中文 share code points and are drawn in
+  // one language's glyph forms unless told otherwise.
+  for (const l of LOCALES) {
+    if (l === LOCALE.BOTH) {
+      assert.equal(LOCALE_NAME_LANG[l], undefined, 'both is two languages, not one');
+      continue;
+    }
+    assert.ok(LOCALE_NAME_LANG[l], `${l} has no lang tag`);
+  }
+  assert.notEqual(LOCALE_NAME_LANG[LOCALE.ZH], LOCALE_NAME_LANG[LOCALE.JA]);
 });

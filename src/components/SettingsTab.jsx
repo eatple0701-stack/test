@@ -3,7 +3,7 @@ import { getStoredTheme, setTheme } from '../data/theme.js';
 import { isMember } from '../domain/policy/access.js';
 import { deleteAccount } from '../data/tableRepository.js';
 import { authError } from '../domain/policy/authError.js';
-import { LOCALES, LOCALE_LABEL } from '../domain/policy/locale.js';
+import { LOCALES, LOCALE_NAME, LOCALE_NAME_LANG, directionOf } from '../domain/policy/locale.js';
 import { useText } from './localeText.js';
 import { clearFirstRunSeen } from '../data/firstRun.js';
 import { ChevronDownIcon } from './Icons';
@@ -90,10 +90,17 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
             onChange={(e) => onLocaleChange?.(e.target.value)}
           >
             {LOCALES.map(l => (
-              /* Both names, the way the chips had them: this is the control
-                 somebody uses when the current setting is the language they
-                 cannot read, so 스페인어 finds it and so does Español. */
-              <option key={l} value={l}>{`${LOCALE_LABEL[l].kr} · ${LOCALE_LABEL[l].en}`}</option>
+              /* Each in its own language and nothing else — see LOCALE_NAME.
+                 lang and dir so 日本語 is drawn in Japanese glyph forms and
+                 العربية runs right to left inside a left-to-right list. */
+              <option
+                key={l}
+                value={l}
+                lang={LOCALE_NAME_LANG[l]}
+                dir={LOCALE_NAME_LANG[l] ? directionOf(l) : undefined}
+              >
+                {LOCALE_NAME[l]}
+              </option>
             ))}
           </select>
           {/* A span, because ChevronDownIcon takes a size and nothing else

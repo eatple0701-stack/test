@@ -101,6 +101,45 @@ export function cellKeyOf(row, zoom, options = {}) {
 }
 
 /**
+ * Where a bubble is drawn, given where its restaurants are.
+ *
+ * At the centroid, pulled in from the edges of its cell by its own radius
+ * and a pixel. 2026-09-10, on a 2000px desktop at zoom 11: two bubbles both
+ * reading 27, one drawn fifteen pixels into the other. Two neighbouring cells
+ * whose restaurants both crowd the edge they share put both centroids on
+ * that edge, and a grid has nothing to say about it.
+ *
+ * With every bubble kept its own radius inside its own cell, two neighbours
+ * are at least the sum of their radii apart — so they can touch and cannot
+ * overlap, at any zoom, by construction rather than by luck.
+ *
+ * Three things this deliberately does not do. It never moves a bubble out of
+ * its cell, so the bubble is still sitting on its own restaurants and
+ * zooming in still splits it in place. It never moves a single restaurant:
+ * a count of one is drawn where the place is, because a location is a fact
+ * and not a layout choice. And it is computed from the cell, not the
+ * viewport, so panning still changes nothing.
+ */
+function keepInsideCell(key, lat, lng, count, degLat, degLng, cellPx) {
+  const m = /^(-?\d+):(-?\d+)$/.exec(key);
+  if (!m || !(cellPx > 0)) return [lat, lng];
+  const cy = Number(m[1]);
+  const cx = Number(m[2]);
+  // The radius the bubble is drawn at, plus one pixel, in degrees on each
+  // axis. One cell is cellPx on screen in both directions, so a pixel is
+  // 1/cellPx of the cell whichever way it is measured.
+  const px = clusterSize(count) / 2 + 1;
+  const mLat = (px / cellPx) * degLat;
+  const mLng = (px / cellPx) * degLng;
+  // A cell too small to hold its own bubble has one place left for it.
+  const clamp = (v, lo, hi) => (lo > hi ? (lo + hi) / 2 : Math.min(hi, Math.max(lo, v)));
+  return [
+    clamp(lat, cy * degLat + mLat, (cy + 1) * degLat - mLat),
+    clamp(lng, cx * degLng + mLng, (cx + 1) * degLng - mLng),
+  ];
+}
+
+/**
  * Group rows into clusters for a zoom level.
  *
  * `rows` is every row that should be on the map — the whole city, already
@@ -116,6 +155,8 @@ export function cellKeyOf(row, zoom, options = {}) {
 export function clusterRows(rows, zoom, options = {}) {
   const groupIdOf = options.groupIdOf ?? (() => null);
   const list = rows ?? [];
+  const { degLat, degLng } = cellSizeAt(zoom, options);
+  const cellPx = options.cellPx ?? CLUSTER_CELL_PX;
 
   const cells = new Map();
   for (const r of list) {
@@ -140,13 +181,17 @@ export function clusterRows(rows, zoom, options = {}) {
 
   const out = [];
   for (const c of cells.values()) {
+    // The centroid, not the cell's middle: a cluster sitting on its
+    // restaurants reads as those restaurants, and a cluster sitting on a grid
+    // intersection reads as a grid. Kept clear of its neighbours by
+    // keepInsideCell; a single restaurant is left exactly where it is.
+    let lat = c.sumLat / c.count;
+    let lng = c.sumLng / c.count;
+    if (c.count > 1) [lat, lng] = keepInsideCell(c.key, lat, lng, c.count, degLat, degLng, cellPx);
     out.push({
       key: c.key,
-      // The centroid, not the cell's middle: a cluster sitting on its
-      // restaurants reads as those restaurants, and a cluster sitting on a
-      // grid intersection reads as a grid.
-      lat: c.sumLat / c.count,
-      lng: c.sumLng / c.count,
+      lat,
+      lng,
       count: c.count,
       groupId: c.groupId ?? null,
       row: c.count === 1 ? c.row : null,

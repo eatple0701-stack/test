@@ -13308,26 +13308,25 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
    The dots became bubbles in MapComponent; what is here is everything around
    them. */
 
-/* ── A quiet base map ─────────────────────────────────────────────────────
-   OpenStreetMap draws its own world in full colour — parks, motorway
-   shields, its own restaurant pins — and our seven category colours were
-   competing with all of it. Desaturating the tiles makes our marks the only
-   saturated thing on the screen, which is the whole job of a base map.
+/* ── The base map, left as OpenStreetMap draws it ────────────────────────
+   A filter stood here from 2026-09-10 14:29 to the same evening:
+   saturate(0.32) brightness(1.06) contrast(0.94) on .leaflet-tile-pane, so
+   that the category colours would be the only saturated thing on screen.
 
-   A filter and not a different provider: domain/policy/mapTiles.js is a page
-   of why there is exactly one, and the answer is a registration and a quota,
-   not a code change. This costs nothing, adds no request, and comes off in
-   one line. The tiles themselves are unaltered — this is a display choice,
-   the same as the reader turning on dark mode. */
-.leaflet-tile-pane {
-  filter: saturate(0.32) brightness(1.06) contrast(0.94);
-}
-/* Dark mode already inverts nothing about the map, and desaturating a dark
-   scheme’s tiles on top of that would leave the city grey on grey. The
-   toggle is [data-theme], not the media query — see the note at :root. */
-:root[data-theme="dark"] .leaflet-tile-pane {
-  filter: saturate(0.5) brightness(0.86) contrast(0.98);
-}
+   It was tuned on a 375px phone at zoom 12 and never looked at on a desktop.
+   There, a 1,234 x 894 map of washed-out grey with the labels fading into it
+   read as a map that had failed to load, and 강민’s first look at it on
+   production was "지도 왜 저지랄 났지?". Side by side at the same view, the
+   bubbles were no harder to read with the filter off: they carry their own
+   white ring and shadow, which is what separates them from a street, and a
+   base map should look like a map before it looks quiet.
+
+   A filter on the pane also makes it one composited surface, which on a
+   fractional devicePixelRatio (125% and 150% Windows scaling) is how tile
+   edges come to show as hairlines. That was not reproduced here — this
+   harness renders at 1x — but it goes with the filter either way.
+
+   mapTiles.js is still where a different base map would come from. */
 
 /* ── The bubbles ─────────────────────────────────────────────────────────
    Sized and drawn in MapComponent, because Leaflet anchors a divIcon by the
