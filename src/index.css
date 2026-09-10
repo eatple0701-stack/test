@@ -13099,32 +13099,14 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
    visited and coloured dots for the 8,118 the register lists. The legend
    explained the dot colours and never said what a pin was, so the clearest
    distinction on the screen was the one nobody could read. */
-.map-legend__kinds {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 0 0 auto;
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius, 12px);
-  background: var(--bg);
-  font-size: 11.5px;
-  line-height: 1.45;
-  color: var(--ink-body);
-}
-.map-legend__kind { display: flex; align-items: flex-start; gap: 7px; text-align: start; }
-/* A teardrop, at the size a legend can carry: the marker's silhouette rather
-   than a scaled copy of it. */
-/* The register dot, in no group's colour — the six below say what the
-   colours mean, and this row is about which kind of thing it is. */
-.map-legend__dot--any {
-  flex: 0 0 auto;
-  margin-top: 4px;
-  background: var(--muted-strong);
-}
-@media (min-width: 1024px) {
-  .map-overlay--tab .map-legend__kinds { align-self: stretch; }
-}
+/* .map-legend__kinds and .map-legend__kind stood here until 2026-09-10.
+   Both were the caption era: a bordered box holding a row per kind, each row
+   a swatch and a sentence. The kinds became filter chips on 2026-09-09 and
+   the box was left wrapping exactly one of them — a border inside a border,
+   56px tall in a row of 38s, which stretched every other chip to match it.
+   .map-legend__dot--any went the same way: it painted the swatch on the
+   register row, and that row is the one 강민 asked to delete on 2026-09-09.
+   Nothing renders any of the three. */
 
 /* ---- The merged 장소 shelves, behind one press -------------------------
    문화 absorbed eleven shelves on 2026-09-04 and became 8.0 screens on a
@@ -13266,4 +13248,254 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 /* The pill on the desktop rail, which snapped between tabs. */
 @media (min-width: 1024px) {
   .tab-item { transition: color var(--dur-nudge) ease, background var(--dur-nudge) ease; }
+}
+
+/* ---------- The map, made readable ---------------------------------------
+   2026-09-10, against "지도같은 거는 보기가 너무 힘들던데". Measured on a
+   375x812 phone: 178 identical dots, a category row 1,731px wide inside 375,
+   and a list that opened to 224px under a 244px map.
+
+   The dots became bubbles in MapComponent; what is here is everything around
+   them. */
+
+/* ── A quiet base map ─────────────────────────────────────────────────────
+   OpenStreetMap draws its own world in full colour — parks, motorway
+   shields, its own restaurant pins — and our seven category colours were
+   competing with all of it. Desaturating the tiles makes our marks the only
+   saturated thing on the screen, which is the whole job of a base map.
+
+   A filter and not a different provider: domain/policy/mapTiles.js is a page
+   of why there is exactly one, and the answer is a registration and a quota,
+   not a code change. This costs nothing, adds no request, and comes off in
+   one line. The tiles themselves are unaltered — this is a display choice,
+   the same as the reader turning on dark mode. */
+.leaflet-tile-pane {
+  filter: saturate(0.32) brightness(1.06) contrast(0.94);
+}
+/* Dark mode already inverts nothing about the map, and desaturating a dark
+   scheme’s tiles on top of that would leave the city grey on grey. The
+   toggle is [data-theme], not the media query — see the note at :root. */
+:root[data-theme="dark"] .leaflet-tile-pane {
+  filter: saturate(0.5) brightness(0.86) contrast(0.98);
+}
+
+/* ── The bubbles ─────────────────────────────────────────────────────────
+   Sized and drawn in MapComponent, because Leaflet anchors a divIcon by the
+   pixel size it was given and a marker the stylesheet resizes is a marker in
+   the wrong place. What is left here is the shadow that lifts it off the
+   street and the press state. */
+.k-bubble {
+  cursor: pointer;
+  filter: drop-shadow(0 2px 4px rgba(16, 24, 40, 0.28));
+  transition: transform var(--dur-nudge) var(--ease-screen);
+}
+.k-bubble:hover { transform: scale(1.08); }
+.k-bubble:active { transform: scale(0.94); }
+@media (prefers-reduced-motion: reduce) {
+  .k-bubble { transition: none; }
+}
+
+/* ── The category row on a phone ──────────────────────────────────────────
+   Seven chips, each carrying its name *and* its four dish names, came to
+   1,731px on a 375px screen: the first chip and half the second, with no
+   scrollbar and no fade, so there was no way to find out the other five
+   existed. Reported as "버튼이 아예 안 눌려서요..!" — not unclickable,
+   unfindable.
+
+   The dish names stay on the desktop rail, where the column is a stack and
+   has the room; here the name is the chip. That takes the row to about
+   600px, four chips visible, and the mask says there are more. */
+@media (max-width: 767px) {
+  .map-legend__dishes { display: none; }
+  .map-legend {
+    scroll-snap-type: x proximity;
+    /* The fade is a mask on the scroller itself rather than an element
+       inside it, which would scroll away with the chips. */
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent);
+  }
+  [dir="rtl"] .map-legend {
+    -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 34px), transparent);
+    mask-image: linear-gradient(to left, #000 calc(100% - 34px), transparent);
+  }
+  .map-legend__item { scroll-snap-align: start; }
+  /* 29px tall, measured, on the row a thumb uses to filter the map. */
+  .map-legend__item { min-height: 38px; padding-inline: 12px; }
+}
+
+/* ---------- The list, as a sheet over the map ----------------------------
+   Phones only. Above 768px the list has a column of its own and none of
+   this applies — the handle that would drag it is not even rendered.
+
+   Two things move: .map-overlay__map stops being a fixed slice of the
+   viewport and becomes the whole of it, and .map-overlay__panel leaves the
+   flow to sit over it. Rest positions come from
+   domain/policy/sheetDetents.js; MapOverlay writes the current one into
+   --sheet-h as pixels. */
+@media (max-width: 767px) {
+  /* The overlay is the positioning context for the sheet, and the map is
+     all of it. 46vh of map with 30vh left once the list opened was the
+     arrangement this replaces. */
+  .map-overlay--tab {
+    position: relative;
+    /* The sheet is absolutely positioned against this, and at peek it is
+       translated down by 489 of its 581 pixels — so its box runs to 1237 on
+       an 812px screen and its white ground painted straight over the tab
+       bar. (z-index 460 on the panel wins there because nothing between it
+       and the root makes a stacking context, so it is in the same one as the
+       fixed bar at 200.) Clipping says the plain thing instead: the sheet
+       lives inside the map, and there is no sheet outside it. */
+    overflow: hidden;
+  }
+  .map-overlay--tab .map-overlay__map {
+    flex: 1 1 auto;
+    min-height: 0;
+    border-radius: 0;
+  }
+
+  /* Translate and not height. The sheet is always its full size and slides
+     down out of the way, so opening the list moves one composited layer
+     instead of re-laying out forty place cards mid-gesture. */
+  .map-overlay--tab .map-overlay__panel {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    /* Both numbers come from MapOverlay, which measures the map area with
+       a ResizeObserver. A percentage here would resolve against the whole
+       overlay — the chip row included — so the sheet at its tallest would
+       cover the filters it was opened to use. */
+    height: var(--sheet-max, 92%);
+    z-index: 460;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: var(--shadow-sheet);
+    transform: translateY(calc(var(--sheet-max, 100%) - var(--sheet-h, 92px)));
+    transition: transform var(--dur-sheet) var(--ease-sheet);
+  }
+  /* While a thumb is on it the sheet is where the thumb is, with no easing
+     between frames — a transition here is the sheet lagging the finger. */
+  .map-overlay--tab .map-overlay__panel.is-dragging { transition: none; }
+
+  /* Leaflet’s bottom corner holds the OpenStreetMap credit, which the tile
+     licence requires and which sat at the foot of the map — under the sheet
+     at every position, and painted over it at peek because Leaflet gives it
+     z-index 800 against the sheet’s 460. It rides on the sheet’s top edge
+     instead, so it is on the map wherever the map is.
+     A credit that is only visible when a panel happens to be down is not a
+     credit. */
+  .map-overlay--tab .leaflet-bottom {
+    bottom: var(--sheet-h, 92px);
+    transition: bottom var(--dur-sheet) var(--ease-sheet);
+  }
+  /* :has, because the map is the sheet’s *earlier* sibling and no combinator
+     reaches backwards — the same reason .map-overlay.is-folded lives on the
+     overlay root rather than on the panel. */
+  .map-overlay--tab:has(.map-overlay__panel.is-dragging) .leaflet-bottom {
+    transition: none;
+  }
+
+  /* The handle. Full width, because on a phone this is the control that
+     decides whether the map is a keyhole or the screen, and because a grip
+     you have to aim at is a grip nobody drags. */
+  .map-overlay--tab .map-overlay__fold {
+    flex: 0 0 auto;
+    min-height: 52px;
+    /* The gesture belongs to the sheet, so the browser must not also read a
+       vertical drag here as a page scroll. */
+    touch-action: none;
+    cursor: grab;
+  }
+  .map-overlay--tab .map-overlay__panel.is-dragging .map-overlay__fold { cursor: grabbing; }
+
+  /* Everything under the handle scrolls, and stops there rather than
+     handing the rest of the gesture to the page behind. */
+  .map-overlay--tab .map-overlay__list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* At peek there is nothing to scroll and nothing to read, so the sheet
+     under the handle is out of the tab order too. */
+  .map-overlay--tab .map-overlay__panel[data-detent='peek'] .map-overlay__list {
+    visibility: hidden;
+  }
+
+  /* What each rest position is for.
+
+     The search box and the 가볼 만한 곳 accordion take 73 and 49 pixels of
+     the sheet whatever its height, and at half — 348px on this phone —
+     that left 223 for the list, which is one place card and a bit. The
+     same "너무 작게 열림" as before, moved inside the sheet.
+
+     So half is for scanning the list against the map, and the two controls
+     appear at full, one pull away. The count is on the handle at every
+     position, so nothing about the sheet is a surprise. */
+  .map-overlay--tab .map-overlay__panel:not([data-detent='full']) .home-header {
+    display: none;
+  }
+  /* The 가볼 만한 곳 accordion is the other one, and it lives in custom.css
+     because that is the file that draws it. Same rule, written there. */
+
+  /* A place card built for a page, in a sheet. 174px each is what made
+     "list가 너무 작게 열림" true whatever the sheet did: two of them do not
+     fit beside a map worth looking at. The picture gets smaller and the
+     padding closes up; nothing is removed. */
+  /* A place card built for a page, in a sheet.
+
+     164px each, measured. The picture is not what makes it tall — taking it
+     from a 110px portrait to a 72px square saved two pixels, because the
+     binding row is the text beside it: a name, a neighbourhood, whether the
+     place is open, and a line about it, over a directions row. 162px.
+
+     So the square stays (a 72px portrait beside 140px of text reads badly,
+     and the narrower column gives the name more room) and the height is what
+     it is. What the sheet buys is the choice: half shows two cards with the
+     map still readable above them, full shows three and a bit, and neither
+     costs the map the way the old fixed split did.
+
+     Cutting the card down further means deciding which of those four lines a
+     map list can do without, and that is 강민’s call, not a layout fix.
+
+     Scoped to this list. .place-card is the same component on 문화, on a
+     theme page and on the places tab, where a page has the room for it. */
+  .map-overlay--tab .map-overlay__list .place-card {
+    /* The thumbnail column, 112px on a page. .place-card__media is width:
+       100% of it, so the grid is where the width lives. */
+    grid-template-columns: 72px 1fr;
+    gap: 4px 12px;
+    padding: 10px 12px;
+  }
+  .map-overlay--tab .map-overlay__list .place-card__media {
+    /* Square, and not the 1.4 portrait the aspect ratio gives it: the
+       height is what the sheet is short of. */
+    height: 72px;
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+  .map-overlay--tab .map-overlay__list .place-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* .map-overlay.is-folded hides everything in the panel but the fold, and
+     the sheet keeps listOpen in step with its rest position — so at peek it
+     would display: none the very list the sheet exists to slide.
+
+     Only the list is put back. The first draft undid the lot, with
+     `> *:not(.map-overlay__fold) { display: block }`, and that rule and the
+     detent rule above it are both four classes — so the later one won and
+     the search box came back at peek, 73px of it under a handle that was
+     supposed to be the whole sheet. The other two children are already meant
+     to be hidden there; is-folded was saying the right thing about them. */
+  .map-overlay--tab.is-folded .map-overlay__panel > .map-overlay__list {
+    /* block, which is what it is at the other two positions. flex here would
+       mean the list relaid itself out the moment the sheet started to open. */
+    display: block;
+  }
 }

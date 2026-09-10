@@ -48,6 +48,12 @@ const DELIBERATE = new Set([
   // nothing index.css draws. The check reads class names and cannot see
   // that qualification, which is the one thing it is blind to.
   'is-on', 'is-open',
+  // Same case, added 2026-09-10 when the map list became a drag-to-open
+  // sheet. custom.css writes .taste-map__dishes.is-dragging for the passport
+  // rail; index.css writes .map-overlay__panel.is-dragging for the sheet.
+  // Both are qualified by a class their own file owns, so neither reaches
+  // the other — and the check, which reads class names, cannot see that.
+  'is-dragging',
   'match-modal-backdrop', 'match-modal', 'match-tab', 'match-tab__header',
   'match-deck', 'match-card', 'match-card__photo', 'match-card__stamp',
   'match-card__stamp--like', 'match-card__stamp--pass', 'match-card__available',

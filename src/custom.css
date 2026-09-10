@@ -1126,23 +1126,20 @@ body {
 .map-legend__item--filter.is-on .map-legend__dot { box-shadow: none; }
 
 /* ── the list, when somebody has asked for the list ───────────────────
-   목록 펼치기 opened 132px of list on a 375x812 phone — about a card and a
-   half, under a 374px map and a 74px legend. Reported 2026-09-09: "스크롤은
-   어찌저찌 되는데 음식점 이름을 확인할 만한 공간이 부족함".
+   This block gave the list 92 more pixels on 2026-09-09, by taking the map
+   from 46vh to 30vh whenever the list was open. It was answering the wrong
+   question: the report was "음식점 이름을 확인할 만한 공간이 부족함", and
+   the fix moved the shortage from one half of the screen to the other. The
+   next report, a day later, was the same one — "여기 show the list 했을 때도
+   list가 너무 작게 열림".
 
-   The map's 46vh was set against the folded state, where the map is the
-   screen and 40vh read as a strip. Open, the reader has just said which of
-   the two they want. So the map keeps its size until the list is asked for,
-   and then gives some of it back — 30vh, 244px on that phone, which is still
-   a map rather than a band, and the list roughly triples.
+   The map is the whole screen now and the list is a sheet over it, resting
+   at one of three heights the reader picks: domain/policy/sheetDetents.js,
+   and the phone block at the end of index.css.
 
-   Phones only. From 768px there is room for both, and from 1024px the tab is
-   a three-column grid where the list has a column of its own. */
-@media (max-width: 767px) {
-  .map-overlay--tab:not(.is-folded) .map-overlay__map {
-    flex: 0 0 clamp(180px, 30vh, 320px);
-  }
-}
+   Removed 2026-09-10, and it had to be removed rather than left: it is
+   three classes to the sheet rule’s two, in the file that loads last, so it
+   quietly kept shrinking the map to 244px at every position but peek. */
 
 /* ── one box for fourteen dishes ──────────────────────────────────────
    "음식 사진하고 음식 내용이 서로 달라서 박스 크기가 불규칙해", 2026-09-09.
@@ -1319,6 +1316,18 @@ body {
    1.5 screens on a 375px phone, and the panel above it already holds a list
    somebody came here to read. */
 .map-places { border-top: 1px solid var(--line); }
+/* Not below the sheet’s tallest position, on a phone.
+   The map list became a drag-to-open sheet on 2026-09-10, and this accordion
+   plus the search box above it took 122 of the 348 pixels half gives it —
+   which left one place card and a bit, the same "너무 작게 열림" the sheet was
+   built to answer, moved inside the sheet. half is for scanning the list
+   against the map; this and the search come back at full, one pull away.
+   The matching rule for .home-header is in index.css, in the sheet block. */
+@media (max-width: 767px) {
+  .map-overlay--tab .map-overlay__panel:not([data-detent='full']) .map-places {
+    display: none;
+  }
+}
 .map-places__toggle {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   width: 100%; padding: 15px 16px;

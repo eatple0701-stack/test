@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import MapComponent from './MapComponent';
 import FilterBar from './FilterBar';
 import BottomSheetList from './BottomSheetList';
@@ -14,6 +14,9 @@ import { isQuarantined } from '../data/verification';
 // says 20 beside eighteen pins is a legend somebody has to check.
 const CURATED_COUNT = restaurants.filter(r => !isQuarantined(r)).length;
 import { useText } from './localeText.js';
+import {
+  DETENT, SHEET_MAX_FRACTION, detentPx, detentAfterTap, detentAfterDrag,
+} from '../domain/policy/sheetDetents.js';
 
 // The map as a tool rather than a substrate.
 //
@@ -78,6 +81,84 @@ export default function MapOverlay({
   // keyhole above, chosen on purpose.
   const [shelvesOpen, setShelvesOpen] = useState(false);
   const [listOpen, setListOpen] = useState(!asTab);
+
+  // ── The list, as a sheet over the map (phones only) ────────────────────
+  //
+  // The tab used to divide its height: 46vh of map, and 30vh of map over
+  // 224px of list once somebody asked for the list. Both halves were too
+  // small at the same time, which is what happens when a screen is split
+  // between two things that each want all of it. The rules live in
+  // domain/policy/sheetDetents.js; what is here is the pointer.
+  //
+  // Above 768px none of this runs: the list has a column of its own there,
+  // and the handle that starts a drag is not rendered.
+  const hostRef = useRef(null);
+  const [hostH, setHostH] = useState(0);
+  const [detent, setDetent] = useState(DETENT.peek);
+  // The live height while a thumb is down. null the rest of the time, so the
+  // sheet is wherever its rest position says and CSS animates between them.
+  const [dragH, setDragH] = useState(null);
+  const dragRef = useRef(null);
+
+  useEffect(() => {
+    const el = hostRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(() => setHostH(el.clientHeight));
+    ro.observe(el);
+    setHostH(el.clientHeight);
+    return () => ro.disconnect();
+  }, []);
+
+  const sheetH = dragH ?? detentPx(detent, hostH);
+
+  const onSheetDown = (e) => {
+    // Mouse only when it is a real press; a right-click is not a drag.
+    if (e.button !== undefined && e.button !== 0) return;
+    dragRef.current = {
+      id: e.pointerId,
+      y: e.clientY,
+      from: detent,
+      startH: detentPx(detent, hostH),
+      lastY: e.clientY,
+      lastT: e.timeStamp,
+      v: 0,
+      h: null,
+      moved: false,
+    };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+
+  const onSheetMove = (e) => {
+    const d = dragRef.current;
+    if (!d || e.pointerId !== d.id) return;
+    const dy = d.y - e.clientY;               // up is taller
+    // 4px of slop, so a tap that wobbles is still a tap.
+    if (!d.moved && Math.abs(dy) < 4) return;
+    d.moved = true;
+    const dt = e.timeStamp - d.lastT;
+    if (dt > 0) d.v = (d.lastY - e.clientY) / dt;
+    d.lastY = e.clientY;
+    d.lastT = e.timeStamp;
+    d.h = Math.max(0, Math.min(hostH, d.startH + dy));
+    setDragH(d.h);
+  };
+
+  const endSheetDrag = (e) => {
+    const d = dragRef.current;
+    if (!d || (e && e.pointerId !== d.id)) return;
+    dragRef.current = null;
+    setDragH(null);
+    // A press that never moved is a tap, and the handle is a button first.
+    if (!d.moved) { setDetent(detentAfterTap(d.from)); return; }
+    // d.h, not the dragH state: the last setDragH may not have committed
+    // when the pointer came up, and a release that reads a stale height
+    // snaps to the position before last.
+    setDetent(detentAfterDrag(d.from, d.h ?? d.startH, hostH, d.v));
+  };
+
+  // Kept in step for the desktop layout and for anything still reading it:
+  // "open" is any position that shows more than the handle.
+  useEffect(() => { if (asTab) setListOpen(detent !== DETENT.peek); }, [detent, asTab]);
   // The kinds the chips have on, for the dot layer as well as the list.
   const activeKinds = useMemo(() => groupsBeingFiltered(selectedFilters), [selectedFilters]);
   const visitedOn = isVisitedOn(selectedFilters);
@@ -104,6 +185,14 @@ export default function MapOverlay({
         asTab && !leftOpen && 'is-left-folded',
         asTab && !rightOpen && 'is-right-folded',
       ].filter(Boolean).join(' ')}
+      /* On the root and not on the sheet, because the map is the sheet’s
+         sibling and has to see them too: the attribution rides up with the
+         sheet so the credit OpenStreetMap’s licence asks for is never the
+         thing a panel is covering. */
+      style={asTab ? {
+        '--sheet-max': `${Math.round(SHEET_MAX_FRACTION * hostH)}px`,
+        '--sheet-h': `${Math.round(sheetH)}px`,
+      } : undefined}
       role={asTab ? undefined : 'dialog'}
       aria-modal={asTab ? undefined : 'true'}
       aria-label={heading}
@@ -140,53 +229,51 @@ export default function MapOverlay({
             the register was dots, a difference anybody could see and nobody
             could read ("너저분하다", 2026-09-04). Both of those are gone: the
             marks are one shape now and this is a chip that filters, so the
-            row explains a colour, which is what the other six do. */}
-        <span className="map-legend__kinds">
-          {/* The eighteen are a category now, not a caption: same chip, same
-              colour swatch, and it filters. 2026-09-09 — "카테고리 하나
-              만들어서 분류하자". The mark on the map stopped being a teardrop
-              in the same change, so the difference this row explains is a
-              colour, which is what the other six explain too. */}
-          <button
-            type="button"
-            className={`map-legend__item map-legend__item--filter${visitedOn ? ' is-on' : ''}`}
-            style={visitedOn ? { background: VISITED.tint, borderColor: VISITED.tint } : undefined}
-            aria-pressed={visitedOn}
-            onClick={() => onToggleFilter?.(VISITED.filter)}
-          >
-            <span className="map-legend__head">
-              <span className="map-legend__dot" style={{ background: swatchColor(VISITED, visitedOn) }} aria-hidden="true" />
-              <span className="map-legend__name">
-                {say('We went to these', '직접 가본 곳', 'Estuvimos aquí',
-                  'Nous y sommes allés', 'زرناها بأنفسنا', '我们亲自去过', '実際に行った店')}
-              </span>
-            </span>
-            <span className="map-legend__dishes">
-              {say(`${CURATED_COUNT} we went to and wrote up`,
-                `직접 가보고 기록한 ${CURATED_COUNT}곳`,
-                `${CURATED_COUNT} que visitamos y describimos`,
-                `${CURATED_COUNT} où nous sommes allés et que nous avons décrites`,
-                `${CURATED_COUNT} مكانًا زرناها وكتبنا عنها`,
-                `我们亲自去过并写下来的 ${CURATED_COUNT} 处`,
-                `実際に行って書いた${CURATED_COUNT}か所`)}
-            </span>
-          </button>
-          {/* The register's own line — "8,118곳, 저희가 가본 곳은 아닙니다" —
-              stood here until 2026-09-09. Taken out at 강민's word once 직접
-              가본 곳 became a chip: the row above says which places the team
-              went to, and the ones that are not those are the rest, which
-              does not need a second sentence under a filter.
-              The disclosure itself has not gone anywhere. PlacesTab's header
-              carries it where the register is actually listed, and
-              placesWiring.test.mjs holds it there. */}
-        </span>
+            row explains a colour, which is what the other six do.
+
+            The <span className="map-legend__kinds"> that used to wrap this
+            went on 2026-09-10. It was the caption era’s box — a border and
+            8px of padding around what is now a single chip carrying a
+            border of its own — and at 56px it was the tallest item in a
+            stretching flex row, so it made all seven chips 56 and the row
+            73 on a 375px phone. */}
+        {/* The eighteen are a category now, not a caption: same chip, same
+            colour swatch, and it filters. 2026-09-09 — "카테고리 하나
+            만들어서 분류하자". The mark on the map stopped being a teardrop
+            in the same change, so the difference this row explains is a
+            colour, which is what the other six explain too. */}
         <button
-          className={`map-overlay__nearby${nearby ? ' is-on' : ''}`}
-          aria-pressed={nearby}
-          onClick={() => setNearby(v => !v)}
+          type="button"
+          className={`map-legend__item map-legend__item--filter${visitedOn ? ' is-on' : ''}`}
+          style={visitedOn ? { background: VISITED.tint, borderColor: VISITED.tint } : undefined}
+          aria-pressed={visitedOn}
+          onClick={() => onToggleFilter?.(VISITED.filter)}
         >
-          {say("Dishes you'd rather not eat alone", '혼자보다 같이 먹고 싶은 음식', 'Platos que prefieres no comer solo', 'Les plats que vous préférez ne pas manger seul', 'أطباق تفضّل ألّا تأكلها وحدك', '你不太想一个人吃的菜', 'ひとりでは食べたくない料理')}
+          <span className="map-legend__head">
+            <span className="map-legend__dot" style={{ background: swatchColor(VISITED, visitedOn) }} aria-hidden="true" />
+            <span className="map-legend__name">
+              {say('We went to these', '직접 가본 곳', 'Estuvimos aquí',
+                'Nous y sommes allés', 'زرناها بأنفسنا', '我们亲自去过', '実際に行った店')}
+            </span>
+          </span>
+          <span className="map-legend__dishes">
+            {say(`${CURATED_COUNT} we went to and wrote up`,
+              `직접 가보고 기록한 ${CURATED_COUNT}곳`,
+              `${CURATED_COUNT} que visitamos y describimos`,
+              `${CURATED_COUNT} où nous sommes allés et que nous avons décrites`,
+              `${CURATED_COUNT} مكانًا زرناها وكتبنا عنها`,
+              `我们亲自去过并写下来的 ${CURATED_COUNT} 处`,
+              `実際に行って書いた${CURATED_COUNT}か所`)}
+          </span>
         </button>
+        {/* The register's own line — "8,118곳, 저희가 가본 곳은 아닙니다" —
+            stood here until 2026-09-09. Taken out at 강민's word once 직접
+            가본 곳 became a chip: the row above says which places the team
+            went to, and the ones that are not those are the rest, which
+            does not need a second sentence under a filter.
+            The disclosure itself has not gone anywhere. PlacesTab's header
+            carries it where the register is actually listed, and
+            placesWiring.test.mjs holds it there. */}
         {/* The six kinds, and they filter. They were a legend — a <span> per
             kind, explaining what the dots meant — and two testers on
             2026-09-09 tapped them expecting the map to narrow to that kind,
@@ -230,6 +317,20 @@ export default function MapOverlay({
             </button>
           );
         })}
+        {/* The layer toggle goes last, and it is not a category.
+            It sat second — between 직접 가본 곳 and the six kinds — where,
+            at 154px against their 67–119, it was the widest thing in the
+            row and it pushed four of the six categories off a 375px
+            screen. Moved 2026-09-10: the seven things that filter the map
+            read as a set, and the switch that turns the register off
+            follows them. */}
+        <button
+          className={`map-overlay__nearby${nearby ? ' is-on' : ''}`}
+          aria-pressed={nearby}
+          onClick={() => setNearby(v => !v)}
+        >
+          {say("Dishes you'd rather not eat alone", '혼자보다 같이 먹고 싶은 음식', 'Platos que prefieres no comer solo', 'Les plats que vous préférez ne pas manger seul', 'أطباق تفضّل ألّا تأكلها وحدك', '你不太想一个人吃的菜', 'ひとりでは食べたくない料理')}
+        </button>
       </div>
 
       {/* One handle per rail, sitting on the seam between that rail and the
@@ -265,7 +366,7 @@ export default function MapOverlay({
         </>
       )}
 
-      <div className="map-overlay__map">
+      <div className="map-overlay__map" ref={hostRef}>
         <MapComponent
           /* The kinds the chips have on, so the register dots answer them
              too. Until 2026-09-09 only the list did, and a filter that moves
@@ -281,14 +382,33 @@ export default function MapOverlay({
         />
       </div>
 
-      <div className="map-overlay__panel">
+      {/* The sheet. --sheet-h is the visible height in pixels; the phone
+          rule in index.css turns it into a translate, so opening the list
+          moves a composited layer instead of re-laying out forty cards.
+          The variable is inert above 768px, where the panel is a column. */}
+      <div
+        className={`map-overlay__panel${dragH === null ? '' : ' is-dragging'}`}
+        data-detent={asTab ? detent : undefined}
+      >
         {/* The fold. A full-width bar rather than a small chevron, because on
             a phone this is the control that decides whether the map is a
             keyhole or the screen. */}
         <button
           className="map-overlay__fold"
           aria-expanded={listOpen}
-          onClick={() => setListOpen(v => !v)}
+          /* Both, and they do not fight: a press that never moved four pixels
+             is handled as a tap by endSheetDrag, and onClick is left to the
+             keyboard. Without the guard a mouse drag would also fire a click
+             and step the sheet twice. */
+          onPointerDown={asTab ? onSheetDown : undefined}
+          onPointerMove={asTab ? onSheetMove : undefined}
+          onPointerUp={asTab ? endSheetDrag : undefined}
+          onPointerCancel={asTab ? endSheetDrag : undefined}
+          onClick={(e) => {
+            if (!asTab) { setListOpen(v => !v); return; }
+            if (e.detail !== 0) return;   // a real pointer click; the drag has it
+            setDetent(detentAfterTap(detent));
+          }}
         >
           <span className="map-overlay__grip" aria-hidden="true" />
           <span className="map-overlay__fold-label">
