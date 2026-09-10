@@ -51,6 +51,7 @@ import { passportRecord } from './domain/projection/passportRecord.js';
 import { themeById, experienceById, experienceIdsOfTheme } from './domain/catalog/index.js';
 import { experienceDone, themeCompletionKind } from './domain/policy/completion.js';
 import { reasonFor, themeOfTheDay } from './domain/policy/recommendation.js';
+import { viewKey, directionBetween } from './domain/policy/screenDepth.js';
 import ThemePage from './components/ThemePage';
 import './index.css';
 import './custom.css';
@@ -524,6 +525,27 @@ export default function App() {
   const path = pathFor({
     activeTab, tableView, openThemeId, restaurantId: selectedRestaurant?.id ?? null,
   });
+
+  // Which way the screen is moving, for the transition in index.css. Read by
+  // .content-region[data-nav], which picks the keyframes from it: into a table
+  // slides in from the right, back out of it slides the other way, another tab
+  // cross-fades.
+  //
+  // Computed during render and not in an effect, because an effect runs after
+  // the browser has painted — the entrance would already be playing, in the
+  // previous direction, and setting the attribute then would restart it
+  // halfway. The ref write is keyed on viewKey, so StrictMode’s second pass
+  // sees a view it has already recorded and changes nothing.
+  const navView = { activeTab, tableView, openThemeId };
+  const navRef = useRef({ key: null, view: null, dir: 'lateral' });
+  const thisKey = viewKey(navView);
+  if (navRef.current.key !== thisKey) {
+    navRef.current = {
+      key: thisKey,
+      view: navView,
+      dir: directionBetween(navRef.current.view, navView),
+    };
+  }
 
   // Push only when the address actually changes, or every render would add a
   // history entry and Back would walk on the spot.
@@ -1087,7 +1109,11 @@ export default function App() {
           — at `inset: 0` on mobile, holding most of the viewport on desktop —
           which made a culture platform read as a maps product. It is summoned
           from here instead, by whichever surface wants it. */}
-      <div className={`content-region${!openThemeId && activeTab === 'places' ? ' content-region--map' : ''}`} key={openThemeId ?? activeTab}>
+      <div
+        className={`content-region${!openThemeId && activeTab === 'places' ? ' content-region--map' : ''}`}
+        data-nav={navRef.current.dir}
+        key={openThemeId ?? activeTab}
+      >
         {/* A theme takes over the content area rather than opening over it. */}
         {openThemeId && (
           <ThemePage

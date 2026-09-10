@@ -58,6 +58,28 @@
   --shadow-2: 0 8px 30px rgba(16, 24, 40, 0.16);  /* dialogs */
   --shadow-sheet: 0 -2px 10px rgba(16, 24, 40, 0.06); /* list sheet, lifts upward */
 
+  /* ----- Motion -----
+     Three durations and two curves, added 2026-09-10. Before this every
+     animation in the file picked its own: 0.2s ease-out here, 0.24s
+     cubic-bezier(0.2, 0.9, 0.3, 1) there, 0.3s ease-out on the sheet beside
+     it. Nothing was wrong with any one of them and the set of them was the
+     problem — an app whose surfaces each move at their own speed reads as
+     assembled rather than made.
+
+     --ease-sheet is the curve a panel travels on when it comes from an edge
+     of the screen: almost all of the distance in the first third, then a
+     long settle. It is the one that reads as weight. --ease-screen is
+     shallower, for something that is replacing something else rather than
+     arriving over it.
+
+     prefers-reduced-motion collapses every duration in the file to 0.01ms
+     further down, so none of this needs its own guard. */
+  --dur-screen: 190ms;   /* a tab or a screen taking another one’s place */
+  --dur-sheet: 300ms;    /* a panel arriving from an edge */
+  --dur-nudge: 150ms;    /* hover, press, a colour changing */
+  --ease-screen: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+
   --tab-h: calc(64px + env(safe-area-inset-bottom));
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
 
@@ -849,7 +871,8 @@ button {
   inset: 0;
   background: rgba(16, 24, 40, 0.45);
   z-index: 500;
-  animation: fadeIn 0.25s ease;
+  /* Matched to the sheet it dims for, so the two stop drifting apart. */
+  animation: fadeIn var(--dur-sheet) var(--ease-screen);
 }
 
 .detail-sheet {
@@ -864,7 +887,7 @@ button {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.3s ease-out;
+  animation: slideUp var(--dur-sheet) var(--ease-sheet);
   outline: none;
 }
 
@@ -1723,6 +1746,7 @@ button {
   bottom: 0;
   height: var(--tab-h);
   padding-bottom: env(safe-area-inset-bottom);
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
   z-index: 15;
   display: flex;
   background: var(--surface);
@@ -4503,7 +4527,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp var(--dur-sheet) var(--ease-sheet);
 }
 .summary-sheet__close {
   position: absolute;
@@ -6426,7 +6450,7 @@ button {
   background: var(--bg);
   overflow-y: auto;
   overscroll-behavior: contain;
-  animation: slideUp 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+  animation: slideUp var(--dur-sheet) var(--ease-sheet);
   padding-bottom: 40px;
 }
 
@@ -7055,7 +7079,10 @@ button {
 .screen-head__link {
   flex: none;
   min-height: 44px;
-  padding: 0 4px;
+  /* 44 tall and, at 4px of padding, 30 wide — tall enough and half as wide
+     as it needs to be. The word is two syllables; the padding is what makes
+     it a target. */
+  padding: 0 12px;
   background: transparent;
   border: none;
   font-size: 13px;
@@ -10479,7 +10506,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 16px;
+  /* The inline insets are 0 in portrait and about 44px in landscape, where
+     viewport-fit=cover puts the page under the notch. Without them the logo
+     hides behind it when somebody turns the phone. */
+  padding: 8px calc(16px + env(safe-area-inset-right)) 8px calc(16px + env(safe-area-inset-left));
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
@@ -10499,7 +10529,12 @@ body {
 /* One tap to the language, in the corner every screen shares. The full
    seven-language picker stays in Settings; this is the switch a first-time
    visitor needs before they have found Settings at all. */
+/* The pill stays 34px because a 44px oval beside a 17px wordmark is a
+   button shouting at a logo. The target underneath it is 44, drawn by the
+   pseudo-element below — the gear on the other side of this bar has been
+   44 all along. */
 .app-chrome__locale {
+  position: relative;
   min-width: 34px;
   height: 34px;
   padding: 0 8px;
@@ -10515,6 +10550,13 @@ body {
   cursor: pointer;
 }
 .app-chrome__locale:hover { background: var(--fill, var(--surface-2)); }
+/* Hit area only: no paint, and inline insets of 0 so it never reaches into
+   the wordmark on one side or the gear group on the other. */
+.app-chrome__locale::after {
+  content: '';
+  position: absolute;
+  inset: -5px 0;
+}
 
 .app-chrome__gear {
   display: grid;
@@ -11038,7 +11080,7 @@ svg.animal-avatar {
   background: var(--bg);
   overflow-y: auto;
   overscroll-behavior: contain;
-  animation: slideUp 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+  animation: slideUp var(--dur-sheet) var(--ease-sheet);
   padding-bottom: 40px;
 }
 
@@ -11275,8 +11317,10 @@ svg.animal-avatar {
   gap: 6px;
   padding: 14px 16px 0;
 }
+/* min-height rather than more padding: a button centres its own content,
+   so the pill grows to the thumb without the type moving. */
 .main-deck__tab {
-  min-height: 34px;
+  min-height: 44px;
   padding: 7px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -11289,8 +11333,8 @@ svg.animal-avatar {
 }
 /* The stop, same furniture as the hero carousel’s own. */
 .main-deck__play {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   margin-inline-start: 2px;
   display: grid;
   place-items: center;
@@ -11447,20 +11491,25 @@ svg.animal-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  /* 0, because the buttons below grew from 34px to 44px and the gap was what
+     kept their targets apart. At 44 they meet exactly, which is the most
+     thumb a row of five can be given without them overlapping — an overlap
+     would hand the tap to whichever came later in the DOM. */
+  gap: 0;
   margin-top: 22px;
 }
 .main-dot {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   background: none;
   cursor: pointer;
   position: relative;
 }
-/* 9px of dot inside 34px of target — the dot is the mark, the button is
-   the thumb.
+/* 9px of dot inside 44px of target — the dot is the mark, the button is
+   the thumb. 34px until 2026-09-10, which is above WCAG 2.5.8’s 24px floor
+   and below the 44 every other control on this bar already used.
 
    The off state is a ring and the on state is a solid, rather than two
    shades of the same fill. Measured first as --line-hover at 1.33:1, under
@@ -11483,8 +11532,8 @@ svg.animal-avatar {
   box-shadow: none;
 }
 .main-dots__toggle {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   margin-inline-start: 4px;
   display: grid;
   place-items: center;
@@ -13124,3 +13173,97 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 /* Inside the fold it is a section, not a tab: its own screen-head sized for
    a page of its own would shout over the heading that opened it. */
 .home-places .places-tab .screen-head { padding-top: 18px; }
+
+/* ---------- Screen transitions -------------------------------------------
+   Every screen change in this app was a hard cut until 2026-09-10. Reported
+   as "넘어가는 모션도 너무 부족하고 (이거는 pc도 해당됨)".
+
+   Nothing in JavaScript drives these. `.content-region` already carries
+   `key={openThemeId ?? activeTab}`, so a tab change remounts its one child,
+   and a screen change inside 밥상 swaps one child for another — a CSS
+   animation fires on both, because in both cases an element is being
+   created. One rule covers the tabs and the drill-downs.
+
+   The direction comes from `data-nav`, written by App.jsx from
+   domain/policy/screenDepth.js: into a table is not the same movement as
+   back out of it, and an interface that plays them identically has said
+   nothing.
+
+   `backwards` and not `both`. A filling animation on `transform` would leave
+   the element a containing block for its `position: fixed` descendants for
+   as long as the fill lasted, and every sheet in this app is fixed.
+   `backwards` applies the from-state before the animation starts — which is
+   what stops the first frame flashing at full opacity — and nothing after it
+   ends. */
+@keyframes screenIn {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+}
+@keyframes screenFwd {
+  from { opacity: 0; transform: translate3d(18px, 0, 0); }
+}
+@keyframes screenBack {
+  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+}
+@keyframes screenFade {
+  from { opacity: 0; }
+}
+
+.content-region > * {
+  animation: screenIn var(--dur-screen) var(--ease-screen) backwards;
+}
+.content-region[data-nav='forward'] > * { animation-name: screenFwd; }
+.content-region[data-nav='back'] > * { animation-name: screenBack; }
+/* Mirrored, because "in" is the end side of the line and Arabic reads the
+   other way. translateX does not flip on its own the way inset-inline does. */
+[dir="rtl"] .content-region[data-nav='forward'] > * { animation-name: screenBack; }
+[dir="rtl"] .content-region[data-nav='back'] > * { animation-name: screenFwd; }
+
+/* The map fades and does not move. Leaflet sizes its panes against the
+   element it was handed, and a transform on an ancestor while it is doing
+   that is how a map ends up with a row of half-drawn tiles down one edge —
+   the same failure the note at .map-overlay--tab is about. Two classes, so
+   this beats both the rule above and the `animation: none` up there. */
+.content-region--map > .map-overlay--tab {
+  animation: screenFade var(--dur-screen) var(--ease-screen) backwards;
+}
+
+/* ---------- The tab bar’s underline ---------------------------------------
+   Below 1024px the items are `flex: 1`, so each is exactly one count-th of
+   the bar and the indicator can be placed in the same unit — no measuring, no
+   resize listener. --tab-count and --tab-active are written inline by
+   TabBar.jsx, which reads them off the array it renders; the stylesheet does
+   not know how many tabs there are.
+
+   Above 1024px the bar is a centred row of pills of their own widths and the
+   active one already wears a tint, so nothing is drawn. */
+@media (max-width: 1023px) {
+  .tab-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    /* The bar takes the landscape safe-area insets as padding; an absolutely
+       positioned child measures against the padding box, so the indicator has
+       to take them off again or it drifts by a notch when the phone turns. */
+    inset-inline-start: env(safe-area-inset-left);
+    width: calc((100% - env(safe-area-inset-left) - env(safe-area-inset-right)) / var(--tab-count, 5));
+    height: 2px;
+    background: var(--green-ink);
+    border-radius: 0 0 2px 2px;
+    transform: translateX(calc(var(--tab-active, 0) * 100%));
+    transition: transform 320ms var(--ease-sheet);
+  }
+  [dir="rtl"] .tab-bar::after {
+    transform: translateX(calc(var(--tab-active, 0) * -100%));
+  }
+  /* Settings has no tab of its own — it is the gear. Pointing the indicator
+     at 소개 because findIndex came back -1 would be a lie about where you are. */
+  .tab-bar[data-no-active]::after { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .tab-bar::after { transition: none; }
+  }
+}
+
+/* The pill on the desktop rail, which snapped between tabs. */
+@media (min-width: 1024px) {
+  .tab-item { transition: color var(--dur-nudge) ease, background var(--dur-nudge) ease; }
+}

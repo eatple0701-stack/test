@@ -93,8 +93,27 @@ const tabs = [
 // being read.
 export default function TabBar({ activeTab, onSelect, isCollapsed, waiting = 0 }) {
   const say = useText();
+  // The underline under the active tab slides between them rather than
+  // blinking from one to the next — the one piece of motion on the one
+  // control that is on every screen. Two custom properties rather than a
+  // measured position: the items are `flex: 1` below 1024px, so a tab is
+  // exactly 100/count per cent wide and the indicator can be told where to
+  // go in the same unit. Above 1024px the bar becomes a row of pills of
+  // their own widths and the indicator is not drawn at all.
+  //
+  // The count comes from the array so that adding a sixth tab moves the
+  // indicator with it. Nothing in the stylesheet knows there are five.
+  const activeIndex = tabs.findIndex(t => t.id === activeTab);
   return (
-    <nav className="tab-bar" aria-label="Primary">
+    <nav
+      className="tab-bar"
+      aria-label="Primary"
+      // Settings is reached from the gear, not from here, so there are
+      // screens with no active tab at all. The indicator hides rather than
+      // pointing at whichever tab happens to be first.
+      data-no-active={activeIndex < 0 ? '' : undefined}
+      style={{ '--tab-count': tabs.length, '--tab-active': Math.max(activeIndex, 0) }}
+    >
       {tabs.map(t => (
         <button
           key={t.id}

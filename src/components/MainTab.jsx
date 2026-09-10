@@ -884,7 +884,19 @@ export default function MainTab({
                 <img
                   className="insta-panel__qr"
                   src="/images/eatple-instagram-qr.jpg"
-                  alt="@eat.ple_project"
+                  /* The handle alone was the alt until 2026-09-10, and a
+                     handle does not tell a screen reader that this is a code
+                     to point a camera at. audit-i18n had been printing 1 for
+                     it since the panel was built. */
+                  alt={say(
+                    'Instagram QR code for @eat.ple_project',
+                    '인스타그램 @eat.ple_project QR 코드',
+                    'Código QR de Instagram de @eat.ple_project',
+                    'QR code Instagram de @eat.ple_project',
+                    'رمز QR لحساب @eat.ple_project على إنستغرام',
+                    'Instagram @eat.ple_project 的二维码',
+                    'Instagram @eat.ple_project のQRコード',
+                  )}
                   width="406"
                   height="420"
                   loading="lazy"

@@ -59,13 +59,16 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* On the shared durations and curves in index.css:root as of 2026-09-10.
+   These were 0.3s ease-out and 0.4s cubic-bezier(0.16, 1, 0.3, 1) — a
+   backdrop and the sheet it dims, moving for different lengths of time. */
 .match-modal-backdrop {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn var(--dur-sheet) var(--ease-screen);
   backdrop-filter: blur(8px);
 }
 
 .match-modal {
-  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp var(--dur-sheet) var(--ease-sheet);
   box-shadow: 0 20px 40px rgba(0,0,0,0.2);
   border-radius: 24px;
 }
@@ -510,8 +513,12 @@ body {
 }
 .taste-map__cta:hover { background: var(--orange); }
 .taste-map__foot { display: flex; gap: 14px; justify-content: center; margin-top: 14px; }
+/* 68x28 until 2026-09-10 — the smallest target in the app, on the one
+   control that undoes a test somebody has just spent a minute on. The
+   underline is the affordance and stays the size it was; min-height is what
+   the thumb gets. */
 .taste-map__again {
-  padding: 6px 10px; font-size: 13px; color: var(--muted);
+  min-height: 44px; padding: 6px 10px; font-size: 13px; color: var(--muted);
   background: none; border: 0; cursor: pointer; text-decoration: underline;
 }
 
@@ -543,8 +550,11 @@ body {
   background: var(--fill); border-radius: var(--radius);
 }
 .taste-map__keep-text { flex: 1; margin: 0; font-size: 12px; color: var(--muted-strong); line-height: 1.4; }
+/* min-height, because the two buttons on this row measured 33 and 35 while
+   the one that appears when a member sees the row alone was already asking
+   for 44 twelve lines below. Same row, same thumb. */
 .taste-map__keep-cta {
-  flex: none; padding: 9px 16px;
+  flex: none; min-height: 44px; padding: 9px 16px;
   font-size: 13px; font-weight: 700; color: var(--surface);
   background: var(--ink); border: 0; border-radius: var(--radius); cursor: pointer;
 }
@@ -1078,7 +1088,7 @@ body {
 /* The way to where the dishes went. Beside 저장해두기 and quieter than it:
    signing up is the ask on that row, and this is a door. */
 .taste-map__passport {
-  flex: none; padding: 9px 16px;
+  flex: none; min-height: 44px; padding: 9px 16px;
   font-size: 13px; font-weight: 700; color: var(--ink-title);
   background: var(--surface); border: 1px solid var(--line);
   border-radius: var(--radius); cursor: pointer;
@@ -1206,17 +1216,22 @@ body {
 
 .dish-stories__rail {
   display: flex; gap: 12px;
-  margin: 12px 0 0; padding: 2px 16px 10px; list-style: none;
+  margin: 12px 0 0; padding: 2px 20px 10px; list-style: none;
   overflow-x: auto; overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 .dish-stories__rail::-webkit-scrollbar { display: none; }
-/* The rail bleeds to both edges of the screen while the text above it keeps
-   the page's margin — a card cut off at the edge is what says "there is more
-   this way" without a word. */
-.dish-stories__rail { margin-left: -16px; margin-right: -16px; }
+/* The bleed the comment here used to describe never happened. .dish-stories
+   is already full-bleed — no padding anywhere between it and .app-shell — so
+   -16px of margin pushed the rail to -16..391 on a 375px phone and the 16px
+   of padding inside it put the cards back at 0..375. Net effect on what you
+   see: none. Cost: .content-region scrolled 391px wide, so the whole 문화 tab
+   could be dragged sideways. Measured 2026-09-10.
+   The cards start at 20px now, which is where the heading above them starts;
+   "there is more this way" comes from the card the viewport cuts in half
+   mid-scroll, which happens on its own. */
 
 /* Narrower, so more than two are visible and the rail reads as a rail.
    A card is a picture with a name under it now — the writing moved behind

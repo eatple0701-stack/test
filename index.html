@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover, added 2026-09-10. Without it every
+         env(safe-area-inset-*) in the stylesheet resolves to 0: the default is
+         viewport-fit=auto, which lays the page out inside the safe area and so
+         reports no insets. Six rules had been written against those insets —
+         the tab bar, two sheet footers, --tab-h — and all six were dead. On a
+         notched iPhone the bar sat under the home indicator while the CSS
+         meant to lift it computed 64px + 0. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Meet fellow travelers in Korea, share a meal, and explore Korean culture together." />
     <title>밥친구 잇플 · Eatple — Don't just visit Korea. Share a Korean table.</title>
 
