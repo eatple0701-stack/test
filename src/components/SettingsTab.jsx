@@ -6,6 +6,7 @@ import { authError } from '../domain/policy/authError.js';
 import { LOCALES, LOCALE_LABEL } from '../domain/policy/locale.js';
 import { useText } from './localeText.js';
 import { clearFirstRunSeen } from '../data/firstRun.js';
+import { ChevronDownIcon } from './Icons';
 
 // The fifth tab (2026-08-04). Appearance lived inside the profile form,
 // which put a device preference in the middle of fields a host actually
@@ -61,42 +62,47 @@ export default function SettingsTab({ auth, onSignedOut, onSignOut, locale, onLo
           matter what it is set to. LocaleFilter honours that attribute. */}
       <div className="journal-settings" data-no-locale>
         <div className="journal-section-header">
-          <h3>언어 · Language</h3>
+          <h3 id="settings-language">언어 · Language</h3>
         </div>
-        <p className="journal-settings__hint">
-          한국어와 영어를 함께 보거나, 하나만 보이게 할 수 있어요. 스페인어,
-          프랑스어, 아랍어, 중국어도 됩니다. Korean and English together, one of
-          them on its own, Spanish, French, Arabic, or Chinese. Stays on
-          this device.
-        </p>
-        <div className="chip-row">
-          {LOCALES.map(l => (
-            <button
-              key={l}
-              className={`chip${locale === l ? ' active' : ''}`}
-              aria-pressed={locale === l}
-              onClick={() => onLocaleChange?.(l)}
-            >
-              <span className="chip__native" translate="no">{LOCALE_LABEL[l].kr}</span>
-              <span className="chip__en">{LOCALE_LABEL[l].en}</span>
-            </button>
-          ))}
+        {/* A field, not eight buttons. 2026-09-10, against the reference
+            강민 sent: a row of chips is a row that grows every time a
+            language is added — it was already 375px of wrapped buttons on a
+            phone — and it makes the current setting one highlighted pill
+            among eight rather than the answer to a question.
+
+            A native <select> and not a listbox of our own. On a phone it
+            opens the platform's own picker: full-height, thumb-sized rows,
+            momentum scrolling and the OS's own search — all of which we
+            would otherwise be reimplementing badly on the one screen a
+            person reaches when the app is in a language they cannot read.
+            It is also the version that already works with a screen reader.
+
+            Applied on change rather than behind an 적용 button. The
+            reference has one because it sets two things at once and reloads;
+            this sets one thing and the whole screen answers immediately, so
+            a confirm step would only add a way to change the setting and not
+            get it. */}
+        <div className="settings-field">
+          <select
+            className="settings-field__select"
+            aria-labelledby="settings-language"
+            value={locale}
+            onChange={(e) => onLocaleChange?.(e.target.value)}
+          >
+            {LOCALES.map(l => (
+              /* Both names, the way the chips had them: this is the control
+                 somebody uses when the current setting is the language they
+                 cannot read, so 스페인어 finds it and so does Español. */
+              <option key={l} value={l}>{`${LOCALE_LABEL[l].kr} · ${LOCALE_LABEL[l].en}`}</option>
+            ))}
+          </select>
+          {/* A span, because ChevronDownIcon takes a size and nothing else
+              — and the arrow needs a class so it can sit on the end side of
+              the field rather than always on the right. */}
+          <span className="settings-field__caret" aria-hidden="true">
+            <ChevronDownIcon size={18} />
+          </span>
         </div>
-        {/* This used to say Español was not offered, because offering it
-            and serving English would have been the app claiming a
-            translation nobody wrote. The translation exists now — the
-            articles, the dishes, the places — so the note says what is
-            still true instead: a few corners fall back to English rather
-            than to a blank. */}
-        <p className="journal-settings__hint settings-lang__note">
-          스페인어·프랑스어·아랍어·중국어는 본문·요리·장소까지 전부 번역되어
-          있고, 아랍어는 화면 방향까지 오른쪽에서 왼쪽으로 바뀝니다. 번역이 없는
-          자리는 빈칸 대신 영어로 나옵니다.
-          Spanish, French, Arabic and Chinese cover the articles, the dishes
-          and the places; Arabic also lays the screen out right to left.
-          Anything without a translation falls back to English rather than
-          to a blank.
-        </p>
       </div>
 
       <div className="journal-settings">

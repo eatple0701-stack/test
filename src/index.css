@@ -12005,12 +12005,62 @@ svg.animal-avatar {
 .chip:has(.chip__en),
 .lang-pick:has(.lang-pick__en) { line-height: 1.25; }
 
-/* The language picker's own note — the sentence that says why there are
-   three options and not seven. Quieter than the hint above the chips. */
-.settings-lang__note {
-  margin-top: 10px;
-  font-size: 12px;
-  line-height: 1.55;
+/* .settings-lang__note stood here until 2026-09-10. It carried the sentence
+   about which languages are translated all the way through and what happens
+   where one is missing; 강민 took it out along with the hint above the
+   picker. Both facts are still true and neither is on this screen any more.
+
+   ── The settings field ──────────────────────────────────────────────────
+   A label above, a bordered field, a chevron. The language picker was eight
+   chips in a wrapping row, which is a row that grows with every language and
+   which shows the current setting as one highlighted pill among eight.
+
+   The control inside is a native <select>, so a phone opens its own picker
+   and we are not reimplementing a scrolling listbox on the one screen
+   somebody reaches when the app is in a language they cannot read. That is
+   also why the chevron is a separate element rather than a background image:
+   appearance: none takes the platform's arrow away, and it has to come back
+   as something the stylesheet can put on the correct side in Arabic. */
+.settings-field {
+  position: relative;
+  max-width: 420px;
+}
+.settings-field__select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-height: 52px;
+  padding-block: 0;
+  /* Room for the chevron on the end side, whichever side that is. */
+  padding-inline: 16px 46px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-title);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--dur-nudge) ease, box-shadow var(--dur-nudge) ease;
+}
+.settings-field__select:hover { border-color: var(--line-hover); }
+.settings-field__select:focus-visible {
+  outline: none;
+  border-color: var(--accent-strong);
+  /* Translucent, mixed on whatever the field is sitting on. --accent-tint
+     is a solid cream and would read as a smudge rather than a ring. */
+  box-shadow: 0 0 0 3px rgba(194, 84, 10, 0.22);
+}
+.settings-field__caret {
+  position: absolute;
+  inset-inline-end: 16px;
+  top: 50%;
+  /* flex, so the box is the icon and not a line of text with an icon in it —
+     an inline span would carry the font’s descender and sit low. */
+  display: flex;
+  transform: translateY(-50%);
+  /* The field is the target; the arrow is a picture of what it does. */
+  pointer-events: none;
   color: var(--muted-strong);
 }
 
