@@ -13317,3 +13317,37 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 @media (min-width: 1024px) {
   .tab-item { transition: color var(--dur-nudge) ease, background var(--dur-nudge) ease; }
 }
+
+/* ---------- The place panel on a phone: one scroll, not a keyhole ---------
+   2026-09-11, "음식점 리스트 내릴때 음식점이 너무 먼저 터치돼서 스크롤을 못해
+   위아래로". Below the desktop grid the panel under the map was a fixed-height
+   flex column with overflow: hidden, and only the list inside it scrolled.
+   Measured on a 375px phone: with 가볼 만한 곳 opened, the panel was 394px tall
+   holding 3,583px, the list had been squeezed to 0px, and 207 places sat in
+   an accordion that was clipped rather than scrollable. A swipe moved
+   nothing and the lift landed on whichever restaurant was under the thumb.
+   Even with only the list open it scrolled inside 224px, where one 174px
+   card is 78% of the window, so every swipe began on a card.
+
+   So the panel is the one scroller: the list grows to its content and the
+   accordion follows it in the same scroll, and the fold stays pinned at the
+   top so the way to close it never scrolls away. One scroll container is
+   also the arrangement iOS handles best; two nested ones is what makes a
+   thumb feel like it keeps catching on things. mapPanelScroll.test.mjs holds
+   it. */
+@media (max-width: 1023px) {
+  .map-overlay--tab .map-overlay__panel {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .map-overlay--tab .map-overlay__list {
+    flex: none;
+    overflow: visible;
+  }
+  .map-overlay--tab .map-overlay__fold {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--bg);
+  }
+}
