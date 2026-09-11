@@ -871,7 +871,13 @@ export default function MainTab({
                 Text first and the code after it, on a phone: that is where
                 the button is the thing to press, and the code is for holding
                 the phone out to somebody else. Side by side on a desktop,
-                where the code is what gets pointed at. */}
+                where the code is what gets pointed at.
+
+                Copy from 강민, 2026-09-11: the headline asks whether you want
+                to know Korea better and the line under it says who will tell
+                you. The caption under the code ("다른 폰으로 찍으면 바로
+                열려요") went at the same time; the ring already says what the
+                square is for. */}
             <a
               className="insta-panel"
               href="https://instagram.com/eat.ple_project"
@@ -888,21 +894,24 @@ export default function MainTab({
                   Instagram
                 </span>
                 <h2 className="insta-panel__title">
-                  <span className="insta-panel__kr" translate="no">더 있습니다,<br />인스타그램에</span>
+                  <span className="insta-panel__kr" translate="no">한국에 대해<br />더 알아가고 싶다면?</span>
                   <span className="insta-panel__en">
-                    {say('There is more of it on Instagram', null,
-                      'Hay más en Instagram', 'Il y en a plus sur Instagram',
-                      'هناك المزيد على إنستغرام', '更多在 Instagram 上', 'つづきは Instagram に')}
+                    {say('Want to get to know Korea better?', null,
+                      '¿Quieres conocer mejor Corea?', 'Envie de mieux connaître la Corée ?',
+                      'هل تريد أن تعرف كوريا أكثر؟', '想更了解韩国吗？', '韓国をもっと知りたいなら？')}
                   </span>
                 </h2>
                 <span className="insta-panel__lede">
-                  {say('The dishes, the places, and what we found out about them',
-                    '요리와 장소, 그리고 그것들에 대해 알아낸 것들',
-                    'Los platos, los sitios y lo que averiguamos sobre ellos',
-                    'Les plats, les adresses, et ce que nous avons appris sur eux',
-                    'الأطباق والأماكن وما عرفناه عنها',
-                    '菜、地方，以及我们打听到的事',
-                    '料理と場所、そしてそれについて分かったこと')}
+                  {/* 밥친구 is Eatple in every other language, as it is across
+                      the app — How Eatple works, Eatple tables — so the
+                      friends here are Eatple's. */}
+                  {say('The taste of Korea, from your Eatple friends!',
+                    '밥친구들이 알려주는 한국의 입맛!',
+                    '¡El sabor de Corea, de la mano de tus amigos de Eatple!',
+                    'Le goût de la Corée, raconté par vos amis d’Eatple !',
+                    'طعم كوريا كما يعرّفك عليه أصدقاؤك في Eatple!',
+                    'Eatple 的饭友带你尝尝韩国的味道！',
+                    'Eatple の仲間が教える、韓国の味！')}
                 </span>
                 <span className="insta-panel__go">
                   {say('Open Instagram', '인스타그램 열기', 'Abrir Instagram',
@@ -936,15 +945,6 @@ export default function MainTab({
                       draggable={false}
                     />
                   </span>
-                </span>
-                <span className="insta-panel__scan">
-                  {say('Point another phone at it and it opens.',
-                    '다른 폰으로 찍으면 바로 열려요.',
-                    'Apunta con otro móvil y se abre.',
-                    'Visez-le avec un autre téléphone et ça s’ouvre.',
-                    'وجّه هاتفًا آخر نحوه فيفتح.',
-                    '用另一部手机扫一下就打开。',
-                    '別のスマホで読み取ると開きます。')}
                 </span>
               </span>
             </a>
