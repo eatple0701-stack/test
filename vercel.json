@@ -7,10 +7,16 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|kakaotalk|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
+          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
         }
       ],
-      "destination": "/api/table-og?id=:id"
+      "destination": "/api/table-og?id=:id",
+      "missing": [
+        {
+          "type": "query",
+          "key": "via"
+        }
+      ]
     },
     {
       "source": "/places/:id",
@@ -18,10 +24,16 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|kakaotalk|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
+          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
         }
       ],
-      "destination": "/api/place-og?id=:id"
+      "destination": "/api/place-og?id=:id",
+      "missing": [
+        {
+          "type": "query",
+          "key": "via"
+        }
+      ]
     },
     {
       "source": "/places",
@@ -29,11 +41,20 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|kakaotalk|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
+          "value": "(?i).*(bot|crawler|spider|scrap|preview|facebookexternalhit|whatsapp|telegram|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|embedly|pinterest|vkshare).*"
         }
       ],
-      "destination": "/api/place-og"
+      "destination": "/api/place-og",
+      "missing": [
+        {
+          "type": "query",
+          "key": "via"
+        }
+      ]
     },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

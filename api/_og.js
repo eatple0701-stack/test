@@ -57,8 +57,25 @@ export const FALLBACK = {
 export function page({ title, description }, url) {
   const s = site();
   const img = `${s}/og-card.png`;
-  // The meta refresh is for the rare human who slips past the user-agent
-  // filter: they land in the app, one hop late, none the wiser.
+  // The way out for a person who lands here. Until 2026-09-11 it was
+  // <meta http-equiv="refresh" content="0;url=${url}"> — to the same url,
+  // "for the rare human who slips past the user-agent filter". The KakaoTalk
+  // in-app browser did not slip past it, it matched it: its user-agent says
+  // KAKAOTALK, and so did the filter. The refresh sent it back to the same
+  // path, the rewrite caught it again, and the page refreshed into itself for
+  // ever — a white screen with this title in small type. Every /tables and
+  // /places link opened inside KakaoTalk did that from 2026-08-04.
+  //
+  // Now: a script, which crawlers do not run and people do, to the same path
+  // with ?via=og. vercel.json skips any request carrying `via`, so the hop
+  // lands in the app whatever the user-agent says, and cannot loop even for
+  // the next browser the filter misreads. No meta refresh at all, because
+  // some crawlers follow those, and one that did would read the app shell
+  // instead of this card.
+  const hop = `${url}${String(url).includes('?') ? '&' : '?'}via=og`;
+  // JSON.stringify for a string literal a script can parse; < escaped so no
+  // url can ever close the script tag it sits in.
+  const hopJs = JSON.stringify(hop).replace(/</g, '\\u003c');
   return `<!doctype html>
 <html lang="ko">
 <head>
@@ -78,7 +95,7 @@ export function page({ title, description }, url) {
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${esc(img)}">
-<meta http-equiv="refresh" content="0;url=${esc(url)}">
+<script>location.replace(${hopJs})</script>
 </head>
 <body>${esc(title)}</body>
 </html>`;

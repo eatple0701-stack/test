@@ -127,6 +127,11 @@ test('the preview declares the url it was asked for', async () => {
   const url = 'https://eatple.vercel.app/places/balwoo';
   const body = page({ title: 't', description: 'd' }, url);
   assert.ok(body.includes(`<meta property="og:url" content="${url}">`), 'og:url is not the path it was given');
-  // And the refresh a stray human follows goes to the same place.
-  assert.ok(body.includes(`content="0;url=${url}"`));
+  // A person who reaches this page is sent on — by a script, which crawlers
+  // do not run, to the same path with ?via=og, which no preview rewrite
+  // catches. Until 2026-09-11 this line asserted the opposite: a meta
+  // refresh to the url itself, which for anybody the rewrite had misread was
+  // the same page again, for ever — the KakaoTalk in-app white screen.
+  assert.ok(!/http-equiv="refresh"/i.test(body), 'a meta refresh is followed by crawlers too, and loops for a misread person');
+  assert.ok(body.includes(`location.replace(${JSON.stringify(`${url}?via=og`)})`), 'no way out of the preview for a person');
 });
