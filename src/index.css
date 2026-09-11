@@ -79,6 +79,9 @@
   --dur-nudge: 150ms;    /* hover, press, a colour changing */
   --ease-screen: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Material’s emphasized decelerate: nearly all the change in the first
+     fifth, then a long, soft landing. For a screen arriving in place. */
+  --ease-settle: cubic-bezier(0.05, 0.7, 0.1, 1);
 
   --tab-h: calc(64px + env(safe-area-inset-bottom));
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
@@ -13245,21 +13248,44 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
    `backwards` applies the from-state before the animation starts — which is
    what stops the first frame flashing at full opacity — and nothing after it
    ends. */
+/* Redrawn 2026-09-11: "모션도 안예쁘고".
+
+   The first version moved a new tab up 8px as it faded in, and a new
+   screen 18px sideways. On a phone the first read as the page jumping —
+   tabs are side by side, and nothing about changing one should travel
+   vertically — and the second was too small to read as going anywhere, so
+   it looked like a wobble.
+
+   A tab now settles into place: a 3% zoom from its top edge and a fade, on
+   the emphasized-decelerate curve — what Material calls fade-through for a
+   top-level destination, and what a phone already does between its own
+   apps. Going into a table is a push: the new screen travels a quarter of
+   its width from the side it came from, on the sheet curve, long enough to
+   be seen arriving. Back is the same push, mirrored. */
 @keyframes screenIn {
-  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  from { opacity: 0; transform: scale(0.97); }
 }
 @keyframes screenFwd {
-  from { opacity: 0; transform: translate3d(18px, 0, 0); }
+  from { opacity: 0; transform: translate3d(24%, 0, 0); }
 }
 @keyframes screenBack {
-  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+  from { opacity: 0; transform: translate3d(-24%, 0, 0); }
 }
 @keyframes screenFade {
   from { opacity: 0; }
 }
 
 .content-region > * {
-  animation: screenIn var(--dur-screen) var(--ease-screen) backwards;
+  /* From the top, because that is the part on screen: a region remounts
+     scrolled to its top, and a zoom from the middle of a 2,000px page would
+     move everything the reader can see. */
+  transform-origin: 50% 0;
+  animation: screenIn 260ms var(--ease-settle) backwards;
+}
+.content-region[data-nav='forward'] > *,
+.content-region[data-nav='back'] > * {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-sheet);
 }
 .content-region[data-nav='forward'] > * { animation-name: screenFwd; }
 .content-region[data-nav='back'] > * { animation-name: screenBack; }
@@ -13351,3 +13377,24 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
     background: var(--bg);
   }
 }
+
+/* ---------- The tab bar, under a thumb -----------------------------------
+   2026-09-11, the same "모션도 안예쁘고". The underline already slides; the
+   icon did nothing, so a tap had no answer where the finger actually was.
+   It sinks while pressed and pops once when its tab arrives — the
+   animation starts when the item starts matching .active, so it plays on
+   every change and on nothing else. */
+@keyframes tabPop {
+  0% { transform: scale(0.82); }
+  55% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.tab-item .tab-icon svg { transition: transform 120ms ease; }
+.tab-item:active .tab-icon svg { transform: scale(0.86); }
+.tab-item.active .tab-icon svg { animation: tabPop 380ms var(--ease-sheet); }
+
+/* The same answer on the other controls a thumb hits most here: the deck
+   labels on 소개 and the fold on 장소. */
+.main-deck__tab { transition: transform 120ms ease, background 150ms ease, color 150ms ease, border-color 150ms ease; }
+.main-deck__tab:active { transform: scale(0.95); }
+.map-overlay__fold:active { background: var(--fill, rgba(16, 24, 40, 0.05)); }
