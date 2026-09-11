@@ -1695,12 +1695,15 @@ button {
 }
 
 /* Teardrop map pins */
+/* No position and no transform transition: Leaflet positions a marker with
+   `position: absolute` and an inline transform, so `position: relative`
+   dropped each pin into normal flow (2px lower per pin than the one before
+   it) and the transition made the pin slide after the map on every pan.
+   Both went on 2026-09-11 — see markerCss.test.mjs. */
 .k-pin {
-  position: relative;
   background: none;
   border: none;
   filter: drop-shadow(0 2px 4px rgba(16, 24, 40, 0.3));
-  transition: transform 0.15s ease;
 }
 /* The teardrop is narrower than a thumb. Widen the hit area to 44px without
    changing the pin's drawn size or its anchor point on the map. */
@@ -1713,14 +1716,11 @@ button {
   height: 44px;
   transform: translate(-50%, -50%);
 }
-.k-pin:hover {
-  transform: scale(1.08);
-  transform-origin: bottom center;
-}
-.k-pin--active {
-  transform: scale(1.12);
-  transform-origin: bottom center;
-}
+/* .k-pin:hover and .k-pin--active scaled the marker element with
+   `transform`, which Leaflet sets inline on the same element — and an inline
+   style beats any stylesheet, so neither ever drew. Removed on 2026-09-11
+   rather than moved to the svg, because moving it would make the pin grow
+   for the first time, which is a change nobody asked for. */
 .k-pin svg {
   display: block;
 }
@@ -13336,13 +13336,15 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 .k-bubble {
   cursor: pointer;
   filter: drop-shadow(0 2px 4px rgba(16, 24, 40, 0.28));
-  transition: transform var(--dur-nudge) var(--ease-screen);
 }
-.k-bubble:hover { transform: scale(1.08); }
-.k-bubble:active { transform: scale(0.94); }
-@media (prefers-reduced-motion: reduce) {
-  .k-bubble { transition: none; }
-}
+/* A `transition: transform` stood in the rule above for a day, with
+   :hover and :active scales under it. Leaflet moves a marker by rewriting
+   that element’s inline transform on every pan and zoom, so the transition
+   made each bubble slide into place 150ms after the map had stopped —
+   measured: transition "transform 0.15s" on an element whose inline style
+   was translate3d(402px, 497px, 0). The two scales never drew at all, for
+   the same reason in reverse: inline beats a stylesheet. All three went on
+   2026-09-11; markerCss.test.mjs keeps them out. */
 
 /* ── The category row on a phone ──────────────────────────────────────────
    Seven chips, each carrying its name *and* its four dish names, came to

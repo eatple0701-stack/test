@@ -1423,7 +1423,15 @@ body {
    than a thumb is a mark nobody can tap. That comes with it: on the eighteen
    only, since eight thousand overlapping 44px targets would make the map
    ambiguous to tap and impossible to pan cleanly. */
-.k-dot--wide { position: relative; }
+/* No position here. `.k-dot--wide { position: relative }` stood on this line
+   from 2026-09-09 to 09-11, copied from the teardrop pin, to give the ::after
+   below a containing block — which the marker already is, because
+   leaflet.css makes every .leaflet-marker-icon absolute. At the same
+   specificity and loaded later, it won, and the eighteen fell into normal
+   flow: each 7px below the last, 0 to 119px, the same pixels at every zoom
+   and so a different place on the ground at every zoom. "줌인 줌아웃 할때마다
+   위치가 다르게 떠." markerCss.test.mjs keeps every marker class out of the
+   properties Leaflet positions with. */
 .k-dot--wide::after {
   content: '';
   position: absolute;
