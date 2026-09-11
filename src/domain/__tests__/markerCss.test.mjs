@@ -33,7 +33,9 @@ const read = (p) => fs.readFileSync(path.join(process.cwd(), p), 'utf8');
 /** Every class a map marker is drawn with, Leaflet's own included. */
 export const MARKER_CLASSES = [
   'leaflet-marker-icon',
-  // MapComponent: the register dots, the eighteen, and the phone's bubbles.
+  // MapComponent: the register dots and the eighteen. k-bubble was the
+  // phone’s bubbles, 2026-09-10 to 09-11; it stays listed so that if it ever
+  // comes back, it comes back without moving its markers.
   'k-dot', 'k-dot--active', 'k-dot--wide', 'k-bubble',
   // PlacePicker's drop pin and TablesMap's table pins.
   'k-pin', 'k-pin--active', 'table-pin', 'table-pin--sample',

@@ -217,14 +217,6 @@ function rankOf(id) {
   return r;
 }
 
-/**
- * The web’s map. Off the map path for one day — 2026-09-10, when the whole
- * map went to bubbles (domain/policy/mapCluster.js) — and back on it at
- * widths above a phone from 2026-09-11, when 강민 rolled the web back and
- * kept the bubbles for phones. Kept, with its tests, through the day it was
- * unused for exactly this reason: it was the fallback. placesMatching, below,
- * is what the search draws at every width.
- */
 export function placesInView(layer, bounds, zoom, limit = VIEW_LIMIT) {
   if (!layer?.rows || !bounds || zoom < MIN_ZOOM) return [];
   const { north, south, east, west } = bounds;

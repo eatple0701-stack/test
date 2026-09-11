@@ -4,11 +4,8 @@ import L from 'leaflet';
 import { MAP_CENTER, coordsOf, kakaoMapUrl } from '../utils';
 import { loadAllPlaces, placesInView, placesMatching, asPlace } from '../data/nearbyPlaces.js';
 import { isRegistryPlace, placeFromRegistry, displayName } from '../data/seoulRegistry.js';
-import { DISH_GROUPS, DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
+import { DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
 import { dotGroup, VISITED } from '../domain/policy/mapLegend.js';
-import {
-  BUBBLE_MEDIA, clusterRows, clustersInView, clusterLabel, clusterSize, zoomIntoCluster,
-} from '../domain/policy/mapCluster.js';
 import { useText, useLocale } from './localeText.js';
 import { tilesFor } from '../domain/policy/mapTiles.js';
 
@@ -63,110 +60,21 @@ const dotIcon = (tint, selected = false, wide = false) => {
   return dotCache.get(key);
 };
 
-// A group id to the colour it is drawn in, so a cluster can be told what its
-// restaurants agree on without mapCluster.js having to know that a catalogue
-// of dishes exists.
-const GROUP_TINT = new Map(DISH_GROUPS.map(g => [g.id, g.tint]));
-
-// A bubble for a cluster: how many restaurants are under here, and — when
-// they all serve the same kind of thing — which kind.
-//
-// Drawn as an SVG circle and a number rather than a styled div, for the same
-// reason dotIcon is: Leaflet hands the html straight to the marker, and a
-// divIcon whose size the stylesheet decides is a marker Leaflet cannot
-// anchor. The white ring is what stops a bubble disappearing into the park
-// it is standing in.
-const bubbleCache = new Map();
-const bubbleIcon = (count, tint) => {
-  const label = clusterLabel(count);
-  const size = clusterSize(count);
-  const key = `${label}|${size}|${tint ?? 'mixed'}`;
-  if (!bubbleCache.has(key)) {
-    const r = size / 2;
-    // A bag of several kinds has no colour of its own; picking one of them
-    // would be a claim about the others — a 30/25/25/20 split painted
-    // K-BBQ orange says something false about three quarters of it. So a
-    // mixed bubble takes the app’s own ink and lets the number carry it,
-    // and the map answers "where is everything" in one colour and "where is
-    // K-BBQ" in orange, which is the chips’ whole job.
-    const fill = tint ?? '#26303F';
-    const fontSize = label.length > 3 ? 11 : (label.length > 2 ? 12 : 13);
-    bubbleCache.set(key, L.divIcon({
-      className: 'k-bubble',
-      html: `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`
-        + `<circle cx="${r}" cy="${r}" r="${r - 2}" fill="${fill}" fill-opacity="0.94" stroke="#FFFFFF" stroke-width="2"/>`
-        + `<text x="${r}" y="${r}" text-anchor="middle" dominant-baseline="central"`
-        + ` font-size="${fontSize}" font-weight="700" fill="#FFFFFF">${label}</text></svg>`,
-      iconSize: [size, size],
-      iconAnchor: [r, r],
-    }));
-  }
-  return bubbleCache.get(key);
-};
-
-/**
- * Whether a media query matches, kept current as the window changes.
- *
- * The same shape as MainTab’s useReducedMotion: read once for the first
- * render so the right layer draws immediately, then listened to.
- */
-function useMediaQuery(query) {
-  const [matches, setMatches] = useState(() =>
-    typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia(query).matches);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
-    const mql = window.matchMedia(query);
-    const onChange = () => setMatches(mql.matches);
-    onChange();
-    mql.addEventListener('change', onChange);
-    return () => mql.removeEventListener('change', onChange);
-  }, [query]);
-
-  return matches;
-}
-
 /**
  * The registry layer.
  *
- * All 8,118 of them, fetched once on the map's first render. It is a quarter
- * of a megabyte compressed, which is what filtering the register down to the
- * twenty-four dishes bought: the layer no longer has to ration itself by
- * district or wait for zoom 15.
+ * All 8,118 of them, fetched once on the map's first render and then cut to
+ * whatever is on screen. It is a quarter of a megabyte compressed, which is
+ * what filtering the register down to the twenty-four dishes bought: the
+ * layer no longer has to ration itself by district or wait for zoom 15.
  *
- * ── Bubbles on a phone since 2026-09-10; dots on the web again since 09-11 ─
- *
- * It used to draw one dot per row in view, capped at 160. On a 375px phone at
- * the zoom this tab opens on, that was 178 identical circles in seven colours
- * over central Seoul, and it read as a texture. "지도같은 거는 보기가 너무
- * 힘들던데."
- *
- * Now the rows are grouped into cells of about 76px and each cell draws one
- * bubble with a count. Zoom in and the cell halves, so a bubble splits into
- * the four under it, down to single restaurants — which draw as the dots they
- * always did and open the same sheet. The grid is geographic, not a division
- * of the viewport, so panning changes nothing at all: see
- * domain/policy/mapCluster.js, and placesInView's note for the report that
- * makes that the important part.
- *
- * A search is exempt. Search results are a set somebody named, they are
- * already capped, and rolling 40 answers into 6 bubbles would hide the thing
- * that was asked for.
- *
- * Wider than a phone, none of the above: the web draws what it drew on
- * 2026-09-09 — every row in view as its own dot, 160 at most, thinned by
- * placesInView’s rank. Rolled back at 강민’s word on 2026-09-11 after the
- * bubbles went live on a 2000px screen; see BUBBLE_MEDIA for why the line is
- * where it is.
+ * The viewport is still capped — Leaflet keeps a DOM node per marker — but
+ * the cap samples across the visible rows rather than taking the first ones,
+ * so a city-wide view is a spread over Seoul and not a clump in 강남구.
  */
 function NearbyLayer({ onSelect, query, activeGroups = [] }) {
   const [layer, setLayer] = useState(null);
   const [view, setView] = useState(null);
-  // Listened to rather than read once, so a window dragged across the line
-  // swaps the layer instead of keeping whichever one it opened with.
-  const bubbles = useMediaQuery(BUBBLE_MEDIA);
 
   const map = useMapEvents({
     moveend: () => setView({ bounds: map.getBounds(), zoom: map.getZoom() }),
@@ -191,128 +99,30 @@ function NearbyLayer({ onSelect, query, activeGroups = [] }) {
   // restaurant name narrowed a list that could be folded away and left the
   // map identical — which is what "검색이 안 된다" looked like from a
   // screen showing only the map.
-  const searching = String(query ?? '').trim();
-
-  // What the chips have on, applied once over the whole city rather than per
-  // marker. A count has to mean the same thing wherever you look at it from,
-  // so the filtering has to happen before the grouping — see dotGroup for the
-  // report about which colour a dot takes when two kinds claim it.
-  const rows = useMemo(() => {
-    if (!bubbles || !layer?.rows) return [];
-    if (!activeGroups.length) return layer.rows;
-    return layer.rows.filter(p => dotGroup(groupsOf(p.d), activeGroups));
-  }, [bubbles, layer, activeGroups]);
-
-  const tintOf = useMemo(() => (p) => (
-    dotGroup(groupsOf(p.d), activeGroups)?.tint ?? primaryGroup(p.d)?.tint ?? '#F97316'
-  ), [activeGroups]);
-
-  // Keyed on the zoom and not the bounds, which is what makes panning free:
-  // the clusters are the same objects until the reader zooms.
-  const zoom = view ? Math.floor(view.zoom) : null;
-  const clusters = useMemo(() => {
-    if (!bubbles || searching || zoom === null) return [];
-    return clusterRows(rows, zoom, {
-      groupIdOf: (p) => dotGroup(groupsOf(p.d), activeGroups)?.id ?? primaryGroup(p.d)?.id ?? null,
-    });
-  }, [bubbles, rows, zoom, searching, activeGroups]);
-
-  const hits = useMemo(() => {
-    if (!layer || !searching) return [];
-    const found = placesMatching(layer, searching);
-    if (!activeGroups.length) return found;
-    return found.filter(p => dotGroup(groupsOf(p.d), activeGroups));
-  }, [layer, searching, activeGroups]);
-
   const shown = useMemo(() => {
-    if (!bubbles || !view || zoom === null) return [];
-    const b = view.bounds;
-    return clustersInView(clusters, {
-      north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest(),
-    }, zoom);
-  }, [bubbles, clusters, view, zoom]);
-
-  // The web’s map, exactly as it was before the bubbles: every row in view,
-  // thinned to 160 by a rank derived from each row’s own id, so zooming only
-  // ever adds dots and never swaps them. The filter is applied per dot at
-  // render, below, the way it was — not folded in here.
-  const dots = useMemo(() => {
-    if (bubbles || searching || !layer || !view) return [];
+    if (!layer) return [];
+    const q = String(query ?? '').trim();
+    if (q) return placesMatching(layer, q);
+    if (!view) return [];
     const b = view.bounds;
     return placesInView(layer, {
       north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest(),
     }, view.zoom);
-  }, [bubbles, searching, layer, view]);
+  }, [layer, view, query]);
 
-  const open = (p) => onSelect({ row: p, builtAt: layer?.builtAt ?? null });
-
-  // Tapping a bubble goes in. How far is zoomIntoCluster’s call; whether it
-  // flies or jumps is the reader’s, and their setting is the one place this
-  // app has motion it cannot turn off from CSS.
-  const openCluster = (c) => {
-    const next = zoomIntoCluster(map.getZoom(), map.getMaxZoom());
-    if (next === null) return;
-    const still = typeof window !== 'undefined'
-      && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (still) map.setView([c.lat, c.lng], next, { animate: false });
-    else map.flyTo([c.lat, c.lng], next, { duration: 0.45 });
-  };
-
-  // Typed: the answers, as themselves. Until 2026-09-04 the search reached the
-  // list and not these dots, so typing a restaurant name narrowed a list that
-  // could be folded away and left the map identical — which is what
-  // "검색이 안 된다" looked like from a screen showing only the map.
-  if (searching) {
-    return hits.map(p => (
+  // The kinds, if any are on. A dot the filter rules out is not drawn, and
+  // one it keeps takes that kind's colour — see dotGroup for the report this
+  // answers. With nothing on, primaryGroup is still what paints it.
+  return shown.map((p) => {
+    const g = dotGroup(groupsOf(p.d), activeGroups);
+    if (activeGroups.length > 0 && !g) return null;
+    return (
       <Marker
         key={p.i}
         position={[p.y, p.x]}
-        icon={dotIcon(tintOf(p))}
+        icon={dotIcon(g?.tint ?? primaryGroup(p.d)?.tint ?? '#F97316')}
         zIndexOffset={-500}
-        eventHandlers={{ click: () => open(p) }}
-      />
-    ));
-  }
-
-  if (!bubbles) {
-    // The kinds, if any are on. A dot the filter rules out is not drawn, and
-    // one it keeps takes that kind’s colour — see dotGroup for the report
-    // this answers. With nothing on, primaryGroup is still what paints it.
-    return dots.map((p) => {
-      const g = dotGroup(groupsOf(p.d), activeGroups);
-      if (activeGroups.length > 0 && !g) return null;
-      return (
-        <Marker
-          key={p.i}
-          position={[p.y, p.x]}
-          icon={dotIcon(g?.tint ?? primaryGroup(p.d)?.tint ?? '#F97316')}
-          zIndexOffset={-500}
-          eventHandlers={{ click: () => open(p) }}
-        />
-      );
-    });
-  }
-
-  return shown.map((c) => {
-    if (c.row) {
-      return (
-        <Marker
-          key={c.key}
-          position={[c.lat, c.lng]}
-          icon={dotIcon(tintOf(c.row))}
-          zIndexOffset={-500}
-          eventHandlers={{ click: () => open(c.row) }}
-        />
-      );
-    }
-    const tint = c.groupId ? GROUP_TINT.get(c.groupId) ?? null : null;
-    return (
-      <Marker
-        key={c.key}
-        position={[c.lat, c.lng]}
-        icon={bubbleIcon(c.count, tint)}
-        zIndexOffset={-400}
-        eventHandlers={{ click: () => openCluster(c) }}
+        eventHandlers={{ click: () => onSelect({ row: p, builtAt: layer?.builtAt ?? null }) }}
       />
     );
   });
