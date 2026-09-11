@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MAP_CENTER, coordsOf, kakaoMapUrl } from '../utils';
-import { loadAllPlaces, placesMatching, asPlace } from '../data/nearbyPlaces.js';
+import { loadAllPlaces, placesInView, placesMatching, asPlace } from '../data/nearbyPlaces.js';
 import { isRegistryPlace, placeFromRegistry, displayName } from '../data/seoulRegistry.js';
 import { DISH_GROUPS, DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
 import { dotGroup, VISITED } from '../domain/policy/mapLegend.js';
 import {
-  clusterRows, clustersInView, clusterLabel, clusterSize, zoomIntoCluster,
+  BUBBLE_MEDIA, clusterRows, clustersInView, clusterLabel, clusterSize, zoomIntoCluster,
 } from '../domain/policy/mapCluster.js';
 import { useText, useLocale } from './localeText.js';
 import { tilesFor } from '../domain/policy/mapTiles.js';
@@ -105,6 +105,30 @@ const bubbleIcon = (count, tint) => {
 };
 
 /**
+ * Whether a media query matches, kept current as the window changes.
+ *
+ * The same shape as MainTab’s useReducedMotion: read once for the first
+ * render so the right layer draws immediately, then listened to.
+ */
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() =>
+    typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia(query).matches);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
+    const mql = window.matchMedia(query);
+    const onChange = () => setMatches(mql.matches);
+    onChange();
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, [query]);
+
+  return matches;
+}
+
+/**
  * The registry layer.
  *
  * All 8,118 of them, fetched once on the map's first render. It is a quarter
@@ -112,7 +136,7 @@ const bubbleIcon = (count, tint) => {
  * twenty-four dishes bought: the layer no longer has to ration itself by
  * district or wait for zoom 15.
  *
- * ── Bubbles, since 2026-09-10 ────────────────────────────────────────────
+ * ── Bubbles on a phone since 2026-09-10; dots on the web again since 09-11 ─
  *
  * It used to draw one dot per row in view, capped at 160. On a 375px phone at
  * the zoom this tab opens on, that was 178 identical circles in seven colours
@@ -130,10 +154,19 @@ const bubbleIcon = (count, tint) => {
  * A search is exempt. Search results are a set somebody named, they are
  * already capped, and rolling 40 answers into 6 bubbles would hide the thing
  * that was asked for.
+ *
+ * Wider than a phone, none of the above: the web draws what it drew on
+ * 2026-09-09 — every row in view as its own dot, 160 at most, thinned by
+ * placesInView’s rank. Rolled back at 강민’s word on 2026-09-11 after the
+ * bubbles went live on a 2000px screen; see BUBBLE_MEDIA for why the line is
+ * where it is.
  */
 function NearbyLayer({ onSelect, query, activeGroups = [] }) {
   const [layer, setLayer] = useState(null);
   const [view, setView] = useState(null);
+  // Listened to rather than read once, so a window dragged across the line
+  // swaps the layer instead of keeping whichever one it opened with.
+  const bubbles = useMediaQuery(BUBBLE_MEDIA);
 
   const map = useMapEvents({
     moveend: () => setView({ bounds: map.getBounds(), zoom: map.getZoom() }),
@@ -165,10 +198,10 @@ function NearbyLayer({ onSelect, query, activeGroups = [] }) {
   // so the filtering has to happen before the grouping — see dotGroup for the
   // report about which colour a dot takes when two kinds claim it.
   const rows = useMemo(() => {
-    if (!layer?.rows) return [];
+    if (!bubbles || !layer?.rows) return [];
     if (!activeGroups.length) return layer.rows;
     return layer.rows.filter(p => dotGroup(groupsOf(p.d), activeGroups));
-  }, [layer, activeGroups]);
+  }, [bubbles, layer, activeGroups]);
 
   const tintOf = useMemo(() => (p) => (
     dotGroup(groupsOf(p.d), activeGroups)?.tint ?? primaryGroup(p.d)?.tint ?? '#F97316'
@@ -178,11 +211,11 @@ function NearbyLayer({ onSelect, query, activeGroups = [] }) {
   // the clusters are the same objects until the reader zooms.
   const zoom = view ? Math.floor(view.zoom) : null;
   const clusters = useMemo(() => {
-    if (searching || zoom === null) return [];
+    if (!bubbles || searching || zoom === null) return [];
     return clusterRows(rows, zoom, {
       groupIdOf: (p) => dotGroup(groupsOf(p.d), activeGroups)?.id ?? primaryGroup(p.d)?.id ?? null,
     });
-  }, [rows, zoom, searching, activeGroups]);
+  }, [bubbles, rows, zoom, searching, activeGroups]);
 
   const hits = useMemo(() => {
     if (!layer || !searching) return [];
@@ -192,12 +225,24 @@ function NearbyLayer({ onSelect, query, activeGroups = [] }) {
   }, [layer, searching, activeGroups]);
 
   const shown = useMemo(() => {
-    if (!view || zoom === null) return [];
+    if (!bubbles || !view || zoom === null) return [];
     const b = view.bounds;
     return clustersInView(clusters, {
       north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest(),
     }, zoom);
-  }, [clusters, view, zoom]);
+  }, [bubbles, clusters, view, zoom]);
+
+  // The web’s map, exactly as it was before the bubbles: every row in view,
+  // thinned to 160 by a rank derived from each row’s own id, so zooming only
+  // ever adds dots and never swaps them. The filter is applied per dot at
+  // render, below, the way it was — not folded in here.
+  const dots = useMemo(() => {
+    if (bubbles || searching || !layer || !view) return [];
+    const b = view.bounds;
+    return placesInView(layer, {
+      north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest(),
+    }, view.zoom);
+  }, [bubbles, searching, layer, view]);
 
   const open = (p) => onSelect({ row: p, builtAt: layer?.builtAt ?? null });
 
@@ -227,6 +272,25 @@ function NearbyLayer({ onSelect, query, activeGroups = [] }) {
         eventHandlers={{ click: () => open(p) }}
       />
     ));
+  }
+
+  if (!bubbles) {
+    // The kinds, if any are on. A dot the filter rules out is not drawn, and
+    // one it keeps takes that kind’s colour — see dotGroup for the report
+    // this answers. With nothing on, primaryGroup is still what paints it.
+    return dots.map((p) => {
+      const g = dotGroup(groupsOf(p.d), activeGroups);
+      if (activeGroups.length > 0 && !g) return null;
+      return (
+        <Marker
+          key={p.i}
+          position={[p.y, p.x]}
+          icon={dotIcon(g?.tint ?? primaryGroup(p.d)?.tint ?? '#F97316')}
+          zIndexOffset={-500}
+          eventHandlers={{ click: () => open(p) }}
+        />
+      );
+    });
   }
 
   return shown.map((c) => {

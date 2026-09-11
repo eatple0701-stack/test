@@ -36,6 +36,23 @@
  */
 
 /**
+ * Where the bubbles are drawn: phones, and only phones.
+ *
+ * 2026-09-11, 강민: "웹사이트 환경에서의 지도는 이전으로 롤백해". The
+ * bubbles were tuned on a 375px phone — a 112px cell is about sixteen of
+ * them there — and on a 1,234px desktop map the same cell makes sixty-one,
+ * which is the texture they were built to replace, only darker. The web
+ * went back to the dots it had the day before: placesInView, 160 of them,
+ * thinned by a rank that does not move when the map does.
+ *
+ * The same width as the list-as-a-sheet in index.css, because the two are
+ * one idea — the phone’s map — and bubbles without the sheet, or the sheet
+ * over the dots, is a layout nobody designed. phoneMap.test.mjs holds the
+ * two numbers together.
+ */
+export const BUBBLE_MEDIA = '(max-width: 767px)';
+
+/**
  * Roughly how far apart clusters should sit on screen, in CSS pixels.
  *
  * 76 first, which put 64 bubbles on a 375px phone — a wall of numbered discs

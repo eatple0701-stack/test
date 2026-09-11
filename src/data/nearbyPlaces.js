@@ -218,15 +218,12 @@ function rankOf(id) {
 }
 
 /**
- * NOT ON THE MAP PATH since 2026-09-10.
- *
- * The map groups the whole city into cells and draws one bubble each now —
- * domain/policy/mapCluster.js — which caps what is on screen by the size of a
- * cell rather than by a number, and does it without thinning anything away.
- * This is kept, with its tests, because the property it was written for is
- * the one the clustering had to inherit and because it is the fallback if
- * that has to be undone. It is not called by anything but its tests.
- * placesMatching, below, is still what the search draws.
+ * The web’s map. Off the map path for one day — 2026-09-10, when the whole
+ * map went to bubbles (domain/policy/mapCluster.js) — and back on it at
+ * widths above a phone from 2026-09-11, when 강민 rolled the web back and
+ * kept the bubbles for phones. Kept, with its tests, through the day it was
+ * unused for exactly this reason: it was the fallback. placesMatching, below,
+ * is what the search draws at every width.
  */
 export function placesInView(layer, bounds, zoom, limit = VIEW_LIMIT) {
   if (!layer?.rows || !bounds || zoom < MIN_ZOOM) return [];
