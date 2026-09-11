@@ -687,110 +687,132 @@ body {
    Panel-local tokens rather than new global ones: cream is right for this
    slide and nowhere else, and a --cream in :root would be found and used. */
 .main-band--insta {
-  --insta-ground: #F6EFE3;
-  --insta-ink: #45291A;
-  --insta-seal: #B0522A;
-  --insta-line: rgba(176, 82, 42, 0.24);
-  --insta-paper: #FFFFFF;
+  /* Instagram's own gradient, the ring it draws round a story. The one
+     colour on the slide that is not the page's, and it is the platform's. */
+  --insta-ring: linear-gradient(45deg, #FEDA75 0%, #FA7E1E 26%, #D62976 56%, #962FBF 80%, #4F5BD5 100%);
+  --insta-glow: 0 16px 34px rgba(150, 47, 191, 0.18), 0 4px 12px rgba(214, 41, 118, 0.12);
   padding: 0;
   height: 100%;
 }
 :root[data-theme="dark"] .main-band--insta {
-  --insta-ground: #241A14;
-  --insta-ink: #F2E6D9;
-  --insta-seal: #E08655;
-  --insta-line: rgba(224, 134, 85, 0.3);
-  --insta-paper: #F6EFE3;   /* the code stays on paper — a QR needs the white */
+  --insta-glow: 0 16px 34px rgba(0, 0, 0, 0.45);
 }
 
+/* No ground of its own: the slide sits on the page like its three
+   neighbours do. That was the whole of the complaint. */
 .insta-panel {
   display: flex; flex-direction: column; align-items: center;
-  /* Centred rather than stretched. Every slide in this rail is the hero's
-     height, which is taller than the region the reader can see — so the
-     block sits in the middle of the slide, where the middle of the screen
-     is, instead of running under the tab bar. */
   justify-content: center;
-  gap: 0; height: 100%;
-  padding: 26px 26px 24px;
-  background: var(--insta-ground);
-  color: var(--insta-ink);
+  gap: 28px;
+  height: 100%;
+  padding: 28px 20px 34px;
+  color: var(--ink-title);
   text-align: center;
   text-decoration: none;
 }
-.insta-panel__eyebrow {
-  font-size: 11px; font-weight: 800; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--insta-seal);
+.insta-panel__text {
+  display: flex; flex-direction: column; align-items: center;
+  max-width: 34ch;
 }
+.insta-panel__eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent-ink);
+}
+.insta-panel__glyph { width: 16px; height: 16px; flex: none; }
 .insta-panel__title {
   display: flex; flex-direction: column; gap: 6px;
-  margin: 10px 0 0;
-  font-size: 27px; font-weight: 800; line-height: 1.16; letter-spacing: -0.02em;
-  color: var(--insta-ink);
+  margin: 12px 0 0;
+  font-size: 27px; font-weight: 800; line-height: 1.18; letter-spacing: -0.02em;
+  color: var(--ink-title);
   text-wrap: balance;
 }
-.insta-panel__en { font-size: 15px; font-weight: 600; opacity: 0.72; }
-/* With the Korean line gone, the English one is the heading — the same
-   correction .main-band__title carries, for the same reason. */
-[data-locale="en"] .insta-panel__en { font-size: 27px; font-weight: 800; opacity: 1; }
-
-/* A hairline under the headline, in the seal's colour, as wide as a stamp's
-   own rule. Structure, not decoration: it separates the invitation from what
-   is being invited to. */
+.insta-panel__en { font-size: 14px; font-weight: 600; color: var(--muted-strong); letter-spacing: 0; }
+/* With the Korean line gone, the English one is the heading. */
+[data-locale="en"] .insta-panel__en { font-size: 27px; font-weight: 800; color: var(--ink-title); }
 .insta-panel__lede {
-  position: relative;
-  margin-top: 14px; padding-top: 14px;
-  max-width: 21ch;
-  /* Korean breaks between syllables unless told otherwise, which left 들
-     alone on its own line. */
+  margin-top: 12px;
+  font-size: 14.5px; line-height: 1.6; color: var(--muted-strong);
   word-break: keep-all;
-  font-size: 14px; line-height: 1.6; opacity: 0.8;
 }
-.insta-panel__lede::before {
-  content: ''; position: absolute; inset-block-start: 0;
-  inset-inline-start: 50%; translate: -50% 0;
-  width: 40px; height: 2px; background: var(--insta-seal); opacity: 0.55;
-}
-
-/* The stamp. Pressed rather than laid on: a hairline outer frame, a second
-   inset one, and two degrees off square. */
-.insta-panel__stamp {
-  position: relative;
-  margin: 22px 0 0;
-  padding: 10px;
-  background: var(--insta-paper);
-  border: 1px solid var(--insta-line);
-  border-radius: 4px;
-  rotate: -2deg;
-  box-shadow: 0 10px 24px rgba(69, 41, 26, 0.13);
-}
-.insta-panel__stamp::after {
-  content: ''; position: absolute; inset: 5px;
-  border: 1px dashed var(--insta-line);
-  border-radius: 2px;
-  pointer-events: none;
-}
-.insta-panel__qr {
-  display: block; width: 132px; height: auto;
-  -webkit-user-drag: none; user-select: none;
-}
-.insta-panel__scan { margin-top: 10px; font-size: 12px; opacity: 0.62; }
-
+/* The join button's orange and shape, so the one thing to press on this
+   slide looks like the one thing to press everywhere else. */
 .insta-panel__go {
   display: inline-flex; align-items: center; gap: 8px;
-  margin-top: 16px; padding: 13px 22px;
-  font-size: 15px; font-weight: 800;
-  color: var(--insta-ground); background: var(--insta-seal);
+  margin-top: 22px; min-height: 48px; padding: 0 24px;
   border-radius: 999px;
-  transition: transform 140ms ease;
+  background: var(--accent-strong); color: #FFFFFF;
+  font-size: 15px; font-weight: 800;
+  box-shadow: 0 8px 18px rgba(176, 82, 42, 0.24);
+  transition: transform var(--dur-nudge) var(--ease-screen), box-shadow var(--dur-nudge) ease;
 }
 .insta-panel__arrow { transition: translate 140ms ease; }
-.insta-panel:hover .insta-panel__go { transform: translateY(-1px); }
+.insta-panel:hover .insta-panel__go { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(176, 82, 42, 0.3); }
 .insta-panel:hover .insta-panel__arrow { translate: 3px 0; }
-.insta-panel:focus-visible { outline: 3px solid var(--insta-seal); outline-offset: -3px; }
+.insta-panel:active .insta-panel__go { transform: scale(0.97); }
+.insta-panel:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 6px; border-radius: 24px; }
+
+/* The code: a white tile inside the ring. White in dark mode too — a QR
+   needs its quiet zone, and the code image brings its own white. */
+.insta-panel__code {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.insta-panel__ring {
+  display: block;
+  padding: 4px;
+  border-radius: 32px;
+  background: var(--insta-ring);
+  box-shadow: var(--insta-glow);
+  transition: transform 260ms var(--ease-sheet);
+}
+.insta-panel:hover .insta-panel__ring { transform: rotate(-2deg) scale(1.02); }
+.insta-panel__tile {
+  display: block;
+  padding: 12px;
+  border-radius: 28px;
+  background: #FFFFFF;
+}
+.insta-panel__qr {
+  display: block; width: 150px; height: auto;
+  -webkit-user-drag: none; user-select: none;
+}
+.insta-panel__scan { font-size: 12.5px; color: var(--muted-strong); }
+.insta-panel__squiggle { display: none; }
+
+@media (min-width: 1024px) {
+  .insta-panel {
+    flex-direction: row;
+    gap: 96px;
+    padding: 40px 56px;
+    text-align: start;
+  }
+  .insta-panel__text { align-items: flex-start; max-width: 32ch; }
+  .insta-panel__title { font-size: 40px; }
+  [data-locale="en"] .insta-panel__en { font-size: 40px; }
+  .insta-panel__lede { font-size: 16px; }
+  .insta-panel__ring { border-radius: 38px; padding: 5px; }
+  .insta-panel__tile { border-radius: 33px; padding: 16px; }
+  .insta-panel__qr { width: 196px; }
+  /* Curling out of the gap between the columns into the ring's corner. */
+  .insta-panel__squiggle {
+    display: block;
+    position: absolute;
+    inset-inline-end: calc(100% + 4px);
+    top: 18px;
+    width: 92px;
+    color: var(--ex-brass);
+    opacity: 0.85;
+    rotate: 10deg;
+    pointer-events: none;
+  }
+  [dir="rtl"] .insta-panel__squiggle { scale: -1 1; rotate: -10deg; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .insta-panel__go, .insta-panel__arrow { transition: none; }
+  .insta-panel__go, .insta-panel__arrow, .insta-panel__ring { transition: none; }
   .insta-panel:hover .insta-panel__arrow { translate: 0; }
+  .insta-panel:hover .insta-panel__ring { transform: none; }
 }
 
 /* ── 음식 MBTI ────────────────────────────────────────────────────────
@@ -1203,10 +1225,7 @@ body {
    column in the middle of it. The composition is right — a stamp centred on
    paper — so it is scaled rather than rearranged. */
 @media (min-width: 768px) {
-  .insta-panel__title { font-size: 34px; }
-  [data-locale="en"] .insta-panel__en { font-size: 34px; }
-  .insta-panel__lede { max-width: 32ch; font-size: 15px; }
-  .insta-panel__qr { width: 160px; }
+  /* The stamp version’s desktop sizes stood here; the slide carries its own now. */
 }
 /* ── 요리에 담긴 이야기 · the story rail on 문화 ────────────────────────
    A rail and not a list. Native overflow with scroll-snap: the browser

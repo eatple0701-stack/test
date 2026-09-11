@@ -852,71 +852,100 @@ export default function MainTab({
                   together. The handle is printed inside Instagram's own code
                   image, so it is not set a second time in text. ---- */}
           <div className="main-band main-band--insta">
+            {/* Redrawn 2026-09-11. It was a cream panel with a stamp on it,
+                built to echo the logo's seal — and on a page whose ground is
+                a cool grey it read as a different page pasted into this one:
+                1,100 by 716 pixels of #F6EFE3 on #F2F4F6, the only slide with
+                a ground of its own. "배경색이 안맞아서 개별로니까 배경색부터
+                맞추고 꾸며."
+
+                The ground is the page's now, and the type is the page's: the
+                band titles' weight and scale, the hero's eyebrow colour, the
+                join button's orange for the button. The one thing that is not
+                the page's is the ring around the code — Instagram's own
+                gradient, drawn the way it draws a story ring round a face.
+                It says which app this opens before a word is read, and it is
+                the platform's own mark, not a picture of posts we would have
+                to invent.
+
+                Text first and the code after it, on a phone: that is where
+                the button is the thing to press, and the code is for holding
+                the phone out to somebody else. Side by side on a desktop,
+                where the code is what gets pointed at. */}
             <a
               className="insta-panel"
               href="https://instagram.com/eat.ple_project"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span className="insta-panel__eyebrow" translate="no">Instagram</span>
-              <h2 className="insta-panel__title">
-                <span className="insta-panel__kr" translate="no">더 있습니다,<br />인스타그램에</span>
-                <span className="insta-panel__en">
-                  {say('There is more of it on Instagram', null,
-                    'Hay más en Instagram', 'Il y en a plus sur Instagram',
-                    'هناك المزيد على إنستغرام', '更多在 Instagram 上', 'つづきは Instagram に')}
+              <span className="insta-panel__text">
+                <span className="insta-panel__eyebrow" translate="no">
+                  <svg className="insta-panel__glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="5.5" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="17.3" cy="6.7" r="1.3" fill="currentColor" />
+                  </svg>
+                  Instagram
                 </span>
-              </h2>
-
-              <span className="insta-panel__lede">
-                {say('The dishes, the places, and what we found out about them',
-                  '요리와 장소, 그리고 그것들에 대해 알아낸 것들',
-                  'Los platos, los sitios y lo que averiguamos sobre ellos',
-                  'Les plats, les adresses, et ce que nous avons appris sur eux',
-                  'الأطباق والأماكن وما عرفناه عنها',
-                  '菜、地方，以及我们打听到的事',
-                  '料理と場所、そしてそれについて分かったこと')}
+                <h2 className="insta-panel__title">
+                  <span className="insta-panel__kr" translate="no">더 있습니다,<br />인스타그램에</span>
+                  <span className="insta-panel__en">
+                    {say('There is more of it on Instagram', null,
+                      'Hay más en Instagram', 'Il y en a plus sur Instagram',
+                      'هناك المزيد على إنستغرام', '更多在 Instagram 上', 'つづきは Instagram に')}
+                  </span>
+                </h2>
+                <span className="insta-panel__lede">
+                  {say('The dishes, the places, and what we found out about them',
+                    '요리와 장소, 그리고 그것들에 대해 알아낸 것들',
+                    'Los platos, los sitios y lo que averiguamos sobre ellos',
+                    'Les plats, les adresses, et ce que nous avons appris sur eux',
+                    'الأطباق والأماكن وما عرفناه عنها',
+                    '菜、地方，以及我们打听到的事',
+                    '料理と場所、そしてそれについて分かったこと')}
+                </span>
+                <span className="insta-panel__go">
+                  {say('Open Instagram', '인스타그램 열기', 'Abrir Instagram',
+                    'Ouvrir Instagram', 'افتح إنستغرام', '打开 Instagram', 'Instagram を開く')}
+                  <span className="insta-panel__arrow" aria-hidden="true">→</span>
+                </span>
               </span>
 
-              {/* The one flourish, and it is the mark's own idea: pressed
-                  into the page rather than laid on it. */}
-              <span className="insta-panel__stamp">
-                <img
-                  className="insta-panel__qr"
-                  src="/images/eatple-instagram-qr.jpg"
-                  /* The handle alone was the alt until 2026-09-10, and a
-                     handle does not tell a screen reader that this is a code
-                     to point a camera at. audit-i18n had been printing 1 for
-                     it since the panel was built. */
-                  alt={say(
-                    'Instagram QR code for @eat.ple_project',
-                    '인스타그램 @eat.ple_project QR 코드',
-                    'Código QR de Instagram de @eat.ple_project',
-                    'QR code Instagram de @eat.ple_project',
-                    'رمز QR لحساب @eat.ple_project على إنستغرام',
-                    'Instagram @eat.ple_project 的二维码',
-                    'Instagram @eat.ple_project のQRコード',
-                  )}
-                  width="406"
-                  height="420"
-                  loading="lazy"
-                  draggable={false}
-                />
-              </span>
-              <span className="insta-panel__scan">
-                {say('Point another phone at it and it opens.',
-                  '다른 폰으로 찍으면 바로 열려요.',
-                  'Apunta con otro móvil y se abre.',
-                  'Visez-le avec un autre téléphone et ça s’ouvre.',
-                  'وجّه هاتفًا آخر نحوه فيفتح.',
-                  '用另一部手机扫一下就打开。',
-                  '別のスマホで読み取ると開きます。')}
-              </span>
-
-              <span className="insta-panel__go">
-                {say('Open Instagram', '인스타그램 열기', 'Abrir Instagram',
-                  'Ouvrir Instagram', 'افتح إنستغرام', '打开 Instagram', 'Instagram を開く')}
-                <span className="insta-panel__arrow" aria-hidden="true">→</span>
+              <span className="insta-panel__code">
+                {/* The hero's own connector doodle, curling from the words to
+                    the code. Desktop only; a phone stacks the two and there
+                    is nothing to connect across. */}
+                <Squiggle className="insta-panel__squiggle" />
+                <span className="insta-panel__ring">
+                  <span className="insta-panel__tile">
+                    <img
+                      className="insta-panel__qr"
+                      src="/images/eatple-instagram-qr.jpg"
+                      alt={say(
+                        'Instagram QR code for @eat.ple_project',
+                        '인스타그램 @eat.ple_project QR 코드',
+                        'Código QR de Instagram de @eat.ple_project',
+                        'QR code Instagram de @eat.ple_project',
+                        'رمز QR لحساب @eat.ple_project على إنستغرام',
+                        'Instagram @eat.ple_project 的二维码',
+                        'Instagram @eat.ple_project のQRコード',
+                      )}
+                      width="406"
+                      height="420"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  </span>
+                </span>
+                <span className="insta-panel__scan">
+                  {say('Point another phone at it and it opens.',
+                    '다른 폰으로 찍으면 바로 열려요.',
+                    'Apunta con otro móvil y se abre.',
+                    'Visez-le avec un autre téléphone et ça s’ouvre.',
+                    'وجّه هاتفًا آخر نحوه فيفتح.',
+                    '用另一部手机扫一下就打开。',
+                    '別のスマホで読み取ると開きます。')}
+                </span>
               </span>
             </a>
           </div>
