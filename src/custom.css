@@ -287,8 +287,19 @@ body {
    window. Measured 2026-09-09 at 1333x740. */
 .dish-swipe-inline-wrap { display: block; padding: 0 20px; margin-bottom: 20px; }
 .dish-swipe--inline {
-  max-width: 520px; max-height: none; padding: 0;
+  max-width: none; max-height: none; padding: 0;
   background: none; box-shadow: none; border-radius: 0; overflow: visible;
+}
+/* The cap moved from the deck to the card on 2026-09-11. As a column, the
+   deck sat 80px inside every other block on a desktop 밥상 — its result 520px
+   wide under a 680px head — and that was half of "양옆에 너비를 다
+   맞춰야지". The card still needs it, for the height reason above; the
+   heading, the progress and the result around it do not. */
+.dish-swipe--inline .dish-swipe__stage,
+.dish-swipe--inline .dish-swipe__actions {
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
 }
 
 .dish-swipe__head { display: flex; align-items: flex-start; gap: 12px; }
@@ -599,13 +610,18 @@ body {
 
 /* ── 내 입맛 지도에서 · the reader's own dishes, above the picker ────────── */
 .taste-tables { margin: 6px 0 18px; }
-.taste-tables__head { display: flex; align-items: baseline; gap: 8px; margin: 0 0 10px; }
+/* 20px in, like every block on 밥상 since 2026-09-11. It sat at 0 — the one
+   heading on the screen flush against the column's edge. */
+.taste-tables__head { display: flex; align-items: baseline; gap: 8px; margin: 0 20px 10px; }
 .taste-tables__kr { font-size: 15px; font-weight: 800; color: var(--ink); }
 .taste-tables__en { font-size: 12px; font-weight: 600; color: var(--green-strong); }
 
 /* The empty case, which is the one that matters: somebody has just answered
    fourteen questions and there is nothing open for any of it. */
 .taste-tables__none {
+  /* 20px in, like every block on 밥상 since 2026-09-11 — see the gutter at
+     the end of index.css. This card was drawn edge to edge. */
+  margin-inline: 20px;
   padding: 16px;
   background: var(--green-tint);
   border-radius: var(--radius-lg);
@@ -1037,10 +1053,16 @@ html[data-locale]:not([data-locale="ko"]):not([data-locale="both"]) .insta-panel
 /* The line for somebody who has the map and not the type. Said, not offered:
    the passport is read-only about both records, and a second button to take
    the test is a second place for the two to disagree. */
-.taste-recap__next {
-  margin: 0 0 10px;
-  font-size: 13px; line-height: 1.5; color: var(--muted-strong);
+/* The test, offered under the rail on 여권 since 2026-09-11 — the button the
+   map's result offers on 밥상, one size down, because here it is the second
+   thing in a section rather than the next step of a screen. */
+.taste-recap__mbti {
+  display: block; width: 100%; margin: 12px 0 10px; padding: 12px;
+  font-size: 14px; font-weight: 700; color: var(--accent-strong);
+  background: var(--accent-tint); border: 1px solid var(--accent-line);
+  border-radius: var(--radius); cursor: pointer;
 }
+.taste-recap__mbti:hover { background: var(--surface); }
 
 /* The sheet arrives. The backdrop already faded and blurred, but the sheet
    itself was simply there on the next frame — asked for on 2026-09-09,

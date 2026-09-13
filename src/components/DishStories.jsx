@@ -95,8 +95,12 @@ export default function DishStories({ onOpenDish }) {
           momentum, the keyboard and the right-to-left layout correctly, and
           a hand-rolled carousel gets the last of those wrong.
 
-          The order is the reader's own. See storiesForTaste. */}
-      <ul className="dish-stories__rail">
+          The order is the reader's own. See storiesForTaste.
+
+          A mouse wheel that reaches the last dish stops there rather than
+          carrying on down the page — data-wheel="hold", asked for on
+          2026-09-11. See domain/policy/wheel.js. */}
+      <ul className="dish-stories__rail" data-wheel="hold">
         {deck.map((menu, i) => {
           const hook = hookOf(menu, say);
           return (

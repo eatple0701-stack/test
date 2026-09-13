@@ -22,21 +22,27 @@ import { ChevronRightIcon } from './Icons';
 import ProfileSheet from './ProfileSheet';
 import PhraseSheet from './PhraseSheet';
 import SafetySheet from './SafetySheet';
+import FoodMbti from './FoodMbti';
+import { TASTE_SYNCED } from '../data/tasteStamp.js';
 import { restrictionLabel, dietById } from '../data/profile';
 import { languageLine } from '../domain/catalog/languages.js';
 import { useText, useLocale } from './localeText.js';
 import AnimalAvatar from './AnimalAvatar.jsx';
-import { dateLocale } from '../domain/policy/locale.js';
+import { dateLocale, LOCALE } from '../domain/policy/locale.js';
 
-function formatStampDate(ts) {
+// Both dates in the reader's language. Until 2026-09-11 they were fixed to
+// en-GB, so a Korean passport headed each day of its record "Monday,
+// 7 September 2026" over 곱창, and 만난 사람 put an English date in front of
+// 에 같은 밥상.
+function formatStampDate(ts, locale) {
   if (!ts) return null;
-  return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(ts).toLocaleDateString(dateLocale(locale), { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 // The heading of a day in the record. Full and unambiguous, because this is
 // the line a traveller reads back later to remember when something happened.
-function formatDayHeading(ts) {
-  return new Date(ts).toLocaleDateString('en-GB', {
+function formatDayHeading(ts, locale) {
+  return new Date(ts).toLocaleDateString(dateLocale(locale), {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
 }
@@ -62,8 +68,16 @@ export default function JournalPanel({
   const myTaste = useMemo(() => tasteMap(taste, tasteDeck), [taste, tasteDeck]);
   // Read on mount rather than handed down: the test writes to localStorage
   // from a sheet three components away, and this screen is re-rendered from
-  // scratch every time somebody opens the tab.
-  const myType = useMemo(() => mbtiType(getStoredMbti()), []);
+  // scratch every time somebody opens the tab. Read again when the sheet
+  // opened from here closes, and when a member's account has just replaced
+  // this browser's answers (data/tasteStamp.js).
+  const [myType, setMyType] = useState(() => mbtiType(getStoredMbti()));
+  const [mbtiOpen, setMbtiOpen] = useState(false);
+  useEffect(() => {
+    const reread = () => setMyType(mbtiType(getStoredMbti()));
+    window.addEventListener(TASTE_SYNCED, reread);
+    return () => window.removeEventListener(TASTE_SYNCED, reread);
+  }, []);
   // Which of the two this browser holds — see domain/policy/tasteRecord.js.
   const record = tasteRecordState({ mapCount: myTaste.count, type: myType });
   // The rail of dishes is scrolled by dragging it as well as by swiping —
@@ -227,6 +241,12 @@ export default function JournalPanel({
   const days = useMemo(() => {
     const marketById = Object.fromEntries(traditionalMarkets.map(m => [m.id, m]));
 
+    // A dish in the reader's language: 곱창 on a Korean screen, both names on
+    // a bilingual one, and the romanisation everywhere else — the word a
+    // traveller says to a host, as the rest of the app writes it.
+    const dishName = (menu) => (locale === LOCALE.KO ? menu.nameKo
+      : locale === LOCALE.BOTH ? `${menu.nameKo} · ${menu.name}` : menu.name);
+
     // An experience is remembered as the culture it belongs to, because that
     // is what was chosen on Explore — "Temple Life", not "temple-tea".
     const themeOf = (experienceId) => {
@@ -243,14 +263,22 @@ export default function JournalPanel({
         const menu = menuById(t.menuId);
         if (!menu) return null;
         const at = new Date(`${t.date}T${t.time || '00:00'}`);
+        const names = t.people.map(p => p.name);
         return {
           type: 'table',
           ts: Number.isFinite(at.getTime()) ? at.getTime() : 0,
           key: `table-${t.id}`,
-          title: menu.name,
-          subtitle: t.people.length > 0
-            ? `with ${t.people.map(p => p.name).join(', ')}`
-            : (t.hosted ? 'your table' : t.place),
+          // The record spoke English on every screen until 2026-09-11 —
+          // "Gopchang · your table · with …" under 내 기록 — because these
+          // lines were built outside say(), where the i18n audit cannot see.
+          title: dishName(menu),
+          subtitle: names.length > 0
+            ? say(`with ${names.join(', ')}`, `${names.join(', ')}님과 함께`, `con ${names.join(', ')}`,
+              `avec ${names.join(', ')}`, `مع ${names.join('، ')}`, `和${names.join('、')}一起`,
+              `${names.join('、')}さんと`)
+            : (t.hosted
+              ? say('your table', '내가 연 밥상', 'tu mesa', 'votre table', 'مائدتك', '你开的饭桌', 'あなたが開いた食卓')
+              : t.place),
           // The line I left on the table page, carried into the diary the
           // evening belongs to.
           memory: memories[t.id] ?? null,
@@ -285,7 +313,9 @@ export default function JournalPanel({
       })),
       ...metPeople.map(p => ({
         type: 'match', ts: p.metAt, key: `met-${p.key}`,
-        title: `Met ${p.name}`, subtitle: p.nationality || null,
+        title: say(`Met ${p.name}`, `${p.name}님을 만났어요`, `Conociste a ${p.name}`,
+          `Rencontre avec ${p.name}`, `تعرّفت إلى ${p.name}`, `认识了${p.name}`, `${p.name}さんと出会った`),
+        subtitle: p.nationality || null,
       })),
     ];
 
@@ -300,11 +330,17 @@ export default function JournalPanel({
       const key = dayKey(item.ts);
       const last = grouped[grouped.length - 1];
       if (last && last.key === key) last.items.push(item);
-      else grouped.push({ key, heading: formatDayHeading(item.ts), items: [item] });
+      else grouped.push({ key, heading: formatDayHeading(item.ts, locale), items: [item] });
     }
-    if (undated.length > 0) grouped.push({ key: 'undated', heading: 'Earlier', items: undated });
+    if (undated.length > 0) {
+      grouped.push({
+        key: 'undated',
+        heading: say('Earlier', '그 이전', 'Antes', 'Plus tôt', 'قبل ذلك', '更早', 'それ以前'),
+        items: undated,
+      });
+    }
     return grouped;
-  }, [attestations, visitedMarkets, visitedList, savedList, metPeople, myTables, memories]);
+  }, [attestations, visitedMarkets, visitedList, savedList, metPeople, myTables, memories, say, locale]);
 
   const recordCount = useMemo(
     () => days.reduce((n, d) => n + d.items.length, 0),
@@ -612,13 +648,15 @@ export default function JournalPanel({
           was readable nowhere else, which meant a traveller who wanted to see
           it again had to answer fourteen cards again to find out.
 
-          Read-only here on purpose. The deck is where it is answered, and a
-          second place to change it is a second place for the two to disagree.
+          The map is answered on 밥상 and only read here. The test can be
+          taken from here as well since 2026-09-11 — see the button under
+          the rail.
 
-          data/taste.js is localStorage, so a signed-in traveller on another
-          phone sees the empty half of this. Said in that line rather than
-          hidden, because a passport that quietly forgets is worse than one
-          that says where it keeps things. */}
+          A member's two records are on their account since the same day, so
+          another phone shows them too (components/useTasteSync.js). A
+          guest's are still this browser's alone, and the line at the foot
+          says which of the two the reader is — a passport that quietly
+          forgets is worse than one that says where it keeps things. */}
       <div className="journal-section">
         <div className="journal-section-header">
           <h3>{say('My taste', '내 입맛', 'Mi gusto', 'Mon goût', 'ذوقي', '我的口味', '私の好み')}</h3>
@@ -665,9 +703,11 @@ export default function JournalPanel({
             It is a keepsake — the dinners this traveller said yes to — and a
             keepsake belongs in the passport rather than on the screen where
             somebody is deciding what to do next. Same classes as the deck
-            drew it with, so there is one rail and not two. */}
+            drew it with, so there is one rail and not two. A mouse wheel that
+            reaches the end stops there rather than scrolling the page on —
+            data-wheel="hold", asked for on 2026-09-11. */}
         {showsDishes(record) && (
-          <ul className="taste-map__dishes taste-recap-rail" {...dragRail}>
+          <ul className="taste-map__dishes taste-recap-rail" data-wheel="hold" {...dragRail}>
             {myTaste.dishes.map(d => (
               <li key={d.id} className="taste-map__dish">
                 <span className="taste-map__dish-photo" aria-hidden="true">
@@ -681,20 +721,19 @@ export default function JournalPanel({
           </ul>
         )}
 
-        {/* Said rather than offered: this screen is read-only about the two
-            records, and a button here would be a second place to answer them
-            and a second place for the two to disagree. The 밥상 tab is where
-            both are taken, and the line says so. */}
+        {/* Offered, where it used to be said. Until 2026-09-11 a sentence
+            here pointed at 밥상 instead, on the argument that a button would
+            be a second place to answer and a second place for the two to
+            disagree. Asked that day: "이거 빼고 그냥 스크롤 밑에 음식 MBTI
+            검사도 해보기 이런식으로 버튼 추가해놔". They cannot disagree — it
+            is the same sheet writing the same key, and the type above is read
+            again the moment it closes. */}
         {showsDishes(record) && testIsNew(record) && (
-          <p className="taste-recap__next">
-            {say('The food MBTI is still ahead of you — it is on 밥상, under your map.',
-              '음식 MBTI는 아직입니다. 밥상 탭의 입맛 지도 아래에서 할 수 있어요.',
-              'El MBTI gastronómico aún te espera: está en 밥상, bajo tu mapa.',
-              'Le MBTI culinaire vous attend encore : il est sur 밥상, sous votre carte.',
-              'اختبار إم بي تي آي للطعام ما زال أمامك: تجده في 밥상 تحت خريطتك.',
-              '饮食 MBTI 还没做——在 밥상 里，你的地图下面。',
-              'フード MBTI はまだです。밥상 タブの好みの地図の下にあります。')}
-          </p>
+          <button type="button" className="taste-recap__mbti" onClick={() => setMbtiOpen(true)}>
+            {say('Try the food MBTI too', '음식 MBTI 검사도 해보기', 'Haz también el MBTI gastronómico',
+              'Faites aussi le MBTI culinaire', 'جرّب اختبار إم بي تي آي للطعام أيضًا',
+              '也来做做饮食 MBTI', 'フード MBTI もやってみる')}
+          </button>
         )}
 
         {showsPrompt(record) ? (
@@ -715,13 +754,21 @@ export default function JournalPanel({
           </>
         ) : (
           <p className="taste-recap__where">
-            {say('Kept in this browser only — answering again on another phone starts a new one.',
-              '이 브라우저에만 저장됩니다. 다른 기기에서는 처음부터 다시 답하게 됩니다.',
-              'Se guarda solo en este navegador: en otro teléfono empieza de cero.',
-              'Conservé dans ce navigateur seulement : sur un autre téléphone, tout recommence.',
-              'يُحفظ في هذا المتصفّح وحده: على هاتف آخر يبدأ من جديد.',
-              '只存在这个浏览器里——换一部手机就要重新答。',
-              'このブラウザにだけ保存されます。別の端末では最初から答えることになります。')}
+            {isMemberAuth
+              ? say('Saved to your account — sign in on another device and it is there.',
+                '계정에 저장돼요. 다른 기기에서 로그인해도 그대로 보여요.',
+                'Guardado en tu cuenta: entra desde otro dispositivo y ahí estará.',
+                'Enregistré sur votre compte : connectez-vous sur un autre appareil, il y sera.',
+                'محفوظ في حسابك: سجّل الدخول من جهاز آخر وستجده هناك.',
+                '已保存到你的账号——在别的设备上登录也能看到。',
+                'アカウントに保存されます。別の端末でログインしても、そのまま見られます。')
+              : say('Only in this browser for now — sign in and it is kept on your account, on every device.',
+                '지금은 이 브라우저에만 있어요. 로그인하면 계정에 저장돼서 다른 기기에서도 볼 수 있어요.',
+                'Por ahora solo en este navegador: inicia sesión y se guardará en tu cuenta, en todos tus dispositivos.',
+                'Pour l’instant dans ce navigateur seulement : connectez-vous et il sera gardé sur votre compte, sur tous vos appareils.',
+                'محفوظ في هذا المتصفّح وحده الآن: سجّل الدخول ليُحفَظ في حسابك على كل أجهزتك.',
+                '目前只存在这个浏览器里——登录后会保存到你的账号，换设备也能看。',
+                'いまはこのブラウザにだけ保存されています。ログインするとアカウントに保存され、どの端末でも見られます。')}
           </p>
         )}
       </div>
@@ -922,10 +969,10 @@ export default function JournalPanel({
                   <span className="companion-card__name">{p.name}</span>
                   <span className="companion-card__meta">
                     {p.nationality ? `${p.nationality} · ` : ''}
-                    {say(`shared a table ${formatStampDate(p.metAt)}`, `${formatStampDate(p.metAt)}에 같은 밥상`,
-                      `compartió mesa ${formatStampDate(p.metAt)}`, `a partagé une table ${formatStampDate(p.metAt)}`,
-                      `شارك مائدة ${formatStampDate(p.metAt)}`, `${formatStampDate(p.metAt)} 同桌`,
-                      `${formatStampDate(p.metAt)}に同じ食卓`)}
+                    {say(`shared a table ${formatStampDate(p.metAt, locale)}`, `${formatStampDate(p.metAt, locale)}에 같은 밥상`,
+                      `compartió mesa ${formatStampDate(p.metAt, locale)}`, `a partagé une table ${formatStampDate(p.metAt, locale)}`,
+                      `شارك مائدة ${formatStampDate(p.metAt, locale)}`, `${formatStampDate(p.metAt, locale)} 同桌`,
+                      `${formatStampDate(p.metAt, locale)}に同じ食卓`)}
                   </span>
                 </div>
               </div>
@@ -951,7 +998,7 @@ export default function JournalPanel({
                 </span>
                 <span className="stamp-name">{place.name.split('(')[0].trim()}</span>
                 <span className="stamp-zone">{place.zone}</span>
-                {visitedAt && <span className="stamp-date">{formatStampDate(visitedAt)}</span>}
+                {visitedAt && <span className="stamp-date">{formatStampDate(visitedAt, locale)}</span>}
               </button>
             ))}
           </div>
@@ -1039,7 +1086,7 @@ export default function JournalPanel({
                 </span>
                 <span className="stamp-name">{place.name.split('(')[0].trim()}</span>
                 <span className="stamp-zone">{place.zone}</span>
-                {savedAt && <span className="stamp-date">{formatStampDate(savedAt)}</span>}
+                {savedAt && <span className="stamp-date">{formatStampDate(savedAt, locale)}</span>}
               </button>
             ))}
           </div>
@@ -1093,6 +1140,12 @@ export default function JournalPanel({
 
       {phrasesOpen && <PhraseSheet avoids={profile?.avoids} onClose={() => setPhrasesOpen(false)} />}
       {safetyOpen && <SafetySheet onClose={() => setSafetyOpen(false)} />}
+      {mbtiOpen && (
+        <FoodMbti member={isMemberAuth} onClose={() => {
+          setMbtiOpen(false);
+          setMyType(mbtiType(getStoredMbti()));
+        }} />
+      )}
       {profileOpen && (
         <ProfileSheet
           profile={profile}

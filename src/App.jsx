@@ -26,6 +26,8 @@ import { shouldRun } from './domain/policy/firstRun.js';
 import { getProfile, saveProfile } from './data/profile';
 import { getStoredTheme, applyTheme, watchSystemTheme } from './data/theme.js';
 import { getStoredTaste, preferredMenuIds } from './data/taste.js';
+import { useTasteSync } from './components/useTasteSync.js';
+import { wheelRoute } from './domain/policy/wheel.js';
 import { getStoredLocale, setStoredLocale } from './data/locale.js';
 import LocaleFilter from './components/LocaleFilter';
 import { LocaleContext } from './components/localeText.js';
@@ -361,6 +363,11 @@ export default function App() {
     return () => { alive = false; unsubscribe?.(); };
   }, []);
 
+  // A member's taste map and 음식 MBTI follow them to every device — see
+  // components/useTasteSync.js. When the account's copy replaces this
+  // browser's, the screens reading `taste` hear it here.
+  useTasteSync(auth, () => setTaste(getStoredTaste()));
+
   /** True if the door is open; otherwise opens the auth sheet and says why. */
   const requireMember = (door) => {
     if (!isMember(auth)) {
@@ -462,19 +469,29 @@ export default function App() {
   // scrolled to the edge in the direction asked for, rather than trapping
   // the wheel inside a short row a reader is just scrolling past — the same
   // reason this checks scrollLeft's position, not just whether the element
-  // can scroll at all.
+  // can scroll at all. Except on a row marked data-wheel="hold", which keeps
+  // the wheel at its ends: the dish rails on 여권 and 문화, asked for on
+  // 2026-09-11. Each notch is decided in domain/policy/wheel.js, which also
+  // reads a right-to-left row the right way round now.
   useEffect(() => {
     const onWheel = (e) => {
       if (e.deltaY === 0 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       let el = e.target;
       while (el && el !== document.body) {
         if (el.scrollWidth > el.clientWidth + 1) {
-          const overflowX = getComputedStyle(el).overflowX;
-          if (overflowX === 'auto' || overflowX === 'scroll') {
-            const atStart = el.scrollLeft <= 0;
-            const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
-            if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) break;
-            el.scrollLeft += e.deltaY;
+          const style = getComputedStyle(el);
+          if (style.overflowX === 'auto' || style.overflowX === 'scroll') {
+            const step = wheelRoute({
+              deltaX: e.deltaX,
+              deltaY: e.deltaY,
+              scrollLeft: el.scrollLeft,
+              scrollWidth: el.scrollWidth,
+              clientWidth: el.clientWidth,
+              rtl: style.direction === 'rtl',
+              hold: el.dataset.wheel === 'hold',
+            });
+            if (step.route === 'page') break;
+            if (step.route === 'row') el.scrollLeft = step.left;
             e.preventDefault();
             return;
           }
@@ -932,6 +949,7 @@ export default function App() {
           밥상 rather than starting to build it. */}
       {firstRun && (
         <FirstRun
+          member={isMember(auth)}
           onDone={() => {
             markFirstRunSeen();
             setFirstRun(false);

@@ -33,7 +33,7 @@ import { useText } from './localeText.js';
 const LOGO_MS = 2200;
 const LEAVE_MS = 320;
 
-export default function FirstRun({ onDone }) {
+export default function FirstRun({ onDone, member = false }) {
   const say = useText();
   const [step, setStep] = useState(FIRST_RUN.logo);
   const [leaving, setLeaving] = useState(false);
@@ -106,7 +106,9 @@ export default function FirstRun({ onDone }) {
 
       {step === FIRST_RUN.mbti && (
         <div className={flight('mbti')}>
-          <FoodMbti inline onClose={() => onDone?.(FIRST_RUN_EXIT.mbti)} />
+          {/* A member replaying this from 설정 is told the truth about where
+              the answers go, which is not what a first visit is told. */}
+          <FoodMbti inline member={member} onClose={() => onDone?.(FIRST_RUN_EXIT.mbti)} />
         </div>
       )}
     </div>

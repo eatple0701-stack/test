@@ -1,18 +1,22 @@
 import { emptyTaste, VERDICT } from '../domain/policy/taste.js';
+import { setStamp, announce, TASTE_STORED } from './tasteStamp.js';
 
 // Where the taste map is kept.
 //
-// This browser, and nowhere else. The deck said so on screen from the day it
-// shipped — "이 지도는 이 브라우저에만 저장돼요" over the button that offers to
-// keep it — and until this file existed that sentence was not true in the
-// direction that mattered: the map was component state, so it did not survive
-// leaving the deck, let alone closing the tab. A promise about where
-// something is stored is a lie in both directions if it is not stored at all.
+// This browser, first. The deck said so on screen from the day it shipped —
+// "이 지도는 이 브라우저에만 저장돼요" over the button that offers to keep it —
+// and until this file existed that sentence was not true in the direction
+// that mattered: the map was component state, so it did not survive leaving
+// the deck, let alone closing the tab. A promise about where something is
+// stored is a lie in both directions if it is not stored at all.
 //
-// Not on the server, and not yet under an account. Fourteen swipes before
-// anybody has said who they are is the entire point of the ordering — the ask
-// comes after the map, because the map is what makes the ask worth answering.
-// Nothing here names a person, and a signed-in traveller keeps the same rows.
+// Not on the server for a guest. Fourteen swipes before anybody has said who
+// they are is the entire point of the ordering — the ask comes after the map,
+// because the map is what makes the ask worth answering. Once somebody is a
+// member it goes onto their account as well, since 2026-09-11: every answer
+// here stamps the map and says so (data/tasteStamp.js), and
+// components/useTasteSync.js carries it from there. Nothing here names a
+// person.
 //
 // Every read and write is wrapped: Safari's private mode throws on setItem
 // rather than returning, and a quota error while saving a preference must
@@ -59,13 +63,39 @@ export function storeTaste(taste) {
   try {
     localStorage.setItem(TASTE_KEY, JSON.stringify(clean));
   } catch { /* private mode, or quota — the deck carries on either way */ }
+  setStamp('taste', { at: Date.now() });
+  announce(TASTE_STORED, { part: 'taste' });
   return clean;
 }
 
-/** Forget it, for the deck's own 다시 하기 and for anybody clearing up. */
+/**
+ * Forget it, for the deck's own 다시 하기 and for anybody clearing up.
+ *
+ * Stamped like an answer, because it is one: a cleared map with no stamp
+ * would lose to the account's copy and come straight back.
+ */
 export function clearTaste() {
   try { localStorage.removeItem(TASTE_KEY); } catch { /* nothing to do */ }
+  setStamp('taste', { at: Date.now() });
+  announce(TASTE_STORED, { part: 'taste' });
   return emptyTaste();
+}
+
+/**
+ * Take the account's copy. Written by the sync and never by an answer, so it
+ * carries the account's stamp and announces nothing — this browser now
+ * matches the account, and there is nothing to send back.
+ */
+export function adoptTaste(value, at, owner) {
+  const pass = cleanIds(value?.pass);
+  const passSet = new Set(pass);
+  const clean = { want: cleanIds(value?.want).filter(id => !passSet.has(id)), pass };
+  try {
+    if (hasTaste(clean)) localStorage.setItem(TASTE_KEY, JSON.stringify(clean));
+    else localStorage.removeItem(TASTE_KEY);
+  } catch { /* private mode */ }
+  setStamp('taste', { at: at ?? null, owner: owner ?? null });
+  return clean;
 }
 
 /**

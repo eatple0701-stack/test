@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { menus, CATEGORY_LABEL, dishPhoto } from '../domain/catalog/menus.js';
 import {
   VERDICT, swipeVerdict, buildDeck, recordVerdict,
@@ -6,6 +6,8 @@ import {
 } from '../domain/policy/taste.js';
 import FoodMbti from './FoodMbti';
 import { getStoredTaste, storeTaste, clearTaste } from '../data/taste.js';
+import { TASTE_SYNCED } from '../data/tasteStamp.js';
+import { isMember } from '../domain/policy/access.js';
 import { useText, useLocale } from './localeText.js';
 import { getStoredMbti } from '../data/foodMbti.js';
 import { mbtiType } from '../domain/policy/foodMbti.js';
@@ -99,8 +101,25 @@ export default function DishSwipe({
   // 2026-09-09 asked for: 입맛지도만 한 사람과 둘 다 한 사람.
   const [myType, setMyType] = useState(() => mbtiType(getStoredMbti()));
   const record = tasteRecordState({ mapCount: map.count, type: myType });
-  // The sign-up ask, which only a guest has a reason to see.
-  const showKeep = !auth?.user && Boolean(onOpenAuth);
+  // The sign-up ask, which only a guest has a reason to see. This read
+  // `!auth?.user` until 2026-09-11, and no auth state has a `user` — they
+  // are { kind, userId, … } — so a signed-in member was told this map lived
+  // in this browser only and offered 저장해두기, which opened the sign-up
+  // sheet for an account they already had.
+  const member = isMember(auth);
+  const showKeep = !member && Boolean(onOpenAuth);
+  // A member's answers are on their account (components/useTasteSync.js).
+  // When another device's copy arrives, the deck shows it, rather than
+  // carrying on from what it read on mount and overwriting it with the next
+  // swipe.
+  useEffect(() => {
+    const reread = () => {
+      setTaste(getStoredTaste());
+      setMyType(mbtiType(getStoredMbti()));
+    };
+    window.addEventListener(TASTE_SYNCED, reread);
+    return () => window.removeEventListener(TASTE_SYNCED, reread);
+  }, []);
   // The result rail, draggable as well as swipeable — see useDragScroll.
   const dragRail = useDragScroll();
 
@@ -434,6 +453,17 @@ export default function DishSwipe({
                     the map exists — the map IS the reason to answer. */}
                 {(showKeep || onOpenPassport) && (
                   <div className="taste-map__keep">
+                    {/* A member is told where theirs went: onto the account,
+                        since 2026-09-11 — the other half of the same
+                        sentence. */}
+                    {member && onOpenPassport && (
+                      <p className="taste-map__keep-text">
+                        {say('This map is saved to your account.', '이 지도는 계정에 저장돼요.',
+                          'Este mapa se guarda en tu cuenta.', 'Cette carte est enregistrée sur votre compte.',
+                          'هذه الخريطة محفوظة في حسابك.', '这张地图已保存到你的账号。',
+                          'この地図はアカウントに保存されます。')}
+                      </p>
+                    )}
                     {showKeep && (
                       <p className="taste-map__keep-text">
                         {say('This map lives in this browser only.', '이 지도는 이 브라우저에만 저장돼요.',
@@ -483,7 +513,7 @@ export default function DishSwipe({
     <>
       {body}
       {mbtiOpen && (
-        <FoodMbti onClose={() => { setMbtiOpen(false); setMyType(mbtiType(getStoredMbti())); }} />
+        <FoodMbti member={member} onClose={() => { setMbtiOpen(false); setMyType(mbtiType(getStoredMbti())); }} />
       )}
     </>
   );

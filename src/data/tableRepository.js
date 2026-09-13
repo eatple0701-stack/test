@@ -624,6 +624,21 @@ async function local_saveAvatar(dataUrl) {
   return dataUrl;
 }
 
+// The taste records on the device-only backend: on the account row, so a
+// keyless build walks the path the pilot does — sign out, sign back in, and
+// the map is the account's.
+async function local_readAccountTaste() {
+  const acc = readAccount();
+  if (!acc || !acc.signedIn) return null;
+  return acc.taste ?? null;
+}
+
+async function local_writeAccountTaste(record) {
+  const acc = readAccount();
+  if (!acc || !acc.signedIn) return;
+  writeAccount({ ...acc, taste: record });
+}
+
 // Membership travels through the same seam as everything else, so the parity
 // test holds both backends to the same list of capabilities.
 export const getAuthState = useRemote ? remote.getAuthState : local_getAuthState;
@@ -640,3 +655,6 @@ export const saveAvatar = useRemote ? remote.saveAvatar : local_saveAvatar;
 // The door out, as available as the door in — required of anything holding
 // a phone number, and the thing a privacy policy has to be able to point at.
 export const deleteAccount = useRemote ? remote.deleteAccount : local_deleteAccount;
+// A member's taste map and 음식 MBTI, which follow them between devices.
+export const readAccountTaste = useRemote ? remote.readAccountTaste : local_readAccountTaste;
+export const writeAccountTaste = useRemote ? remote.writeAccountTaste : local_writeAccountTaste;

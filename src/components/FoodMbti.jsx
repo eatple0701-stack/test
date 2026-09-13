@@ -18,7 +18,7 @@ import { useText, useLocale } from './localeText.js';
 // picture, and these are sentences. Two buttons, stacked, both the same size
 // — neither answer is the recommended one, and a layout that makes one look
 // like the default would be answering the question for the reader.
-export default function FoodMbti({ onClose, inline = false }) {
+export default function FoodMbti({ onClose, inline = false, member = false }) {
   const say = useText();
   const locale = useLocale();
   const [answers, setAnswers] = useState(getStoredMbti);
@@ -109,14 +109,26 @@ export default function FoodMbti({ onClose, inline = false }) {
               ))}
             </ul>
 
+            {/* Where the answers are, as it is for the person reading: on
+                the account for a member since 2026-09-11 (see
+                domain/policy/tasteSync.js), and in this browser for a guest,
+                with the one thing that would change that. */}
             <p className="mbti__where">
-              {say('Kept in this browser only — another phone starts over.',
-                '이 브라우저에만 저장됩니다. 다른 기기에서는 처음부터 다시 답하게 됩니다.',
-                'Se guarda solo en este navegador: en otro teléfono empieza de cero.',
-                'Conservé dans ce navigateur seulement : sur un autre téléphone, tout recommence.',
-                'يُحفظ في هذا المتصفّح وحده: على هاتف آخر يبدأ من جديد.',
-                '只存在这个浏览器里——换一部手机就要重新答。',
-                'このブラウザにだけ保存されます。別の端末では最初から答えることになります。')}
+              {member
+                ? say('Saved to your account — sign in on another device and it is there.',
+                  '계정에 저장돼요. 다른 기기에서 로그인해도 그대로 보여요.',
+                  'Guardado en tu cuenta: entra desde otro dispositivo y ahí estará.',
+                  'Enregistré sur votre compte : connectez-vous sur un autre appareil, il y sera.',
+                  'محفوظ في حسابك: سجّل الدخول من جهاز آخر وستجده هناك.',
+                  '已保存到你的账号——在别的设备上登录也能看到。',
+                  'アカウントに保存されます。別の端末でログインしても、そのまま見られます。')
+                : say('Only in this browser for now — sign in and it is kept on your account, on every device.',
+                  '지금은 이 브라우저에만 있어요. 로그인하면 계정에 저장돼서 다른 기기에서도 볼 수 있어요.',
+                  'Por ahora solo en este navegador: inicia sesión y se guardará en tu cuenta, en todos tus dispositivos.',
+                  'Pour l’instant dans ce navigateur seulement : connectez-vous et il sera gardé sur votre compte, sur tous vos appareils.',
+                  'محفوظ في هذا المتصفّح وحده الآن: سجّل الدخول ليُحفَظ في حسابك على كل أجهزتك.',
+                  '目前只存在这个浏览器里——登录后会保存到你的账号，换设备也能看。',
+                  'いまはこのブラウザにだけ保存されています。ログインするとアカウントに保存され、どの端末でも見られます。')}
             </p>
 
             <div className="mbti__foot">

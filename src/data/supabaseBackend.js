@@ -1011,3 +1011,54 @@ export async function saveAvatar(dataUrl) {
   if (profErr) throw new Error(friendlyError(profErr));
   return url;
 }
+
+/**
+ * The account's copy of the two taste records — the map and the 음식 MBTI —
+ * or null for a guest, whose answers stay in the browser.
+ *
+ * Kept in the account's own metadata rather than a table. It is readable by
+ * the person it belongs to and by the team's dashboard, and by nobody else:
+ * profiles is broadly readable on purpose, which rules that out, and a table
+ * of its own would have been a schema change — reviewed, applied by hand,
+ * SQL first — for two small values a member only ever reads back on their
+ * own devices. See domain/policy/tasteSync.js.
+ *
+ * getUser rather than the session's copy of the user: the session holds the
+ * user as they were at sign-in, and the point is what another device has
+ * written since.
+ */
+export async function readAccountTaste() {
+  const sb = await client();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user || session.user.is_anonymous) return null;
+  const { data, error } = await sb.auth.getUser();
+  if (error) throw authFailure(error);
+  return data.user?.user_metadata?.eatple_taste ?? null;
+}
+
+/**
+ * Send both taste records up.
+ *
+ * A PUT to /auth/v1/user by hand rather than supabase-js's updateUser,
+ * because updateUser announces USER_UPDATED and App.jsx answers that event
+ * by re-reading who is signed in — the session, member_details and
+ * profiles — so every pause in swiping would have cost three more requests.
+ * getSession first, which refreshes the token if it has run out. Only this
+ * one key is sent: the server merges `data` into what is there, so the name
+ * and picture Google put on the account are left alone.
+ */
+export async function writeAccountTaste(record) {
+  const sb = await client();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user || session.user.is_anonymous) return;
+  const res = await fetch(`${URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ data: { eatple_taste: record } }),
+  });
+  if (!res.ok) throw new Error(`The taste map did not reach the account (${res.status}).`);
+}

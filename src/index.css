@@ -5082,12 +5082,22 @@ button {
 /* ---------- Passport: the record ---------- */
 
 /* A day of the trip, read back. The date leads, the things done sit under
-   it as a list of ticks — closer to a diary page than a feed of cards. */
+   it as a list of ticks — closer to a diary page than a feed of cards.
+
+   A page, since 2026-09-11: each day on a card of its own. The list ran
+   hairline to hairline across the whole section, dates and ticks and names
+   in one grey, and nothing said where one day stopped — "경계가 없어서
+   너무 번잡해보여 박스를 덧대서 개선하든가 해봐". */
 .record {
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  padding: 0 20px;
+  gap: 12px;
+}
+.record-day {
+  padding: 14px 16px 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
 }
 .record-day__date {
   font-size: 12px;
@@ -13398,3 +13408,64 @@ html:not([data-locale="en"]):not([data-locale="es"]):not([data-locale="fr"]):not
 .main-deck__tab { transition: transform 120ms ease, background 150ms ease, color 150ms ease, border-color 150ms ease; }
 .main-deck__tab:active { transform: scale(0.95); }
 .map-overlay__fold:active { background: var(--fill, rgba(16, 24, 40, 0.05)); }
+
+/* ---------- One gutter, on 밥상 and 여권 ----------
+   2026-09-11: "양옆에 너비를 다 맞춰야지 왜 서로 달라? 이거는 여권항목뿐만
+   아니라 밥상항목에서도 마찬가지야".
+
+   Measured before this block, in the 720px column of a 1280px window. 밥상
+   began its blocks at four distances from the column's edge: the head's
+   card at 0, the map and the week at 22, the dish picker, the how-to and the
+   promises at 16, and the table cards and the ask at 20 — with the taste map
+   a 520px column centred inside all of them. 여권 had three: the head and the
+   member card at 16, the tools and every section at 36, and the record, the
+   counters and the goals 20 further in again, at 56. A 375px phone had the
+   same numbers.
+
+   Every block on both screens now starts and ends 20px in from the column —
+   the gutter the table cards, the deck and the ask already used, so the
+   fewest things moved. A card keeps its own padding inside; what lines up is
+   where the blocks begin and end. */
+.tables-tab,
+.journal-panel { --gutter: 20px; }
+
+/* 여권: the panel gives the gutter, and nothing inside it adds to it. */
+.journal-panel { padding-inline: var(--gutter); }
+.journal-panel .journal-section { padding-inline: 0; }
+.journal-panel .journal-tool { width: 100%; margin-inline: 0; }
+.journal-panel .journal-empty,
+.journal-panel > .journal-empty,
+.journal-panel > .member-gate { margin-inline: 0; }
+.journal-panel .companion-list,
+.journal-panel .goal-list,
+.journal-panel .upcoming-list { padding-inline: 0; }
+.journal-panel .journal-settings__hint { margin-inline: 0; }
+/* The counters take their margin from .passport-summary, which is the
+   other screen they are drawn on. */
+.journal-panel .passport-stats,
+.journal-panel .passport-progress { margin-inline: 0; }
+
+/* 밥상: the tab has no padding of its own, so each block takes the gutter as
+   its margin — the head included, which was the one block drawn edge to edge
+   and is a card like the others now. */
+.tables-tab .screen-head--dark {
+  margin: 16px var(--gutter) 0;
+  border-radius: var(--radius-lg);
+}
+.tables-tab .week-strip { padding-inline: var(--gutter); }
+.tables-tab .week-strip__label { margin-inline: var(--gutter); }
+.tables-tab .tables-map-preview {
+  width: calc(100% - 2 * var(--gutter));
+  margin-inline: var(--gutter);
+}
+.tables-tab .dish-search,
+.tables-tab .dish-found,
+.tables-tab .dish-picker__groups,
+.tables-tab .dish-picker__results,
+.tables-tab .dish-picker__clear,
+.tables-tab .how-strip,
+.tables-tab .promises,
+.tables-tab .waiting-strip { margin-inline: var(--gutter); }
+/* 내 입맛 지도에서's empty card takes the same gutter in custom.css, which is
+   where that class is written — index.css naming it here is what
+   cssCollision.test.mjs is for. */
