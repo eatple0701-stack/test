@@ -1213,6 +1213,15 @@ button {
   color: var(--muted);
   flex-basis: 100%;
 }
+/* The cut-off has passed and the two buttons are still there. Not a refusal
+   like __why above it — a note about what saying yes now costs, so it reads
+   in the colour this app uses for "read this" rather than for "you cannot". */
+.decide-row__late {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--accent-ink);
+  flex-basis: 100%;
+}
 .join-waiting {
   font-size: 14px;
   font-weight: 600;

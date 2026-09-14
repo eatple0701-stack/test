@@ -1072,7 +1072,16 @@ export default function TableDetail({ tableId, profile, onProfileChange, onAgree
                   </button>
                 </span>
               )}
-              {isHost && !isCancelled(table) && isPending(s) && !hasLapsed(s, table) && (
+              {/* Late requests can still be answered, from 2026-09-14 — "아니
+                  수락하게 바꿔". The twelve-hour cut-off frees the seat and
+                  stops the guest waiting; it was also hiding these two
+                  buttons, so a host who opened the app the next morning found
+                  a request they could read and not answer, with nothing on
+                  screen saying why. Neither the database nor acceptBlocker
+                  ever refused a late decision: only this line did. The seat
+                  arithmetic is unchanged — a lapsed request holds nothing
+                  until it is accepted, and accepting it still has to fit. */}
+              {isHost && !isCancelled(table) && isPending(s) && (
                 <span className="decide-row">
                   <button
                     className="decide-row__yes"
@@ -1088,6 +1097,21 @@ export default function TableDetail({ tableId, profile, onProfileChange, onAgree
                   >
                     {say('Not this time', '이번엔 아니요', 'Esta vez no', 'Pas cette fois', 'ليس هذه المرة', '这次不了', '今回は見送る')}
                   </button>
+                  {/* What accepting late means, on the row where it is being
+                      decided. The guest was already told the seat was free
+                      again and to make other plans, so a yes at this point is
+                      a message somebody has to send. */}
+                  {hasLapsed(s, table) && (
+                    <span className="decide-row__late">
+                      {say('Past the cut-off — the seat was freed, so tell them yourself if you say yes.',
+                        '기한이 지난 요청이에요. 자리는 이미 풀렸으니, 수락하면 손님에게 직접 알려주세요.',
+                        'Fuera de plazo: el sitio ya se liberó, así que avísale tú si aceptas.',
+                        'Hors délai : la place a été libérée, prévenez-le vous-même si vous acceptez.',
+                        'فات الموعد — أُفرج عن المقعد، فأخبره بنفسك إن قبلت الآن.',
+                        '已过期限——位子已经放开了，如果现在接受，请自己告诉对方。',
+                        '期限を過ぎています。席はいったん解放されたので、いま受けるなら本人に直接伝えてください。')}
+                    </span>
+                  )}
                   {/* Says why the accept is unavailable rather than leaving a
                       dead button — almost always "no seat left", which a host
                       reaches by accepting others first. */}
