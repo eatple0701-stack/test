@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CopyIcon, CheckIcon, TrainIcon } from './Icons';
 import { useText } from './localeText.js';
-import { isRegistryPlace } from '../data/seoulRegistry.js';
+import { isRegistryPlace } from '../data/registry.js';
 
 // The block you hold up to a taxi driver.
 //

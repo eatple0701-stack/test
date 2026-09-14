@@ -113,7 +113,7 @@ Three different failure shapes, all real, all worth knowing apart:
   out.
 
 ```bash
-npm test          # 1122 tests, node's built-in runner, no test-framework dependency
+npm test          # 1135 tests, node's built-in runner, no test-framework dependency
 npm run lint       # oxlint
 npm run build
 npm run audit-i18n # every user-visible string that is not wired to the language setting
@@ -207,7 +207,7 @@ field, mechanically. Rendered through the curated component, 치보치마 printe
 "The best items sell out before noon", "One drink buys the seat", a mission
 about what came out of the oven this morning, and a walking route to
 Gwangjang Market. Every line invented for that address by a category lookup,
-and every line reading as though somebody had checked. `seoulRegistry.test.mjs`
+and every line reading as though somebody had checked. `registry.test.mjs`
 asserts the guard sits above the first `getCulture` call.
 
 **Every fact is `reported`, never `confirmed`.** `confirmed` is what the
@@ -222,11 +222,13 @@ The list pages 40 at a time — a district alone holds 16,547 cards, and
 ### The map has two layers, and the difference is the product
 
 Twenty places in `src/data/restaurants.js` have a story somebody wrote, an
-address somebody checked and a provenance record naming who checked it. Under them sits `public/data/seoul/` — all 167,659 rows of 서울관광재단's
-food-tourism register (data.go.kr 15097605), split into 26 files by 구
-because as one file it is 24.4MB. The app fetches the four districts nearest
-wherever the map is looking, so a person in Insadong downloads 종로구 and its
-neighbours and nothing else. Nothing is filtered out at build time.
+address somebody checked and a provenance record naming who checked it. Under
+them sit `public/data/seoul/` and `public/data/incheon/` — the 10,972 rows of
+서울관광재단's (data.go.kr 15097605) and 인천관광공사's (15109871 · 15109874 ·
+15109889) food registers that actually serve one of the twenty-four shared
+dishes, split into one file per 구 because unfiltered they are 24.4MB. A
+district carries the city it is in: both cities have a 중구, and both
+registers have a restaurant 22482.
 
 Four rules keep the second from eating the first, and they live in
 `src/data/nearbyPlaces.js` and `nearbyPlaces.test.mjs`:

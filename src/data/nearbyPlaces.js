@@ -1,12 +1,19 @@
 import { matchesRegistryRow } from '../domain/policy/placeSearch.js';
+import { REGISTRY_CITIES, registryIdOf } from '../domain/policy/registryCity.js';
 
-// The register, filtered to the dishes this app exists for.
+// The registers, filtered to the dishes this app exists for.
 //
 // 서울관광재단's food-tourism database (data.go.kr 15097605) holds 167,659
 // restaurants. 8,118 of them serve one of the twenty-four dishes a person
 // would rather not eat alone — see src/domain/catalog/dishGroups.js — and those are
 // the ones built into public/data/seoul/ by scripts/build-seoul-places.mjs:
 // one file per 구, plus a small index naming each district's box and count.
+//
+// 인천관광공사's 맛집 datasets (15109871 · 15109874 · 15109889) joined them on
+// 2026-09-14: 2,854 of 34,177, built into public/data/incheon/ the same way by
+// scripts/build-incheon-places.mjs. Both cities load through this file, and a
+// district carries the city it is in — Seoul and Incheon each have a 중구, and
+// one Jung-gu.json would otherwise have been served for the other.
 //
 // ── Why the whole city now loads at once ─────────────────────────────────
 //
@@ -25,48 +32,74 @@ import { matchesRegistryRow } from '../domain/policy/placeSearch.js';
 //
 // Every place in src/data/restaurants.js has a story somebody wrote and an
 // address somebody checked against two map services on a named date. These
-// have neither, and src/data/seoulRegistry.js is where that difference is
+// have neither, and src/data/registry.js is where that difference is
 // made structural rather than remembered.
 
 /**
- * How many register places the map holds, across all 25 districts.
+ * How many register places the map holds, across both cities.
  *
  * Written here rather than counted at render time because the screen that
  * needs it — the Places header, saying what the eighteen curated places are
  * eighteen *of* — draws before any district has been fetched, and a heading
- * that starts at 0 and jumps to 8,118 is worse than one that is simply
- * right. It is the sum of `count` over public/data/seoul/index.json, and
+ * that starts at 0 and jumps to 10,972 is worse than one that is simply
+ * right. It is the sum of `count` over each city's index.json, and
  * registryTotal.test.mjs fails if the two ever drift, so this is a cache of
  * the data rather than a second claim about it.
  */
-export const REGISTRY_TOTAL = 8118;
+export const REGISTRY_TOTAL = 10972;
 
-/** The index: districts, their boxes, their counts. Tiny, fetched once. */
-let indexPromise = null;
+/** city -> Promise of that city's index. Two tiny files, fetched once each. */
+const indexes = new Map();
 
-/** slug -> Promise of that district's rows. One fetch per district, ever. */
+/**
+ * `city/slug` -> Promise of that district's rows. One fetch per district,
+ * ever — keyed by the city as well as the slug, because both registers have
+ * a 중구 and one Jung-gu.json would have been served for the other.
+ */
 const districts = new Map();
 
 /** Everything loaded so far, flat. Rebuilt when a district arrives. */
 let merged = [];
 let mergedFrom = new Set();
 
-export function loadIndex() {
-  if (!indexPromise) {
-    indexPromise = fetch('/data/seoul/index.json')
-      .then(r => (r.ok ? r.json() : null))
-      .catch(() => null);
-  }
-  return indexPromise;
-}
-
-function loadDistrict(slug) {
-  if (!districts.has(slug)) {
-    districts.set(slug, fetch(`/data/seoul/${slug}.json`)
+function loadCityIndex(city) {
+  if (!indexes.has(city)) {
+    indexes.set(city, fetch(`/data/${city}/index.json`)
       .then(r => (r.ok ? r.json() : null))
       .catch(() => null));
   }
-  return districts.get(slug);
+  return indexes.get(city);
+}
+
+/**
+ * Both registers as one index, each district carrying the city it is in.
+ *
+ * A city whose files are missing is left out rather than failing the load: a
+ * map with one register on it is this app working, and a build that has not
+ * been run is not an error a reader can do anything about.
+ */
+export async function loadIndex() {
+  const loaded = await Promise.all(REGISTRY_CITIES.map(loadCityIndex));
+  const cities = REGISTRY_CITIES
+    .map((city, i) => ({ city, ...(loaded[i] ?? {}) }))
+    .filter(c => Array.isArray(c.districts));
+  if (cities.length === 0) return null;
+  return {
+    cities,
+    builtAt: cities[0].builtAt ?? null,
+    source: cities.map(c => c.source).filter(Boolean).join(' · '),
+    districts: cities.flatMap(c => c.districts.map(d => ({ ...d, city: c.city }))),
+  };
+}
+
+function loadDistrict(city, slug) {
+  const key = `${city}/${slug}`;
+  if (!districts.has(key)) {
+    districts.set(key, fetch(`/data/${city}/${slug}.json`)
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null));
+  }
+  return districts.get(key);
 }
 
 /** Kilometres between two points, good enough for choosing which file to fetch. */
@@ -109,17 +142,19 @@ export async function loadNearbyPlaces(center = null) {
       .map(d => ({ d, km: boxDistanceKm(d.box, center[0], center[1]) }))
       .sort((a, b) => a.km - b.km)
       .slice(0, NEAR_DISTRICTS)
-      .map(x => x.d.slug)
+      .map(x => x.d)
     // With no position to work from, the districts a visitor is most likely
-    // to be standing in. Not the biggest ones — the central ones.
-    : ['Jongno', 'Jung-gu', 'Yongsan', 'Mapo'];
+    // to be standing in. Not the biggest ones — the central ones, and the
+    // app opens on Seoul.
+    : index.districts.filter(d => DEFAULT_DISTRICTS.has(`${d.city}/${d.slug}`));
 
-  const loaded = await Promise.all(wanted.map(loadDistrict));
+  const loaded = await Promise.all(wanted.map(d => loadDistrict(d.city, d.slug)));
 
   let changed = false;
   for (let i = 0; i < wanted.length; i += 1) {
-    if (loaded[i]?.rows && !mergedFrom.has(wanted[i])) {
-      mergedFrom.add(wanted[i]);
+    const key = `${wanted[i].city}/${wanted[i].slug}`;
+    if (loaded[i]?.rows && !mergedFrom.has(key)) {
+      mergedFrom.add(key);
       merged = merged.concat(loaded[i].rows);
       changed = true;
     }
@@ -129,15 +164,23 @@ export async function loadNearbyPlaces(center = null) {
   return { rows: merged, builtAt: index.builtAt, source: index.source, index };
 }
 
-/** All of Seoul: twenty-five files, a quarter of a megabyte compressed. */
+const DEFAULT_DISTRICTS = new Set(['seoul/Jongno', 'seoul/Jung-gu', 'seoul/Yongsan', 'seoul/Mapo']);
+
+/**
+ * Both registers: thirty-five files, under half a megabyte compressed.
+ *
+ * Seoul's twenty-five and Incheon's ten, in one list. A district that fails
+ * to arrive is skipped rather than throwing — see loadIndex.
+ */
 export async function loadAllPlaces() {
   const index = await loadIndex();
   if (!index?.districts) return { rows: [], builtAt: null };
-  const all = await Promise.all(index.districts.map(d => loadDistrict(d.slug)));
+  const all = await Promise.all(index.districts.map(d => loadDistrict(d.city, d.slug)));
   for (let i = 0; i < index.districts.length; i += 1) {
-    const slug = index.districts[i].slug;
-    if (all[i]?.rows && !mergedFrom.has(slug)) {
-      mergedFrom.add(slug);
+    const d = index.districts[i];
+    const key = `${d.city}/${d.slug}`;
+    if (all[i]?.rows && !mergedFrom.has(key)) {
+      mergedFrom.add(key);
       merged = merged.concat(all[i].rows);
     }
   }
@@ -273,7 +316,9 @@ export function placesMatching(layer, query, limit = VIEW_LIMIT) {
  * Naver and Kakao link builders read `.name`.
  */
 export const asPlace = (p) => ({
-  id: `seoul-${p.i}`,
+  // The city comes from the row's own address: the two registers number
+  // their restaurants separately, and 22482 is a real place in both.
+  id: registryIdOf(p) ?? `seoul-${p.i}`,
   name: p.n,
   coordinates: { lat: p.y, lng: p.x },
 });

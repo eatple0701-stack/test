@@ -29,7 +29,7 @@
 //
 // Output: an `e` key on every district row that resolved. Rows that did not
 // keep no `e` at all — an absent field is "we do not have this", which is
-// what src/data/seoulRegistry.js already reads every other absent field as.
+// what src/data/registry.js already reads every other absent field as.
 //
 //   node scripts/add-english-names.mjs
 //   node scripts/add-english-names.mjs --dry

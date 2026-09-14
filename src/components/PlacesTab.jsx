@@ -163,13 +163,13 @@ export default function PlacesTab({
             `${activePlaces.length} sitios que visitamos y describimos, y ${traditionalMarkets.length} mercados.`, `${activePlaces.length} adresses où nous sommes allés et que nous avons décrites, et ${traditionalMarkets.length} marchés.`, `${activePlaces.length} أماكن زرناها وكتبنا عنها، و${traditionalMarkets.length} أسواق.`, `我们亲自去过并写下来的 ${activePlaces.length} 处，以及 ${traditionalMarkets.length} 个市场。`, `実際に行って書いた${activePlaces.length}か所と、市場${traditionalMarkets.length}か所。`)}
         </p>
         <p className="screen-head__note">
-          {say(`${REGISTRY_TOTAL.toLocaleString('en-US')} more are on the map — restaurants from Seoul's public register that serve one of the shared dishes. Nobody here has been to those.`,
-            `지도에는 ${REGISTRY_TOTAL.toLocaleString('ko-KR')}곳이 더 있습니다. 함께 먹는 음식을 파는, 서울시 공공 등록부의 식당들이고, 저희가 가본 곳은 아닙니다.`,
-            `Hay ${REGISTRY_TOTAL.toLocaleString('es-ES')} más en el mapa: restaurantes del registro público de Seúl que sirven uno de los platos para compartir. A esos no hemos ido.`,
-            `Il y en a ${REGISTRY_TOTAL.toLocaleString('fr-FR')} de plus sur la carte : des restaurants du registre public de Séoul qui servent un des plats à partager. Nous n'y sommes pas allés.`,
-            `وعلى الخريطة ${REGISTRY_TOTAL.toLocaleString('en-US')} مطعمًا آخر من السجل العام لمدينة سول تقدّم أحد أطباق المشاركة. تلك لم نزرها.`,
-            `地图上还有 ${REGISTRY_TOTAL.toLocaleString('en-US')} 家：来自首尔市公开登记册、供应这些需要分享的菜的餐厅。那些我们没有去过。`,
-            `地図にはあと${REGISTRY_TOTAL.toLocaleString('ja-JP')}軒あります。ソウル市の公開登録簿にある、分け合う料理を出す店です。そちらには行っていません。`)}
+          {say(`${REGISTRY_TOTAL.toLocaleString('en-US')} more are on the map — restaurants from the public registers of Seoul and Incheon that serve one of the shared dishes. Nobody here has been to those.`,
+            `지도에는 ${REGISTRY_TOTAL.toLocaleString('ko-KR')}곳이 더 있습니다. 함께 먹는 음식을 파는, 서울·인천 공공 등록부의 식당들이고, 저희가 가본 곳은 아닙니다.`,
+            `Hay ${REGISTRY_TOTAL.toLocaleString('es-ES')} más en el mapa: restaurantes de los registros públicos de Seúl e Incheon que sirven uno de los platos para compartir. A esos no hemos ido.`,
+            `Il y en a ${REGISTRY_TOTAL.toLocaleString('fr-FR')} de plus sur la carte : des restaurants des registres publics de Séoul et d'Incheon qui servent un des plats à partager. Nous n'y sommes pas allés.`,
+            `وعلى الخريطة ${REGISTRY_TOTAL.toLocaleString('en-US')} مطعمًا آخر من السجلّين العامّين لمدينتَي سول وإنتشون تقدّم أحد أطباق المشاركة. تلك لم نزرها.`,
+            `地图上还有 ${REGISTRY_TOTAL.toLocaleString('en-US')} 家：来自首尔和仁川公开登记册、供应这些需要分享的菜的餐厅。那些我们没有去过。`,
+            `地図にはあと${REGISTRY_TOTAL.toLocaleString('ja-JP')}軒あります。ソウルと仁川の公開登録簿にある、分け合う料理を出す店です。そちらには行っていません。`)}
         </p>
       </header>
 

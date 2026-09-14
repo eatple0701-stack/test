@@ -28,13 +28,37 @@
 
 import { loadAllPlaces } from './nearbyPlaces.js';
 import { groupsOf } from '../domain/catalog/dishGroups.js';
+import {
+  CITY_ZONE_NAME, cityOfAddress, isRegistryId, registryIdOf,
+} from '../domain/policy/registryCity.js';
 
-/** Every fact from the register shares one provenance record. */
-const reported = (value, extra = {}) => ({
+// Re-exported because this file is the door every screen already comes
+// through for "is this one of the register's?".
+export { isRegistryId, registryIdOf } from '../domain/policy/registryCity.js';
+
+/**
+ * Who published the register a row came from.
+ *
+ * Two of them since 2026-09-14, and a place shows its own — a line reading
+ * 서울관광재단 under an address in 인천 would be the kind of small wrong fact
+ * this file exists to prevent.
+ */
+const PUBLISHER = {
+  seoul: {
+    source: '서울관광재단 음식관광 데이터베이스 (data.go.kr 15097605)',
+    url: 'https://www.data.go.kr/data/15097605/openapi.do',
+  },
+  incheon: {
+    source: '인천관광공사 맛집 데이터 (data.go.kr 15109871 · 15109874 · 15109889)',
+    url: 'https://www.data.go.kr/data/15109871/fileData.do',
+  },
+};
+
+/** Every fact from a register shares one provenance record. */
+const reportedBy = (city) => (value, extra = {}) => ({
   value,
   confidence: 'reported',
-  source: '서울관광재단 음식관광 데이터베이스 (data.go.kr 15097605)',
-  url: 'https://www.data.go.kr/data/15097605/openapi.do',
+  ...(PUBLISHER[city] ?? PUBLISHER.seoul),
   method: 'Public dataset import',
   lastCheckedAt: null,
   ...extra,
@@ -44,9 +68,18 @@ const reported = (value, extra = {}) => ({
  * The district, in the shape `zone` already uses.
  *
  * The register writes "서울특별시 종로구 인사동길 30-21"; the app's zones read
- * "Insadong, Seoul". A district is as fine as this can honestly go — the
- * register does not record a neighbourhood, and inventing one from a road
- * name would be a guess dressed as a fact.
+ * "Insadong, Seoul". A district is as fine as this can honestly go — neither
+ * register records a neighbourhood, and inventing one from a road name would
+ * be a guess dressed as a fact.
+ *
+ * Both cities in one table since 2026-09-14. The only name they share is
+ * 중구, and it is Jung-gu in both; what tells those two apart is the city the
+ * zone ends with, which is read from the address.
+ *
+ * 서구 here is Incheon's. 인천 renamed that district 서해구 and split off
+ * 검단구 on 2026-07-01, after this 2022 export was published — and a register
+ * place says what its register says, which is the same rule that keeps the
+ * register's own 소개문 off these pages.
  */
 export const DISTRICT_EN = {
   종로구: 'Jongno', 중구: 'Jung-gu', 용산구: 'Yongsan', 성동구: 'Seongdong', 광진구: 'Gwangjin',
@@ -54,12 +87,15 @@ export const DISTRICT_EN = {
   노원구: 'Nowon', 은평구: 'Eunpyeong', 서대문구: 'Seodaemun', 마포구: 'Mapo', 양천구: 'Yangcheon',
   강서구: 'Gangseo', 구로구: 'Guro', 금천구: 'Geumcheon', 영등포구: 'Yeongdeungpo', 동작구: 'Dongjak',
   관악구: 'Gwanak', 서초구: 'Seocho', 강남구: 'Gangnam', 송파구: 'Songpa', 강동구: 'Gangdong',
+  동구: 'Dong-gu', 미추홀구: 'Michuhol', 연수구: 'Yeonsu', 남동구: 'Namdong', 부평구: 'Bupyeong',
+  계양구: 'Gyeyang', 서구: 'Seo-gu', 강화군: 'Ganghwa', 옹진군: 'Ongjin',
 };
 
 const zoneOf = (address) => {
-  const m = /(\S+?구)/.exec(String(address ?? '').replace('서울특별시', ''));
+  const city = CITY_ZONE_NAME[cityOfAddress(address) ?? 'seoul'];
+  const m = /(\S+?[구군])/.exec(String(address ?? '').replace(/^(서울특별시|인천광역시)/, ''));
   const en = m ? DISTRICT_EN[m[1]] : null;
-  return en ? `${en}, Seoul` : 'Seoul';
+  return en ? `${en}, ${city}` : city;
 };
 
 /**
@@ -73,16 +109,32 @@ const zoneOf = (address) => {
 const CATEGORY = {
   한식: 'local-seasonal',
   중국식: 'korean-chinese',
+  // 인천's word for the same thing. Seoul writes 중국식, Incheon writes 중식,
+  // and a register place in 차이나타운 filed as 'local-seasonal' because of a
+  // one-character difference would be this app losing a fact it was given.
+  중식: 'korean-chinese',
   일식: 'local-seasonal',
   경양식: 'brunch-bakery',
+  양식: 'local-seasonal',
   커피숍: 'brunch-bakery',
+  카페: 'brunch-bakery',
+  베이커리: 'brunch-bakery',
   제과점영업: 'brunch-bakery',
   분식: 'local-seasonal',
 };
 
+/**
+ * The category, from whatever the register wrote in 업태.
+ *
+ * Incheon writes more than one on a row — "중식,한식", "베이커리,카페" — and
+ * the first is the one the licence leads with. Anything unmapped lands on
+ * local-seasonal, which promises nothing in particular, exactly as an
+ * unmapped 업태 always has.
+ */
+const categoryOf = (kind) => CATEGORY[String(kind ?? '').split(',')[0].trim()] ?? 'local-seasonal';
+
 /** The prefix is what keeps a register row from ever being taken for one of the twenty. */
-export const REGISTRY_PREFIX = 'seoul-';
-export const isRegistryPlace = (place) => String(place?.id ?? '').startsWith(REGISTRY_PREFIX);
+export const isRegistryPlace = (place) => isRegistryId(place?.id);
 
 /**
  * The sign, in the language of whoever is reading.
@@ -134,8 +186,9 @@ export const displayName = (place, locale = 'both') => {
  */
 export function placeFromRegistry(row, builtAt = null) {
   const address = row.a ?? '';
+  const reported = reportedBy(cityOfAddress(address) ?? 'seoul');
   return {
-    id: `${REGISTRY_PREFIX}${row.i}`,
+    id: registryIdOf(row) ?? `seoul-${row.i}`,
     name: row.n,
     /**
      * The register's own English name where it has one, carried alongside
@@ -146,7 +199,7 @@ export function placeFromRegistry(row, builtAt = null) {
      */
     nameEn: row.e ?? null,
     zone: zoneOf(address),
-    category: CATEGORY[row.c] ?? 'local-seasonal',
+    category: categoryOf(row.c),
     // Null rather than a record holding undefined. 2,953 rows have no
     // usable position — either the register never geocoded them, or it
     // geocoded them to a point outside Seoul, which the build script

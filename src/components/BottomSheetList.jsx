@@ -3,7 +3,7 @@ import PlaceImage from './PlaceImage';
 import { HeartIcon, CompassIcon } from './Icons';
 import { haversineKm, formatDistance, getOpenStatus, directionsUrl, coordsOf, groupDigits } from '../utils';
 import { dietaryBadges } from '../data/verification';
-import { isRegistryPlace, displayName } from '../data/seoulRegistry.js';
+import { isRegistryPlace, displayName } from '../data/registry.js';
 import { groupsOf } from '../domain/catalog/dishGroups.js';
 import { useText, useLocale } from './localeText.js';
 

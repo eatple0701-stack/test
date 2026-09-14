@@ -187,7 +187,23 @@ and is not done yet.
 
 ## Sharp edges (details in docs/HANDOVER.md §3)
 - CSV 식당(ID) and API RSTR_ID are **unrelated id spaces** — join by
-  normalised name+구 only, drop ambiguous.
+  normalised name+구 only, drop ambiguous. That is Seoul. 인천's three files
+  are one publisher's export of one database, so there the join is the id.
+- **Two registers now, and their numbers collide.** 서울관광재단's 8,118 and
+  인천관광공사's 2,854 sit in one list, and 22482 is a real, different
+  restaurant in each — so an id carries its city (`seoul-` / `incheon-`),
+  read from the row's own address rather than stored a second time. Both
+  cities have a 중구; district files are keyed by city and slug together.
+- 인천's OPEN API (incheon.openapi.redtable.global, the same vendor as
+  Seoul's) answers `DB_ERROR` on every endpoint for a registered key —
+  2026-09-14, and an invented key gets `SERVICE_KEY_IS_NOT_REGISTERED` from
+  the same call, so it is their service and not the key. The build reads the
+  file downloads instead; `인천관광공사*/` is gitignored like `서울관광재단*/`.
+- 인천 writes 중식 where 서울 writes 중국식, puts more than one 업태 on a row
+  ("베이커리,카페" — the first is the licence's), and writes "데이터 미집계"
+  where it has nothing. Its addresses still say 서구, which 인천 renamed
+  서해구 (and split 검단구 off) on 2026-07-01: a register place says what its
+  register says.
 - The register API 429s: one fetch job at a time, backoff is built in.
 - The register photo CDN needs `referrerPolicy="no-referrer"`.
 - i18n is two systems: `say(en, ko, es, fr, ar, zh, ja)` for content,

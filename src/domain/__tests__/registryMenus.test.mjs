@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { menuName, menuPrice, formatWon } from '../../data/seoulMenus.js';
+import { menuName, menuPrice, formatWon } from '../../data/registryMenus.js';
 
 // The register's menus, shipped next to the register's restaurants. The
 // join between the two files was made by name because the id spaces of the

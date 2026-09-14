@@ -10,20 +10,22 @@
 // An item is [ko, en, ja, zh], empty string where the register has no
 // translation. The screen falls back rather than showing a blank.
 
-import { DISTRICT_EN } from './seoulRegistry.js';
+import { DISTRICT_EN } from './registry.js';
+import { cityOfAddress, cityOfId, registryNumberOf } from '../domain/policy/registryCity.js';
 
-const DISTRICT = /서울특별시\s+(\S+구)/;
+const DISTRICT = /(?:서울특별시|인천광역시)\s+(\S+?[구군])/;
 
-/** slug -> Promise of that district's menu file. One fetch each, ever. */
+/** `city/slug` -> Promise of that district's menu file. One fetch each, ever. */
 const cache = new Map();
 
-function districtFile(slug) {
-  if (!cache.has(slug)) {
-    cache.set(slug, fetch(`/data/seoul/menus/${slug}.json`)
+function districtFile(city, slug) {
+  const key = `${city}/${slug}`;
+  if (!cache.has(key)) {
+    cache.set(key, fetch(`/data/${city}/menus/${slug}.json`)
       .then(r => (r.ok ? r.json() : null))
       .catch(() => null));
   }
-  return cache.get(slug);
+  return cache.get(key);
 }
 
 /**
@@ -35,13 +37,13 @@ function districtFile(slug) {
  * restaurant.
  */
 export async function menusFor(place) {
-  const gu = DISTRICT.exec(place?.address?.value ?? '')?.[1];
+  const address = place?.address?.value ?? '';
+  const gu = DISTRICT.exec(address)?.[1];
   const slug = gu ? DISTRICT_EN[gu] : null;
-  const id = String(place?.id ?? '').startsWith('seoul-')
-    ? String(place.id).slice('seoul-'.length)
-    : null;
-  if (!slug || !id) return null;
-  const file = await districtFile(slug);
+  const city = cityOfId(place?.id) ?? cityOfAddress(address);
+  const id = registryNumberOf(place?.id);
+  if (!slug || !city || !id) return null;
+  const file = await districtFile(city, slug);
   return file?.m?.[id] ?? null;
 }
 

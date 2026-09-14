@@ -14,7 +14,7 @@ import {
 } from './Icons';
 import CulturalRoute from './CulturalRoute';
 import { getCulture } from '../data/culture';
-import { isRegistryPlace } from '../data/seoulRegistry.js';
+import { isRegistryPlace } from '../data/registry.js';
 import RegistryPlaceSheet from './RegistryPlaceSheet';
 import ShowTheDriver from './ShowTheDriver';
 import { tipsFor } from '../data/journey';

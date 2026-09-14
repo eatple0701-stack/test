@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { restaurants } from './data/restaurants';
 import { menuById } from './domain/catalog/menus.js';
 import { menuIdOfDish } from './domain/catalog/dishGroups.js';
-import { loadRegistryPlaces, servesGroup, isRegistryPlace } from './data/seoulRegistry.js';
+import { loadRegistryPlaces, servesGroup, isRegistryPlace } from './data/registry.js';
 import { groupIdOfFilter, VISITED_FILTER } from './domain/policy/mapLegend.js';
 import { matchesPlaceQuery } from './domain/policy/placeSearch.js';
 import MapOverlay from './components/MapOverlay';

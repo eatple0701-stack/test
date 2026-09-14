@@ -27,7 +27,7 @@
 
 import { restaurants } from '../src/data/restaurants.js';
 import { isQuarantined } from '../src/data/verification.js';
-import { isRegistryPlace } from '../src/data/seoulRegistry.js';
+import { isRegistryPlace } from '../src/data/registry.js';
 import { groupsOf } from '../src/domain/catalog/dishGroups.js';
 import { site, page, beginHtml, FALLBACK } from './_og.js';
 

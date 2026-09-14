@@ -62,3 +62,10 @@ dist-ssr
 # a few minutes and are deleted. Ignored so one that outlives its session is
 # never committed for the next person to puzzle over.
 tmp-*
+
+# 인천관광공사 원본 다운로드 (data.go.kr 15109871 / 15109874 / 15109889)
+#
+# The Incheon half of the same story: 91MB of CSV and a 27MB workbook, inputs
+# to scripts/ rather than part of the app. What ships is public/data/incheon/,
+# built from them.
+인천관광공사*/

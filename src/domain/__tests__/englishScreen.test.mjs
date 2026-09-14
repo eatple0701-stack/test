@@ -6,7 +6,7 @@ import path from 'node:path';
 import { localeText } from '../policy/locale.js';
 import { groupDigits } from '../../utils.js';
 import { restaurants } from '../../data/restaurants.js';
-import { displayName } from '../../data/seoulRegistry.js';
+import { displayName } from '../../data/registry.js';
 
 // A9 — what an English reader actually ends up looking at.
 //
@@ -248,7 +248,7 @@ test('every screen that names a register place asks displayName for it', () => {
 test('the English name is treated as reported, never as checked', () => {
   // It arrives through the same name+구 join the menus use, from a public
   // dataset nobody here has verified against the shopfront. Rule 1.
-  const registry = read('src/data/seoulRegistry.js');
+  const registry = read('src/data/registry.js');
   assert.match(registry, /export const displayName/);
   assert.match(registry, /reported/);
 });

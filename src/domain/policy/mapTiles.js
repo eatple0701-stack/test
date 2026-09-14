@@ -89,7 +89,7 @@ export const tilesFor = (locale) => (
 // `name:latin`, which is an OpenStreetMap ceiling that no OSM-derived
 // provider escapes. That last part matters less here than it would
 // elsewhere, because this app draws restaurant labels from its own data —
-// see displayName in data/seoulRegistry.js, and the 8,070 English names
+// see displayName in data/registry.js, and the 8,070 English names
 // behind it.
 //
 // ── Why it is still null ─────────────────────────────────────────────────

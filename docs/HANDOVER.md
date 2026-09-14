@@ -48,9 +48,10 @@ product must be cultural *exchange*, not a cost-splitting utility.
   Open a table / request a seat / join. Honest empty states per cause
   (a policy module decides *why* it is empty and only says what it checked).
 - **Places** — 20 curated places (hand-written stories, checked facts,
-  provenance on every field) + **8,118 register restaurants** (see §3).
-  Search, dietary/trait chips, six group chips.
-- **Map** — all of Seoul at once, dots tinted by dish group, legend above,
+  provenance on every field) + **10,972 register restaurants** — 8,118 from
+  Seoul's register and 2,854 from Incheon's (see §3). Search, dietary/trait
+  chips, six group chips.
+- **Map** — Seoul and Incheon at once, dots tinted by dish group, legend above,
   foldable list below. Dot → card → Details → register place page →
   "Open a table here" with the dish preselected.
 - **Dish card deck** — per-dish sliding cards: what it is, what's in it
@@ -66,17 +67,18 @@ product must be cultural *exchange*, not a cost-splitting utility.
   A parser-based audit (`node scripts/audit-i18n.mjs`) fails on any
   untranslated user-visible string — keep it at 0.
 
-### The Seoul register pipeline (biggest August work)
-See §3. 167,659 restaurants → 8,118 that actually serve the 24 dishes,
+### The register pipeline (biggest August work; Incheon added 2026-09-14)
+See §3. Seoul: 167,659 restaurants → 8,118 that actually serve the 24 dishes,
 each with menu (4 languages), register prices, photos where the register
-took them, all keyed to the six groups.
+took them, all keyed to the six groups. Incheon: 34,177 → 2,854, on the same
+dish rules (`scripts/lib/dishes.mjs`, shared by both builds).
 
 ### Numbers
 | | |
 |---|---|
-| Automated tests | **1122, all passing** (`npm test`) |
+| Automated tests | **1135, all passing** (`npm test`) |
 | i18n audit | 0 untranslated strings |
-| Register places shipped | 8,118 of 167,659 |
+| Register places shipped | 10,972 — Seoul 8,118 of 167,659, Incheon 2,854 of 34,177 |
 | Menu lines shipped | 199,574 (ko/en/ja/zh), 94,515 with register prices |
 | Languages | 7 |
 
@@ -95,14 +97,31 @@ data.go.kr 15097605 (서울관광재단 음식관광 DB)
 ├─ bulk download "다국어메뉴 설명정보" (CSVs, gitignored 서울관광재단*/ dirs)
 │   └─ 873,117 menu lines × 4 languages, keyed by 메뉴(ID)
 │
-├─ scripts/dish-match.mjs        which restaurants serve the 24 dishes
+├─ scripts/lib/dishes.mjs        the 24 dishes and how a menu line is read
+├─ scripts/dish-match.mjs        which Seoul restaurants serve them
 ├─ scripts/build-seoul-places.mjs → public/data/seoul/<district>.json ×25
 └─ scripts/build-seoul-menus.mjs  → public/data/seoul/menus/<district>.json
+
+data.go.kr 15109871 · 15109874 · 15109889 (인천관광공사 맛집)
+│
+├─ file downloads only (인천관광공사*/ dirs, gitignored — 91MB)
+│   ├─ 식당기본정보(다국어)  34,177 restaurants, coordinates, 업태, 5 languages
+│   ├─ 식당메뉴정보(다국어)  122,508 menu lines with prices (xlsx → CSV)
+│   └─ 식당운영정보          hours, closing days, multilingual-menu flag (CP949)
+│
+└─ scripts/build-incheon-places.mjs → public/data/incheon/<district>.json ×10
 ```
 
+The Incheon OPEN API (incheon.openapi.redtable.global, same vendor as
+Seoul's) answers `DB_ERROR` on every endpoint for a registered key — checked
+2026-09-14, and an invented key gets `SERVICE_KEY_IS_NOT_REGISTERED` from the
+same endpoint, so it is their service and not the key. The files hold the
+same data; if the API comes back, `INCHEON_FOOD_API_KEY` belongs in
+`.env.scripts.local`.
+
 Run order after changing anything: `dish-match` → `build-seoul-places` →
-`build-seoul-menus`, then `npm test` (tests pin the shipped artefacts to
-each other).
+`build-seoul-menus` → `build-incheon-places`, then `npm test` (tests pin the
+shipped artefacts to each other).
 
 **Traps that cost real time — do not rediscover these:**
 1. **Two unrelated id spaces.** The CSV download's 식당(ID) and the API's
@@ -142,9 +161,11 @@ added after a real incident — do not delete them to make a feature fit.
 5. **Quiz/story content must cite a source someone actually read**
    (`src/content/sources.js`) — unsourced entries are filtered out at
    runtime.
-6. **Two-tier place model.** `isRegistryPlace()` (`seoul-` id prefix)
-   separates the 20 curated places from the 8,118 register rows
-   *structurally*; screens must branch on it, not on hope.
+6. **Two-tier place model.** `isRegistryPlace()` (`seoul-` / `incheon-` id
+   prefix) separates the 20 curated places from the 10,972 register rows
+   *structurally*; screens must branch on it, not on hope. The city is in the
+   prefix because the two registers number restaurants separately — 22482 is
+   a real, different place in each.
 
 Working discipline (learned the hard way, ask 강민 about "눌리지도 않고
 이게 뭐냐"):
@@ -392,7 +413,7 @@ the file alone changes nothing that is already running.
 ## 8. Commands
 
 ```bash
-npm test                      # 1122 tests — must stay green
+npm test                      # 1135 tests — must stay green
 node scripts/audit-i18n.mjs   # must print 0
 npm run dev                   # port 5177 (see .claude/launch.json)
 npm run build                 # artefacts in dist/, data included

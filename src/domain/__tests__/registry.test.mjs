@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { placeFromRegistry, isRegistryPlace, REGISTRY_PREFIX , servesGroup } from '../../data/seoulRegistry.js';
+import { placeFromRegistry, isRegistryPlace, isRegistryId, servesGroup } from '../../data/registry.js';
 import { restaurants } from '../../data/restaurants.js';
 
 // 167,659 places from a public register, sitting in the same list as twenty
@@ -25,7 +25,7 @@ test('a register row is never mistaken for a curated place', () => {
   for (const p of sample) assert.equal(isRegistryPlace(p), true);
   for (const r of restaurants) {
     assert.equal(isRegistryPlace(r), false, `${r.id} is one of the twenty and must not read as registry`);
-    assert.equal(r.id.startsWith(REGISTRY_PREFIX), false);
+    assert.equal(isRegistryId(r.id), false);
   }
 });
 

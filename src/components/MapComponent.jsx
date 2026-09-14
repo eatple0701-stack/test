@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import L from 'leaflet';
 import { MAP_CENTER, coordsOf, kakaoMapUrl } from '../utils';
 import { loadAllPlaces, placesInView, placesMatching, asPlace } from '../data/nearbyPlaces.js';
-import { isRegistryPlace, placeFromRegistry, displayName } from '../data/seoulRegistry.js';
+import { isRegistryPlace, placeFromRegistry, displayName } from '../data/registry.js';
 import { DISH_KO, groupsOf, primaryGroup } from '../domain/catalog/dishGroups.js';
 import { dotGroup, VISITED } from '../domain/policy/mapLegend.js';
 import { useText, useLocale } from './localeText.js';

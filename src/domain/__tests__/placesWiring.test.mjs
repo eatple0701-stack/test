@@ -219,11 +219,15 @@ test('no distance is printed where there is no reference point', () => {
 // ── A7 · the two numbers, said together ──────────────────────────────────
 
 test('REGISTRY_TOTAL matches what the map will actually load', () => {
-  const index = JSON.parse(src('public/data/seoul/index.json'));
-  const summed = index.districts.reduce((n, d) => n + d.count, 0);
+  // Both registers, named rather than read from a list: a city whose files
+  // stopped being built would otherwise drop out of the sum and out of this
+  // check at the same moment, and the number would go on looking right.
+  const summed = ['seoul', 'incheon']
+    .map(city => JSON.parse(src(`public/data/${city}/index.json`)))
+    .reduce((n, index) => n + index.districts.reduce((m, d) => m + d.count, 0), 0);
   assert.equal(
     REGISTRY_TOTAL, summed,
-    'REGISTRY_TOTAL has drifted from public/data/seoul/index.json — rebuild or correct it',
+    'REGISTRY_TOTAL has drifted from the two index.json files — rebuild or correct it',
   );
 });
 
