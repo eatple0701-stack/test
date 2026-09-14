@@ -76,10 +76,10 @@ dish rules (`scripts/lib/dishes.mjs`, shared by both builds).
 ### Numbers
 | | |
 |---|---|
-| Automated tests | **1135, all passing** (`npm test`) |
+| Automated tests | **1136, all passing** (`npm test`) |
 | i18n audit | 0 untranslated strings |
 | Register places shipped | 10,972 — Seoul 8,118 of 167,659, Incheon 2,854 of 34,177 |
-| Menu lines shipped | 199,574 (ko/en/ja/zh), 94,515 with register prices |
+| Menu lines shipped | Seoul 199,574 (ko/en/ja/zh), 94,515 priced · Incheon 68,250, 67,483 priced |
 | Languages | 7 |
 
 ## 3. The data pipeline (read before touching `scripts/`)
@@ -109,7 +109,9 @@ data.go.kr 15109871 · 15109874 · 15109889 (인천관광공사 맛집)
 │   ├─ 식당메뉴정보(다국어)  122,508 menu lines with prices (xlsx → CSV)
 │   └─ 식당운영정보          hours, closing days, multilingual-menu flag (CP949)
 │
-└─ scripts/build-incheon-places.mjs → public/data/incheon/<district>.json ×10
+├─ scripts/xlsx-to-csv.mjs          a sheet out of the workbook, no Excel
+├─ scripts/build-incheon-places.mjs → public/data/incheon/<district>.json ×10
+└─ scripts/build-incheon-menus.mjs  → public/data/incheon/menus/<district>.json
 ```
 
 The Incheon OPEN API (incheon.openapi.redtable.global, same vendor as
@@ -120,8 +122,8 @@ same data; if the API comes back, `INCHEON_FOOD_API_KEY` belongs in
 `.env.scripts.local`.
 
 Run order after changing anything: `dish-match` → `build-seoul-places` →
-`build-seoul-menus` → `build-incheon-places`, then `npm test` (tests pin the
-shipped artefacts to each other).
+`build-seoul-menus` → `build-incheon-places` → `build-incheon-menus`, then
+`npm test` (tests pin the shipped artefacts to each other).
 
 **Traps that cost real time — do not rediscover these:**
 1. **Two unrelated id spaces.** The CSV download's 식당(ID) and the API's
@@ -413,7 +415,7 @@ the file alone changes nothing that is already running.
 ## 8. Commands
 
 ```bash
-npm test                      # 1135 tests — must stay green
+npm test                      # 1136 tests — must stay green
 node scripts/audit-i18n.mjs   # must print 0
 npm run dev                   # port 5177 (see .claude/launch.json)
 npm run build                 # artefacts in dist/, data included
